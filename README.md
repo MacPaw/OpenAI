@@ -272,6 +272,7 @@ print(similarity) //0.9510201910206734
 - [OpenAI Playground](https://beta.openai.com/playground)
 - [OpenAI Examples](https://beta.openai.com/examples)
 - [Dall-E](https://labs.openai.com/)
+- [Cosine Similarity](https://en.wikipedia.org/wiki/Cosine_similarity)
 
 ## License
 
