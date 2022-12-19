@@ -7,14 +7,14 @@
 
 import Foundation
 
-final class OpenAI {
+final public class OpenAI {
 
-    enum OpenAIError: Error {
+    public enum OpenAIError: Error {
         case invalidURL
         case emptyData
     }
 
-    enum Model: String, Codable {
+    public enum Model: String, Codable {
         case textDavinci_003 = "text-davinci-003"
         case textDavinci_002 = "text-davinci-002"
         case textDavinci_001 = "text-davinci-001"
@@ -23,7 +23,7 @@ final class OpenAI {
         case ada = "text-ada-001"
     }
 
-    struct Query: Codable {
+    public struct Query: Codable {
         let model: Model
         let prompt: String
         let temperature: Int
@@ -34,7 +34,7 @@ final class OpenAI {
         let stop: [String]
     }
 
-    struct Completion: Codable {
+    public struct Completion: Codable {
         struct Choice: Codable {
             let text: String
             let index: Int
@@ -50,11 +50,11 @@ final class OpenAI {
     private let apiToken: String
     private let session = URLSession.shared
 
-    init(apiToken: String) {
+    public init(apiToken: String) {
         self.apiToken = apiToken
     }
 
-    func fetchCompletion(query: Query, completion: @escaping (Result<Completion, Error>) -> Void) {
+    public func fetchCompletion(query: Query, completion: @escaping (Result<Completion, Error>) -> Void) {
         do {
             let request = try makeRequest(query: query)
             let task = session.dataTask(with: request) { data, _, error in
