@@ -1,2 +1,3 @@
 # OpenAI
-Swift implementation for OpenAI API
+
+A description of this package.
