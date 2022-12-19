@@ -114,18 +114,6 @@ public extension OpenAI {
 }
 
 private extension OpenAI {
-
-    func makeRequest(query: Codable, url: URL) throws -> URLRequest {
-        var request = URLRequest(url: url)
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(apiToken)", forHTTPHeaderField: "Authorization")
-        request.httpMethod = "POST"
-        request.httpBody = try JSONEncoder().encode(query)
-        return request
-    }
-}
-
-private extension OpenAI {
     
     func performRequest<ResultType: Codable>(request: Request<ResultType>, completion: @escaping (Result<ResultType, Error>) -> Void) {
         do {
@@ -151,6 +139,15 @@ private extension OpenAI {
             completion(.failure(error))
             return
         }
+    }
+    
+    func makeRequest(query: Codable, url: URL) throws -> URLRequest {
+        var request = URLRequest(url: url)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(apiToken)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "POST"
+        request.httpBody = try JSONEncoder().encode(query)
+        return request
     }
 }
 
