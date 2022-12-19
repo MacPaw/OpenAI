@@ -229,6 +229,42 @@ openAI.embeddings(query: .init(model: .textSearchBabbadgeDoc, input: "The food w
 
 Review [Embeddings Documentation](https://beta.openai.com/docs/api-reference/embeddings) for more info.
 
+### Utilities
+
+The component comes with with several utilities to work with vectors
+
+```swift
+public struct Vector {
+    
+    /// Returns the similarity between two vectors
+    ///
+    /// - Parameters:
+    ///     - a: The first vector
+    ///     - b: The second vector
+    public static func cosineSimilarity(a: [Double], b: [Double]) -> Double {
+        return dot(a, b) / (mag(a) * mag(b))
+    }
+
+    /// Returns the difference between two vectors. Cosine distance is defined as `1 - cosineSimilarity(a, b)`
+    ///
+    /// - Parameters:
+    ///     - a: The first vector
+    ///     - b: The second vector
+    public func cosineDifference(a: [Double], b: [Double]) -> Double {
+        return 1 - Self.cosineSimilarity(a: a, b: b)
+    }
+}
+```
+
+**Example**
+
+```swift
+let vector1 = [0.213123, 0.3214124, 0.421412, 0.3214521251, 0.412412, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.4214214, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251]
+let vector2 = [0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.511515, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3213213]
+let similarity = Vector.cosineSimilarity(a: vector1, b: vector2)
+print(similarity) //0.9510201910206734
+```
+
 ## Links
 
 - [OpenAI Documentation](https://beta.openai.com/docs/introduction)
