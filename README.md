@@ -16,7 +16,7 @@ The Swift Package Manager is a tool for automating the distribution of Swift cod
 Once you have your Swift package set up, adding Alamofire as a dependency is as easy as adding it to the dependencies value of your Package.swift.
 
 dependencies: [
-    .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.6.1"))
+    .package(url: "https://github.com/MacPaw/OpenAI.git", .upToNextMajor(from: "0.0.1"))
 ]
 
 ## Usage
