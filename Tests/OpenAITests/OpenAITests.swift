@@ -7,7 +7,7 @@ final class OpenAITests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        self.openAI = OpenAI(apiToken: "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")
+        self.openAI = OpenAI(apiToken: "YOUR_TOKEN_HERE")
     }
     
     func testCompletions() {
