@@ -232,7 +232,7 @@ Review [Embeddings Documentation](https://beta.openai.com/docs/api-reference/emb
 
 ### Utilities
 
-The component comes with with several utilities to work with vectors
+The component comes with several handy utility functions to work with the vectors.
 
 ```swift
 public struct Vector {
