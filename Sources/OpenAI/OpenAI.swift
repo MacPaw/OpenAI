@@ -14,16 +14,18 @@ final public class OpenAI {
         case emptyData
     }
 
-    public enum Model: String, Codable {
-        case textDavinci_003 = "text-davinci-003"
-        case textDavinci_002 = "text-davinci-002"
-        case textDavinci_001 = "text-davinci-001"
-        case curie = "text-curie-001"
-        case babbage = "text-babbage-001"
-        case ada = "text-ada-001"
-    }
+    private let apiToken: String
+    private let session = URLSession.shared
 
-    public struct Query: Codable {
+    public init(apiToken: String) {
+        self.apiToken = apiToken
+    }
+}
+
+///MARK: - Completions
+public extension OpenAI {
+    
+    struct CompletionsQuery: Codable {
         let model: Model
         let prompt: String
         let temperature: Int
@@ -33,8 +35,8 @@ final public class OpenAI {
         let presence_penalty: Int
         let stop: [String]
     }
-
-    public struct Completion: Codable {
+    
+    struct CompletionsResult: Codable {
         struct Choice: Codable {
             let text: String
             let index: Int
@@ -47,16 +49,79 @@ final public class OpenAI {
         let choices: [Choice]
     }
 
-    private let apiToken: String
-    private let session = URLSession.shared
-
-    public init(apiToken: String) {
-        self.apiToken = apiToken
+    func completions(query: CompletionsQuery, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
+        performRequest(request: Request<CompletionsResult>(body: query, url: .completions), completion: completion)
     }
+}
 
-    public func fetchCompletion(query: Query, completion: @escaping (Result<Completion, Error>) -> Void) {
+///MARK: - Images
+public extension OpenAI {
+    
+    struct ImagesQuery: Codable {
+        /// A text description of the desired image(s). The maximum length is 1000 characters.
+        let prompt: String
+        /// The number of images to generate. Must be between 1 and 10.
+        let n: Int?
+        /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
+        let size: String?
+    }
+    
+    struct ImagesResult: Codable {
+        struct URLResult: Codable {
+            let url: String
+        }
+        let created: TimeInterval
+        let data: [URLResult]
+    }
+    
+    func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
+        performRequest(request: Request<ImagesResult>(body: query, url: .images), completion: completion)
+    }
+}
+
+///MARK: - Embeddings
+public extension OpenAI {
+    
+    struct EmbeddingsQuery: Codable {
+        /// ID of the model to use.
+        let model: Model
+        /// Input text to get embeddings for
+        let input: String
+    }
+    
+    struct EmbeddingsResult: Codable {
+        
+        struct Embedding: Codable {
+            
+            let object: String
+            let embedding: [Double]
+            let index: Int
+        }
+        let data: [Embedding]
+    }
+    
+    func embeddings(query: EmbeddingsQuery, completion: @escaping (Result<EmbeddingsResult, Error>) -> Void) {
+        performRequest(request: Request<EmbeddingsResult>(body: query, url: .embeddings), completion: completion)
+    }
+}
+
+private extension OpenAI {
+
+    func makeRequest(query: Codable, url: URL) throws -> URLRequest {
+        var request = URLRequest(url: url)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(apiToken)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "POST"
+        request.httpBody = try JSONEncoder().encode(query)
+        return request
+    }
+}
+
+private extension OpenAI {
+    
+    func performRequest<ResultType: Codable>(request: Request<ResultType>, completion: @escaping (Result<ResultType, Error>) -> Void) {
         do {
-            let request = try makeRequest(query: query)
+            let request = try makeRequest(query: request.body, url: request.url)
             let task = session.dataTask(with: request) { data, _, error in
                 if let error = error {
                     completion(.failure(error))
@@ -67,7 +132,7 @@ final public class OpenAI {
                     return
                 }
                 do {
-                    let decoded = try JSONDecoder().decode(Completion.self, from: data)
+                    let decoded = try JSONDecoder().decode(ResultType.self, from: data)
                     completion(.success(decoded))
                 } catch {
                     completion(.failure(error))
@@ -81,17 +146,9 @@ final public class OpenAI {
     }
 }
 
-private extension OpenAI {
-
-    func makeRequest(query: Query) throws -> URLRequest {
-        guard let url = URL(string: "https://api.openai.com/v1/completions") else {
-            throw OpenAIError.invalidURL
-        }
-        var request = URLRequest(url: url)
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(apiToken)", forHTTPHeaderField: "Authorization")
-        request.httpMethod = "POST"
-        request.httpBody = try JSONEncoder().encode(query)
-        return request
-    }
+private extension URL {
+    
+    static let completions = URL(string: "https://api.openai.com/v1/completions")!
+    static let images = URL(string: "https://api.openai.com/v1/images/generations")!
+    static let embeddings = URL(string: "https://api.openai.com/v1/embeddings")!
 }
