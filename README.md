@@ -11,6 +11,7 @@ This repositorty contains Swift implementation over [OpenAI](https://beta.openai
     - [Completions](#completions)
     - [Images](#images)
     - [Embeddings](#embeddings)
+    - [Utilities](#utilities)
 - [Links](#links)
 - [License](#license)
 
