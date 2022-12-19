@@ -265,6 +265,11 @@ let vector2 = [0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124
 let similarity = Vector.cosineSimilarity(a: vector1, b: vector2)
 print(similarity) //0.9510201910206734
 ```
+>In data analysis, cosine similarity is a measure of similarity between two sequences of numbers.
+
+<img width="574" alt="Screenshot 2022-12-19 at 6 00 33 PM" src="https://user-images.githubusercontent.com/1411778/208467903-000b52d8-6589-40dd-b020-eeed69e8d284.png">
+
+Read more about Cosine Similarity [here](https://en.wikipedia.org/wiki/Cosine_similarity).
 
 ## Links
 
