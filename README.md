@@ -2,4 +2,214 @@
 
 ![log1](https://user-images.githubusercontent.com/1411778/208424335-9c1b0c31-2694-4e53-845c-46d50f26ee9a.png)
 
-This repositorty contains Swift implementation over [OpenAI](https://beta.openai.com/docs/api-reference/) public API
+This repositorty contains Swift implementation over [OpenAI](https://beta.openai.com/docs/api-reference/) public API.
+
+## What is OpenAI
+
+OpenAI is a non-profit artificial intelligence research organization founded in San Francisco, California in 2015. It was created with the purpose of advancing digital intelligence in ways that benefit humanity as a whole and promote societal progress. The organization strives to develop AI (Artificial Intelligence) programs and systems that can think, act and adapt quickly on their own – autonomously. OpenAI's mission is to ensure safe and responsible use of AI for civic good, economic growth and other public benefits; this includes cutting-edge research into important topics such as general AI safety, natural language processing, applied reinforcement learning methods, machine vision algorithms etc. 
+
+>The OpenAI API can be applied to virtually any task that involves understanding or generating natural language or code. We offer a spectrum of models with different levels of power suitable for different tasks, as well as the ability to fine-tune your own custom models. These models can be used for everything from content generation to semantic search and classification.
+
+## Installation
+
+The Swift Package Manager is a tool for automating the distribution of Swift code and is integrated into the swift compiler.
+Once you have your Swift package set up, adding Alamofire as a dependency is as easy as adding it to the dependencies value of your Package.swift.
+
+dependencies: [
+    .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.6.1"))
+]
+
+## Usage
+
+### Initialization
+
+To initialize API instance you need to [obtain](https://beta.openai.com/account/api-keys) API token from your Open AI organization. 
+
+<img width="1081" alt="Screenshot 2022-12-19 at 2 23 45 PM" src="https://user-images.githubusercontent.com/1411778/208425483-9dd02a1c-d3ab-4efd-bf44-736e5bcb89c0.png">
+
+Once you have a token, you can initialize `OpenAI` class, which is an entry point to the API. 
+
+```swift
+let openAI = OpenAI(apiToken: "YOUR_TOKEN_HERE")
+```
+
+Once token you posses the token, and the instance is initialized you are ready to make requests. 
+
+### Completions
+
+Given a prompt, the model will return one or more predicted completions, and can also return the probabilities of alternative tokens at each position.
+
+**Request**
+
+```swift
+    struct CompletionsQuery: Codable {
+        /// ID of the model to use.
+        let model: Model
+        /// The prompt(s) to generate completions for, encoded as a string, array of strings, array of tokens, or array of token arrays.
+        let prompt: String
+        /// What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
+        let temperature: Int
+        /// The maximum number of tokens to generate in the completion.
+        let max_tokens: Int
+        /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
+        let top_p: Int
+        /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
+        let frequency_penalty: Int
+        /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
+        let presence_penalty: Int
+        /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
+        let stop: [String]
+    }
+```
+
+**Response**
+
+```swift
+struct CompletionsResult: Codable {
+    struct Choice: Codable {
+        let text: String
+        let index: Int
+    }
+
+    let id: String
+    let object: String
+    let created: TimeInterval
+    let model: Model
+    let choices: [Choice]
+}
+```
+**Example**
+
+```swift
+openAI.completions(query: .init(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, max_tokens: 100, top_p: 1, frequency_penalty: 0, presence_penalty: 0, stop: ["\\n"])) { result in
+  //Handle response here
+}
+```
+
+```
+(lldb) po result
+▿ CompletionsResult
+  - id : "cmpl-6P9be2p2fQlwB7zTOl0NxCOetGmX3"
+  - object : "text_completion"
+  - created : 1671453146.0
+  - model : OpenAI.Model.textDavinci_003
+  ▿ choices : 1 element
+    ▿ 0 : Choice
+      - text : "\n\n42 is the answer to the ultimate question of life, the universe, and everything, according to the book The Hitchhiker\'s Guide to the Galaxy."
+      - index : 0
+```
+
+Review [Completions Documentation](https://beta.openai.com/docs/api-reference/completions) for more info.
+
+### Images
+
+Given a prompt and/or an input image, the model will generate a new image.
+
+**Request**
+
+```swift
+struct ImagesQuery: Codable {
+    /// A text description of the desired image(s). The maximum length is 1000 characters.
+    let prompt: String
+    /// The number of images to generate. Must be between 1 and 10.
+    let n: Int?
+    /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
+    let size: String?
+}
+```
+
+**Response**
+
+```swift
+struct ImagesResult: Codable {
+    struct URLResult: Codable {
+        let url: String
+    }
+    let created: TimeInterval
+    let data: [URLResult]
+}
+```
+**Example**
+
+```swift
+openAI.images(query: .init(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: "1024x1024")) { result in
+  //Handle response here
+}
+```
+
+```
+(lldb) po result
+▿ ImagesResult
+  - created : 1671453505.0
+  ▿ data : 1 element
+    ▿ 0 : URLResult
+      - url : "https://oaidalleapiprodscus.blob.core.windows.net/private/org-CWjU5cDIzgCcVjq10pp5yX5Q/user-GoBXgChvLBqLHdBiMJBUbPqF/img-WZVUK2dOD4HKbKwW1NeMJHBd.png?st=2022-12-19T11%3A38%3A25Z&se=2022-12-19T13%3A38%3A25Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2022-12-19T09%3A35%3A16Z&ske=2022-12-20T09%3A35%3A16Z&sks=b&skv=2021-08-06&sig=mh52rmtbQ8CXArv5bMaU6lhgZHFBZz/ePr4y%2BJwLKOc%3D"
+ ```
+ 
+**Generated image**
+
+![Generated Image](https://oaidalleapiprodscus.blob.core.windows.net/private/org-CWjU5cDIzgCcVjq10pp5yX5Q/user-GoBXgChvLBqLHdBiMJBUbPqF/img-SISytAjxPL7e0Aj1pKsR6ac0.png?st=2022-12-19T10%3A54%3A17Z&se=2022-12-19T12%3A54%3A17Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2022-12-19T09%3A33%3A16Z&ske=2022-12-20T09%3A33%3A16Z&sks=b&skv=2021-08-06&sig=TUObKesPaf/aM2hhIlAYg0YA0tRf1PkKXmHOXZWVT9Q%3D
+)
+
+Review [Images Documentation](https://beta.openai.com/docs/api-reference/images) for more info.
+
+### Embeddings
+
+Get a vector representation of a given input that can be easily consumed by machine learning models and algorithms.
+
+**Request**
+
+```swift
+struct EmbeddingsQuery: Codable {
+    /// ID of the model to use.
+    let model: Model
+    /// Input text to get embeddings for
+    let input: String
+}
+```
+
+**Response**
+
+```swift
+struct EmbeddingsResult: Codable {
+    
+    struct Embedding: Codable {
+        
+        let object: String
+        let embedding: [Double]
+        let index: Int
+    }
+    let data: [Embedding]
+}
+```
+
+**Example**
+
+```swift
+openAI.embeddings(query: .init(model: .textSearchBabbadgeDoc, input: "The food was delicious and the waiter...")) { result in
+  //Handle response here
+}
+```
+
+```
+(lldb) po result
+▿ EmbeddingsResult
+  ▿ data : 1 element
+    ▿ 0 : Embedding
+      - object : "embedding"
+      ▿ embedding : 2048 elements
+        - 0 : 0.0010535449
+        - 1 : 0.024234328
+        - 2 : -0.0084999
+        - 3 : 0.008647452
+    .......
+        - 2044 : 0.017536353
+        - 2045 : -0.005897616
+        - 2046 : -0.026559394
+        - 2047 : -0.016633155
+      - index : 0
+
+(lldb) 
+```
+
+Review [Embeddings Documentation](https://beta.openai.com/docs/api-reference/embeddings) for more info.
