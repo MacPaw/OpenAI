@@ -231,7 +231,6 @@ Review [Embeddings Documentation](https://beta.openai.com/docs/api-reference/emb
 ## License
 
 ```
-
 MIT License
 
 Copyright (c) 2022 MacPaw Inc.
@@ -253,5 +252,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-Review [Embeddings Documentation](https://beta.openai.com/docs/api-reference/embeddings) for more info.
+```
