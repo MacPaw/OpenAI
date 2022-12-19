@@ -1,6 +1,6 @@
 # OpenAI
 
-![log1](https://user-images.githubusercontent.com/1411778/208424335-9c1b0c31-2694-4e53-845c-46d50f26ee9a.png)
+![logoo2](https://user-images.githubusercontent.com/1411778/208467048-8b9c53f9-42aa-421e-bf6f-2b0f6e7b8a9d.png)
 
 This repositorty contains Swift implementation over [OpenAI](https://beta.openai.com/docs/api-reference/) public API.
 
