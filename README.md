@@ -228,6 +228,13 @@ openAI.embeddings(query: .init(model: .textSearchBabbadgeDoc, input: "The food w
 
 Review [Embeddings Documentation](https://beta.openai.com/docs/api-reference/embeddings) for more info.
 
+## Links
+
+- [OpenAI Documentation](https://beta.openai.com/docs/introduction)
+- [OpenAI Playground](https://beta.openai.com/playground)
+- [OpenAI Examples](https://beta.openai.com/examples)
+- [Dall-E](https://labs.openai.com/)
+
 ## License
 
 ```
