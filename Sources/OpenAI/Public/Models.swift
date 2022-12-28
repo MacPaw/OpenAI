@@ -14,6 +14,7 @@ public enum Model: String, Codable {
     case curie = "text-curie-001"
     case babbage = "text-babbage-001"
     case textSearchBabbadgeDoc = "text-search-babbage-doc-001"
+    case textSearchBabbageQuery001 = "text-search-babbage-query-001"
     case ada = "text-ada-001"
     case textEmbeddingAda = "text-embedding-ada-002"
 }
