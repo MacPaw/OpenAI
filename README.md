@@ -1,6 +1,7 @@
 # OpenAI
 
 ![logoo2](https://user-images.githubusercontent.com/1411778/208467048-8b9c53f9-42aa-421e-bf6f-2b0f6e7b8a9d.png)
+![Swift Workflow](https://github.com/MacPaw/OpenAI/actions/workflows/swift.yml/badge.svg)
 
 This repositorty contains Swift implementation over [OpenAI](https://beta.openai.com/docs/api-reference/) public API.
 
