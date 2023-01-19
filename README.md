@@ -6,6 +6,7 @@ ___
 
 ![Swift Workflow](https://github.com/MacPaw/OpenAI/actions/workflows/swift.yml/badge.svg)
 ![Platforms Badge](https://img.shields.io/static/v1?label=Platforms&message=iOS,%20macOS,%20tvOS&color=3876D3)
+[![Twitter](https://img.shields.io/static/v1?label=Twitter&message=@MacPaw&color=CA1F67)](https://twitter.com/MacPaw)
 
 This repositorty contains Swift implementation over [OpenAI](https://beta.openai.com/docs/api-reference/) public API.
 
