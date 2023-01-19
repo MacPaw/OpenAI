@@ -1,6 +1,9 @@
 # OpenAI
 
 ![logoo2](https://user-images.githubusercontent.com/1411778/208467048-8b9c53f9-42aa-421e-bf6f-2b0f6e7b8a9d.png)
+
+___
+
 ![Swift Workflow](https://github.com/MacPaw/OpenAI/actions/workflows/swift.yml/badge.svg)
 ![Platforms Badge](https://img.shields.io/static/v1?label=Platforms&message=iOS,%20macOS,%20tvOS&color=3876D3)
 
