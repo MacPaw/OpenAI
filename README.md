@@ -78,7 +78,7 @@ Given a prompt, the model will return one or more predicted completions, and can
         /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
         let presence_penalty: Double
         /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
-        let stop: [String]
+        let stop: [String]?
     }
 ```
 
@@ -87,8 +87,8 @@ Given a prompt, the model will return one or more predicted completions, and can
 ```swift
 struct CompletionsResult: Codable {
     struct Choice: Codable {
-        let text: String
-        let index: Int
+        public let text: String
+        public let index: Int
     }
 
     let id: String
@@ -145,7 +145,7 @@ struct ImagesQuery: Codable {
 ```swift
 struct ImagesResult: Codable {
     struct URLResult: Codable {
-        let url: String
+        public let url: String
     }
     let created: TimeInterval
     let data: [URLResult]
@@ -196,9 +196,9 @@ struct EmbeddingsResult: Codable {
 
     struct Embedding: Codable {
 
-        let object: String
-        let embedding: [Double]
-        let index: Int
+        public let object: String
+        public let embedding: [Double]
+        public let index: Int
     }
     let data: [Embedding]
 }
