@@ -23,7 +23,7 @@ This repositorty contains Swift implementation over [OpenAI](https://beta.openai
 
 ## What is OpenAI
 
-OpenAI is a non-profit artificial intelligence research organization founded in San Francisco, California in 2015. It was created with the purpose of advancing digital intelligence in ways that benefit humanity as a whole and promote societal progress. The organization strives to develop AI (Artificial Intelligence) programs and systems that can think, act and adapt quickly on their own – autonomously. OpenAI's mission is to ensure safe and responsible use of AI for civic good, economic growth and other public benefits; this includes cutting-edge research into important topics such as general AI safety, natural language processing, applied reinforcement learning methods, machine vision algorithms etc. 
+OpenAI is a non-profit artificial intelligence research organization founded in San Francisco, California in 2015. It was created with the purpose of advancing digital intelligence in ways that benefit humanity as a whole and promote societal progress. The organization strives to develop AI (Artificial Intelligence) programs and systems that can think, act and adapt quickly on their own – autonomously. OpenAI's mission is to ensure safe and responsible use of AI for civic good, economic growth and other public benefits; this includes cutting-edge research into important topics such as general AI safety, natural language processing, applied reinforcement learning methods, machine vision algorithms etc.
 
 >The OpenAI API can be applied to virtually any task that involves understanding or generating natural language or code. We offer a spectrum of models with different levels of power suitable for different tasks, as well as the ability to fine-tune your own custom models. These models can be used for everything from content generation to semantic search and classification.
 
@@ -43,17 +43,17 @@ dependencies: [
 
 ### Initialization
 
-To initialize API instance you need to [obtain](https://beta.openai.com/account/api-keys) API token from your Open AI organization. 
+To initialize API instance you need to [obtain](https://beta.openai.com/account/api-keys) API token from your Open AI organization.
 
 <img width="1081" alt="company" src="https://user-images.githubusercontent.com/1411778/213204726-0772373e-14db-4d5d-9a58-bc249bac4c57.png">
 
-Once you have a token, you can initialize `OpenAI` class, which is an entry point to the API. 
+Once you have a token, you can initialize `OpenAI` class, which is an entry point to the API.
 
 ```swift
 let openAI = OpenAI(apiToken: "YOUR_TOKEN_HERE")
 ```
 
-Once token you posses the token, and the instance is initialized you are ready to make requests. 
+Once token you posses the token, and the instance is initialized you are ready to make requests.
 
 ### Completions
 
@@ -68,15 +68,15 @@ Given a prompt, the model will return one or more predicted completions, and can
         /// The prompt(s) to generate completions for, encoded as a string, array of strings, array of tokens, or array of token arrays.
         let prompt: String
         /// What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
-        let temperature: Int
+        let temperature: Double
         /// The maximum number of tokens to generate in the completion.
         let max_tokens: Int
         /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-        let top_p: Int
+        let top_p: Double
         /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-        let frequency_penalty: Int
+        let frequency_penalty: Double
         /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-        let presence_penalty: Int
+        let presence_penalty: Double
         /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
         let stop: [String]
     }
@@ -125,7 +125,7 @@ Review [Completions Documentation](https://beta.openai.com/docs/api-reference/co
 
 Given a prompt and/or an input image, the model will generate a new image.
 
-As Artificial Intelligence continues to develop, so too does the intriguing concept of Dall-E. Developed by OpenAI, a research lab for artificial intelligence purposes, Dall-E has been classified as an AI system that can generate images based on descriptions provided by humans. With its potential applications spanning from animation and illustration to design and engineering - not to mention the endless possibilities in between - it's easy to see why there is such excitement over this new technology. 
+As Artificial Intelligence continues to develop, so too does the intriguing concept of Dall-E. Developed by OpenAI, a research lab for artificial intelligence purposes, Dall-E has been classified as an AI system that can generate images based on descriptions provided by humans. With its potential applications spanning from animation and illustration to design and engineering - not to mention the endless possibilities in between - it's easy to see why there is such excitement over this new technology.
 
 **Request**
 
@@ -167,7 +167,7 @@ openAI.images(query: .init(prompt: "White cat with heterochromia sitting on the 
     ▿ 0 : URLResult
       - url : "https://oaidalleapiprodscus.blob.core.windows.net/private/org-CWjU5cDIzgCcVjq10pp5yX5Q/user-GoBXgChvLBqLHdBiMJBUbPqF/img-WZVUK2dOD4HKbKwW1NeMJHBd.png?st=2022-12-19T11%3A38%3A25Z&se=2022-12-19T13%3A38%3A25Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2022-12-19T09%3A35%3A16Z&ske=2022-12-20T09%3A35%3A16Z&sks=b&skv=2021-08-06&sig=mh52rmtbQ8CXArv5bMaU6lhgZHFBZz/ePr4y%2BJwLKOc%3D"
  ```
- 
+
 **Generated image**
 
 ![Generated Image](https://user-images.githubusercontent.com/1411778/213134082-ba988a72-fca0-4213-8805-63e5f8324cab.png)
@@ -193,9 +193,9 @@ struct EmbeddingsQuery: Codable {
 
 ```swift
 struct EmbeddingsResult: Codable {
-    
+
     struct Embedding: Codable {
-        
+
         let object: String
         let embedding: [Double]
         let index: Int
@@ -230,7 +230,7 @@ openAI.embeddings(query: .init(model: .textSearchBabbadgeDoc, input: "The food w
         - 2047 : -0.016633155
       - index : 0
 
-(lldb) 
+(lldb)
 ```
 
 Review [Embeddings Documentation](https://beta.openai.com/docs/api-reference/embeddings) for more info.
@@ -241,7 +241,7 @@ The component comes with several handy utility functions to work with the vector
 
 ```swift
 public struct Vector {
-    
+
     /// Returns the similarity between two vectors
     ///
     /// - Parameters:
