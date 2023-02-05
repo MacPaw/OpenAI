@@ -42,8 +42,10 @@ public extension OpenAI {
         public let presence_penalty: Double?
         /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
         public let stop: [String]?
-
-        public init(model: Model, prompt: String, temperature: Double? = nil, max_tokens: Int? = nil, top_p: Double? = nil, frequency_penalty: Double? = nil, presence_penalty: Double? = nil, stop: [String]? = nil) {
+        /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
+        public let user: String?
+        
+        public init(model: Model, prompt: String, temperature: Double? = nil, max_tokens: Int? = nil, top_p: Double? = nil, frequency_penalty: Double? = nil, presence_penalty: Double? = nil, stop: [String]? = nil, user: String? = nil) {
             self.model = model
             self.prompt = prompt
             self.temperature = temperature
@@ -52,6 +54,7 @@ public extension OpenAI {
             self.frequency_penalty = frequency_penalty
             self.presence_penalty = presence_penalty
             self.stop = stop
+            self.user = user
         }
     }
 
