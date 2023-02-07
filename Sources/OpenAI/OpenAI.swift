@@ -71,8 +71,8 @@ public extension OpenAI {
         public let choices: [Choice]
     }
 
-    func completions(query: CompletionsQuery, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
-        performRequest(request: Request<CompletionsResult>(body: query, url: .completions), completion: completion)
+    func completions(query: CompletionsQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
+        performRequest(request: Request<CompletionsResult>(body: query, url: .completions, timeoutInterval: timeoutInterval), completion: completion)
     }
 }
 
@@ -102,8 +102,8 @@ public extension OpenAI {
         public let data: [URLResult]
     }
 
-    func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
-        performRequest(request: Request<ImagesResult>(body: query, url: .images), completion: completion)
+    func images(query: ImagesQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
+        performRequest(request: Request<ImagesResult>(body: query, url: .images, timeoutInterval: timeoutInterval), completion: completion)
     }
 }
 
@@ -132,8 +132,8 @@ public extension OpenAI {
         public let data: [Embedding]
     }
 
-    func embeddings(query: EmbeddingsQuery, completion: @escaping (Result<EmbeddingsResult, Error>) -> Void) {
-        performRequest(request: Request<EmbeddingsResult>(body: query, url: .embeddings), completion: completion)
+    func embeddings(query: EmbeddingsQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<EmbeddingsResult, Error>) -> Void) {
+        performRequest(request: Request<EmbeddingsResult>(body: query, url: .embeddings, timeoutInterval: timeoutInterval), completion: completion)
     }
 }
 
@@ -141,7 +141,7 @@ internal extension OpenAI {
 
     func performRequest<ResultType: Codable>(request: Request<ResultType>, completion: @escaping (Result<ResultType, Error>) -> Void) {
         do {
-            let request = try makeRequest(query: request.body, url: request.url)
+            let request = try makeRequest(query: request.body, url: request.url, timeoutInterval: request.timeoutInterval)
             let task = session.dataTask(with: request) { data, _, error in
                 if let error = error {
                     completion(.failure(error))
@@ -165,8 +165,8 @@ internal extension OpenAI {
         }
     }
 
-    func makeRequest(query: Codable, url: URL) throws -> URLRequest {
-        var request = URLRequest(url: url)
+    func makeRequest(query: Codable, url: URL, timeoutInterval: TimeInterval) throws -> URLRequest {
+        var request = URLRequest(url: url, timeoutInterval: timeoutInterval)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(apiToken)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "POST"
