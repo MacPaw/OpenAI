@@ -70,7 +70,7 @@ final class OpenAITests: XCTestCase {
 
     func testMakeRequest_bodyContainsFractional() throws {
         let query = OpenAI.CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0.7, max_tokens: 100)
-        let request = try openAI.makeRequest(query: query, url: .completions)
+        let request = try openAI.makeRequest(query: query, url: .completions, timeoutInterval: 60.0)
         let json = try JSONSerialization.jsonObject(with: request.httpBody!, options: []) as! [String: Any]
         XCTAssertEqual(json["temperature"] as? Double, 0.7)
     }
