@@ -89,16 +89,16 @@ Given a prompt, the model will return one or more predicted completions, and can
 
 ```swift
 struct CompletionsResult: Codable {
-    struct Choice: Codable {
+    public struct Choice: Codable {
         public let text: String
         public let index: Int
     }
 
-    let id: String
-    let object: String
-    let created: TimeInterval
-    let model: Model
-    let choices: [Choice]
+    public let id: String
+    public let object: String
+    public let created: TimeInterval
+    public let model: Model
+    public let choices: [Choice]
 }
 ```
 **Example**
@@ -107,6 +107,10 @@ struct CompletionsResult: Codable {
 openAI.completions(query: .init(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, max_tokens: 100, top_p: 1, frequency_penalty: 0, presence_penalty: 0, stop: ["\\n"])) { result in
   //Handle response here
 }
+```
+```swift
+    let query = OpenAI.CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, max_tokens: 100, top_p: 1, frequency_penalty: 0, presence_penalty: 0, stop: ["\\n"])
+    let result = try await openAI.completions(query: query)
 ```
 
 ```
