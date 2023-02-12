@@ -106,7 +106,7 @@ struct CompletionsResult: Codable {
 ```swift
 let query = OpenAI.CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, max_tokens: 100, top_p: 1, frequency_penalty: 0, presence_penalty: 0, stop: ["\\n"])
 openAI.completions(query: query) { result in
-  //Handle response here
+  //Handle result here
 }
 //or
 let result = try await openAI.completions(query: query)
@@ -138,11 +138,11 @@ As Artificial Intelligence continues to develop, so too does the intriguing conc
 ```swift
 struct ImagesQuery: Codable {
     /// A text description of the desired image(s). The maximum length is 1000 characters.
-    let prompt: String
+    public let prompt: String
     /// The number of images to generate. Must be between 1 and 10.
-    let n: Int?
+    public let n: Int?
     /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
-    let size: String?
+    public let size: String?
 }
 ```
 
@@ -150,19 +150,22 @@ struct ImagesQuery: Codable {
 
 ```swift
 struct ImagesResult: Codable {
-    struct URLResult: Codable {
+    public struct URLResult: Codable {
         public let url: String
     }
-    let created: TimeInterval
-    let data: [URLResult]
+    public let created: TimeInterval
+    public let data: [URLResult]
 }
 ```
 **Example**
 
 ```swift
-openAI.images(query: .init(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: "1024x1024")) { result in
-  //Handle response here
+let query = OpenAI.ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: "1024x1024")
+openAI.images(query: query) { result in
+  //Handle result here
 }
+//or
+let result = try await openAI.images(query: query)
 ```
 
 ```
@@ -189,9 +192,9 @@ Get a vector representation of a given input that can be easily consumed by mach
 ```swift
 struct EmbeddingsQuery: Codable {
     /// ID of the model to use.
-    let model: Model
+    public let model: Model
     /// Input text to get embeddings for
-    let input: String
+    public let input: String
 }
 ```
 
@@ -200,22 +203,25 @@ struct EmbeddingsQuery: Codable {
 ```swift
 struct EmbeddingsResult: Codable {
 
-    struct Embedding: Codable {
+    public struct Embedding: Codable {
 
         public let object: String
         public let embedding: [Double]
         public let index: Int
     }
-    let data: [Embedding]
+    public  let data: [Embedding]
 }
 ```
 
 **Example**
 
 ```swift
-openAI.embeddings(query: .init(model: .textSearchBabbadgeDoc, input: "The food was delicious and the waiter...")) { result in
+let query = OpenAI.EmbeddingsQuery(model: .textSearchBabbadgeDoc, input: "The food was delicious and the waiter...")
+openAI.embeddings(query: query) { result in
   //Handle response here
 }
+//or
+let result = try await openAI.embeddings(query: query)
 ```
 
 ```
