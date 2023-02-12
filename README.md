@@ -1,6 +1,6 @@
 # OpenAI
 
-![logoo2](https://user-images.githubusercontent.com/1411778/208467048-8b9c53f9-42aa-421e-bf6f-2b0f6e7b8a9d.png)
+![logo](https://user-images.githubusercontent.com/1411778/218319355-f56b6bd4-961a-4d8f-82cd-6dbd43111d7f.png)
 
 ___
 
