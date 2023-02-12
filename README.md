@@ -301,7 +301,7 @@ Read more about Cosine Similarity [here](https://en.wikipedia.org/wiki/Cosine_si
 ```
 MIT License
 
-Copyright (c) 2022 MacPaw Inc.
+Copyright (c) 2023 MacPaw Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
