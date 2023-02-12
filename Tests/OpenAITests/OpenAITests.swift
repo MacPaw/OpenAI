@@ -13,19 +13,19 @@ final class OpenAITests: XCTestCase {
     func testCompletionsAsync() async throws {
         let query = OpenAI.CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, max_tokens: 100, top_p: 1, frequency_penalty: 0, presence_penalty: 0, stop: ["\\n"])
         let result = try await openAI.completions(query: query)
-        XCTAssertTrue(result.choices.isEmpty == false)
+        XCTAssertFalse(result.choices.isEmpty)
     }
     
     func testImages() async throws {
         let query = OpenAI.ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: "1024x1024")
         let result = try await openAI.images(query: query)
-        XCTAssertTrue(result.data.isEmpty == false)
+        XCTAssertFalse(result.data.isEmpty)
     }
 
     func testEmbeddings() async throws {
         let query = OpenAI.EmbeddingsQuery(model: .textSearchBabbadgeDoc, input: "The food was delicious and the waiter...")
         let result = try await openAI.embeddings(query: query)
-        XCTAssertTrue(result.data.isEmpty == false)
+        XCTAssertFalse(result.data.isEmpty)
     }
 
     func testSimilarity_Similar() {
