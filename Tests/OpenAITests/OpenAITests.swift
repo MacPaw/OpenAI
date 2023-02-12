@@ -1,6 +1,8 @@
 import XCTest
 @testable import OpenAI
 
+@available(iOS 13.0, *)
+@available(watchOS 6.0, *)
 final class OpenAITests: XCTestCase {
 
     var openAI: OpenAI!
