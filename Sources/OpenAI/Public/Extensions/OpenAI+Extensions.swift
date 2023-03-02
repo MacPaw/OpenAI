@@ -59,4 +59,21 @@ public extension OpenAI {
             }
         }
     }
+    
+    func chats(
+        query: ChatQuery,
+        timeoutInterval: TimeInterval = 60.0
+    ) async throws -> ChatResult {
+        try await withCheckedThrowingContinuation { continuation in
+            chats(query: query, timeoutInterval: timeoutInterval) { result in
+                switch result {
+                case let .success(success):
+                    return continuation.resume(returning: success)
+                case let .failure(failure):
+                    return continuation.resume(throwing: failure)
+                }
+            }
+        }
+    }
+
 }
