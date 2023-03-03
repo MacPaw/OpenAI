@@ -53,4 +53,10 @@ final class OpenAITests: XCTestCase {
         let json = try JSONSerialization.jsonObject(with: request.httpBody!, options: []) as! [String: Any]
         XCTAssertEqual(json["temperature"] as? Double, 0.7)
     }
+    
+    func testChatsAsync() async throws {
+        let query = OpenAI.ChatQuery(model: .gpt3_5Turbo, messages: [.init(role: "user", content: "who are you")], temperature: 1, top_p: 1, n: 1, stream: false, stop: nil, max_tokens: 100, presence_penalty: 0, frequency_penalty: 0, logit_bias: nil, user: nil)
+        let result = try await openAI.chats(query: query)
+        XCTAssertFalse(result.choices.isEmpty)
+    }
 }
