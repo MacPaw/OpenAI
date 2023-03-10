@@ -147,9 +147,19 @@ public extension OpenAI {
         public let role: String
         public let content: String
         
+        public enum Role: String {
+            case system
+            case assistant
+            case user
+        }
+        
         public init(role: String, content: String) {
             self.role = role
             self.content = content
+        }
+        
+        public init(role: Role, content: String) {
+            self.init(role: role.rawValue, content: content)
         }
     }
     
