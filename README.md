@@ -384,6 +384,8 @@ let result = try await openAI.chats(query: query)
 XCTAssertFalse(result.choices.isEmpty)
 ```
 
+You can also pass a custom string if you need to use some model, that is not represented above.
+
 ### Utilities
 
 The component comes with several handy utility functions to work with the vectors.
