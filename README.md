@@ -19,6 +19,7 @@ This repositorty contains Swift implementation over [OpenAI](https://beta.openai
     - [Chats](#chats)
     - [Images](#images)
     - [Embeddings](#embeddings)
+    - [Models](#models)
     - [Utilities](#utilities)
 - [Links](#links)
 - [License](#license)
@@ -372,7 +373,7 @@ public extension Model {
 
 GPT-4 models are supported. 
 
-For example, to use basic GPT-4 8K model pass .gpt4.
+For example to use basic GPT-4 8K model pass `.gpt4` as a paramter.
 
 ```swift
 let query = OpenAI.ChatQuery(model: .gpt4, messages: [
