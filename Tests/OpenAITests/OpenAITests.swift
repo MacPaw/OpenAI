@@ -55,7 +55,10 @@ final class OpenAITests: XCTestCase {
     }
     
     func testChatsAsync() async throws {
-        let query = OpenAI.ChatQuery(model: .gpt3_5Turbo, messages: [.init(role: "user", content: "who are you")], temperature: 1, top_p: 1, n: 1, stream: false, stop: nil, max_tokens: 100, presence_penalty: 0, frequency_penalty: 0, logit_bias: nil, user: nil)
+        let query = OpenAI.ChatQuery(model: .gpt4, messages: [
+            .init(role: .system, content: "You are Librarian-GPT. You know everything about the books."),
+            .init(role: .user, content: "Who wrote Harry Potter?")
+        ])
         let result = try await openAI.chats(query: query)
         XCTAssertFalse(result.choices.isEmpty)
     }
