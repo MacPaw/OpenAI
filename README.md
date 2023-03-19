@@ -345,6 +345,44 @@ let result = try await openAI.embeddings(query: query)
 
 Review [Embeddings Documentation](https://beta.openai.com/docs/api-reference/embeddings) for more info.
 
+### Models 
+
+Models are represented as a typealias `typealias Model = String`.
+
+```swift
+public extension Model {
+    static let textDavinci_003 = "text-davinci-003"
+    static let textDavinci_002 = "text-davinci-002"
+    static let textDavinci_001 = "text-davinci-001"
+    static let curie = "text-curie-001"
+    static let babbage = "text-babbage-001"
+    static let textSearchBabbadgeDoc = "text-search-babbage-doc-001"
+    static let textSearchBabbageQuery001 = "text-search-babbage-query-001"
+    static let ada = "text-ada-001"
+    static let textEmbeddingAda = "text-embedding-ada-002"
+    static let gpt3_5Turbo = "gpt-3.5-turbo"
+    static let gpt3_5Turbo0301 = "gpt-3.5-turbo-0301"
+    
+    static let gpt4 = "gpt-4"
+    static let gpt4_0134 = "gpt-4-0314"
+    static let gpt4_32k = "gpt-4-32k"
+    static let gpt4_32k_0314 = "gpt-4-32k-0314"
+}
+```
+
+GPT-4 models are supported. 
+
+For example, to use basic GPT-4 8K model pass .gpt4.
+
+```swift
+let query = OpenAI.ChatQuery(model: .gpt4, messages: [
+    .init(role: .system, content: "You are Librarian-GPT. You know everything about the books."),
+    .init(role: .user, content: "Who wrote Harry Potter?")
+])
+let result = try await openAI.chats(query: query)
+XCTAssertFalse(result.choices.isEmpty)
+```
+
 ### Utilities
 
 The component comes with several handy utility functions to work with the vectors.
