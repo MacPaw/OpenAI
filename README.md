@@ -37,7 +37,7 @@ Once you have your Swift package set up, adding OpenAI as a dependency is as eas
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/MacPaw/OpenAI.git", .branch("main"))
+    .package(url: "https://github.com/MacPaw/OpenAI.git", branch: "main")
 ]
 ```
 
