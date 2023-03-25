@@ -266,7 +266,8 @@ internal extension OpenAI {
     func makeRequest(query: Codable, url: URL, timeoutInterval: TimeInterval) throws -> URLRequest {
         var request = URLRequest(url: url, timeoutInterval: timeoutInterval)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(apiToken)", forHTTPHeaderField: "Authorization")
+        //request.setValue("Bearer \(apiToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("\(apiToken)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "POST"
         request.httpBody = try JSONEncoder().encode(query)
         return request
