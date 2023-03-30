@@ -16,6 +16,17 @@ final public class OpenAI {
         case invalidURL
         case emptyData
     }
+    
+    public struct APIError: Error, Decodable {
+        public let message: String
+        public let type: String
+        public let param: String?
+        public let code: String?
+    }
+
+    public struct APIErrorResponse: Error, Decodable {
+        public let error: APIError
+    }
 
     private let apiToken: String
     private let session = URLSession.shared
@@ -249,11 +260,22 @@ internal extension OpenAI {
                     completion(.failure(OpenAIError.emptyData))
                     return
                 }
+
+                var apiError: Error? = nil
                 do {
                     let decoded = try JSONDecoder().decode(ResultType.self, from: data)
                     completion(.success(decoded))
                 } catch {
-                    completion(.failure(error))
+                    apiError = error
+                }
+                
+                if let apiError = apiError {
+                    do {
+                        let decoded = try JSONDecoder().decode(APIErrorResponse.self, from: data)
+                        completion(.failure(decoded))
+                    } catch {
+                        completion(.failure(apiError))
+                    }
                 }
             }
             task.resume()
