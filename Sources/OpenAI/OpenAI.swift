@@ -44,7 +44,7 @@ final public class OpenAI: OpenAIProtocol {
         performRequest(request: MultipartFormDataRequest<AudioTranscriptionResult>(body: query, url: .audioTranscriptions, timeoutInterval: timeoutInterval), completion: completion)
     }
     
-    public func audioTranslations(query: AudioTranslationQuery, timeoutInterval: TimeInterval, completion: @escaping (Result<AudioTranslationResult, Error>) -> Void) {
+    public func audioTranslations(query: AudioTranslationQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<AudioTranslationResult, Error>) -> Void) {
         performRequest(request: MultipartFormDataRequest<AudioTranslationResult>(body: query, url: .audioTranslations, timeoutInterval: timeoutInterval), completion: completion)
     }
 }
