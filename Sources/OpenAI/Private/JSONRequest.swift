@@ -10,7 +10,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-final class JSONRequest<ResultType>: URLRequestBuildable {
+final class JSONRequest<ResultType> {
     
     let body: Codable
     let url: URL
@@ -23,6 +23,9 @@ final class JSONRequest<ResultType>: URLRequestBuildable {
         self.method = method
         self.timeoutInterval = timeoutInterval
     }
+}
+
+extension JSONRequest: URLRequestBuildable {
     
     func build(token: String) throws -> URLRequest {
         var request = URLRequest(url: url, timeoutInterval: timeoutInterval)
@@ -33,4 +36,3 @@ final class JSONRequest<ResultType>: URLRequestBuildable {
         return request
     }
 }
-

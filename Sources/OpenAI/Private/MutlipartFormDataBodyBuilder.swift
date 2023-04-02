@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  MutlipartFormDataBodyBuilder.swift
 //  
 //
 //  Created by Sergii Kryvoblotskyi on 02/04/2023.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class HTTPBodyBuilder {
+final class MutlipartFormDataBodyBuilder {
         
     let boundary: String
     let entries: [MultipartFormDataEntry]

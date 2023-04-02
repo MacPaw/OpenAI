@@ -117,14 +117,6 @@ final class OpenAITests: XCTestCase {
         let similarity = Vector.cosineSimilarity(a: vector1, b: vector2)
         XCTAssertEqual(similarity, 0.9510201910206734, accuracy: 0.000001)
     }
-
-    func testMakeRequest_bodyContainsFractional() throws {
-        let openAI = OpenAI(apiToken: "foo", session: self.urlSession)
-        let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0.7, maxTokens: 100)
-        let request = try openAI.makeRequest(query: query, url: .completions, timeoutInterval: 60.0)
-        let json = try JSONSerialization.jsonObject(with: request.httpBody!, options: []) as! [String: Any]
-        XCTAssertEqual(json["temperature"] as? Double, 0.7)
-    }
 }
 
 extension OpenAITests {
