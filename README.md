@@ -18,6 +18,9 @@ This repositorty contains Swift implementation over [OpenAI](https://beta.openai
     - [Completions](#completions)
     - [Chats](#chats)
     - [Images](#images)
+    - [Audio](#audio)
+        - [Audio Transcriptions](#audio-transcriptions)
+        - [Audio Translations](#audio-translations)
     - [Embeddings](#embeddings)
     - [Models](#models)
     - [Utilities](#utilities)
@@ -281,6 +284,98 @@ let result = try await openAI.images(query: query)
 ![Generated Image](https://user-images.githubusercontent.com/1411778/213134082-ba988a72-fca0-4213-8805-63e5f8324cab.png)
 
 Review [Images Documentation](https://beta.openai.com/docs/api-reference/images) for more info.
+
+### Audio
+
+The speech to text API provides two endpoints, transcriptions and translations, based on our state-of-the-art open source large-v2 [Whisper model](https://openai.com/research/whisper). They can be used to:
+
+Transcribe audio into whatever language the audio is in.
+Translate and transcribe the audio into english.
+File uploads are currently limited to 25 MB and the following input file types are supported: mp3, mp4, mpeg, mpga, m4a, wav, and webm.
+
+#### Audio Transcriptions
+
+Transcribes audio into the input language.
+
+**Request**
+
+```swift
+public struct AudioTranscriptionQuery: Codable, Equatable {
+    
+    public let file: Data
+    public let fileName: String
+    public let model: Model
+    
+    public let prompt: String?
+    public let temperature: Double?
+    public let language: String?
+}
+```
+
+**Response**
+
+```swift
+public struct AudioTranscriptionResult: Codable, Equatable {
+    
+    public let text: String
+}
+```
+
+**Example**
+
+```swift
+let data = Data(contentsOfURL:...)
+let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)        
+
+openAI.audioTranscriptions(query: query) { result in
+    //Handle result here
+}
+//or
+let result = try await openAI.audioTranscriptions(query: query)
+```
+
+#### Audio Translations
+
+Translates audio into into English.
+
+**Request**
+
+```swift
+public struct AudioTranslationQuery: Codable, Equatable {
+    
+    public let file: Data
+    public let fileName: String
+    public let model: Model
+    
+    public let prompt: String?
+    public let temperature: Double?
+}    
+```
+
+**Response**
+
+```swift
+public struct AudioTranslationResult: Codable, Equatable {
+    
+    public let text: String
+}
+```
+
+**Example**
+
+```swift
+let data = Data(contentsOfURL:...)
+let query = AudioTranslationQuery(file: data, fileName: "audio.m4a", model: .whisper_1)  
+
+openAI.audioTranslations(query: query) { result in
+    //Handle result here
+}
+//or
+let result = try await openAI.audioTranslations(query: query)
+```
+
+Review [Audio Documentation](https://platform.openai.com/docs/api-reference/audio) for more info.
+
 
 ### Embeddings
 

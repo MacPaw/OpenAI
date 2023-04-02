@@ -104,6 +104,46 @@ final class OpenAITests: XCTestCase {
         XCTAssertEqual(inError, apiError)
     }
     
+    func testAudioTransriptions() async throws {
+        let data = Data()
+        let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
+        let transcriptionResult = AudioTranscriptionResult(text: "Hello, world!")
+        try self.stub(result: transcriptionResult)
+        
+        let result = try await openAI.audioTransciptions(query: query)
+        XCTAssertEqual(result, transcriptionResult)
+    }
+    
+    func testAudioTranscriptionsError() async throws {
+        let data = Data()
+        let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.audioTransciptions(query: query) }
+        XCTAssertEqual(inError, apiError)
+    }
+    
+    func testAudioTranslations() async throws {
+        let data = Data()
+        let query = AudioTranslationQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
+        let transcriptionResult = AudioTranslationResult(text: "Hello, world!")
+        try self.stub(result: transcriptionResult)
+        
+        let result = try await openAI.audioTranslations(query: query)
+        XCTAssertEqual(result, transcriptionResult)
+    }
+    
+    func testAudioTranslationsError() async throws {
+        let data = Data()
+        let query = AudioTranslationQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.audioTranslations(query: query) }
+        XCTAssertEqual(inError, apiError)
+    }
+    
     func testSimilarity_Similar() {
         let vector1 = [0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251]
         let vector2 = [0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251]
@@ -116,14 +156,6 @@ final class OpenAITests: XCTestCase {
         let vector2 = [0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.511515, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3213213]
         let similarity = Vector.cosineSimilarity(a: vector1, b: vector2)
         XCTAssertEqual(similarity, 0.9510201910206734, accuracy: 0.000001)
-    }
-
-    func testMakeRequest_bodyContainsFractional() throws {
-        let openAI = OpenAI(apiToken: "foo", session: self.urlSession)
-        let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0.7, maxTokens: 100)
-        let request = try openAI.makeRequest(query: query, url: .completions, timeoutInterval: 60.0)
-        let json = try JSONSerialization.jsonObject(with: request.httpBody!, options: []) as! [String: Any]
-        XCTAssertEqual(json["temperature"] as? Double, 0.7)
     }
 }
 

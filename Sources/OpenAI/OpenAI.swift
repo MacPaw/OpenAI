@@ -25,27 +25,35 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     public func completions(query: CompletionsQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
-        performRequest(request: Request<CompletionsResult>(body: query, url: .completions, timeoutInterval: timeoutInterval), completion: completion)
+        performRequest(request: JSONRequest<CompletionsResult>(body: query, url: .completions, timeoutInterval: timeoutInterval), completion: completion)
     }
     
     public func images(query: ImagesQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
-        performRequest(request: Request<ImagesResult>(body: query, url: .images, timeoutInterval: timeoutInterval), completion: completion)
+        performRequest(request: JSONRequest<ImagesResult>(body: query, url: .images, timeoutInterval: timeoutInterval), completion: completion)
     }
     
     public func embeddings(query: EmbeddingsQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<EmbeddingsResult, Error>) -> Void) {
-        performRequest(request: Request<EmbeddingsResult>(body: query, url: .embeddings, timeoutInterval: timeoutInterval), completion: completion)
+        performRequest(request: JSONRequest<EmbeddingsResult>(body: query, url: .embeddings, timeoutInterval: timeoutInterval), completion: completion)
     }
     
     public func chats(query: ChatQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<ChatResult, Error>) -> Void) {
-        performRequest(request: Request<ChatResult>(body: query, url: .chats, timeoutInterval: timeoutInterval), completion: completion)
+        performRequest(request: JSONRequest<ChatResult>(body: query, url: .chats, timeoutInterval: timeoutInterval), completion: completion)
+    }
+    
+    public func audioTransciptions(query: AudioTranscriptionQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void) {
+        performRequest(request: MultipartFormDataRequest<AudioTranscriptionResult>(body: query, url: .audioTranscriptions, timeoutInterval: timeoutInterval), completion: completion)
+    }
+    
+    public func audioTranslations(query: AudioTranslationQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<AudioTranslationResult, Error>) -> Void) {
+        performRequest(request: MultipartFormDataRequest<AudioTranslationResult>(body: query, url: .audioTranslations, timeoutInterval: timeoutInterval), completion: completion)
     }
 }
 
 extension OpenAI {
 
-    func performRequest<ResultType: Codable>(request: Request<ResultType>, completion: @escaping (Result<ResultType, Error>) -> Void) {
+    func performRequest<ResultType: Codable>(request: any URLRequestBuildable, completion: @escaping (Result<ResultType, Error>) -> Void) {
         do {
-            let request = try makeRequest(query: request.body, url: request.url, timeoutInterval: request.timeoutInterval)
+            let request = try request.build(token: apiToken)
             let task = session.dataTask(with: request) { data, _, error in
                 if let error = error {
                     completion(.failure(error))
@@ -63,7 +71,7 @@ extension OpenAI {
                 } catch {
                     apiError = error
                 }
-                
+
                 if let apiError = apiError {
                     do {
                         let decoded = try JSONDecoder().decode(APIErrorResponse.self, from: data)
@@ -79,15 +87,6 @@ extension OpenAI {
             return
         }
     }
-
-    func makeRequest(query: Codable, url: URL, timeoutInterval: TimeInterval) throws -> URLRequest {
-        var request = URLRequest(url: url, timeoutInterval: timeoutInterval)
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(apiToken)", forHTTPHeaderField: "Authorization")
-        request.httpMethod = "POST"
-        request.httpBody = try JSONEncoder().encode(query)
-        return request
-    }
 }
 
 internal extension URL {
@@ -96,4 +95,7 @@ internal extension URL {
     static let images = URL(string: "https://api.openai.com/v1/images/generations")!
     static let embeddings = URL(string: "https://api.openai.com/v1/embeddings")!
     static let chats = URL(string: "https://api.openai.com/v1/chat/completions")!
+    
+    static let audioTranscriptions = URL(string: "https://api.openai.com/v1/audio/transcriptions")!
+    static let audioTranslations = URL(string: "https://api.openai.com/v1/audio/translations")!
 }
