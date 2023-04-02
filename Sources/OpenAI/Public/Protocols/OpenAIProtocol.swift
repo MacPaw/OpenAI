@@ -90,4 +90,14 @@ public protocol OpenAIProtocol {
                           Returns a `Result` of type `AudioTranscriptionResult` if successful, or an `Error` if an error occurs.
      **/
     func audioTransciptions(query: AudioTranscriptionQuery, timeoutInterval: TimeInterval, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void)
+    
+    /**
+    Translates audio data using OpenAI's audio translation API and completes the operation asynchronously.
+
+    - Parameter query: The `AudioTranslationQuery` instance, containing the information required for the translation request.
+    - Parameter timeoutInterval: The `TimeInterval` (in seconds) specifying the maximum duration to wait for the translation request to complete.
+    - Parameter completion: The completion handler to be executed upon completion of the translation request.
+                         Returns a `Result` of type `AudioTranslationResult` if successful, or an `Error` if an error occurs.
+     **/
+    func audioTranslations(query: AudioTranslationQuery, timeoutInterval: TimeInterval, completion: @escaping (Result<AudioTranslationResult, Error>) -> Void)
 }

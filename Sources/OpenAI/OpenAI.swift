@@ -43,6 +43,10 @@ final public class OpenAI: OpenAIProtocol {
     public func audioTransciptions(query: AudioTranscriptionQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void) {
         performRequest(request: MultipartFormDataRequest<AudioTranscriptionResult>(body: query, url: .audioTranscriptions, timeoutInterval: timeoutInterval), completion: completion)
     }
+    
+    public func audioTranslations(query: AudioTranslationQuery, timeoutInterval: TimeInterval, completion: @escaping (Result<AudioTranslationResult, Error>) -> Void) {
+        performRequest(request: MultipartFormDataRequest<AudioTranslationResult>(body: query, url: .audioTranslations, timeoutInterval: timeoutInterval), completion: completion)
+    }
 }
 
 extension OpenAI {
@@ -93,4 +97,5 @@ internal extension URL {
     static let chats = URL(string: "https://api.openai.com/v1/chat/completions")!
     
     static let audioTranscriptions = URL(string: "https://api.openai.com/v1/audio/transcriptions")!
+    static let audioTranslations = URL(string: "https://api.openai.com/v1/audio/translations")!
 }

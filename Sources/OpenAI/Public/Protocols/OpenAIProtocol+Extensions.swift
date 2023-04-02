@@ -91,4 +91,20 @@ public extension OpenAIProtocol {
             }
         }
     }
+    
+    func audioTranslations(
+        query: AudioTranslationQuery,
+        timeoutInterval: TimeInterval = 60.0
+    ) async throws -> AudioTranslationResult {
+        try await withCheckedThrowingContinuation { continuation in
+            audioTranslations(query: query, timeoutInterval: timeoutInterval) { result in
+                switch result {
+                case let .success(success):
+                    return continuation.resume(returning: success)
+                case let .failure(failure):
+                    return continuation.resume(throwing: failure)
+                }
+            }
+        }
+    }
 }
