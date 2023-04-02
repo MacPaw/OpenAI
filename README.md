@@ -19,6 +19,8 @@ This repositorty contains Swift implementation over [OpenAI](https://beta.openai
     - [Chats](#chats)
     - [Images](#images)
     - [Audio](#audio)
+        - [Audio Transcriptions](#audio-transcriptions)
+        - [Audio Translations](#audio-translations)
     - [Embeddings](#embeddings)
     - [Models](#models)
     - [Utilities](#utilities)
@@ -323,13 +325,57 @@ public struct AudioTranscriptionResult: Codable, Equatable {
 
 ```swift
 let data = Data(contentsOfURL:...)
-let query = AudioTranslationQuery(file: data, fileName: "audio.m4a", model: .whisper_1)        
+let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)        
+
+openAI.audioTranscriptions(query: query) { result in
+    //Handle result here
+}
+//or
+let result = try await openAI.audioTranscriptions(query: query)
+```
+
+#### Audio Translations
+
+Translates audio into into English.
+
+**Request**
+
+```swift
+public struct AudioTranslationQuery: Codable, Equatable {
+    
+    public let file: Data
+    public let fileName: String
+    public let model: Model
+    
+    public let prompt: String?
+    public let temperature: Double?
+}    
+```
+
+**Response**
+
+```swift
+public struct AudioTranslationResult: Codable, Equatable {
+    
+    public let text: String
+}
+```
+
+**Example**
+
+```swift
+let data = Data(contentsOfURL:...)
+let query = AudioTranslationQuery(file: data, fileName: "audio.m4a", model: .whisper_1)  
 
 openAI.audioTranslations(query: query) { result in
+    //Handle result here
 }
-
+//or
 let result = try await openAI.audioTranslations(query: query)
 ```
+
+Review [Audio Documentation](https://platform.openai.com/docs/api-reference/audio) for more info.
+
 
 ### Embeddings
 
