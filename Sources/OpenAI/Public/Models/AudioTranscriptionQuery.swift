@@ -17,7 +17,7 @@ public struct AudioTranscriptionQuery: Codable, Equatable {
     public let temperature: Double?
     public let language: String?
     
-    public init(file: Data, fileName: String, model: Model, prompt: String?, temperature: Double?, language: String?) {
+    public init(file: Data, fileName: String, model: Model, prompt: String? = nil, temperature: Double? = nil, language: String? = nil) {
         self.file = file
         self.fileName = fileName
         self.model = model
