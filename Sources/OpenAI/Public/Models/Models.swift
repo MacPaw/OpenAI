@@ -25,4 +25,6 @@ public extension Model {
     static let gpt4_0314 = "gpt-4-0314"
     static let gpt4_32k = "gpt-4-32k"
     static let gpt4_32k_0314 = "gpt-4-32k-0314"
+    
+    static let whisper_1 = "whisper-1"
 }
