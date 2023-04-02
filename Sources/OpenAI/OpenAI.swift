@@ -15,9 +15,8 @@ final public class OpenAI: OpenAIProtocol {
     private let apiToken: String
     private let session: URLSessionProtocol
 
-    public init(apiToken: String) {
-        self.apiToken = apiToken
-        self.session = URLSession.shared
+    public convenience init(apiToken: String) {
+        self.init(apiToken: apiToken, session: URLSession.shared)
     }
     
     init(apiToken: String, session: URLSessionProtocol = URLSession.shared) {
