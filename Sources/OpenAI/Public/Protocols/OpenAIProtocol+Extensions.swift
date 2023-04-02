@@ -1,5 +1,5 @@
 //
-//  OpenAI+Extensions.swift
+//  OpenAIProtocol+Extensions.swift
 //
 //
 //  Created by Maxime Maheo on 10/02/2023.
@@ -11,7 +11,7 @@ import Foundation
 @available(macOS 10.15, *)
 @available(tvOS 13.0, *)
 @available(watchOS 6.0, *)
-public extension OpenAI {
+public extension OpenAIProtocol {
     func completions(
         query: CompletionsQuery,
         timeoutInterval: TimeInterval = 60.0
@@ -75,5 +75,4 @@ public extension OpenAI {
             }
         }
     }
-
 }
