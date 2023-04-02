@@ -104,6 +104,26 @@ final class OpenAITests: XCTestCase {
         XCTAssertEqual(inError, apiError)
     }
     
+    func testAudioTransriptions() async throws {
+        let data = Data()
+        let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
+        let transcriptionResult = AudioTranscriptionResult(text: "Hello, world!")
+        try self.stub(result: transcriptionResult)
+        
+        let result = try await openAI.audioTransciptions(query: query)
+        XCTAssertEqual(result, transcriptionResult)
+    }
+    
+    func testAudioTranscriptionsError() async throws {
+        let data = Data()
+        let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.audioTransciptions(query: query) }
+        XCTAssertEqual(inError, apiError)
+    }
+    
     func testSimilarity_Similar() {
         let vector1 = [0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251]
         let vector2 = [0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251]
