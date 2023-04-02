@@ -16,6 +16,15 @@ public struct AudioTranscriptionQuery: Codable, Equatable {
     public let prompt: String?
     public let temperature: Double?
     public let language: String?
+    
+    public init(file: Data, fileName: String, model: Model, prompt: String?, temperature: Double?, language: String?) {
+        self.file = file
+        self.fileName = fileName
+        self.model = model
+        self.prompt = prompt
+        self.temperature = temperature
+        self.language = language
+    }
 }
 
 extension AudioTranscriptionQuery: MultipartFormDataBodyEncodable {
