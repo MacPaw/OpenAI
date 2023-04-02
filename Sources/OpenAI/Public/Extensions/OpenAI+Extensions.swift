@@ -14,10 +14,11 @@ import Foundation
 public extension OpenAI {
     func completions(
         query: CompletionsQuery,
-        timeoutInterval: TimeInterval = 60.0
+        timeoutInterval: TimeInterval = 60.0,
+        url: URL = .completions
     ) async throws -> CompletionsResult {
         try await withCheckedThrowingContinuation { continuation in
-            completions(query: query, timeoutInterval: timeoutInterval) { result in
+            completions(query: query, timeoutInterval: timeoutInterval, url: url) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -30,10 +31,11 @@ public extension OpenAI {
 
     func images(
         query: ImagesQuery,
-        timeoutInterval: TimeInterval = 60.0
+        timeoutInterval: TimeInterval = 60.0,
+        url: URL = .images
     ) async throws -> ImagesResult {
         try await withCheckedThrowingContinuation { continuation in
-            images(query: query, timeoutInterval: timeoutInterval) { result in
+            images(query: query, timeoutInterval: timeoutInterval, url: url) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -46,10 +48,11 @@ public extension OpenAI {
 
     func embeddings(
         query: EmbeddingsQuery,
-        timeoutInterval: TimeInterval = 60.0
+        timeoutInterval: TimeInterval = 60.0,
+        url: URL = .embeddings
     ) async throws -> EmbeddingsResult {
         try await withCheckedThrowingContinuation { continuation in
-            embeddings(query: query, timeoutInterval: timeoutInterval) { result in
+            embeddings(query: query, timeoutInterval: timeoutInterval, url: url) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -62,10 +65,11 @@ public extension OpenAI {
     
     func chats(
         query: ChatQuery,
-        timeoutInterval: TimeInterval = 60.0
+        timeoutInterval: TimeInterval = 60.0,
+        url: URL = .chats
     ) async throws -> ChatResult {
         try await withCheckedThrowingContinuation { continuation in
-            chats(query: query, timeoutInterval: timeoutInterval) { result in
+            chats(query: query, timeoutInterval: timeoutInterval, url: url) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
