@@ -1,6 +1,6 @@
 //
 //  OpenAI.swift
-//  Oasis
+//
 //
 //  Created by Sergii Kryvoblotskyi on 9/18/22.
 //
@@ -47,26 +47,38 @@ public extension OpenAI {
         /// What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
         public let temperature: Double?
         /// The maximum number of tokens to generate in the completion.
-        public let max_tokens: Int?
+        public let maxTokens: Int?
         /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-        public let top_p: Double?
+        public let topP: Double?
         /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-        public let frequency_penalty: Double?
+        public let frequencyPenalty: Double?
         /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-        public let presence_penalty: Double?
+        public let presencePenalty: Double?
         /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
         public let stop: [String]?
         /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
         public let user: String?
         
-        public init(model: Model, prompt: String, temperature: Double? = nil, max_tokens: Int? = nil, top_p: Double? = nil, frequency_penalty: Double? = nil, presence_penalty: Double? = nil, stop: [String]? = nil, user: String? = nil) {
+        enum CodingKeys: String, CodingKey {
+            case model
+            case prompt
+            case temperature
+            case maxTokens = "max_tokens"
+            case topP = "top_p"
+            case frequencyPenalty = "frequency_penalty"
+            case presencePenalty = "presence_penalty"
+            case stop
+            case user
+        }
+        
+        public init(model: Model, prompt: String, temperature: Double? = nil, maxTokens: Int? = nil, topP: Double? = nil, frequencyPenalty: Double? = nil, presencePenalty: Double? = nil, stop: [String]? = nil, user: String? = nil) {
             self.model = model
             self.prompt = prompt
             self.temperature = temperature
-            self.max_tokens = max_tokens
-            self.top_p = top_p
-            self.frequency_penalty = frequency_penalty
-            self.presence_penalty = presence_penalty
+            self.maxTokens = maxTokens
+            self.topP = topP
+            self.frequencyPenalty = frequencyPenalty
+            self.presencePenalty = presencePenalty
             self.stop = stop
             self.user = user
         }
@@ -182,7 +194,7 @@ public extension OpenAI {
         /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and  We generally recommend altering this or top_p but not both.
         public let temperature: Double?
         /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-        public let top_p: Double?
+        public let topP: Double?
         /// How many chat completion choices to generate for each input message.
         public let n: Int?
         /// If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only `server-sent events` as they become available, with the stream terminated by a data: [DONE] message.
@@ -190,28 +202,43 @@ public extension OpenAI {
         /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
         public let stop: [String]?
         /// The maximum number of tokens to generate in the completion.
-        public let max_tokens: Int?
+        public let maxTokens: Int?
         /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-        public let presence_penalty: Double?
+        public let presencePenalty: Double?
         /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-        public let frequency_penalty: Double?
-        ///Modify the likelihood of specified tokens appearing in the completion.
-        public let logit_bias: [String:Int]?
+        public let frequencyPenalty: Double?
+        /// Modify the likelihood of specified tokens appearing in the completion.
+        public let logitBias: [String:Int]?
         /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
         public let user: String?
         
-        public init(model: Model, messages: [Chat], temperature: Double? = nil, top_p: Double? = nil, n: Int? = nil, stream: Bool? = nil, stop: [String]? = nil, max_tokens: Int? = nil, presence_penalty: Double? = nil, frequency_penalty: Double? = nil, logit_bias: [String : Int]? = nil, user: String? = nil) {
+        enum CodingKeys: String, CodingKey {
+            case model
+            case messages
+            case temperature
+            case topP = "top_p"
+            case n
+            case stream
+            case stop
+            case maxTokens = "max_tokens"
+            case presencePenalty = "presence_penalty"
+            case frequencyPenalty = "frequency_penalty"
+            case logitBias = "logit_bias"
+            case user
+        }
+        
+        public init(model: Model, messages: [Chat], temperature: Double? = nil, topP: Double? = nil, n: Int? = nil, stream: Bool? = nil, stop: [String]? = nil, maxTokens: Int? = nil, presencePenalty: Double? = nil, frequencyPenalty: Double? = nil, logitBias: [String : Int]? = nil, user: String? = nil) {
             self.model = model
             self.messages = messages
             self.temperature = temperature
-            self.top_p = top_p
+            self.topP = topP
             self.n = n
             self.stream = stream
             self.stop = stop
-            self.max_tokens = max_tokens
-            self.presence_penalty = presence_penalty
-            self.frequency_penalty = frequency_penalty
-            self.logit_bias = logit_bias
+            self.maxTokens = maxTokens
+            self.presencePenalty = presencePenalty
+            self.frequencyPenalty = frequencyPenalty
+            self.logitBias = logitBias
             self.user = user
         }
         
@@ -222,21 +249,51 @@ public extension OpenAI {
         public struct Choice: Codable {
             public let index: Int
             public let message: Chat
-            public let finish_reason: String
+            public let finishReason: String
+            
+            enum CodingKeys: String, CodingKey {
+                case index
+                case message
+                case finishReason = "finish_reason"
+            }
         }
         
         public struct Usage: Codable {
-            public let prompt_tokens: Int
-            public let completion_tokens: Int
-            public let total_tokens: Int
+            public let promptTokens: Int
+            public let completionTokens: Int
+            public let totalTokens: Int
+            
+            enum CodingKeys: String, CodingKey {
+                case promptTokens = "prompt_tokens"
+                case completionTokens = "completion_tokens"
+                case totalTokens = "total_tokens"
+            }
         }
-
+        
         public let id: String
         public let object: String
         public let created: TimeInterval
         public let model: Model
         public let choices: [Choice]
         public let usage: Usage
+        
+        enum CodingKeys: String, CodingKey {
+            case id
+            case object
+            case created
+            case model
+            case choices
+            case usage
+        }
+        
+        public init(id: String, object: String, created: TimeInterval, model: Model, choices: [Choice], usage: Usage) {
+            self.id = id
+            self.object = object
+            self.created = created
+            self.model = model
+            self.choices = choices
+            self.usage = usage
+        }
     }
     
     func chats(query: ChatQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<ChatResult, Error>) -> Void) {
