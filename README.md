@@ -106,7 +106,7 @@ struct CompletionsResult: Codable {
 **Example**
 
 ```swift
-let query = OpenAI.CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, max_tokens: 100, top_p: 1, frequency_penalty: 0, presence_penalty: 0, stop: ["\\n"])
+let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, max_tokens: 100, top_p: 1, frequency_penalty: 0, presence_penalty: 0, stop: ["\\n"])
 openAI.completions(query: query) { result in
   //Handle result here
 }
@@ -200,7 +200,7 @@ struct ChatResult: Codable {
 **Example**
 
 ```swift
-let query = OpenAI.ChatQuery(model: .gpt3_5Turbo, messages: [.init(role: "user", content: "who are you")])
+let query = ChatQuery(model: .gpt3_5Turbo, messages: [.init(role: "user", content: "who are you")])
 let result = try await openAI.chats(query: query)
 ```
 
@@ -259,7 +259,7 @@ struct ImagesResult: Codable {
 **Example**
 
 ```swift
-let query = OpenAI.ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: "1024x1024")
+let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: "1024x1024")
 openAI.images(query: query) { result in
   //Handle result here
 }
@@ -315,7 +315,7 @@ struct EmbeddingsResult: Codable {
 **Example**
 
 ```swift
-let query = OpenAI.EmbeddingsQuery(model: .textSearchBabbadgeDoc, input: "The food was delicious and the waiter...")
+let query = EmbeddingsQuery(model: .textSearchBabbadgeDoc, input: "The food was delicious and the waiter...")
 openAI.embeddings(query: query) { result in
   //Handle response here
 }
@@ -376,7 +376,7 @@ GPT-4 models are supported.
 For example to use basic GPT-4 8K model pass `.gpt4` as a paramter.
 
 ```swift
-let query = OpenAI.ChatQuery(model: .gpt4, messages: [
+let query = ChatQuery(model: .gpt4, messages: [
     .init(role: .system, content: "You are Librarian-GPT. You know everything about the books."),
     .init(role: .user, content: "Who wrote Harry Potter?")
 ])
