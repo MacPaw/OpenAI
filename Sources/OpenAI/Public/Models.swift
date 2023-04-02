@@ -22,7 +22,7 @@ public extension Model {
     static let gpt3_5Turbo0301 = "gpt-3.5-turbo-0301"
     
     static let gpt4 = "gpt-4"
-    static let gpt4_0134 = "gpt-4-0314"
+    static let gpt4_0314 = "gpt-4-0314"
     static let gpt4_32k = "gpt-4-32k"
     static let gpt4_32k_0314 = "gpt-4-32k-0314"
 }
