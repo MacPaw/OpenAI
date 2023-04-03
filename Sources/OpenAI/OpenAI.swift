@@ -116,7 +116,7 @@ extension OpenAI {
     }
 }
 
-internal extension OpenAI {
+extension OpenAI {
     
     func buildURL(path: String) -> URL {
         var components = URLComponents()
@@ -127,8 +127,8 @@ internal extension OpenAI {
     }
 }
 
-internal typealias APIPath = String
-internal extension APIPath {
+typealias APIPath = String
+extension APIPath {
     
     static let completions = "/v1/completions"
     static let images = "/v1/images/generations"
