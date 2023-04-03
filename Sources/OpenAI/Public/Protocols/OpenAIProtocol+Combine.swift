@@ -5,6 +5,8 @@
 //  Created by Sergii Kryvoblotskyi on 03/04/2023.
 //
 
+#if canImport(Combine)
+
 import Combine
 
 @available(iOS 13.0, *)
@@ -55,3 +57,5 @@ public extension OpenAIProtocol {
         .eraseToAnyPublisher()
     }
 }
+
+#endif
