@@ -5,9 +5,12 @@
 //  Created by Sergii Kryvoblotskyi on 04/04/2023.
 //
 
+#if canImport(Combine)
+
 import XCTest
 import Combine
 
+//Borrowed from here: https://www.swiftbysundell.com/articles/unit-testing-combine-based-swift-code/
 extension XCTestCase {
     
     func awaitPublisher<T: Publisher>(
@@ -57,3 +60,5 @@ extension XCTestCase {
         return try unwrappedResult.get()
     }
 }
+
+#endif

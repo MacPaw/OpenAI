@@ -5,6 +5,8 @@
 //  Created by Sergii Kryvoblotskyi on 04/04/2023.
 //
 
+#if canImport(Combine)
+
 import XCTest
 @testable import OpenAI
 
@@ -99,3 +101,5 @@ extension OpenAITestsCombine {
         self.urlSession.dataTask = task
     }
 }
+
+#endif
