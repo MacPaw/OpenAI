@@ -8,7 +8,6 @@
 import Foundation
 
 public enum OpenAIError: Error {
-    case invalidURL
     case emptyData
 }
 
