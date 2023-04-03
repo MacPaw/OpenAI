@@ -13,11 +13,10 @@ import Foundation
 @available(watchOS 6.0, *)
 public extension OpenAIProtocol {
     func completions(
-        query: CompletionsQuery,
-        timeoutInterval: TimeInterval = 60.0
+        query: CompletionsQuery
     ) async throws -> CompletionsResult {
         try await withCheckedThrowingContinuation { continuation in
-            completions(query: query, timeoutInterval: timeoutInterval) { result in
+            completions(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -29,11 +28,10 @@ public extension OpenAIProtocol {
     }
 
     func images(
-        query: ImagesQuery,
-        timeoutInterval: TimeInterval = 60.0
+        query: ImagesQuery
     ) async throws -> ImagesResult {
         try await withCheckedThrowingContinuation { continuation in
-            images(query: query, timeoutInterval: timeoutInterval) { result in
+            images(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -45,11 +43,10 @@ public extension OpenAIProtocol {
     }
 
     func embeddings(
-        query: EmbeddingsQuery,
-        timeoutInterval: TimeInterval = 60.0
+        query: EmbeddingsQuery
     ) async throws -> EmbeddingsResult {
         try await withCheckedThrowingContinuation { continuation in
-            embeddings(query: query, timeoutInterval: timeoutInterval) { result in
+            embeddings(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -61,11 +58,10 @@ public extension OpenAIProtocol {
     }
     
     func chats(
-        query: ChatQuery,
-        timeoutInterval: TimeInterval = 60.0
+        query: ChatQuery
     ) async throws -> ChatResult {
         try await withCheckedThrowingContinuation { continuation in
-            chats(query: query, timeoutInterval: timeoutInterval) { result in
+            chats(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -77,11 +73,10 @@ public extension OpenAIProtocol {
     }
     
     func audioTransciptions(
-        query: AudioTranscriptionQuery,
-        timeoutInterval: TimeInterval = 60.0
+        query: AudioTranscriptionQuery
     ) async throws -> AudioTranscriptionResult {
         try await withCheckedThrowingContinuation { continuation in
-            audioTransciptions(query: query, timeoutInterval: timeoutInterval) { result in
+            audioTransciptions(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -93,11 +88,10 @@ public extension OpenAIProtocol {
     }
     
     func audioTranslations(
-        query: AudioTranslationQuery,
-        timeoutInterval: TimeInterval = 60.0
+        query: AudioTranslationQuery
     ) async throws -> AudioTranslationResult {
         try await withCheckedThrowingContinuation { continuation in
-            audioTranslations(query: query, timeoutInterval: timeoutInterval) { result in
+            audioTranslations(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)

@@ -12,40 +12,63 @@ import FoundationNetworking
 
 final public class OpenAI: OpenAIProtocol {
 
-    private let apiToken: String
-    private let session: URLSessionProtocol
-
-    public convenience init(apiToken: String) {
-        self.init(apiToken: apiToken, session: URLSession.shared)
+    public struct Configuration {
+        
+        /// OpenAI API token. See https://platform.openai.com/docs/api-reference/authentication
+        public let token: String
+        
+        /// Optional OpenAI organization identifier. See https://platform.openai.com/docs/api-reference/authentication
+        public let organizationIdentifier: String?
+        
+        /// Default request timeout
+        public let timeoutInterval: TimeInterval
+        
+        public init(token: String, organizationIdentifier: String? = nil, timeoutInterval: TimeInterval = 60.0) {
+            self.token = token
+            self.organizationIdentifier = organizationIdentifier
+            self.timeoutInterval = timeoutInterval
+        }
     }
     
-    init(apiToken: String, session: URLSessionProtocol = URLSession.shared) {
-        self.apiToken = apiToken
+    private let session: URLSessionProtocol
+    
+    public let configuration: Configuration
+
+    public convenience init(apiToken: String) {
+        self.init(configuration: Configuration(token: apiToken), session: URLSession.shared)
+    }
+    
+    public convenience init(configuration: Configuration) {
+        self.init(configuration: configuration, session: URLSession.shared)
+    }
+    
+    init(configuration: Configuration, session: URLSessionProtocol = URLSession.shared) {
+        self.configuration = configuration
         self.session = session
     }
     
-    public func completions(query: CompletionsQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<CompletionsResult>(body: query, url: .completions, timeoutInterval: timeoutInterval), completion: completion)
+    public func completions(query: CompletionsQuery, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<CompletionsResult>(body: query, url: .completions), completion: completion)
     }
     
-    public func images(query: ImagesQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ImagesResult>(body: query, url: .images, timeoutInterval: timeoutInterval), completion: completion)
+    public func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<ImagesResult>(body: query, url: .images), completion: completion)
     }
     
-    public func embeddings(query: EmbeddingsQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<EmbeddingsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<EmbeddingsResult>(body: query, url: .embeddings, timeoutInterval: timeoutInterval), completion: completion)
+    public func embeddings(query: EmbeddingsQuery, completion: @escaping (Result<EmbeddingsResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<EmbeddingsResult>(body: query, url: .embeddings), completion: completion)
     }
     
-    public func chats(query: ChatQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<ChatResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ChatResult>(body: query, url: .chats, timeoutInterval: timeoutInterval), completion: completion)
+    public func chats(query: ChatQuery, completion: @escaping (Result<ChatResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<ChatResult>(body: query, url: .chats), completion: completion)
     }
     
-    public func audioTransciptions(query: AudioTranscriptionQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void) {
-        performRequest(request: MultipartFormDataRequest<AudioTranscriptionResult>(body: query, url: .audioTranscriptions, timeoutInterval: timeoutInterval), completion: completion)
+    public func audioTransciptions(query: AudioTranscriptionQuery, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void) {
+        performRequest(request: MultipartFormDataRequest<AudioTranscriptionResult>(body: query, url: .audioTranscriptions), completion: completion)
     }
     
-    public func audioTranslations(query: AudioTranslationQuery, timeoutInterval: TimeInterval = 60.0, completion: @escaping (Result<AudioTranslationResult, Error>) -> Void) {
-        performRequest(request: MultipartFormDataRequest<AudioTranslationResult>(body: query, url: .audioTranslations, timeoutInterval: timeoutInterval), completion: completion)
+    public func audioTranslations(query: AudioTranslationQuery, completion: @escaping (Result<AudioTranslationResult, Error>) -> Void) {
+        performRequest(request: MultipartFormDataRequest<AudioTranslationResult>(body: query, url: .audioTranslations), completion: completion)
     }
 }
 
@@ -53,7 +76,7 @@ extension OpenAI {
 
     func performRequest<ResultType: Codable>(request: any URLRequestBuildable, completion: @escaping (Result<ResultType, Error>) -> Void) {
         do {
-            let request = try request.build(token: apiToken)
+            let request = try request.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
             let task = session.dataTask(with: request) { data, _, error in
                 if let error = error {
                     completion(.failure(error))

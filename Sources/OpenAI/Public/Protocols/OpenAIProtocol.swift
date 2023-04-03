@@ -22,10 +22,9 @@ public protocol OpenAIProtocol {
      
      - Parameters:
        - query: A `CompletionsQuery` object containing the input parameters for the API request. This includes the prompt, model, temperature, max tokens, and other settings.
-       - timeoutInterval: A `TimeInterval` specifying the timeout for the API request. If the specified interval elapses before the API request completes, the function will return an error.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<CompletionsResult, Error>`, will contain either the `CompletionsResult` object with the generated completions, or an error if the request failed.
     **/
-    func completions(query: CompletionsQuery, timeoutInterval: TimeInterval, completion: @escaping (Result<CompletionsResult, Error>) -> Void)
+    func completions(query: CompletionsQuery, completion: @escaping (Result<CompletionsResult, Error>) -> Void)
     
     /**
      This function sends an images query to the OpenAI API and retrieves generated images in response. The Images Generation API enables you to create various images or graphics using OpenAI's powerful deep learning models.
@@ -40,10 +39,9 @@ public protocol OpenAIProtocol {
      
      - Parameters:
        - query: An `ImagesQuery` object containing the input parameters for the API request. This includes the query parameters such as the model, text prompt, image size, and other settings.
-       - timeoutInterval: A `TimeInterval` specifying the timeout for the API request. If the specified interval elapses before the API request completes, the function will return an error.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ImagesResult, Error>`, will contain either the `ImagesResult` object with the generated images, or an error if the request failed.
     **/
-    func images(query: ImagesQuery, timeoutInterval: TimeInterval, completion: @escaping (Result<ImagesResult, Error>) -> Void)
+    func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void)
     
     /**
      This function sends an embeddings query to the OpenAI API and retrieves embeddings in response. The Embeddings API enables you to generate high-dimensional vector representations of texts, which can be used for various natural language processing tasks such as semantic similarity, clustering, and classification.
@@ -58,10 +56,9 @@ public protocol OpenAIProtocol {
      
      - Parameters:
        - query: An `EmbeddingsQuery` object containing the input parameters for the API request. This includes the list of text prompts to be converted into embeddings, the model to be used, and other settings.
-       - timeoutInterval: A `TimeInterval` specifying the timeout for the API request. If the specified interval elapses before the API request completes, the function will return an error.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<EmbeddingsResult, Error>`, will contain either the `EmbeddingsResult` object with the generated embeddings, or an error if the request failed.
     **/
-    func embeddings(query: EmbeddingsQuery, timeoutInterval: TimeInterval, completion: @escaping (Result<EmbeddingsResult, Error>) -> Void)
+    func embeddings(query: EmbeddingsQuery, completion: @escaping (Result<EmbeddingsResult, Error>) -> Void)
     
     /**
      This function sends a chat query to the OpenAI API and retrieves chat conversation responses. The Chat API enables you to build chatbots or conversational applications using OpenAI's powerful natural language models, like GPT-3.
@@ -76,28 +73,25 @@ public protocol OpenAIProtocol {
 
      - Parameters:
        - query: A `ChatQuery` object containing the input parameters for the API request. This includes the lists of message objects for the conversation, the model to be used, and other settings.
-       - timeoutInterval: A `TimeInterval` specifying the timeout for the API request. If the specified interval elapses before the API request completes, the function will return an error.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ChatResult, Error>`, will contain either the `ChatResult` object with the model's response to the conversation, or an error if the request failed.
     **/
-    func chats(query: ChatQuery, timeoutInterval: TimeInterval, completion: @escaping (Result<ChatResult, Error>) -> Void)
+    func chats(query: ChatQuery, completion: @escaping (Result<ChatResult, Error>) -> Void)
     
     /**
     Transcribes audio data using OpenAI's audio transcription API and completes the operation asynchronously.
 
     - Parameter query: The `AudioTranscriptionQuery` instance, containing the information required for the transcription request.
-    - Parameter timeoutInterval: The `TimeInterval` (in seconds) specifying the maximum duration to wait for the transcription request to complete.
     - Parameter completion: The completion handler to be executed upon completion of the transcription request.
                           Returns a `Result` of type `AudioTranscriptionResult` if successful, or an `Error` if an error occurs.
      **/
-    func audioTransciptions(query: AudioTranscriptionQuery, timeoutInterval: TimeInterval, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void)
+    func audioTransciptions(query: AudioTranscriptionQuery, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void)
     
     /**
     Translates audio data using OpenAI's audio translation API and completes the operation asynchronously.
 
     - Parameter query: The `AudioTranslationQuery` instance, containing the information required for the translation request.
-    - Parameter timeoutInterval: The `TimeInterval` (in seconds) specifying the maximum duration to wait for the translation request to complete.
     - Parameter completion: The completion handler to be executed upon completion of the translation request.
                          Returns a `Result` of type `AudioTranslationResult` if successful, or an `Error` if an error occurs.
      **/
-    func audioTranslations(query: AudioTranslationQuery, timeoutInterval: TimeInterval, completion: @escaping (Result<AudioTranslationResult, Error>) -> Void)
+    func audioTranslations(query: AudioTranslationQuery, completion: @escaping (Result<AudioTranslationResult, Error>) -> Void)
 }

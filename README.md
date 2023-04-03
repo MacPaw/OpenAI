@@ -59,6 +59,13 @@ Once you have a token, you can initialize `OpenAI` class, which is an entry poin
 let openAI = OpenAI(apiToken: "YOUR_TOKEN_HERE")
 ```
 
+Optionally you can initialize `OpenAI` with token, organization identifier and timeoutInterval.
+
+```swift
+let configuration = OpenAI.Configuration(token: "YOUR_TOKEN_HERE", organizationIdentifier: "YOUR_ORGANIZATION_ID_HERE", timeoutInterval: 60.0)
+let openAI = OpenAI(configuration: configuration)
+```
+
 Once token you posses the token, and the instance is initialized you are ready to make requests.
 
 ### Completions
