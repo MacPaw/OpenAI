@@ -17,7 +17,7 @@ final public class OpenAI: OpenAIProtocol {
         /// OpenAI API token. See https://platform.openai.com/docs/api-reference/authentication
         public let token: String
         
-        /// Optional OpenAI organization identifie. See https://platform.openai.com/docs/api-reference/authentication
+        /// Optional OpenAI organization identifier. See https://platform.openai.com/docs/api-reference/authentication
         public let organizationIdentifier: String?
         
         /// Default request timeout
