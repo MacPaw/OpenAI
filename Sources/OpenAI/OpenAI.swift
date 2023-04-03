@@ -22,6 +22,7 @@ final public class OpenAI: OpenAIProtocol {
         
         /// Default request timeout
         public let timeoutInterval: TimeInterval
+        
         public init(token: String, organizationIdentifier: String? = nil, timeoutInterval: TimeInterval = 60.0) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
@@ -30,6 +31,7 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     private let session: URLSessionProtocol
+    
     public let configuration: Configuration
 
     public convenience init(apiToken: String) {
