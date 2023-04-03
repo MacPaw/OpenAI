@@ -185,14 +185,14 @@ final class OpenAITests: XCTestCase {
     func testDefaultHostURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         let openAI = OpenAI(configuration: configuration, session: self.urlSession)
-        let completionsURL = openAI.apiURL(path: .completions)
+        let completionsURL = openAI.buildURL(path: .completions)
         XCTAssertEqual(completionsURL, URL(string: "https://api.openai.com/v1/completions"))
     }
     
     func testCustomURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", timeoutInterval: 14)
         let openAI = OpenAI(configuration: configuration, session: self.urlSession)
-        let completionsURL = openAI.apiURL(path: .completions)
+        let completionsURL = openAI.buildURL(path: .completions)
         XCTAssertEqual(completionsURL, URL(string: "https://my.host.com/v1/completions"))
     }
 }
