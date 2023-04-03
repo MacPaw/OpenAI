@@ -84,7 +84,7 @@ public protocol OpenAIProtocol {
     - Parameter completion: The completion handler to be executed upon completion of the transcription request.
                           Returns a `Result` of type `AudioTranscriptionResult` if successful, or an `Error` if an error occurs.
      **/
-    func audioTransciptions(query: AudioTranscriptionQuery, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void)
+    func audioTranscriptions(query: AudioTranscriptionQuery, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void)
     
     /**
     Translates audio data using OpenAI's audio translation API and completes the operation asynchronously.

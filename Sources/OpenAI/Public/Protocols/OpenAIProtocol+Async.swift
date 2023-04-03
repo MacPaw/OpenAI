@@ -1,5 +1,5 @@
 //
-//  OpenAIProtocol+Extensions.swift
+//  OpenAIProtocol+Async.swift
 //
 //
 //  Created by Maxime Maheo on 10/02/2023.
@@ -76,7 +76,7 @@ public extension OpenAIProtocol {
         query: AudioTranscriptionQuery
     ) async throws -> AudioTranscriptionResult {
         try await withCheckedThrowingContinuation { continuation in
-            audioTransciptions(query: query) { result in
+            audioTranscriptions(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)

@@ -197,6 +197,7 @@ final class OpenAITests: XCTestCase {
     }
 }
 
+@available(iOS 13.0, *)
 extension OpenAITests {
     
     func stub(error: Error) {
@@ -213,6 +214,7 @@ extension OpenAITests {
     }
 }
 
+@available(iOS 13.0, *)
 extension OpenAITests {
     
     enum TypeError: Error {
