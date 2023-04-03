@@ -72,7 +72,7 @@ public extension OpenAIProtocol {
         }
     }
     
-    func audioTransciptions(
+    func audioTranscriptions(
         query: AudioTranscriptionQuery
     ) async throws -> AudioTranscriptionResult {
         try await withCheckedThrowingContinuation { continuation in
