@@ -162,7 +162,7 @@ final class OpenAITests: XCTestCase {
     func testJSONReqestCreation() throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         let completionQuery = CompletionsQuery(model: .whisper_1, prompt: "how are you?")
-        let jsonRequest = JSONRequest<CompletionsResult>(body: completionQuery, url: .audioTranscriptions)
+        let jsonRequest = JSONRequest<CompletionsResult>(body: completionQuery, url: URL(string: "http://google.com")!)
         let urlRequest = try jsonRequest.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
         
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")
@@ -174,12 +174,26 @@ final class OpenAITests: XCTestCase {
     func testMultipartReqestCreation() throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         let completionQuery = AudioTranslationQuery(file: Data(), fileName: "foo", model: .whisper_1)
-        let jsonRequest = MultipartFormDataRequest<CompletionsResult>(body: completionQuery, url: .audioTranscriptions)
+        let jsonRequest = MultipartFormDataRequest<CompletionsResult>(body: completionQuery, url: URL(string: "http://google.com")!)
         let urlRequest = try jsonRequest.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
         
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "OpenAI-Organization"), configuration.organizationIdentifier)
         XCTAssertEqual(urlRequest.timeoutInterval, configuration.timeoutInterval)
+    }
+    
+    func testDefaultHostURLBuilt() {
+        let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        let completionsURL = openAI.apiURL(path: .completions)
+        XCTAssertEqual(completionsURL, URL(string: "https://api.openai.com/v1/completions"))
+    }
+    
+    func testCustomURLBuilt() {
+        let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", timeoutInterval: 14)
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        let completionsURL = openAI.apiURL(path: .completions)
+        XCTAssertEqual(completionsURL, URL(string: "https://my.host.com/v1/completions"))
     }
 }
 
