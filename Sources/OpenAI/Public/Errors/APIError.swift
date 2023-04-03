@@ -19,6 +19,20 @@ public struct APIError: Error, Decodable, Equatable {
     public let code: String?
 }
 
-public struct APIErrorResponse: Error, Decodable {
+extension APIError: LocalizedError {
+    
+    public var errorDescription: String? {
+        return message
+    }
+}
+
+public struct APIErrorResponse: Error, Decodable, Equatable {
     public let error: APIError
+}
+
+extension APIErrorResponse: LocalizedError {
+    
+    public var errorDescription: String? {
+        return error.errorDescription
+    }
 }

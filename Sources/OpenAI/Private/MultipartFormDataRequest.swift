@@ -14,26 +14,27 @@ final class MultipartFormDataRequest<ResultType> {
     
     let body: MultipartFormDataBodyEncodable
     let url: URL
-    let timeoutInterval: TimeInterval
     let method: String
         
-    init(body: MultipartFormDataBodyEncodable, url: URL, method: String = "POST", timeoutInterval: TimeInterval) {
+    init(body: MultipartFormDataBodyEncodable, url: URL, method: String = "POST") {
         self.body = body
         self.url = url
         self.method = method
-        self.timeoutInterval = timeoutInterval
     }
 }
 
 extension MultipartFormDataRequest: URLRequestBuildable {
     
-    func build(token: String) throws -> URLRequest {
+    func build(token: String, organizationIdentifier: String?, timeoutInterval: TimeInterval) throws -> URLRequest {
         var request = URLRequest(url: url)
         let boundary: String = UUID().uuidString
         request.timeoutInterval = timeoutInterval
         request.httpMethod = method
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        if let organizationIdentifier {
+            request.setValue(organizationIdentifier, forHTTPHeaderField: "OpenAI-Organization")
+        }
         request.httpBody = body.encode(boundary: boundary)
         return request
     }

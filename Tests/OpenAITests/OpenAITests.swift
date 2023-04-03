@@ -12,7 +12,8 @@ final class OpenAITests: XCTestCase {
     override func setUp() {
         super.setUp()
         self.urlSession = URLSessionMock()
-        self.openAI = OpenAI(apiToken: "foo", session: self.urlSession)
+        let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
+        self.openAI = OpenAI(configuration: configuration, session: self.urlSession)
     }
     
     func testCompletions() async throws {
@@ -156,6 +157,29 @@ final class OpenAITests: XCTestCase {
         let vector2 = [0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.511515, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3213213]
         let similarity = Vector.cosineSimilarity(a: vector1, b: vector2)
         XCTAssertEqual(similarity, 0.9510201910206734, accuracy: 0.000001)
+    }
+    
+    func testJSONReqestCreation() throws {
+        let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
+        let completionQuery = CompletionsQuery(model: .whisper_1, prompt: "how are you?")
+        let jsonRequest = JSONRequest<CompletionsResult>(body: completionQuery, url: .audioTranscriptions)
+        let urlRequest = try jsonRequest.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
+        
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Content-Type"), "application/json")
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "OpenAI-Organization"), configuration.organizationIdentifier)
+        XCTAssertEqual(urlRequest.timeoutInterval, configuration.timeoutInterval)
+    }
+    
+    func testMultipartReqestCreation() throws {
+        let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
+        let completionQuery = AudioTranslationQuery(file: Data(), fileName: "foo", model: .whisper_1)
+        let jsonRequest = MultipartFormDataRequest<CompletionsResult>(body: completionQuery, url: .audioTranscriptions)
+        let urlRequest = try jsonRequest.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
+        
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "OpenAI-Organization"), configuration.organizationIdentifier)
+        XCTAssertEqual(urlRequest.timeoutInterval, configuration.timeoutInterval)
     }
 }
 
