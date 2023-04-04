@@ -87,6 +87,7 @@ final class OpenAITestsCombine: XCTestCase {
 
 @available(tvOS 13.0, *)
 @available(iOS 13.0, *)
+@available(watchOS 6.0, *)
 extension OpenAITestsCombine {
     
     func stub(error: Error) {
