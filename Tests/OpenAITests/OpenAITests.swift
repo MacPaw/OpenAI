@@ -197,6 +197,7 @@ class OpenAITests: XCTestCase {
     }
 }
 
+@available(tvOS 13.0, *)
 @available(iOS 13.0, *)
 extension OpenAITests {
     
@@ -214,6 +215,7 @@ extension OpenAITests {
     }
 }
 
+@available(tvOS 13.0, *)
 @available(iOS 13.0, *)
 extension OpenAITests {
     
