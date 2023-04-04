@@ -4,7 +4,7 @@ import XCTest
 @available(iOS 13.0, *)
 @available(watchOS 6.0, *)
 @available(tvOS 13.0, *)
-final class OpenAITests: XCTestCase {
+class OpenAITests: XCTestCase {
 
     var openAI: OpenAIProtocol!
     var urlSession: URLSessionMock!
@@ -111,7 +111,7 @@ final class OpenAITests: XCTestCase {
         let transcriptionResult = AudioTranscriptionResult(text: "Hello, world!")
         try self.stub(result: transcriptionResult)
         
-        let result = try await openAI.audioTransciptions(query: query)
+        let result = try await openAI.audioTranscriptions(query: query)
         XCTAssertEqual(result, transcriptionResult)
     }
     
@@ -121,7 +121,7 @@ final class OpenAITests: XCTestCase {
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
-        let apiError: APIError = try await XCTExpectError { try await openAI.audioTransciptions(query: query) }
+        let apiError: APIError = try await XCTExpectError { try await openAI.audioTranscriptions(query: query) }
         XCTAssertEqual(inError, apiError)
     }
     
@@ -197,6 +197,7 @@ final class OpenAITests: XCTestCase {
     }
 }
 
+@available(iOS 13.0, *)
 extension OpenAITests {
     
     func stub(error: Error) {
@@ -213,6 +214,7 @@ extension OpenAITests {
     }
 }
 
+@available(iOS 13.0, *)
 extension OpenAITests {
     
     enum TypeError: Error {
