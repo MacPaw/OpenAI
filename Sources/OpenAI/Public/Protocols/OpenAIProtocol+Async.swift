@@ -72,6 +72,36 @@ public extension OpenAIProtocol {
         }
     }
     
+    func model(
+        query: ModelQuery
+    ) async throws -> ModelResult {
+        try await withCheckedThrowingContinuation { continuation in
+            model(query: query) { result in
+                switch result {
+                case let .success(success):
+                    return continuation.resume(returning: success)
+                case let .failure(failure):
+                    return continuation.resume(throwing: failure)
+                }
+            }
+        }
+    }
+    
+    func models(
+        query: ModelsQuery
+    ) async throws -> ModelsResult {
+        try await withCheckedThrowingContinuation { continuation in
+            models(query: query) { result in
+                switch result {
+                case let .success(success):
+                    return continuation.resume(returning: success)
+                case let .failure(failure):
+                    return continuation.resume(throwing: failure)
+                }
+            }
+        }
+    }
+    
     func audioTranscriptions(
         query: AudioTranscriptionQuery
     ) async throws -> AudioTranscriptionResult {

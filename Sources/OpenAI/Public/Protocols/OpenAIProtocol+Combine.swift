@@ -42,6 +42,20 @@ public extension OpenAIProtocol {
         }
         .eraseToAnyPublisher()
     }
+    
+    func model(query: ModelQuery) -> AnyPublisher<ModelResult, Error> {
+        Future<ModelResult, Error> {
+            model(query: query, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    func models(query: ModelsQuery) -> AnyPublisher<ModelsResult, Error> {
+        Future<ModelsResult, Error> {
+            models(query: query, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
 
     func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error> {
         Future<AudioTranscriptionResult, Error> {

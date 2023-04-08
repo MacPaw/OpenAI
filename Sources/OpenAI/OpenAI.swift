@@ -67,6 +67,14 @@ final public class OpenAI: OpenAIProtocol {
         performRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: .chats)), completion: completion)
     }
     
+    public func model(query: ModelQuery, completion: @escaping (Result<ModelResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<ModelsResult>(body: query, url: buildURL(path: .models.withPath(query.model))), completion: completion)
+    }
+    
+    public func models(query: ModelsQuery, completion: @escaping (Result<ModelsResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<ModelsResult>(body: query, url: buildURL(path: .models)), completion: completion)
+    }
+    
     public func audioTranscriptions(query: AudioTranscriptionQuery, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void) {
         performRequest(request: MultipartFormDataRequest<AudioTranscriptionResult>(body: query, url: buildURL(path: .audioTranscriptions)), completion: completion)
     }
@@ -134,7 +142,12 @@ extension APIPath {
     static let images = "/v1/images/generations"
     static let embeddings = "/v1/embeddings"
     static let chats = "/v1/chat/completions"
+    static let models = "/v1/models"
     
     static let audioTranscriptions = "/v1/audio/transcriptions"
     static let audioTranslations = "/v1/audio/translations"
+    
+    func withPath(_ path: String) -> String {
+        self + "/" + path
+    }
 }

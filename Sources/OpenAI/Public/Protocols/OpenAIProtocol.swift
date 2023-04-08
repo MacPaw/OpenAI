@@ -78,6 +78,40 @@ public protocol OpenAIProtocol {
     func chats(query: ChatQuery, completion: @escaping (Result<ChatResult, Error>) -> Void)
     
     /**
+     This function sends a model query to the OpenAI API and retrieves a model instance, providing owner information. The Models API in this usage enables you to gather detailed information on the model in question, like GPT-3.
+     
+     Example:
+     ```
+     let query = ModelQuery(model: .gpt3_5Turbo)
+     openAI.model(query: query) { result in
+       //Handle response here
+     }
+     ```
+
+     - Parameters:
+       - query: A `ModelQuery` object containing the input parameters for the API request, which is only the model to be queried.
+       - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ModelResult, Error>`, will contain either the `ModelResult` object with more information about the model, or an error if the request failed.
+    **/
+    func model(query: ModelQuery, completion: @escaping (Result<ModelResult, Error>) -> Void)
+    
+    /**
+     This function sends a models query to the OpenAI API and retrieves a list of models. The Models API in this usage enables you to list all the available models.
+     
+     Example:
+     ```
+     let query = ModelsQuery()
+     openAI.models(query: query) { result in
+       //Handle response here
+     }
+     ```
+
+     - Parameters:
+       - query: A `ModelsQuery` object which currently does not require input parameters for the API request.
+       - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ModelsResult, Error>`, will contain either the `ModelsResult` object with the list of model types, or an error if the request failed.
+    **/
+    func models(query: ModelsQuery, completion: @escaping (Result<ModelsResult, Error>) -> Void)
+    
+    /**
     Transcribes audio data using OpenAI's audio transcription API and completes the operation asynchronously.
 
     - Parameter query: The `AudioTranscriptionQuery` instance, containing the information required for the transcription request.
