@@ -20,7 +20,7 @@ class OpenAITests: XCTestCase {
         let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
         let expectedResult = CompletionsResult(id: "foo", object: "bar", created: 100500, model: .babbage, choices: [
             .init(text: "42 is the answer to everything", index: 0)
-        ])
+        ], usage: .init(promptTokens: 10, completionTokens: 10, totalTokens: 20))
         try self.stub(result: expectedResult)
         
         let result = try await openAI.completions(query: query)
@@ -89,7 +89,7 @@ class OpenAITests: XCTestCase {
             .init(object: "id-sdasd", embedding: [0.1, 0.2, 0.3, 0.4], index: 0),
             .init(object: "id-sdasd1", embedding: [0.4, 0.1, 0.7, 0.1], index: 1),
             .init(object: "id-sdasd2", embedding: [0.8, 0.1, 0.2, 0.8], index: 2)
-        ])
+        ], usage: .init(promptTokens: 10, totalTokens: 10))
         try self.stub(result: embeddingsResult)
         
         let result = try await openAI.embeddings(query: query)
