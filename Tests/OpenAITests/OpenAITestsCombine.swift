@@ -64,6 +64,24 @@ final class OpenAITestsCombine: XCTestCase {
         XCTAssertEqual(result, embeddingsResult)
     }
     
+    func testRetrieveModel() throws {
+        let query = ModelQuery(model: .gpt4)
+        let modelResult = ModelResult(model: ModelType(id: .gpt4, object: "model", ownedBy: "organization-owner"))
+        try self.stub(result: modelResult)
+        
+        let result = try awaitPublisher(openAI.model(query: query))
+        XCTAssertEqual(result, modelResult)
+    }
+    
+    func testListModels() throws {
+        let query = ModelsQuery()
+        let listModelsResult = ModelsResult(data: [], object: "model")
+        try self.stub(result: listModelsResult)
+        
+        let result = try awaitPublisher(openAI.models(query: query))
+        XCTAssertEqual(result, listModelsResult)
+    }
+    
     func testAudioTransriptions() throws {
         let data = Data()
         let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)

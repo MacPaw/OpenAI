@@ -488,6 +488,50 @@ XCTAssertFalse(result.choices.isEmpty)
 
 You can also pass a custom string if you need to use some model, that is not represented above.
 
+#### List Models
+
+Lists the currently available models.
+
+**Request**
+
+```swift
+public struct ModelsQuery: Codable, Equatable { }    
+```
+
+**Response**
+
+```swift
+public struct ModelsResult: Codable, Equatable {
+    
+    public let data: [ModelType]
+    public let object: String
+}
+```
+
+#### Retrieve Model
+
+Retrieves a model instance, providing ownership information.
+
+**Request**
+
+```swift
+public struct ModelQuery: Codable, Equatable {
+    
+    public let model: Model
+}    
+```
+
+**Response**
+
+```swift
+public struct ModelResult: Codable, Equatable {
+    
+    public let model: ModelType
+}
+```
+
+Review [Models Documentation](https://beta.openai.com/docs/api-reference/models) for more info.
+
 ### Utilities
 
 The component comes with several handy utility functions to work with the vectors.

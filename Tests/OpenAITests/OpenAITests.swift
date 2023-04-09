@@ -105,6 +105,52 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(inError, apiError)
     }
     
+    func testQueryString() throws {
+        let pathParameter = APIPath.gpt4
+        let result = APIPath.models.withPath(pathParameter)
+        XCTAssertEqual(result, APIPath.models + "/" + pathParameter)
+    }
+    
+    func testRetrieveModel() async throws {
+        let query = ModelQuery(model: .gpt4)
+        let modelResult = ModelResult(model: ModelType(id: .gpt4, object: "model", ownedBy: "organization-owner"))
+        try self.stub(result: modelResult)
+        
+        let result = try await openAI.model(query: query)
+        XCTAssertEqual(result, modelResult)
+    }
+    
+    func testRetrieveModelError() async throws {
+        let query = ModelQuery(model: .gpt4)
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.model(query: query) }
+        XCTAssertEqual(inError, apiError)
+    }
+    
+    func testListModels() async throws {
+        let query = ModelsQuery()
+        let listModelsResult = ModelsResult(data: [
+            .init(id: "model-id-0", object: "model", ownedBy: "organization-owner"),
+            .init(id: "model-id-1", object: "model", ownedBy: "organization-owner"),
+            .init(id: "model-id-2", object: "model", ownedBy: "openai")
+        ], object: "list")
+        try self.stub(result: listModelsResult)
+        
+        let result = try await openAI.models(query: query)
+        XCTAssertEqual(result, listModelsResult)
+    }
+    
+    func testListModelsError() async throws {
+        let query = ModelsQuery()
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.models(query: query) }
+        XCTAssertEqual(inError, apiError)
+    }
+    
     func testAudioTransriptions() async throws {
         let data = Data()
         let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
