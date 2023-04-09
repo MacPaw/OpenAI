@@ -28,7 +28,7 @@ public struct AudioTranslationQuery: Codable, Equatable {
 extension AudioTranslationQuery: MultipartFormDataBodyEncodable {
     
     func encode(boundary: String) -> Data {
-        let bodyBuilder = MutlipartFormDataBodyBuilder(boundary: boundary, entries: [
+        let bodyBuilder = MultipartFormDataBodyBuilder(boundary: boundary, entries: [
             .file(paramName: "file", fileName: fileName, fileData: file, contentType: "audio/mpeg"),
             .string(paramName: "model", value: model),
             .string(paramName: "prompt", value: prompt),

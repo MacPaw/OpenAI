@@ -68,7 +68,7 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     public func model(query: ModelQuery, completion: @escaping (Result<ModelResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ModelsResult>(body: query, url: buildURL(path: .models.withPath(query.model))), completion: completion)
+        performRequest(request: JSONRequest<ModelResult>(body: query, url: buildURL(path: .models.withPath(query.model))), completion: completion)
     }
     
     public func models(query: ModelsQuery, completion: @escaping (Result<ModelsResult, Error>) -> Void) {
