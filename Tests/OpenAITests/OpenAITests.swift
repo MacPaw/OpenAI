@@ -1,5 +1,5 @@
 //
-//  OpenAITestsCombine.swift
+//  OpenAITests.swift
 //
 //
 //  Created by Sergii Kryvoblotskyi on 18/01/2023.

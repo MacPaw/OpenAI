@@ -13,10 +13,14 @@ import XCTest
 @available(tvOS 13.0, *)
 class OpenAITestsDecoder: XCTestCase {
     
-    private let decoder = JSONDecoder()
-    
     override func setUp() {
         super.setUp()
+    }
+    
+    private func decode<T: Decodable & Equatable>(_ jsonString: String, _ expectedValue: T) throws {
+        let data = jsonString.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(T.self, from: data)
+        XCTAssertEqual(decoded, expectedValue)
     }
     
     func testCompletions() async throws {
@@ -40,13 +44,12 @@ class OpenAITestsDecoder: XCTestCase {
             "total_tokens": 12
           }
         }
-        """.data(using: .utf8)!
+        """
         
-        let decoded = try decoder.decode(CompletionsResult.self, from: data)
-        let mock = CompletionsResult(id: "foo", object: "text_completion", created: 1589478378, model: .textDavinci_003, choices: [
+        let expectedValue = CompletionsResult(id: "foo", object: "text_completion", created: 1589478378, model: .textDavinci_003, choices: [
             .init(text: "Hello, world!", index: 0)
         ], usage: .init(promptTokens: 5, completionTokens: 7, totalTokens: 12))
-        XCTAssertEqual(decoded, mock)
+        try decode(data, expectedValue)
     }
     
     func testImages() async throws {
@@ -62,14 +65,13 @@ class OpenAITestsDecoder: XCTestCase {
             }
           ]
         }
-        """.data(using: .utf8)!
+        """
         
-        let decoded = try decoder.decode(ImagesResult.self, from: data)
-        let mock = ImagesResult(created: 1589478378, data: [
+        let expectedValue = ImagesResult(created: 1589478378, data: [
             .init(url: "https://foo.bar"),
             .init(url: "https://bar.foo")
         ])
-        XCTAssertEqual(decoded, mock)
+        try decode(data, expectedValue)
     }
     
     func testChatCompletion() async throws {
@@ -93,13 +95,12 @@ class OpenAITestsDecoder: XCTestCase {
             "total_tokens": 21
           }
         }
-        """.data(using: .utf8)!
+        """
         
-        let decoded = try decoder.decode(ChatResult.self, from: data)
-        let mock = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, choices: [
+        let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, choices: [
             .init(index: 0, message: Chat(role: "assistant", content: "Hello, world!"), finishReason: "stop")
         ], usage: .init(promptTokens: 9, completionTokens: 12, totalTokens: 21))
-        XCTAssertEqual(decoded, mock)
+        try decode(data, expectedValue)
     }
     
     func testEmbeddings() async throws {
@@ -123,13 +124,12 @@ class OpenAITestsDecoder: XCTestCase {
             "total_tokens": 8
           }
         }
-        """.data(using: .utf8)!
+        """
         
-        let decoded = try decoder.decode(EmbeddingsResult.self, from: data)
-        let mock = EmbeddingsResult(data: [
+        let expectedValue = EmbeddingsResult(data: [
             .init(object: "embedding", embedding: [0.0023064255, -0.009327292, -0.0028842222], index: 0)
         ], usage: .init(promptTokens: 8, totalTokens: 8))
-        XCTAssertEqual(decoded, mock)
+        try decode(data, expectedValue)
     }
     
     func testModels() async throws {
@@ -154,15 +154,14 @@ class OpenAITestsDecoder: XCTestCase {
           ],
           "object": "list"
         }
-        """.data(using: .utf8)!
+        """
         
-        let decoded = try decoder.decode(ModelsResult.self, from: data)
-        let mock = ModelsResult(data: [
+        let expectedValue = ModelsResult(data: [
             .init(id: .gpt3_5Turbo, object: "model", ownedBy: "organization-owner"),
             .init(id: .gpt4, object: "model", ownedBy: "organization-owner"),
             .init(id: .textDavinci_001, object: "model", ownedBy: "openai")
         ], object: "list")
-        XCTAssertEqual(decoded, mock)
+        try decode(data, expectedValue)
     }
     
     func testModelType() async throws {
@@ -172,11 +171,10 @@ class OpenAITestsDecoder: XCTestCase {
           "object": "model",
           "owned_by": "openai"
         }
-        """.data(using: .utf8)!
+        """
         
-        let decoded = try decoder.decode(ModelResult.self, from: data)
-        let mock = ModelResult(id: .textDavinci_003, object: "model", ownedBy: "openai")
-        XCTAssertEqual(decoded, mock)
+        let expectedValue = ModelResult(id: .textDavinci_003, object: "model", ownedBy: "openai")
+        try decode(data, expectedValue)
     }
     
     func testAudioTranscriptions() async throws {
@@ -184,11 +182,10 @@ class OpenAITestsDecoder: XCTestCase {
         {
           "text": "Hello, world!"
         }
-        """.data(using: .utf8)!
+        """
         
-        let decoded = try decoder.decode(AudioTranscriptionResult.self, from: data)
-        let mock = AudioTranscriptionResult(text: "Hello, world!")
-        XCTAssertEqual(decoded, mock)
+        let expectedValue = AudioTranscriptionResult(text: "Hello, world!")
+        try decode(data, expectedValue)
     }
     
     func testAudioTranslations() async throws {
@@ -196,10 +193,9 @@ class OpenAITestsDecoder: XCTestCase {
         {
           "text": "Hello, world!"
         }
-        """.data(using: .utf8)!
+        """
         
-        let decoded = try decoder.decode(AudioTranslationResult.self, from: data)
-        let mock = AudioTranslationResult(text: "Hello, world!")
-        XCTAssertEqual(decoded, mock)
+        let expectedValue = AudioTranslationResult(text: "Hello, world!")
+        try decode(data, expectedValue)
     }
 }
