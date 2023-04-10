@@ -82,7 +82,7 @@ final class OpenAITestsCombine: XCTestCase {
         XCTAssertEqual(result, listModelsResult)
     }
     
-    func testAudioTransriptions() throws {
+    func testAudioTranscriptions() throws {
         let data = Data()
         let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
         let transcriptionResult = AudioTranscriptionResult(text: "Hello, world!")

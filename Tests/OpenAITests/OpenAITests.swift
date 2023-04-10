@@ -151,7 +151,7 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(inError, apiError)
     }
     
-    func testAudioTransriptions() async throws {
+    func testAudioTranscriptions() async throws {
         let data = Data()
         let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
         let transcriptionResult = AudioTranscriptionResult(text: "Hello, world!")
@@ -205,7 +205,7 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(similarity, 0.9510201910206734, accuracy: 0.000001)
     }
     
-    func testJSONReqestCreation() throws {
+    func testJSONRequestCreation() throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         let completionQuery = CompletionsQuery(model: .whisper_1, prompt: "how are you?")
         let jsonRequest = JSONRequest<CompletionsResult>(body: completionQuery, url: URL(string: "http://google.com")!)
@@ -217,7 +217,7 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(urlRequest.timeoutInterval, configuration.timeoutInterval)
     }
     
-    func testMultipartReqestCreation() throws {
+    func testMultipartRequestCreation() throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         let completionQuery = AudioTranslationQuery(file: Data(), fileName: "foo", model: .whisper_1)
         let jsonRequest = MultipartFormDataRequest<CompletionsResult>(body: completionQuery, url: URL(string: "http://google.com")!)
