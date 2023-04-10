@@ -9,7 +9,7 @@ ___
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FMacPaw%2FOpenAI%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/MacPaw/OpenAI)
 [![Twitter](https://img.shields.io/static/v1?label=Twitter&message=@MacPaw&color=CA1F67)](https://twitter.com/MacPaw)
 
-This repository contains Swift implementation over [OpenAI](https://beta.openai.com/docs/api-reference/) public API.
+This repository contains Swift implementation over [OpenAI](https://platform.openai.com/docs/api-reference/) public API.
 
 - [What is OpenAI](#what-is-openai)
 - [Installation](#installation)
@@ -23,6 +23,8 @@ This repository contains Swift implementation over [OpenAI](https://beta.openai.
         - [Audio Translations](#audio-translations)
     - [Embeddings](#embeddings)
     - [Models](#models)
+        - [List Models](#list-models)
+        - [Retrieve Model](#retrieve-model)
     - [Utilities](#utilities)
 - [Links](#links)
 - [License](#license)
@@ -49,7 +51,7 @@ dependencies: [
 
 ### Initialization
 
-To initialize API instance you need to [obtain](https://beta.openai.com/account/api-keys) API token from your Open AI organization.
+To initialize API instance you need to [obtain](https://platform.openai.com/account/api-keys) API token from your Open AI organization.
 
 <img width="1081" alt="company" src="https://user-images.githubusercontent.com/1411778/213204726-0772373e-14db-4d5d-9a58-bc249bac4c57.png">
 
@@ -100,8 +102,8 @@ struct CompletionsQuery: Codable {
 **Response**
 
 ```swift
-struct CompletionsResult: Codable {
-    public struct Choice: Codable {
+struct CompletionsResult: Codable, Equatable {
+    public struct Choice: Codable, Equatable {
         public let text: String
         public let index: Int
     }
@@ -111,6 +113,7 @@ struct CompletionsResult: Codable {
     public let created: TimeInterval
     public let model: Model
     public let choices: [Choice]
+    public let usage: Usage
 }
 ```
 **Example**
@@ -137,7 +140,7 @@ let result = try await openAI.completions(query: query)
       - index : 0
 ```
 
-Review [Completions Documentation](https://beta.openai.com/docs/api-reference/completions) for more info.
+Review [Completions Documentation](https://platform.openai.com/docs/api-reference/completions) for more info.
 
 ### Chats
 
@@ -185,14 +188,14 @@ Using the OpenAI Chat API, you can build your own applications with `gpt-3.5-tur
 **Response**
 
 ```swift
-struct ChatResult: Codable {
-    public struct Choice: Codable {
+struct ChatResult: Codable, Equatable {
+    public struct Choice: Codable, Equatable {
         public let index: Int
         public let message: Chat
         public let finishReason: String
     }
     
-    public struct Usage: Codable {
+    public struct Usage: Codable, Equatable {
         public let promptTokens: Int
         public let completionTokens: Int
         public let totalTokens: Int
@@ -258,8 +261,8 @@ struct ImagesQuery: Codable {
 **Response**
 
 ```swift
-struct ImagesResult: Codable {
-    public struct URLResult: Codable {
+struct ImagesResult: Codable, Equatable {
+    public struct URLResult: Codable, Equatable {
         public let url: String
     }
     public let created: TimeInterval
@@ -290,7 +293,7 @@ let result = try await openAI.images(query: query)
 
 ![Generated Image](https://user-images.githubusercontent.com/1411778/213134082-ba988a72-fca0-4213-8805-63e5f8324cab.png)
 
-Review [Images Documentation](https://beta.openai.com/docs/api-reference/images) for more info.
+Review [Images Documentation](https://platform.openai.com/docs/api-reference/images) for more info.
 
 ### Audio
 
@@ -402,15 +405,16 @@ struct EmbeddingsQuery: Codable {
 **Response**
 
 ```swift
-struct EmbeddingsResult: Codable {
+struct EmbeddingsResult: Codable, Equatable {
 
-    public struct Embedding: Codable {
+    public struct Embedding: Codable, Equatable {
 
         public let object: String
         public let embedding: [Double]
         public let index: Int
     }
-    public  let data: [Embedding]
+    public let data: [Embedding]
+    public let usage: Usage
 }
 ```
 
@@ -446,7 +450,7 @@ let result = try await openAI.embeddings(query: query)
 (lldb)
 ```
 
-Review [Embeddings Documentation](https://beta.openai.com/docs/api-reference/embeddings) for more info.
+Review [Embeddings Documentation](https://platform.openai.com/docs/api-reference/embeddings) for more info.
 
 ### Models 
 
@@ -503,9 +507,20 @@ public struct ModelsQuery: Codable, Equatable { }
 ```swift
 public struct ModelsResult: Codable, Equatable {
     
-    public let data: [ModelType]
+    public let data: [ModelResult]
     public let object: String
 }
+
+```
+**Example**
+
+```swift
+let query = ModelsQuery()
+openAI.models(query: query) { result in
+  //Handle result here
+}
+//or
+let result = try await openAI.models(query: query)
 ```
 
 #### Retrieve Model
@@ -525,12 +540,25 @@ public struct ModelQuery: Codable, Equatable {
 
 ```swift
 public struct ModelResult: Codable, Equatable {
-    
-    public let model: ModelType
+
+    public let id: Model
+    public let object: String
+    public let ownedBy: String
 }
 ```
 
-Review [Models Documentation](https://beta.openai.com/docs/api-reference/models) for more info.
+**Example**
+
+```swift
+let query = ModelQuery(model: .gpt4)
+openAI.model(query: query) { result in
+  //Handle result here
+}
+//or
+let result = try await openAI.model(query: query)
+```
+
+Review [Models Documentation](https://platform.openai.com/docs/api-reference/models) for more info.
 
 ### Utilities
 
@@ -575,9 +603,9 @@ Read more about Cosine Similarity [here](https://en.wikipedia.org/wiki/Cosine_si
 
 ## Links
 
-- [OpenAI Documentation](https://beta.openai.com/docs/introduction)
-- [OpenAI Playground](https://beta.openai.com/playground)
-- [OpenAI Examples](https://beta.openai.com/examples)
+- [OpenAI Documentation](https://platform.openai.com/docs/introduction)
+- [OpenAI Playground](https://platform.openai.com/playground)
+- [OpenAI Examples](https://platform.openai.com/examples)
 - [Dall-E](https://labs.openai.com/)
 - [Cosine Similarity](https://en.wikipedia.org/wiki/Cosine_similarity)
 
