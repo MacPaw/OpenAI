@@ -1,3 +1,10 @@
+//
+//  OpenAITestsCombine.swift
+//
+//
+//  Created by Sergii Kryvoblotskyi on 18/01/2023.
+//
+
 import XCTest
 @testable import OpenAI
 
@@ -113,7 +120,7 @@ class OpenAITests: XCTestCase {
     
     func testRetrieveModel() async throws {
         let query = ModelQuery(model: .gpt4)
-        let modelResult = ModelResult(model: ModelType(id: .gpt4, object: "model", ownedBy: "organization-owner"))
+        let modelResult = ModelResult(id: .gpt4, object: "model", ownedBy: "organization-owner")
         try self.stub(result: modelResult)
         
         let result = try await openAI.model(query: query)

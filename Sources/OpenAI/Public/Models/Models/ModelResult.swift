@@ -8,6 +8,14 @@
 import Foundation
 
 public struct ModelResult: Codable, Equatable {
+
+    public let id: Model
+    public let object: String
+    public let ownedBy: String
     
-    public let model: ModelType
+    enum CodingKeys: String, CodingKey {
+        case id
+        case object
+        case ownedBy = "owned_by"
+    }
 }
