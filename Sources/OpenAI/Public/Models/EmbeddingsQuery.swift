@@ -10,7 +10,7 @@ import Foundation
 public struct EmbeddingsQuery: Codable {
     /// ID of the model to use.
     public let model: Model
-    /// Input text to get embeddings for
+    /// Input text to get embeddings for.
     public let input: String
 
     public init(model: Model, input: String) {

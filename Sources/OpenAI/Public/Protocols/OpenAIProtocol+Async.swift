@@ -102,6 +102,21 @@ public extension OpenAIProtocol {
         }
     }
     
+    func moderations(
+        query: ModerationsQuery
+    ) async throws -> ModerationsResult {
+        try await withCheckedThrowingContinuation { continuation in
+            moderations(query: query) { result in
+                switch result {
+                case let .success(success):
+                    return continuation.resume(returning: success)
+                case let .failure(failure):
+                    return continuation.resume(throwing: failure)
+                }
+            }
+        }
+    }
+    
     func audioTranscriptions(
         query: AudioTranscriptionQuery
     ) async throws -> AudioTranscriptionResult {
