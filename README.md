@@ -213,7 +213,7 @@ struct ChatResult: Codable, Equatable {
 **Example**
 
 ```swift
-let query = ChatQuery(model: .gpt3_5Turbo, messages: [.init(role: "user", content: "who are you")])
+let query = ChatQuery(model: .gpt3_5Turbo, messages: [.init(role: .user, content: "who are you")])
 let result = try await openAI.chats(query: query)
 ```
 

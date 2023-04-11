@@ -42,9 +42,9 @@ final class OpenAITestsCombine: XCTestCase {
            .init(role: .user, content: "Who wrote Harry Potter?")
        ])
        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-           .init(index: 0, message: .init(role: "foo", content: "bar"), finishReason: "baz"),
-           .init(index: 0, message: .init(role: "foo1", content: "bar1"), finishReason: "baz1"),
-           .init(index: 0, message: .init(role: "foo2", content: "bar2"), finishReason: "baz2")
+        .init(index: 0, message: .init(role: .system, content: "bar"), finishReason: "baz"),
+        .init(index: 0, message: .init(role: .user, content: "bar1"), finishReason: "baz1"),
+        .init(index: 0, message: .init(role: .assistant, content: "bar2"), finishReason: "baz2")
         ], usage: .init(promptTokens: 100, completionTokens: 200, totalTokens: 300))
        try self.stub(result: chatResult)
        let result = try awaitPublisher(openAI.chats(query: query))
