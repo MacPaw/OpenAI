@@ -18,6 +18,7 @@ public extension Model {
     static let textSearchBabbageQuery001 = "text-search-babbage-query-001"
     static let ada = "text-ada-001"
     static let textEmbeddingAda = "text-embedding-ada-002"
+    static let moderation = "text-moderation-001"
     static let gpt3_5Turbo = "gpt-3.5-turbo"
     static let gpt3_5Turbo0301 = "gpt-3.5-turbo-0301"
     

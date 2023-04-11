@@ -56,6 +56,13 @@ public extension OpenAIProtocol {
         }
         .eraseToAnyPublisher()
     }
+    
+    func moderations(query: ModerationsQuery) -> AnyPublisher<ModerationsResult, Error> {
+        Future<ModerationsResult, Error> {
+            moderations(query: query, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
 
     func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error> {
         Future<AudioTranscriptionResult, Error> {

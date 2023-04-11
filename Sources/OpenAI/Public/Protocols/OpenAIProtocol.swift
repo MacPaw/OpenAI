@@ -112,6 +112,23 @@ public protocol OpenAIProtocol {
     func models(query: ModelsQuery, completion: @escaping (Result<ModelsResult, Error>) -> Void)
     
     /**
+     This function sends a moderations query to the OpenAI API and retrieves a list of category results to classify how text may violate OpenAI's Content Policy.
+     
+     Example:
+     ```
+     let query = ModerationsQuery(input: "I want to kill them.")
+     openAI.moderations(query: query) { result in
+       //Handle response here
+     }
+     ```
+
+     - Parameters:
+       - query: A `ModerationsQuery` object containing the input parameters for the API request. This includes the input text and optionally the model to be used.
+       - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ModerationsResult, Error>`, will contain either the `ModerationsResult` object with the list of category results, or an error if the request failed.
+    **/
+    func moderations(query: ModerationsQuery, completion: @escaping (Result<ModerationsResult, Error>) -> Void)
+    
+    /**
     Transcribes audio data using OpenAI's audio transcription API and completes the operation asynchronously.
 
     - Parameter query: The `AudioTranscriptionQuery` instance, containing the information required for the transcription request.

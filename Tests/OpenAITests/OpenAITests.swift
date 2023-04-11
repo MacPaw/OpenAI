@@ -158,6 +158,28 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(inError, apiError)
     }
     
+    func testModerations() async throws {
+        let query = ModerationsQuery(input: "Hello, world!")
+        let moderationsResult = ModerationsResult(id: "foo", model: .moderation, results: [
+            .init(categories: .init(hate: false, hateThreatening: false, selfHarm: false, sexual: false, sexualMinors: false, violence: false, violenceGraphic: false),
+                  categoryScores: .init(hate: 0.1, hateThreatening: 0.1, selfHarm: 0.1, sexual: 0.1, sexualMinors: 0.1, violence: 0.1, violenceGraphic: 0.1),
+                  flagged: false)
+        ])
+        try self.stub(result: moderationsResult)
+        
+        let result = try await openAI.moderations(query: query)
+        XCTAssertEqual(result, moderationsResult)
+    }
+    
+    func testModerationsError() async throws {
+        let query = ModerationsQuery(input: "Hello, world!")
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.moderations(query: query) }
+        XCTAssertEqual(inError, apiError)
+    }
+    
     func testAudioTranscriptions() async throws {
         let data = Data()
         let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)

@@ -25,6 +25,7 @@ This repository contains Swift implementation over [OpenAI](https://platform.ope
     - [Models](#models)
         - [List Models](#list-models)
         - [Retrieve Model](#retrieve-model)
+    - [Moderations](#moderations)
     - [Utilities](#utilities)
 - [Links](#links)
 - [License](#license)
@@ -559,6 +560,44 @@ let result = try await openAI.model(query: query)
 ```
 
 Review [Models Documentation](https://platform.openai.com/docs/api-reference/models) for more info.
+
+### Moderations 
+
+Given a input text, outputs if the model classifies it as violating OpenAI's content policy.
+
+**Request**
+
+```swift
+public struct ModerationsQuery: Codable {
+    
+    public let input: String
+    public let model: Model?
+}    
+```
+
+**Response**
+
+```swift
+public struct ModerationsResult: Codable, Equatable {
+
+    public let id: String
+    public let model: Model
+    public let results: [CategoryResult]
+}
+```
+
+**Example**
+
+```swift
+let query = ModerationsQuery(input: "I want to kill them.")
+openAI.moderations(query: query) { result in
+  //Handle result here
+}
+//or
+let result = try await openAI.moderations(query: query)
+```
+
+Review [Moderations Documentation](https://platform.openai.com/docs/api-reference/moderations) for more info.
 
 ### Utilities
 

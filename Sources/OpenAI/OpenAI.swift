@@ -75,6 +75,10 @@ final public class OpenAI: OpenAIProtocol {
         performRequest(request: JSONRequest<ModelsResult>(body: query, url: buildURL(path: .models)), completion: completion)
     }
     
+    public func moderations(query: ModerationsQuery, completion: @escaping (Result<ModerationsResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<ModerationsResult>(body: query, url: buildURL(path: .moderations)), completion: completion)
+    }
+    
     public func audioTranscriptions(query: AudioTranscriptionQuery, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void) {
         performRequest(request: MultipartFormDataRequest<AudioTranscriptionResult>(body: query, url: buildURL(path: .audioTranscriptions)), completion: completion)
     }
@@ -143,6 +147,7 @@ extension APIPath {
     static let embeddings = "/v1/embeddings"
     static let chats = "/v1/chat/completions"
     static let models = "/v1/models"
+    static let moderations = "/v1/moderations"
     
     static let audioTranscriptions = "/v1/audio/transcriptions"
     static let audioTranslations = "/v1/audio/translations"
