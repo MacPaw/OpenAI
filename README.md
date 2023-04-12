@@ -27,6 +27,7 @@ This repository contains Swift implementation over [OpenAI](https://platform.ope
         - [Retrieve Model](#retrieve-model)
     - [Moderations](#moderations)
     - [Utilities](#utilities)
+- [Example Project](#example-project)
 - [Links](#links)
 - [License](#license)
 
