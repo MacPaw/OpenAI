@@ -640,6 +640,12 @@ print(similarity) //0.9510201910206734
 
 Read more about Cosine Similarity [here](https://en.wikipedia.org/wiki/Cosine_similarity).
 
+## Example Project
+
+You can find example iOS application in [Demo](/Demo) folder. 
+
+![mockuuups-iphone-13-pro-mockup-perspective-right](https://user-images.githubusercontent.com/1411778/231449395-2ad6bab6-c21f-43dc-8977-f45f505b609d.png)
+
 ## Links
 
 - [OpenAI Documentation](https://platform.openai.com/docs/introduction)
