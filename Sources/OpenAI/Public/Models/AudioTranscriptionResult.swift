@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  AudioTranscriptionResult.swift
 //  
 //
 //  Created by Sergii Kryvoblotskyi on 02/04/2023.

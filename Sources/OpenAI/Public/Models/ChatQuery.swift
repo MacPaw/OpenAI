@@ -78,5 +78,4 @@ public struct ChatQuery: Codable {
         self.logitBias = logitBias
         self.user = user
     }
-    
 }

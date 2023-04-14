@@ -67,6 +67,10 @@ final public class OpenAI: OpenAIProtocol {
         performRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: .chats)), completion: completion)
     }
     
+    public func edits(query: EditsQuery, completion: @escaping (Result<EditsResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<EditsResult>(body: query, url: buildURL(path: .edits)), completion: completion)
+    }
+    
     public func model(query: ModelQuery, completion: @escaping (Result<ModelResult, Error>) -> Void) {
         performRequest(request: JSONRequest<ModelResult>(body: query, url: buildURL(path: .models.withPath(query.model))), completion: completion)
     }
@@ -146,6 +150,7 @@ extension APIPath {
     static let images = "/v1/images/generations"
     static let embeddings = "/v1/embeddings"
     static let chats = "/v1/chat/completions"
+    static let edits = "/v1/edits"
     static let models = "/v1/models"
     static let moderations = "/v1/moderations"
     
