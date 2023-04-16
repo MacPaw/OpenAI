@@ -21,6 +21,7 @@ This repository contains Swift implementation over [OpenAI](https://platform.ope
     - [Audio](#audio)
         - [Audio Transcriptions](#audio-transcriptions)
         - [Audio Translations](#audio-translations)
+    - [Edits](#edits)
     - [Embeddings](#embeddings)
     - [Models](#models)
         - [List Models](#list-models)
@@ -388,6 +389,70 @@ let result = try await openAI.audioTranslations(query: query)
 
 Review [Audio Documentation](https://platform.openai.com/docs/api-reference/audio) for more info.
 
+### Edits
+
+Creates a new edit for the provided input, instruction, and parameters.
+
+**Request**
+
+```swift
+struct EditsQuery: Codable {
+    /// ID of the model to use.
+    public let model: Model
+    /// Input text to get embeddings for.
+    public let input: String?
+    /// The instruction that tells the model how to edit the prompt.
+    public let instruction: String
+    /// The number of images to generate. Must be between 1 and 10.
+    public let n: Int?
+    /// What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
+    public let temperature: Double?
+    /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
+    public let topP: Double?
+}
+```
+
+**Response**
+
+```swift
+struct EditsResult: Codable, Equatable {
+    
+    public struct Choice: Codable, Equatable {
+        public let text: String
+        public let index: Int
+    }
+
+    public struct Usage: Codable, Equatable {
+        public let promptTokens: Int
+        public let completionTokens: Int
+        public let totalTokens: Int
+        
+        enum CodingKeys: String, CodingKey {
+            case promptTokens = "prompt_tokens"
+            case completionTokens = "completion_tokens"
+            case totalTokens = "total_tokens"
+        }
+    }
+    
+    public let object: String
+    public let created: TimeInterval
+    public let choices: [Choice]
+    public let usage: Usage
+}
+```
+
+**Example**
+
+```swift
+let query = EditsQuery(model: .gpt4, input: "What day of the wek is it?", instruction: "Fix the spelling mistakes")
+openAI.edits(query: query) { result in
+  //Handle response here
+}
+//or
+let result = try await openAI.edits(query: query)
+```
+
+Review [Edits Documentation](https://platform.openai.com/docs/api-reference/edits) for more info.
 
 ### Embeddings
 
@@ -423,7 +488,7 @@ struct EmbeddingsResult: Codable, Equatable {
 **Example**
 
 ```swift
-let query = EmbeddingsQuery(model: .textSearchBabbadgeDoc, input: "The food was delicious and the waiter...")
+let query = EmbeddingsQuery(model: .textSearchBabbageDoc, input: "The food was delicious and the waiter...")
 openAI.embeddings(query: query) { result in
   //Handle response here
 }
@@ -460,22 +525,37 @@ Models are represented as a typealias `typealias Model = String`.
 
 ```swift
 public extension Model {
-    static let textDavinci_003 = "text-davinci-003"
-    static let textDavinci_002 = "text-davinci-002"
-    static let textDavinci_001 = "text-davinci-001"
-    static let curie = "text-curie-001"
-    static let babbage = "text-babbage-001"
-    static let textSearchBabbadgeDoc = "text-search-babbage-doc-001"
-    static let textSearchBabbageQuery001 = "text-search-babbage-query-001"
-    static let ada = "text-ada-001"
-    static let textEmbeddingAda = "text-embedding-ada-002"
-    static let gpt3_5Turbo = "gpt-3.5-turbo"
-    static let gpt3_5Turbo0301 = "gpt-3.5-turbo-0301"
-    
     static let gpt4 = "gpt-4"
     static let gpt4_0314 = "gpt-4-0314"
     static let gpt4_32k = "gpt-4-32k"
     static let gpt4_32k_0314 = "gpt-4-32k-0314"
+    static let gpt3_5Turbo = "gpt-3.5-turbo"
+    static let gpt3_5Turbo0301 = "gpt-3.5-turbo-0301"
+    
+    static let textDavinci_003 = "text-davinci-003"
+    static let textDavinci_002 = "text-davinci-002"
+    static let textCurie = "text-curie-001"
+    static let textBabbage = "text-babbage-001"
+    static let textAda = "text-ada-001"
+    
+    static let textDavinci_001 = "text-davinci-001"
+    static let codeDavinciEdit_001 = "code-davinci-edit-001"
+    
+    static let whisper_1 = "whisper-1"
+    
+    static let davinci = "davinci"
+    static let curie = "curie"
+    static let babbage = "babbage"
+    static let ada = "ada"
+    
+    static let textEmbeddingAda = "text-embedding-ada-002"
+    static let textSearchAda = "text-search-ada-doc-001"
+    static let textSearchBabbageDoc = "text-search-babbage-doc-001"
+    static let textSearchBabbageQuery001 = "text-search-babbage-query-001"
+    
+    static let textModerationStable = "text-moderation-stable"
+    static let textModerationLatest = "text-moderation-latest"
+    static let moderation = "text-moderation-001"
 }
 ```
 
