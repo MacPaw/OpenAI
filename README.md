@@ -186,6 +186,7 @@ Using the OpenAI Chat API, you can build your own applications with `gpt-3.5-tur
      public let logitBias: [String:Int]?
      /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
      public let user: String?
+}
 ```
 
 **Response**
@@ -561,7 +562,7 @@ public extension Model {
 
 GPT-4 models are supported. 
 
-For example to use basic GPT-4 8K model pass `.gpt4` as a paramter.
+For example to use basic GPT-4 8K model pass `.gpt4` as a parameter.
 
 ```swift
 let query = ChatQuery(model: .gpt4, messages: [

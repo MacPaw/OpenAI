@@ -67,7 +67,7 @@ final class OpenAITestsCombine: XCTestCase {
             .init(object: "id-sdasd", embedding: [0.1, 0.2, 0.3, 0.4], index: 0),
             .init(object: "id-sdasd1", embedding: [0.4, 0.1, 0.7, 0.1], index: 1),
             .init(object: "id-sdasd2", embedding: [0.8, 0.1, 0.2, 0.8], index: 2)
-        ], usage: .init(promptTokens: 10, totalTokens: 10))
+        ], model: .textSearchBabbageDoc, usage: .init(promptTokens: 10, totalTokens: 10))
         try self.stub(result: embeddingsResult)
         
         let result = try awaitPublisher(openAI.embeddings(query: query))

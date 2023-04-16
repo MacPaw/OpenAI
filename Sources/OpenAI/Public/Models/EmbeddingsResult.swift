@@ -26,5 +26,6 @@ public struct EmbeddingsResult: Codable, Equatable {
     }
     
     public let data: [Embedding]
+    public let model: Model
     public let usage: Usage
 }

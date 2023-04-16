@@ -153,7 +153,7 @@ class OpenAITestsDecoder: XCTestCase {
         
         let expectedValue = EmbeddingsResult(data: [
             .init(object: "embedding", embedding: [0.0023064255, -0.009327292, -0.0028842222], index: 0)
-        ], usage: .init(promptTokens: 8, totalTokens: 8))
+        ], model: .textEmbeddingAda, usage: .init(promptTokens: 8, totalTokens: 8))
         try decode(data, expectedValue)
     }
     
