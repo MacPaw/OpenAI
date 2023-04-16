@@ -43,15 +43,6 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(inError, apiError)
     }
     
-    func testImagesError() async throws {
-        let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: "1024x1024")
-        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
-        self.stub(error: inError)
-        
-        let apiError: APIError = try await XCTExpectError { try await openAI.images(query: query) }
-        XCTAssertEqual(inError, apiError)
-    }
-
     func testImages() async throws {
         let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: "1024x1024")
         let imagesResult = ImagesResult(created: 100, data: [
@@ -60,6 +51,15 @@ class OpenAITests: XCTestCase {
         try self.stub(result: imagesResult)
         let result = try await openAI.images(query: query)
         XCTAssertEqual(result, imagesResult)
+    }
+    
+    func testImagesError() async throws {
+        let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: "1024x1024")
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.images(query: query) }
+        XCTAssertEqual(inError, apiError)
     }
     
     func testChats() async throws {
@@ -116,7 +116,7 @@ class OpenAITests: XCTestCase {
             .init(object: "id-sdasd", embedding: [0.1, 0.2, 0.3, 0.4], index: 0),
             .init(object: "id-sdasd1", embedding: [0.4, 0.1, 0.7, 0.1], index: 1),
             .init(object: "id-sdasd2", embedding: [0.8, 0.1, 0.2, 0.8], index: 2)
-        ], usage: .init(promptTokens: 10, totalTokens: 10))
+        ], model: .textSearchBabbageDoc, usage: .init(promptTokens: 10, totalTokens: 10))
         try self.stub(result: embeddingsResult)
         
         let result = try await openAI.embeddings(query: query)
