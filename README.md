@@ -28,6 +28,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
         - [Retrieve Model](#retrieve-model)
     - [Moderations](#moderations)
     - [Utilities](#utilities)
+    - [Combine Extensions](combine-extensions)
 - [Example Project](#example-project)
 - [Links](#links)
 - [License](#license)
@@ -723,6 +724,23 @@ print(similarity) //0.9510201910206734
 <img width="574" alt="Screenshot 2022-12-19 at 6 00 33 PM" src="https://user-images.githubusercontent.com/1411778/208467903-000b52d8-6589-40dd-b020-eeed69e8d284.png">
 
 Read more about Cosine Similarity [here](https://en.wikipedia.org/wiki/Cosine_similarity).
+
+### Combine Extensions
+
+The library contais built-in [Combine](https://developer.apple.com/documentation/combine) extensions.
+
+```swift
+public func completions(query: CompletionsQuery) -> AnyPublisher<CompletionsResult, Error>
+public func images(query: ImagesQuery) -> AnyPublisher<ImagesResult, Error>
+public func embeddings(query: EmbeddingsQuery) -> AnyPublisher<EmbeddingsResult, Error>
+public func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error>
+public func edits(query: EditsQuery) -> AnyPublisher<EditsResult, Error>
+public func model(query: ModelQuery) -> AnyPublisher<ModelResult, Error>
+public func models(query: ModelsQuery) -> AnyPublisher<ModelsResult, Error>
+public func moderations(query: ModerationsQuery) -> AnyPublisher<ModerationsResult, Error>
+public func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error>
+public func audioTranslations(query: AudioTranslationQuery) -> AnyPublisher<AudioTranslationResult, Error>
+```
 
 ## Example Project
 
