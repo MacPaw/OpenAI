@@ -28,7 +28,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
         - [Retrieve Model](#retrieve-model)
     - [Moderations](#moderations)
     - [Utilities](#utilities)
-    - [Combine Extensions](combine-extensions)
+    - [Combine Extensions](#combine-extensions)
 - [Example Project](#example-project)
 - [Links](#links)
 - [License](#license)
