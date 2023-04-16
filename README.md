@@ -9,7 +9,7 @@ ___
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FMacPaw%2FOpenAI%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/MacPaw/OpenAI)
 [![Twitter](https://img.shields.io/static/v1?label=Twitter&message=@MacPaw&color=CA1F67)](https://twitter.com/MacPaw)
 
-This repository contains Swift implementation over [OpenAI](https://platform.openai.com/docs/api-reference/) public API.
+This repository contains Swift community-maintained implementation over [OpenAI](https://platform.openai.com/docs/api-reference/) public API. 
 
 - [What is OpenAI](#what-is-openai)
 - [Installation](#installation)
@@ -55,6 +55,8 @@ dependencies: [
 ### Initialization
 
 To initialize API instance you need to [obtain](https://platform.openai.com/account/api-keys) API token from your Open AI organization.
+
+**Remember that your API key is a secret!** Do not share it with others or expose it in any client-side code (browsers, apps). Production requests must be routed through your own backend server where your API key can be securely loaded from an environment variable or key management service.
 
 <img width="1081" alt="company" src="https://user-images.githubusercontent.com/1411778/213204726-0772373e-14db-4d5d-9a58-bc249bac4c57.png">
 
