@@ -727,7 +727,7 @@ Read more about Cosine Similarity [here](https://en.wikipedia.org/wiki/Cosine_si
 
 ### Combine Extensions
 
-The library contais built-in [Combine](https://developer.apple.com/documentation/combine) extensions.
+The library contains built-in [Combine](https://developer.apple.com/documentation/combine) extensions.
 
 ```swift
 func completions(query: CompletionsQuery) -> AnyPublisher<CompletionsResult, Error>
