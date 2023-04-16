@@ -730,16 +730,16 @@ Read more about Cosine Similarity [here](https://en.wikipedia.org/wiki/Cosine_si
 The library contais built-in [Combine](https://developer.apple.com/documentation/combine) extensions.
 
 ```swift
-public func completions(query: CompletionsQuery) -> AnyPublisher<CompletionsResult, Error>
-public func images(query: ImagesQuery) -> AnyPublisher<ImagesResult, Error>
-public func embeddings(query: EmbeddingsQuery) -> AnyPublisher<EmbeddingsResult, Error>
-public func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error>
-public func edits(query: EditsQuery) -> AnyPublisher<EditsResult, Error>
-public func model(query: ModelQuery) -> AnyPublisher<ModelResult, Error>
-public func models(query: ModelsQuery) -> AnyPublisher<ModelsResult, Error>
-public func moderations(query: ModerationsQuery) -> AnyPublisher<ModerationsResult, Error>
-public func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error>
-public func audioTranslations(query: AudioTranslationQuery) -> AnyPublisher<AudioTranslationResult, Error>
+func completions(query: CompletionsQuery) -> AnyPublisher<CompletionsResult, Error>
+func images(query: ImagesQuery) -> AnyPublisher<ImagesResult, Error>
+func embeddings(query: EmbeddingsQuery) -> AnyPublisher<EmbeddingsResult, Error>
+func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error>
+func edits(query: EditsQuery) -> AnyPublisher<EditsResult, Error>
+func model(query: ModelQuery) -> AnyPublisher<ModelResult, Error>
+func models(query: ModelsQuery) -> AnyPublisher<ModelsResult, Error>
+func moderations(query: ModerationsQuery) -> AnyPublisher<ModerationsResult, Error>
+func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error>
+func audioTranslations(query: AudioTranslationQuery) -> AnyPublisher<AudioTranslationResult, Error>
 ```
 
 ## Example Project
