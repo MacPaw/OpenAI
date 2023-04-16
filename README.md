@@ -488,7 +488,7 @@ struct EmbeddingsResult: Codable, Equatable {
 **Example**
 
 ```swift
-let query = EmbeddingsQuery(model: .textSearchBabbadgeDoc, input: "The food was delicious and the waiter...")
+let query = EmbeddingsQuery(model: .textSearchBabbageDoc, input: "The food was delicious and the waiter...")
 openAI.embeddings(query: query) { result in
   //Handle response here
 }
@@ -525,22 +525,37 @@ Models are represented as a typealias `typealias Model = String`.
 
 ```swift
 public extension Model {
-    static let textDavinci_003 = "text-davinci-003"
-    static let textDavinci_002 = "text-davinci-002"
-    static let textDavinci_001 = "text-davinci-001"
-    static let curie = "text-curie-001"
-    static let babbage = "text-babbage-001"
-    static let textSearchBabbadgeDoc = "text-search-babbage-doc-001"
-    static let textSearchBabbageQuery001 = "text-search-babbage-query-001"
-    static let ada = "text-ada-001"
-    static let textEmbeddingAda = "text-embedding-ada-002"
-    static let gpt3_5Turbo = "gpt-3.5-turbo"
-    static let gpt3_5Turbo0301 = "gpt-3.5-turbo-0301"
-    
     static let gpt4 = "gpt-4"
     static let gpt4_0314 = "gpt-4-0314"
     static let gpt4_32k = "gpt-4-32k"
     static let gpt4_32k_0314 = "gpt-4-32k-0314"
+    static let gpt3_5Turbo = "gpt-3.5-turbo"
+    static let gpt3_5Turbo0301 = "gpt-3.5-turbo-0301"
+    
+    static let textDavinci_003 = "text-davinci-003"
+    static let textDavinci_002 = "text-davinci-002"
+    static let textCurie = "text-curie-001"
+    static let textBabbage = "text-babbage-001"
+    static let textAda = "text-ada-001"
+    
+    static let textDavinci_001 = "text-davinci-001"
+    static let codeDavinciEdit_001 = "code-davinci-edit-001"
+    
+    static let whisper_1 = "whisper-1"
+    
+    static let davinci = "davinci"
+    static let curie = "curie"
+    static let babbage = "babbage"
+    static let ada = "ada"
+    
+    static let textEmbeddingAda = "text-embedding-ada-002"
+    static let textSearchAda = "text-search-ada-doc-001"
+    static let textSearchBabbageDoc = "text-search-babbage-doc-001"
+    static let textSearchBabbageQuery001 = "text-search-babbage-query-001"
+    
+    static let textModerationStable = "text-moderation-stable"
+    static let textModerationLatest = "text-moderation-latest"
+    static let moderation = "text-moderation-001"
 }
 ```
 

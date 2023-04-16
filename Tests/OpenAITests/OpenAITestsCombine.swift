@@ -62,7 +62,7 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testEmbeddings() throws {
-        let query = EmbeddingsQuery(model: .textSearchBabbadgeDoc, input: "The food was delicious and the waiter...")
+        let query = EmbeddingsQuery(model: .textSearchBabbageDoc, input: "The food was delicious and the waiter...")
         let embeddingsResult = EmbeddingsResult(data: [
             .init(object: "id-sdasd", embedding: [0.1, 0.2, 0.3, 0.4], index: 0),
             .init(object: "id-sdasd1", embedding: [0.4, 0.1, 0.7, 0.1], index: 1),

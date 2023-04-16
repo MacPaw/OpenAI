@@ -48,7 +48,7 @@ public protocol OpenAIProtocol {
 
      Example:
      ```
-     let query = EmbeddingsQuery(model: .textSearchBabbadgeDoc, input: "The food was delicious and the waiter...")
+     let query = EmbeddingsQuery(model: .textSearchBabbageDoc, input: "The food was delicious and the waiter...")
      openAI.embeddings(query: query) { result in
        //Handle response here
      }
