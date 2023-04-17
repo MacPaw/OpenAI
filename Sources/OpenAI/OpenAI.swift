@@ -45,10 +45,14 @@ final public class OpenAI: OpenAIProtocol {
     public convenience init(configuration: Configuration) {
         self.init(configuration: configuration, session: URLSession.shared)
     }
-    
-    init(configuration: Configuration, session: URLSessionProtocol = URLSession.shared) {
+
+    init(configuration: Configuration, session: URLSessionProtocol) {
         self.configuration = configuration
         self.session = session
+    }
+
+    public convenience init(configuration: Configuration, session: URLSession = URLSession.shared) {
+        self.init(configuration: configuration, session: session as URLSessionProtocol)
     }
     
     public func completions(query: CompletionsQuery, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
