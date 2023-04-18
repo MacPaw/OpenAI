@@ -1,5 +1,5 @@
 //
-//  File 2.swift
+//  StreamingSession.swift
 //  
 //
 //  Created by Sergii Kryvoblotskyi on 18/04/2023.
