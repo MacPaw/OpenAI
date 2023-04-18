@@ -35,6 +35,7 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     private let session: URLSessionProtocol
+    private var streamingSessions: [NSObject] = []
     
     public let configuration: Configuration
 
@@ -64,7 +65,11 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     public func chats(query: ChatQuery, completion: @escaping (Result<ChatResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: .chats)), completion: completion)
+        if query.stream == true {
+            performSteamingRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: .chats)), completion: completion)
+        } else {
+            performRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: .chats)), completion: completion)
+        }
     }
     
     public func edits(query: EditsQuery, completion: @escaping (Result<EditsResult, Error>) -> Void) {
@@ -127,7 +132,26 @@ extension OpenAI {
             task.resume()
         } catch {
             completion(.failure(error))
-            return
+        }
+    }
+    
+    func performSteamingRequest<ResultType: Codable>(request: any URLRequestBuildable, completion: @escaping (Result<ResultType, Error>) -> Void) {
+        do {
+            let request = try request.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
+            let session = StreamingSession<ResultType>(urlRequest: request)
+            session.onReceiveContent = {_, object in
+                completion(.success(object))
+            }
+            session.onProcessingError = {_, error in
+                completion(.failure(error))
+            }
+            session.onComplete = { [weak self] object, error in
+                self?.streamingSessions.removeAll(where: { $0 == object })
+            }
+            session.perform()
+            streamingSessions.append(session)
+        } catch {
+            completion(.failure(error))
         }
     }
 }
