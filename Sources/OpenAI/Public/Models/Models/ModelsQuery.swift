@@ -7,4 +7,6 @@
 
 import Foundation
 
-public struct ModelsQuery: Codable, Equatable { }
+public struct ModelsQuery: Codable, Equatable {
+    public init() { }
+}
