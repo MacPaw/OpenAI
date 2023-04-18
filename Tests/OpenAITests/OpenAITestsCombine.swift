@@ -84,11 +84,10 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testListModels() throws {
-        let query = ModelsQuery()
         let listModelsResult = ModelsResult(data: [], object: "model")
         try self.stub(result: listModelsResult)
         
-        let result = try awaitPublisher(openAI.models(query: query))
+        let result = try awaitPublisher(openAI.models())
         XCTAssertEqual(result, listModelsResult)
     }
     
