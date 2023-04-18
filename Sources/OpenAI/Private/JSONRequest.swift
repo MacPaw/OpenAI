@@ -12,11 +12,11 @@ import FoundationNetworking
 
 final class JSONRequest<ResultType> {
     
-    let body: Codable
+    let body: Codable?
     let url: URL
     let method: String
     
-    init(body: Codable, url: URL, method: String = "POST") {
+    init(body: Codable? = nil, url: URL, method: String = "POST") {
         self.body = body
         self.url = url
         self.method = method
@@ -33,7 +33,9 @@ extension JSONRequest: URLRequestBuildable {
             request.setValue(organizationIdentifier, forHTTPHeaderField: "OpenAI-Organization")
         }
         request.httpMethod = method
-        request.httpBody = try JSONEncoder().encode(body)
+        if let body = body {
+            request.httpBody = try JSONEncoder().encode(body)
+        }
         return request
     }
 }
