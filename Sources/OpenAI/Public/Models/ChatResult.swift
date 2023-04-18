@@ -7,8 +7,6 @@
 
 import Foundation
 
-//"delta":{"content":" read"},
-
 public struct ChatResult: Codable, Equatable {
     
     public struct Choice: Codable, Equatable {
