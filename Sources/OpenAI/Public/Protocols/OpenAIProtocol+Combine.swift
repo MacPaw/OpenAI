@@ -57,9 +57,9 @@ public extension OpenAIProtocol {
         .eraseToAnyPublisher()
     }
     
-    func models(query: ModelsQuery) -> AnyPublisher<ModelsResult, Error> {
+    func models() -> AnyPublisher<ModelsResult, Error> {
         Future<ModelsResult, Error> {
-            models(query: query, completion: $0)
+            models(completion: $0)
         }
         .eraseToAnyPublisher()
     }

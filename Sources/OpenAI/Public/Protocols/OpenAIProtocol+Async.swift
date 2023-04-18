@@ -102,11 +102,9 @@ public extension OpenAIProtocol {
         }
     }
     
-    func models(
-        query: ModelsQuery
-    ) async throws -> ModelsResult {
+    func models() async throws -> ModelsResult {
         try await withCheckedThrowingContinuation { continuation in
-            models(query: query) { result in
+            models() { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)

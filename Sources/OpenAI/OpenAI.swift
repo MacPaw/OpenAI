@@ -75,7 +75,7 @@ final public class OpenAI: OpenAIProtocol {
         performRequest(request: JSONRequest<ModelResult>(url: buildURL(path: .models.withPath(query.model)), method: "GET"), completion: completion)
     }
     
-    public func models(query: ModelsQuery, completion: @escaping (Result<ModelsResult, Error>) -> Void) {
+    public func models(completion: @escaping (Result<ModelsResult, Error>) -> Void) {
         performRequest(request: JSONRequest<ModelsResult>(url: buildURL(path: .models), method: "GET"), completion: completion)
     }
     

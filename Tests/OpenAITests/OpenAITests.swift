@@ -157,7 +157,6 @@ class OpenAITests: XCTestCase {
     }
     
     func testListModels() async throws {
-        let query = ModelsQuery()
         let listModelsResult = ModelsResult(data: [
             .init(id: "model-id-0", object: "model", ownedBy: "organization-owner"),
             .init(id: "model-id-1", object: "model", ownedBy: "organization-owner"),
@@ -165,16 +164,15 @@ class OpenAITests: XCTestCase {
         ], object: "list")
         try self.stub(result: listModelsResult)
         
-        let result = try await openAI.models(query: query)
+        let result = try await openAI.models()
         XCTAssertEqual(result, listModelsResult)
     }
     
     func testListModelsError() async throws {
-        let query = ModelsQuery()
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
-        let apiError: APIError = try await XCTExpectError { try await openAI.models(query: query) }
+        let apiError: APIError = try await XCTExpectError { try await openAI.models() }
         XCTAssertEqual(inError, apiError)
     }
     
