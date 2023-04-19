@@ -35,6 +35,7 @@ public struct ChatQuery: Codable {
     /// How many chat completion choices to generate for each input message.
     public let n: Int?
     /// If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only `server-sent events` as they become available, with the stream terminated by a data: [DONE] message.
+    /// If you want to perform the query in a streaming fashion, set this to `true` and use `OpenAI.chatsStream(query:)` method.
     public let stream: Bool?
     /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
     public let stop: [String]?
