@@ -11,6 +11,7 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var chatStore: ChatStore
+    @ObservedObject var miscStore: MiscStore
     @State private var selectedTab = 0
     @Environment(\.idProviderValue) var idProvider
 
@@ -37,6 +38,14 @@ struct ContentView: View {
                 Label("Image", systemImage: "photo")
             }
             .tag(2)
+            
+            MiscView(
+                store: miscStore
+            )
+            .tabItem {
+                Label("Misc", systemImage: "ellipsis")
+            }
+            .tag(3)
         }
     }
 }
