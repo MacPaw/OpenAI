@@ -41,6 +41,36 @@ public extension OpenAIProtocol {
             }
         }
     }
+    
+    func imageEdits(
+        query: ImageEditsQuery
+    ) async throws -> ImagesResult {
+        try await withCheckedThrowingContinuation { continuation in
+            imageEdits(query: query) { result in
+                switch result {
+                case let .success(success):
+                    return continuation.resume(returning: success)
+                case let .failure(failure):
+                    return continuation.resume(throwing: failure)
+                }
+            }
+        }
+    }
+    
+    func imageVariations(
+        query: ImageVariationsQuery
+    ) async throws -> ImagesResult {
+        try await withCheckedThrowingContinuation { continuation in
+            imageVariations(query: query) { result in
+                switch result {
+                case let .success(success):
+                    return continuation.resume(returning: success)
+                case let .failure(failure):
+                    return continuation.resume(throwing: failure)
+                }
+            }
+        }
+    }
 
     func embeddings(
         query: EmbeddingsQuery

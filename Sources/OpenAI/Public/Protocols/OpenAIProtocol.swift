@@ -38,10 +38,44 @@ public protocol OpenAIProtocol {
      ```
      
      - Parameters:
-       - query: An `ImagesQuery` object containing the input parameters for the API request. This includes the query parameters such as the model, text prompt, image size, and other settings.
+       - query: An `ImagesQuery` object containing the input parameters for the API request. This includes the query parameters such as the text prompt, image size, and other settings.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ImagesResult, Error>`, will contain either the `ImagesResult` object with the generated images, or an error if the request failed.
     **/
     func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void)
+    
+    /**
+     This function sends an image edit query to the OpenAI API and retrieves generated images in response. The Images Edit API enables you to edit images or graphics using OpenAI's powerful deep learning models.
+
+     Example:
+     ```
+     let query = ImagesEditQuery(image: "@whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+     openAI.imageEdits(query: query) { result in
+       //Handle result here
+     }
+     ```
+     
+     - Parameters:
+       - query: An `ImagesEditQuery` object containing the input parameters for the API request. This includes the query parameters such as the image to be edited, an image to be used a mask if applicable, text prompt, image size, and other settings.
+       - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ImagesResult, Error>`, will contain either the `ImagesResult` object with the generated images, or an error if the request failed.
+    **/
+    func imageEdits(query: ImageEditsQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void)
+    
+    /**
+     This function sends an image variation query to the OpenAI API and retrieves generated images in response. The Images Variations API enables you to create a variation of a given image using OpenAI's powerful deep learning models.
+
+     Example:
+     ```
+     let query = ImagesVariationQuery(image: "@whitecat.png", n: 1, size: "1024x1024")
+     openAI.imageVariations(query: query) { result in
+       //Handle result here
+     }
+     ```
+     
+     - Parameters:
+       - query: An `ImagesVariationQuery` object containing the input parameters for the API request. This includes the query parameters such as the image to use as a basis for the variation(s), image size, and other settings.
+       - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ImagesResult, Error>`, will contain either the `ImagesResult` object with the generated images, or an error if the request failed.
+    **/
+    func imageVariations(query: ImageVariationsQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void)
     
     /**
      This function sends an embeddings query to the OpenAI API and retrieves embeddings in response. The Embeddings API enables you to generate high-dimensional vector representations of texts, which can be used for various natural language processing tasks such as semantic similarity, clustering, and classification.

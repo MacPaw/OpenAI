@@ -18,6 +18,9 @@ This repository contains Swift community-maintained implementation over [OpenAI]
     - [Completions](#completions)
     - [Chats](#chats)
     - [Images](#images)
+        - [Create Image](#create-image)
+        - [Create Image Edit](#create-image-edit)
+        - [Create Image Variation](#create-image-variation)
     - [Audio](#audio)
         - [Audio Transcriptions](#audio-transcriptions)
         - [Audio Translations](#audio-translations)
@@ -252,6 +255,8 @@ Given a prompt and/or an input image, the model will generate a new image.
 
 As Artificial Intelligence continues to develop, so too does the intriguing concept of Dall-E. Developed by OpenAI, a research lab for artificial intelligence purposes, Dall-E has been classified as an AI system that can generate images based on descriptions provided by humans. With its potential applications spanning from animation and illustration to design and engineering - not to mention the endless possibilities in between - it's easy to see why there is such excitement over this new technology.
 
+### Create Image
+
 **Request**
 
 ```swift
@@ -276,6 +281,7 @@ struct ImagesResult: Codable, Equatable {
     public let data: [URLResult]
 }
 ```
+
 **Example**
 
 ```swift
@@ -299,6 +305,74 @@ let result = try await openAI.images(query: query)
 **Generated image**
 
 ![Generated Image](https://user-images.githubusercontent.com/1411778/213134082-ba988a72-fca0-4213-8805-63e5f8324cab.png)
+
+### Create Image Edit
+
+Creates an edited or extended image given an original image and a prompt.
+
+**Request**
+
+```swift
+public struct ImageEditsQuery: Codable {
+    /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
+    public let image: String
+    /// An additional image whose fully transparent areas (e.g. where alpha is zero) indicate where image should be edited. Must be a valid PNG file, less than 4MB, and have the same dimensions as image.
+    public let mask: String?
+    /// A text description of the desired image(s). The maximum length is 1000 characters.
+    public let prompt: String
+    /// The number of images to generate. Must be between 1 and 10.
+    public let n: Int?
+    /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
+    public let size: String?
+}
+```
+
+**Response**
+
+Uses the ImagesResult response similarly to ImagesQuery.
+
+**Example**
+
+```swift
+ let query = ImagesEditQuery(image: "@whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+ openAI.imageEdits(query: query) { result in
+   //Handle result here
+ }
+//or
+let result = try await openAI.imageEdits(query: query)
+```
+
+### Create Image Variation
+
+Creates a variation of a given image.
+
+**Request**
+
+```swift
+public struct ImageVariationsQuery: Codable {
+    /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
+    public let image: String
+    /// The number of images to generate. Must be between 1 and 10.
+    public let n: Int?
+    /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
+    public let size: String?
+}
+```
+
+**Response**
+
+Uses the ImagesResult response similarly to ImagesQuery.
+
+**Example**
+
+```swift
+ let query = ImagesVariationQuery(image: "@whitecat.png", n: 1, size: "1024x1024")
+ openAI.imageVariations(query: query) { result in
+   //Handle result here
+ }
+//or
+let result = try await openAI.imageVariations(query: query)
+```
 
 Review [Images Documentation](https://platform.openai.com/docs/api-reference/images) for more info.
 

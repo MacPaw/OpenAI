@@ -63,6 +63,14 @@ final public class OpenAI: OpenAIProtocol {
         performRequest(request: JSONRequest<ImagesResult>(body: query, url: buildURL(path: .images)), completion: completion)
     }
     
+    public func imageEdits(query: ImageEditsQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<ImagesResult>(body: query, url: buildURL(path: .imageEdits)), completion: completion)
+    }
+    
+    public func imageVariations(query: ImageVariationsQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<ImagesResult>(body: query, url: buildURL(path: .imageVariations)), completion: completion)
+    }
+    
     public func embeddings(query: EmbeddingsQuery, completion: @escaping (Result<EmbeddingsResult, Error>) -> Void) {
         performRequest(request: JSONRequest<EmbeddingsResult>(body: query, url: buildURL(path: .embeddings)), completion: completion)
     }
@@ -151,7 +159,6 @@ typealias APIPath = String
 extension APIPath {
     
     static let completions = "/v1/completions"
-    static let images = "/v1/images/generations"
     static let embeddings = "/v1/embeddings"
     static let chats = "/v1/chat/completions"
     static let edits = "/v1/edits"
@@ -160,6 +167,10 @@ extension APIPath {
     
     static let audioTranscriptions = "/v1/audio/transcriptions"
     static let audioTranslations = "/v1/audio/translations"
+    
+    static let images = "/v1/images/generations"
+    static let imageEdits = "/v1/images/edits"
+    static let imageVariations = "/v1/images/variations"
     
     func withPath(_ path: String) -> String {
         self + "/" + path
