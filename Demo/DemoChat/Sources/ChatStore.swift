@@ -1,5 +1,5 @@
 //
-//  Store.swift
+//  ChatStore.swift
 //  DemoChat
 //
 //  Created by Sihao Lu on 3/25/23.
