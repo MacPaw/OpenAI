@@ -315,9 +315,11 @@ Creates an edited or extended image given an original image and a prompt.
 ```swift
 public struct ImageEditsQuery: Codable {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
-    public let image: String
+    public let image: Data
+    public let fileName: String
     /// An additional image whose fully transparent areas (e.g. where alpha is zero) indicate where image should be edited. Must be a valid PNG file, less than 4MB, and have the same dimensions as image.
-    public let mask: String?
+    public let mask: Data?
+    public let maskFileName: String?
     /// A text description of the desired image(s). The maximum length is 1000 characters.
     public let prompt: String
     /// The number of images to generate. Must be between 1 and 10.
@@ -334,10 +336,11 @@ Uses the ImagesResult response similarly to ImagesQuery.
 **Example**
 
 ```swift
- let query = ImagesEditQuery(image: "@whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
- openAI.imageEdits(query: query) { result in
-   //Handle result here
- }
+let data = image.pngData()
+let query = ImagesEditQuery(image: data, fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+openAI.imageEdits(query: query) { result in
+  //Handle result here
+}
 //or
 let result = try await openAI.imageEdits(query: query)
 ```
@@ -351,7 +354,8 @@ Creates a variation of a given image.
 ```swift
 public struct ImageVariationsQuery: Codable {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
-    public let image: String
+    public let image: Data
+    public let fileName: String
     /// The number of images to generate. Must be between 1 and 10.
     public let n: Int?
     /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
@@ -366,10 +370,11 @@ Uses the ImagesResult response similarly to ImagesQuery.
 **Example**
 
 ```swift
- let query = ImagesVariationQuery(image: "@whitecat.png", n: 1, size: "1024x1024")
- openAI.imageVariations(query: query) { result in
-   //Handle result here
- }
+let data = image.pngData()
+let query = ImagesVariationQuery(image: data, fileName: "whitecat.png", n: 1, size: "1024x1024")
+openAI.imageVariations(query: query) { result in
+  //Handle result here
+}
 //or
 let result = try await openAI.imageVariations(query: query)
 ```
