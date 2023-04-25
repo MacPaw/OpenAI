@@ -63,7 +63,8 @@ class OpenAITests: XCTestCase {
     }
     
     func testImageEdit() async throws {
-        let query = ImageEditsQuery(image: "@whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+//        let imageData = Data()
+        let query = ImageEditsQuery(image: Data(), fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
         let imagesResult = ImagesResult(created: 100, data: [
             .init(url: "http://foo.bar")
         ])
@@ -73,7 +74,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testImageEditError() async throws {
-        let query = ImageEditsQuery(image: "@whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+        let query = ImageEditsQuery(image: Data(), fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
@@ -82,7 +83,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testImageVariation() async throws {
-        let query = ImageVariationsQuery(image: "@whitecat.png", n: 1, size: "1024x1024")
+        let query = ImageVariationsQuery(image: Data(), fileName: "whitecat.png", n: 1, size: "1024x1024")
         let imagesResult = ImagesResult(created: 100, data: [
             .init(url: "http://foo.bar")
         ])
@@ -92,7 +93,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testImageVariationError() async throws {
-        let query = ImageVariationsQuery(image: "@whitecat.png", n: 1, size: "1024x1024")
+        let query = ImageVariationsQuery(image: Data(), fileName: "whitecat.png", n: 1, size: "1024x1024")
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
