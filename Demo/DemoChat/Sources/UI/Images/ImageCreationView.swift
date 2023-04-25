@@ -7,7 +7,6 @@
 
 import SwiftUI
 import OpenAI
-import SafariServices
 
 public struct ImageCreationView: View {
     @ObservedObject var store: ImageStore
@@ -15,7 +14,6 @@ public struct ImageCreationView: View {
     @State private var prompt: String = ""
     @State private var n: Int = 1
     @State private var size: String
-    @State private var showSafari = false
     
     private var sizes = ["256x256", "512x512", "1024x1024"]
     
@@ -61,14 +59,8 @@ public struct ImageCreationView: View {
                     ForEach($store.images, id: \.self) { image in
                         let urlString = image.wrappedValue.url
                         if let imageURL = URL(string: urlString), UIApplication.shared.canOpenURL(imageURL) {
-                            Button {
-                                showSafari.toggle()
-                            } label: {
-                                Text(urlString)
-                                    .foregroundStyle(.foreground)
-                            }.fullScreenCover(isPresented: $showSafari, content: {
-                                SafariView(url: imageURL)
-                            })
+                            LinkPreview(previewURL: imageURL)
+                                .aspectRatio(contentMode: .fit)
                         } else {
                             Text(urlString)
                                 .foregroundStyle(.secondary)
@@ -80,14 +72,4 @@ public struct ImageCreationView: View {
         .listStyle(.insetGrouped)
         .navigationTitle("Create Image")
     }
-}
-
-private struct SafariView: UIViewControllerRepresentable {
-    var url: URL
-    
-    func makeUIViewController(context: UIViewControllerRepresentableContext<SafariView>) -> SFSafariViewController {
-        SFSafariViewController(url: url)
-    }
-    
-    func updateUIViewController(_ safariViewController: SFSafariViewController, context: UIViewControllerRepresentableContext<SafariView>) { }
 }
