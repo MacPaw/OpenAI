@@ -69,7 +69,7 @@ public extension Model {
     
     /// Almost as capable as the latest model, but slightly older.
     static let textModerationStable = "text-moderation-stable"
-    /// Most capable moderation model. Accuracy will be slighlty higher than the stable model.
+    /// Most capable moderation model. Accuracy will be slightly higher than the stable model.
     static let textModerationLatest = "text-moderation-latest"
     static let moderation = "text-moderation-001"
 }

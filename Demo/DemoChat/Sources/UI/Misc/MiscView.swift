@@ -21,6 +21,9 @@ public struct MiscView: View {
                     NavigationLink("List Models", destination: ListModelsView(store: store))
                     NavigationLink("Retrieve Model", destination: RetrieveModelView())
                 }
+                Section(header: Text("Moderations")) {
+                    NavigationLink("Moderation Chat", destination: ModerationChatView(store: store))
+                }
             }
             .listStyle(.insetGrouped)
             .navigationTitle("Misc")
