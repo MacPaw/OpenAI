@@ -47,7 +47,7 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = CompletionsResult(id: "foo", object: "text_completion", created: 1589478378, model: .textDavinci_003, choices: [
-            .init(text: "Hello, world!", index: 0)
+            .init(text: "Hello, world!", index: 0, finishReason: "length")
         ], usage: .init(promptTokens: 5, completionTokens: 7, totalTokens: 12))
         try decode(data, expectedValue)
     }

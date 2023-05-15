@@ -26,7 +26,7 @@ class OpenAITests: XCTestCase {
     func testCompletions() async throws {
         let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
         let expectedResult = CompletionsResult(id: "foo", object: "bar", created: 100500, model: .babbage, choices: [
-            .init(text: "42 is the answer to everything", index: 0)
+            .init(text: "42 is the answer to everything", index: 0, finishReason: nil)
         ], usage: .init(promptTokens: 10, completionTokens: 10, totalTokens: 20))
         try self.stub(result: expectedResult)
         

@@ -16,8 +16,11 @@ public struct ChatResult: Codable, Equatable {
         }
         
         public let index: Int
+        /// Exists only if it is a complete message.
         public let message: Chat?
+        /// Exists only if it is a partial message obtained throught a streaming query.
         public let delta: Delta?
+        /// Exists only if it is a complete message.
         public let finishReason: String?
         
         enum CodingKeys: String, CodingKey {
