@@ -175,8 +175,6 @@ Using the OpenAI Chat API, you can build your own applications with `gpt-3.5-tur
      public let topP: Double?
      /// How many chat completion choices to generate for each input message.
      public let n: Int?
-     /// If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only `server-sent events` as they become available, with the stream terminated by a data: [DONE] message.
-     public let stream: Bool?
      /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
      public let stop: [String]?
      /// The maximum number of tokens to generate in the completion.
