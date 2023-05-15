@@ -85,54 +85,35 @@ public final class ChatStore: ObservableObject {
                 return
             }
 
-            let chatsStream = openAIClient.chatsStream(
+            let chatsStream: AsyncThrowingStream<ChatStreamResult, Error> = openAIClient.chatsStream(
                 query: ChatQuery(
                     model: model,
                     messages: conversation.messages.map { message in
                         Chat(role: message.role, content: message.content)
-                    },
-                    stream: true
+                    }
                 )
             )
 
             for try await partialChatResult in chatsStream {
                 for choice in partialChatResult.choices {
                     let existingMessages = conversations[conversationIndex].messages
-
-                    let message: Message
-                    if let delta = choice.delta {
-                        message = Message(
-                            id: partialChatResult.id,
-                            role: delta.role ?? .assistant,
-                            content: delta.content ?? "",
-                            createdAt: Date(timeIntervalSince1970: TimeInterval(partialChatResult.created))
+                    let message = Message(
+                        id: partialChatResult.id,
+                        role: choice.delta.role ?? .assistant,
+                        content: choice.delta.content ?? "",
+                        createdAt: Date(timeIntervalSince1970: TimeInterval(partialChatResult.created))
+                    )
+                    if let existingMessageIndex = existingMessages.firstIndex(where: { $0.id == partialChatResult.id }) {
+                        // Meld into previous message
+                        let previousMessage = existingMessages[existingMessageIndex]
+                        let combinedMessage = Message(
+                            id: message.id, // id stays the same for different deltas
+                            role: message.role,
+                            content: previousMessage.content + message.content,
+                            createdAt: message.createdAt
                         )
-                        if let existingMessageIndex = existingMessages.firstIndex(where: { $0.id == partialChatResult.id }) {
-                            // Meld into previous message
-                            let previousMessage = existingMessages[existingMessageIndex]
-                            let combinedMessage = Message(
-                                id: message.id, // id stays the same for different deltas
-                                role: message.role,
-                                content: previousMessage.content + message.content,
-                                createdAt: message.createdAt
-                            )
-                            conversations[conversationIndex].messages[existingMessageIndex] = combinedMessage
-                        } else {
-                            conversations[conversationIndex].messages.append(message)
-                        }
+                        conversations[conversationIndex].messages[existingMessageIndex] = combinedMessage
                     } else {
-                        let choiceMessage = choice.message!
-
-                        message = Message(
-                            id: partialChatResult.id,
-                            role: choiceMessage.role,
-                            content: choiceMessage.content,
-                            createdAt: Date(timeIntervalSince1970: TimeInterval(partialChatResult.created))
-                        )
-
-                        if existingMessages.contains(message) {
-                            continue
-                        }
                         conversations[conversationIndex].messages.append(message)
                     }
                 }
