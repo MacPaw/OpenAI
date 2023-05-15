@@ -10,11 +10,7 @@ import Foundation
 public struct ChatResult: Codable, Equatable {
     
     public struct Choice: Codable, Equatable {
-        public struct Delta: Codable, Equatable {
-            public let content: String?
-            public let role: Chat.Role?
-        }
-        
+      
         public let index: Int
         /// Exists only if it is a complete message.
         public let message: Chat
