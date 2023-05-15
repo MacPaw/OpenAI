@@ -26,6 +26,18 @@ public extension OpenAIProtocol {
             }
         }
     }
+    
+    func completionsStream(
+        query: CompletionsQuery
+    ) -> AsyncThrowingStream<CompletionsResult, Error> {
+        return AsyncThrowingStream { continuation in
+            return completionsStream(query: query) { result in
+                continuation.yield(with: result)
+            } completion: { error in
+                continuation.finish(throwing: error)
+            }
+        }
+    }
 
     func images(
         query: ImagesQuery
@@ -68,6 +80,18 @@ public extension OpenAIProtocol {
                 case let .failure(failure):
                     return continuation.resume(throwing: failure)
                 }
+            }
+        }
+    }
+    
+    func chatsStream(
+        query: ChatQuery
+    ) -> AsyncThrowingStream<ChatStreamResult, Error> {
+        return AsyncThrowingStream { continuation in
+            return chatsStream(query: query)  { result in
+                continuation.yield(with: result)
+            } completion: { error in
+                continuation.finish(throwing: error)
             }
         }
     }

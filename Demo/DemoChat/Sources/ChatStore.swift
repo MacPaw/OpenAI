@@ -53,17 +53,27 @@ public final class ChatStore: ObservableObject {
     }
     
     @MainActor
-    func sendMessage(_ message: Message, conversationId: Conversation.ID) async {
+    func sendMessage(
+        _ message: Message,
+        conversationId: Conversation.ID,
+        model: Model
+    ) async {
         guard let conversationIndex = conversations.firstIndex(where: { $0.id == conversationId }) else {
             return
         }
         conversations[conversationIndex].messages.append(message)
 
-        await completeChat(conversationId: conversationId)
+        await completeChat(
+            conversationId: conversationId,
+            model: model
+        )
     }
     
     @MainActor
-    func completeChat(conversationId: Conversation.ID) async {
+    func completeChat(
+        conversationId: Conversation.ID,
+        model: Model
+    ) async {
         guard let conversation = conversations.first(where: { $0.id == conversationId }) else {
             return
         }
@@ -71,35 +81,43 @@ public final class ChatStore: ObservableObject {
         conversationErrors[conversationId] = nil
 
         do {
-            let response = try await openAIClient.chats(
+            guard let conversationIndex = conversations.firstIndex(where: { $0.id == conversationId }) else {
+                return
+            }
+
+            let chatsStream: AsyncThrowingStream<ChatStreamResult, Error> = openAIClient.chatsStream(
                 query: ChatQuery(
-                    model: .gpt3_5Turbo,
+                    model: model,
                     messages: conversation.messages.map { message in
                         Chat(role: message.role, content: message.content)
                     }
                 )
             )
-            
-            guard let conversationIndex = conversations.firstIndex(where: { $0.id == conversationId }) else {
-                return
-            }
-                    
-            let existingMessages = conversations[conversationIndex].messages
-            
-            for completionMessage in response.choices.map(\.message) {
-                let message = Message(
-                    id: response.id,
-                    role: completionMessage.role,
-                    content: completionMessage.content,
-                    createdAt: Date(timeIntervalSince1970: TimeInterval(response.created))
-                )
-                                
-                if existingMessages.contains(message) {
-                    continue
+
+            for try await partialChatResult in chatsStream {
+                for choice in partialChatResult.choices {
+                    let existingMessages = conversations[conversationIndex].messages
+                    let message = Message(
+                        id: partialChatResult.id,
+                        role: choice.delta.role ?? .assistant,
+                        content: choice.delta.content ?? "",
+                        createdAt: Date(timeIntervalSince1970: TimeInterval(partialChatResult.created))
+                    )
+                    if let existingMessageIndex = existingMessages.firstIndex(where: { $0.id == partialChatResult.id }) {
+                        // Meld into previous message
+                        let previousMessage = existingMessages[existingMessageIndex]
+                        let combinedMessage = Message(
+                            id: message.id, // id stays the same for different deltas
+                            role: message.role,
+                            content: previousMessage.content + message.content,
+                            createdAt: message.createdAt
+                        )
+                        conversations[conversationIndex].messages[existingMessageIndex] = combinedMessage
+                    } else {
+                        conversations[conversationIndex].messages.append(message)
+                    }
                 }
-                conversations[conversationIndex].messages.append(message)
             }
-            
         } catch {
             conversationErrors[conversationId] = error
         }

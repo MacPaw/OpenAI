@@ -10,15 +10,20 @@ import UIKit
 #elseif os(macOS)
 import AppKit
 #endif
+import OpenAI
 import SwiftUI
 
 struct DetailView: View {
     @State var inputText: String = ""
     @FocusState private var isFocused: Bool
+    @State private var showsModelSelectionSheet = false
+    @State private var selectedChatModel: Model = .gpt3_5Turbo
+
+    private let availableChatModels: [Model] = [.gpt3_5Turbo, .gpt4]
 
     let conversation: Conversation
     let error: Error?
-    let sendMessage: (String) -> Void
+    let sendMessage: (String, Model) -> Void
 
     private var fillColor: Color {
         #if os(iOS)
@@ -61,6 +66,51 @@ struct DetailView: View {
                     inputBar(scrollViewProxy: scrollViewProxy)
                 }
                 .navigationTitle("Chat")
+                .safeAreaInset(edge: .top) {
+                    HStack {
+                        Text(
+                            "Model: \(selectedChatModel)"
+                        )
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                }
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: {
+                            showsModelSelectionSheet.toggle()
+                        }) {
+                            Image(systemName: "cpu")
+                        }
+                    }
+                }
+                .confirmationDialog(
+                    "Select model",
+                    isPresented: $showsModelSelectionSheet,
+                    titleVisibility: .visible,
+                    actions: {
+                        ForEach(availableChatModels, id: \.self) { model in
+                            Button {
+                                selectedChatModel = model
+                            } label: {
+                                Text(model)
+                            }
+                        }
+
+                        Button("Cancel", role: .cancel) {
+                            showsModelSelectionSheet = false
+                        }
+                    },
+                    message: {
+                        Text(
+                            "View https://platform.openai.com/docs/models/overview for details"
+                        )
+                        .font(.caption)
+                    }
+                )
             }
         }
     }
@@ -133,7 +183,7 @@ struct DetailView: View {
     private func tapSendMessage(
         scrollViewProxy: ScrollViewProxy
     ) {
-        sendMessage(inputText)
+        sendMessage(inputText, selectedChatModel)
         inputText = ""
         
 //        if let lastMessage = conversation.messages.last {
@@ -206,7 +256,7 @@ struct DetailView_Previews: PreviewProvider {
                 ]
             ),
             error: nil,
-            sendMessage: { _ in }
+            sendMessage: { _, _ in }
         )
     }
 }

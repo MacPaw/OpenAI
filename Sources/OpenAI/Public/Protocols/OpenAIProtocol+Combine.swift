@@ -21,6 +21,20 @@ public extension OpenAIProtocol {
         }
         .eraseToAnyPublisher()
     }
+    
+    func completionsStream(query: CompletionsQuery) -> AnyPublisher<Result<CompletionsResult, Error>, Error> {
+        let progress = PassthroughSubject<Result<CompletionsResult, Error>, Error>()
+        completionsStream(query: query) { result in
+            progress.send(result)
+        } completion: { error in
+            if let error {
+                progress.send(completion: .failure(error))
+            } else {
+                progress.send(completion: .finished)
+            }
+        }
+        return progress.eraseToAnyPublisher()
+    }
 
     func images(query: ImagesQuery) -> AnyPublisher<ImagesResult, Error> {
         Future<ImagesResult, Error> {
@@ -41,6 +55,20 @@ public extension OpenAIProtocol {
             chats(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
+    }
+    
+    func chatsStream(query: ChatQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
+        let progress = PassthroughSubject<Result<ChatStreamResult, Error>, Error>()
+        chatsStream(query: query) { result in
+            progress.send(result)
+        } completion: { error in
+            if let error {
+                progress.send(completion: .failure(error))
+            } else {
+                progress.send(completion: .finished)
+            }
+        }
+        return progress.eraseToAnyPublisher()
     }
     
     func edits(query: EditsQuery) -> AnyPublisher<EditsResult, Error> {

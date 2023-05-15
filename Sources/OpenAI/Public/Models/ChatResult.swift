@@ -10,9 +10,12 @@ import Foundation
 public struct ChatResult: Codable, Equatable {
     
     public struct Choice: Codable, Equatable {
+      
         public let index: Int
+        /// Exists only if it is a complete message.
         public let message: Chat
-        public let finishReason: String
+        /// Exists only if it is a complete message.
+        public let finishReason: String?
         
         enum CodingKeys: String, CodingKey {
             case index
@@ -38,7 +41,7 @@ public struct ChatResult: Codable, Equatable {
     public let created: TimeInterval
     public let model: Model
     public let choices: [Choice]
-    public let usage: Usage
+    public let usage: Usage?
     
     enum CodingKeys: String, CodingKey {
         case id

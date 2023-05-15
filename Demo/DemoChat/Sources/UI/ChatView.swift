@@ -46,7 +46,7 @@ public struct ChatView: View {
                 DetailView(
                     conversation: conversation,
                     error: store.conversationErrors[conversation.id],
-                    sendMessage: { message in
+                    sendMessage: { message, selectedModel in
                         Task {
                             await store.sendMessage(
                                 Message(
@@ -55,7 +55,8 @@ public struct ChatView: View {
                                     content: message,
                                     createdAt: dateProvider()
                                 ),
-                                conversationId: conversation.id
+                                conversationId: conversation.id,
+                                model: selectedModel
                             )
                         }
                     }
