@@ -19,3 +19,5 @@ public struct ModelResult: Codable, Equatable {
         case ownedBy = "owned_by"
     }
 }
+
+extension ModelResult: Identifiable {}

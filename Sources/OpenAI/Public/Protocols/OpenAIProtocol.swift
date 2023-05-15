@@ -152,17 +152,15 @@ public protocol OpenAIProtocol {
      
      Example:
      ```
-     let query = ModelsQuery()
-     openAI.models(query: query) { result in
+     openAI.models() { result in
        //Handle response here
      }
      ```
 
      - Parameters:
-       - query: A `ModelsQuery` object which currently does not require input parameters for the API request.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ModelsResult, Error>`, will contain either the `ModelsResult` object with the list of model types, or an error if the request failed.
     **/
-    func models(query: ModelsQuery, completion: @escaping (Result<ModelsResult, Error>) -> Void)
+    func models(completion: @escaping (Result<ModelsResult, Error>) -> Void)
     
     /**
      This function sends a moderations query to the OpenAI API and retrieves a list of category results to classify how text may violate OpenAI's Content Policy.

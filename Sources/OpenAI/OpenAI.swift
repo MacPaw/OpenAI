@@ -46,10 +46,14 @@ final public class OpenAI: OpenAIProtocol {
     public convenience init(configuration: Configuration) {
         self.init(configuration: configuration, session: URLSession.shared)
     }
-    
-    init(configuration: Configuration, session: URLSessionProtocol = URLSession.shared) {
+
+    init(configuration: Configuration, session: URLSessionProtocol) {
         self.configuration = configuration
         self.session = session
+    }
+
+    public convenience init(configuration: Configuration, session: URLSession = URLSession.shared) {
+        self.init(configuration: configuration, session: session as URLSessionProtocol)
     }
     
     public func completions(query: CompletionsQuery, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
@@ -81,11 +85,11 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     public func model(query: ModelQuery, completion: @escaping (Result<ModelResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ModelResult>(body: query, url: buildURL(path: .models.withPath(query.model))), completion: completion)
+        performRequest(request: JSONRequest<ModelResult>(url: buildURL(path: .models.withPath(query.model)), method: "GET"), completion: completion)
     }
     
-    public func models(query: ModelsQuery, completion: @escaping (Result<ModelsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ModelsResult>(body: query, url: buildURL(path: .models)), completion: completion)
+    public func models(completion: @escaping (Result<ModelsResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<ModelsResult>(url: buildURL(path: .models), method: "GET"), completion: completion)
     }
     
     public func moderations(query: ModerationsQuery, completion: @escaping (Result<ModerationsResult, Error>) -> Void) {

@@ -582,12 +582,6 @@ You can also pass a custom string if you need to use some model, that is not rep
 
 Lists the currently available models.
 
-**Request**
-
-```swift
-public struct ModelsQuery: Codable, Equatable { }    
-```
-
 **Response**
 
 ```swift
@@ -601,12 +595,11 @@ public struct ModelsResult: Codable, Equatable {
 **Example**
 
 ```swift
-let query = ModelsQuery()
-openAI.models(query: query) { result in
+openAI.models() { result in
   //Handle result here
 }
 //or
-let result = try await openAI.models(query: query)
+let result = try await openAI.models()
 ```
 
 #### Retrieve Model
@@ -736,7 +729,7 @@ func embeddings(query: EmbeddingsQuery) -> AnyPublisher<EmbeddingsResult, Error>
 func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error>
 func edits(query: EditsQuery) -> AnyPublisher<EditsResult, Error>
 func model(query: ModelQuery) -> AnyPublisher<ModelResult, Error>
-func models(query: ModelsQuery) -> AnyPublisher<ModelsResult, Error>
+func models() -> AnyPublisher<ModelsResult, Error>
 func moderations(query: ModerationsQuery) -> AnyPublisher<ModerationsResult, Error>
 func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error>
 func audioTranslations(query: AudioTranslationQuery) -> AnyPublisher<AudioTranslationResult, Error>
