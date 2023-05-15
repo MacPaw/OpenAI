@@ -16,7 +16,9 @@ This repository contains Swift community-maintained implementation over [OpenAI]
 - [Usage](#usage)
     - [Initialization](#initialization)
     - [Completions](#completions)
+        - [Completions Streaming](#completions-streaming)
     - [Chats](#chats)
+        - [Chats Streaming](#chats-streaming) 
     - [Images](#images)
     - [Audio](#audio)
         - [Audio Transcriptions](#audio-transcriptions)
@@ -146,6 +148,43 @@ let result = try await openAI.completions(query: query)
       - index : 0
 ```
 
+#### Completions Streaming
+
+Completions streaming is available by using `completionsStream` function. Tokens will be sent one-by-one.
+
+**Closures**
+```swift
+openAI.completionsStream(query: query) { partialResult in
+    switch partialResult {
+    case .success(let result):
+        print(result.choices)
+    case .failure(let error):
+        //Handle chunk error here
+    }
+} completion: { error in
+    //Handle streaming error here
+}
+```
+
+**Combine**
+
+```swift
+openAI
+    .completionsStream(query: query)
+    .sink { completion in
+        //Handle completion result here
+    } receiveValue: { result in
+        //Handle chunk here
+    }.store(in: &cancellables)
+```
+
+**Structured concurrency**
+```swift
+for try await result in openAI.completionsStream(query: query) {
+   //Handle result here
+}
+```
+
 Review [Completions Documentation](https://platform.openai.com/docs/api-reference/completions) for more info.
 
 ### Chats
@@ -240,6 +279,43 @@ let result = try await openAI.chats(query: query)
     - prompt_tokens : 10
     - completion_tokens : 39
     - total_tokens : 49
+```
+
+#### Chats Streaming
+
+Chats streaming is available by using `chatStream` function. Tokens will be sent one-by-one.
+
+**Closures**
+```swift
+openAI.chatsStream(query: query) { partialResult in
+    switch partialResult {
+    case .success(let result):
+        print(result.choices)
+    case .failure(let error):
+        //Handle chunk error here
+    }
+} completion: { error in
+    //Handle streaming error here
+}
+```
+
+**Combine**
+
+```swift
+openAI
+    .chatsStream(query: query)
+    .sink { completion in
+        //Handle completion result here
+    } receiveValue: { result in
+        //Handle chunk here
+    }.store(in: &cancellables)
+```
+
+**Structured concurrency**
+```swift
+for try await result in openAI.chatsStream(query: query) {
+   //Handle result here
+}
 ```
 
 Review [Chat Documentation](https://platform.openai.com/docs/guides/chat) for more info.
