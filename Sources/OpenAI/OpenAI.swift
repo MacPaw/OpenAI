@@ -56,6 +56,10 @@ final public class OpenAI: OpenAIProtocol {
         performRequest(request: JSONRequest<CompletionsResult>(body: query, url: buildURL(path: .completions)), completion: completion)
     }
     
+    public func completionsStream(query: CompletionsQuery, onResult: @escaping (Result<CompletionsResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        performSteamingRequest(request: JSONRequest<CompletionsResult>(body: query.makeStreamable(), url: buildURL(path: .completions)), onResult: onResult, completion: completion)
+    }
+    
     public func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
         performRequest(request: JSONRequest<ImagesResult>(body: query, url: buildURL(path: .images)), completion: completion)
     }
@@ -65,11 +69,11 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     public func chats(query: ChatQuery, completion: @escaping (Result<ChatResult, Error>) -> Void) {
-        if query.stream == true {
-            performSteamingRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: .chats)), completion: completion)
-        } else {
-            performRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: .chats)), completion: completion)
-        }
+        performRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: .chats)), completion: completion)
+    }
+    
+    public func chatsStream(query: ChatQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        performSteamingRequest(request: JSONRequest<ChatResult>(body: query.makeStreamable(), url: buildURL(path: .chats)), onResult: onResult, completion: completion)
     }
     
     public func edits(query: EditsQuery, completion: @escaping (Result<EditsResult, Error>) -> Void) {
@@ -135,23 +139,24 @@ extension OpenAI {
         }
     }
     
-    func performSteamingRequest<ResultType: Codable>(request: any URLRequestBuildable, completion: @escaping (Result<ResultType, Error>) -> Void) {
+    func performSteamingRequest<ResultType: Codable>(request: any URLRequestBuildable, onResult: @escaping (Result<ResultType, Error>) -> Void, completion: ((Error?) -> Void)?) {
         do {
             let request = try request.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
             let session = StreamingSession<ResultType>(urlRequest: request)
             session.onReceiveContent = {_, object in
-                completion(.success(object))
+                onResult(.success(object))
             }
             session.onProcessingError = {_, error in
-                completion(.failure(error))
+                onResult(.failure(error))
             }
             session.onComplete = { [weak self] object, error in
                 self?.streamingSessions.removeAll(where: { $0 == object })
+                completion?(error)
             }
             session.perform()
             streamingSessions.append(session)
         } catch {
-            completion(.failure(error))
+            completion?(error)
         }
     }
 }

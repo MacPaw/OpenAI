@@ -51,9 +51,7 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
             .components(separatedBy: "data:")
             .filter { $0.isEmpty == false }
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-        
         guard jsonObjects.isEmpty == false, jsonObjects.first != streamingCompletionMarker else {
-            onProcessingError?(self, StreamingError.emptyContent)
             return
         }
         jsonObjects.forEach { jsonContent  in

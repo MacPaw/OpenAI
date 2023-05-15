@@ -24,6 +24,13 @@ public struct CompletionsResult: Codable, Equatable {
     public struct Choice: Codable, Equatable {
         public let text: String
         public let index: Int
+        public let finishReason: String?
+        
+        enum CodingKeys: String, CodingKey {
+            case text
+            case index
+            case finishReason = "finish_reason"
+        }
     }
 
     public let id: String
@@ -31,5 +38,5 @@ public struct CompletionsResult: Codable, Equatable {
     public let created: TimeInterval
     public let model: Model
     public let choices: [Choice]
-    public let usage: Usage
+    public let usage: Usage?
 }

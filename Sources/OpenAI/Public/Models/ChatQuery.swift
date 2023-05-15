@@ -23,7 +23,7 @@ public struct Chat: Codable, Equatable {
     }
 }
 
-public struct ChatQuery: Codable {
+public struct ChatQuery: Codable, Streamable {
     /// ID of the model to use. Currently, only gpt-3.5-turbo and gpt-3.5-turbo-0301 are supported.
     public let model: Model
     /// The messages to generate chat completions for
@@ -34,8 +34,6 @@ public struct ChatQuery: Codable {
     public let topP: Double?
     /// How many chat completion choices to generate for each input message.
     public let n: Int?
-    /// If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only `server-sent events` as they become available, with the stream terminated by a data: [DONE] message.
-    public let stream: Bool?
     /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
     public let stop: [String]?
     /// The maximum number of tokens to generate in the completion.
@@ -48,6 +46,8 @@ public struct ChatQuery: Codable {
     public let logitBias: [String:Int]?
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
     public let user: String?
+    
+    var stream: Bool = false
     
     enum CodingKeys: String, CodingKey {
         case model
@@ -64,13 +64,12 @@ public struct ChatQuery: Codable {
         case user
     }
     
-    public init(model: Model, messages: [Chat], temperature: Double? = nil, topP: Double? = nil, n: Int? = nil, stream: Bool? = nil, stop: [String]? = nil, maxTokens: Int? = nil, presencePenalty: Double? = nil, frequencyPenalty: Double? = nil, logitBias: [String : Int]? = nil, user: String? = nil) {
+    public init(model: Model, messages: [Chat], temperature: Double? = nil, topP: Double? = nil, n: Int? = nil, stop: [String]? = nil, maxTokens: Int? = nil, presencePenalty: Double? = nil, frequencyPenalty: Double? = nil, logitBias: [String : Int]? = nil, user: String? = nil) {
         self.model = model
         self.messages = messages
         self.temperature = temperature
         self.topP = topP
         self.n = n
-        self.stream = stream
         self.stop = stop
         self.maxTokens = maxTokens
         self.presencePenalty = presencePenalty
