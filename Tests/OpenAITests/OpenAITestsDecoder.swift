@@ -98,7 +98,7 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, choices: [
-            .init(index: 0, message: Chat(role: .assistant, content: "Hello, world!"), delta: nil, finishReason: "stop")
+            .init(index: 0, message: Chat(role: .assistant, content: "Hello, world!"), finishReason: "stop")
         ], usage: .init(promptTokens: 9, completionTokens: 12, totalTokens: 21))
         try decode(data, expectedValue)
     }
