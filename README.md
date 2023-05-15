@@ -16,6 +16,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
 - [Usage](#usage)
     - [Initialization](#initialization)
     - [Completions](#completions)
+        - [Completions Streaming](#streaming)
     - [Chats](#chats)
     - [Images](#images)
     - [Audio](#audio)
@@ -144,6 +145,43 @@ let result = try await openAI.completions(query: query)
     ▿ 0 : Choice
       - text : "\n\n42 is the answer to the ultimate question of life, the universe, and everything, according to the book The Hitchhiker\'s Guide to the Galaxy."
       - index : 0
+```
+
+#### Completions Streaming
+
+Completions streaming is available by using `completionsStream` function. Token will be sent one-by one. 
+
+**Closures**
+```swift
+openAI.completionsStream(query: query) { partialResult in
+    switch partialResult {
+    case .success(let result):
+        print(result.choices)
+    case .failure(let error):
+        //Handle chunk error here
+    }
+} completion: { error in
+    //Handle streaming error here
+}
+```
+
+**Combine**
+
+```swift
+openAI
+    .completionsStream(query: .init(model: .textDavinci_003, prompt: "What is 42?"))
+    .sink { completion in
+        //Handle completion result here
+    } receiveValue: { result in
+        //Handle chunk here
+    }.store(in: &cancellables)
+```
+
+**Structured concurrency**
+```swift
+for try await result in openAI.completionsStream(query: .init(model: .textDavinci_003, prompt: "what is 42")) {
+   //Handle result here
+}
 ```
 
 Review [Completions Documentation](https://platform.openai.com/docs/api-reference/completions) for more info.
