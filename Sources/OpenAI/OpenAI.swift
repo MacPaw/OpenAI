@@ -24,12 +24,12 @@ final public class OpenAI: OpenAIProtocol {
         public let host: String
 
         /// Optional base path if you set up OpenAI API proxy on a custom path on your own host. Default is ""
-        public let basePath: String?
+        public let basePath: String
         
         /// Default request timeout
         public let timeoutInterval: TimeInterval
         
-        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", basePath: String? = nil, timeoutInterval: TimeInterval = 60.0) {
+        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", basePath: String = "", timeoutInterval: TimeInterval = 60.0) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host
@@ -172,11 +172,9 @@ extension OpenAI {
 extension OpenAI {
     
     func buildURL(path: String) -> URL {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = configuration.host
-        components.path = (configuration.basePath ?? "") + path
-        return components.url!
+        return URL(string: "https://\(configuration.host)")!
+            .appendingPathComponent(configuration.basePath.trimmingCharacters(in: .init(charactersIn: "/")))
+            .appendingPathComponent(path.trimmingCharacters(in: .init(charactersIn: "/")))
     }
 }
 
