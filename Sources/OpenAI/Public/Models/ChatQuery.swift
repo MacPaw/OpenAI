@@ -44,6 +44,79 @@ public struct ChatFunctionCall: Codable, Equatable {
     public let arguments: String?
 }
 
+/// See the [guide](/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
+public struct JSONSchema: Codable, Equatable {
+    var type: JSONType
+    var properties: [String: Property]?
+    var required: [String]?
+    var pattern: String?
+    var const: String?
+    var enumValues: [String]?
+    var multipleOf: Int?
+    var minimum: Int?
+    var maximum: Int?
+    
+    private enum CodingKeys: String, CodingKey {
+        case type, properties, required, pattern, const
+        case enumValues = "enum"
+        case multipleOf, minimum, maximum
+    }
+    
+    public struct Property: Codable, Equatable {
+        var type: JSONType
+        var description: String?
+        var format: String?
+        var items: Items?
+        var required: [String]?
+        var pattern: String?
+        var const: String?
+        var enumValues: [String]?
+        var multipleOf: Int?
+        var minimum: Double?
+        var maximum: Double?
+        var minItems: Int?
+        var maxItems: Int?
+        var uniqueItems: Bool?
+
+        private enum CodingKeys: String, CodingKey {
+            case type, description, format, items, required, pattern, const
+            case enumValues = "enum"
+            case multipleOf, minimum, maximum
+            case minItems, maxItems, uniqueItems
+        }
+    }
+
+    public enum JSONType: String, Codable {
+        case integer = "integer"
+        case string = "string"
+        case boolean = "boolean"
+        case array = "array"
+        case object = "object"
+        case number = "number"
+        case `null` = "null"
+    }
+
+    public struct Items: Codable, Equatable {
+        var type: JSONType
+        var properties: [String: Property]?
+        var pattern: String?
+        var const: String?
+        var enumValues: [String]?
+        var multipleOf: Int?
+        var minimum: Double?
+        var maximum: Double?
+        var minItems: Int?
+        var maxItems: Int?
+        var uniqueItems: Bool?
+
+        private enum CodingKeys: String, CodingKey {
+            case type, properties, pattern, const
+            case enumValues = "enum"
+            case multipleOf, minimum, maximum, minItems, maxItems, uniqueItems
+        }
+    }
+}
+
 public struct ChatFunctionDeclaration: Codable, Equatable {
     /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
     public let name: String
@@ -52,65 +125,12 @@ public struct ChatFunctionDeclaration: Codable, Equatable {
     public let description: String
     
     /// The parameters the functions accepts, described as a JSON Schema object.
-    ///
-    /// See the [guide](/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
-    ///
-    /// In Swift there is no straightforward wat to support arbitrary JSON objects. Dictionary<String, Any> is not convenient as it requires explicit type annotations for all nested objects. Here we use structured approach
-    ///
-    /// ChatFunctionDeclaration(
-    ///     name: "get_current_weather",
-    ///     description: "Get the current weather in a given location",
-    ///     parameters: [
-    ///         "type": .string("object"),
-    ///         "properties": .dictionary([
-    ///             "location": .dictionary([
-    ///                 "type": .string("string"),
-    ///                 "description": .string("The city and state, e.g. San Francisco, CA")
-    ///             ]),
-    ///             "unit": .dictionary([
-    ///                 "type": .string("string"),
-    ///                 "enum": .array([.string("celsius"), .string("fahrenheit")])
-    ///             ])
-    ///         ]),
-    ///         "required": .array([.string("location")])
-    ///     ]
-    /// )
-    /// This allows Xcode auto-complete to work.
-    public let parameters: [String: JSON]
+    public let parameters: JSONSchema
   
-    public init(name: String, description: String, parameters: [String : JSON]) {
+    public init(name: String, description: String, parameters: JSONSchema) {
       self.name = name
       self.description = description
       self.parameters = parameters
-    }
-
-    public enum JSON: Codable, Equatable {
-        case string(String)
-        case int(Int)
-        case bool(Bool)
-        case array([JSON])
-        case dictionary([String: JSON])
-
-        public init(from decoder: Decoder) throws {
-            let container = try decoder.singleValueContainer()
-            if let x = try? container.decode(String.self) { self = .string(x); return }
-            if let x = try? container.decode(Int.self) { self = .int(x); return }
-            if let x = try? container.decode(Bool.self) { self = .bool(x); return }
-            if let x = try? container.decode([JSON].self) { self = .array(x); return }
-            if let x = try? container.decode([String: JSON].self) { self = .dictionary(x); return }
-            throw DecodingError.typeMismatch(JSON.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Unexpected type for JSON"))
-        }
-
-        public func encode(to encoder: Encoder) throws {
-            var container = encoder.singleValueContainer()
-            switch self {
-            case .string(let x): try container.encode(x)
-            case .int(let x): try container.encode(x)
-            case .bool(let x): try container.encode(x)
-            case .array(let x): try container.encode(x)
-            case .dictionary(let x): try container.encode(x)
-            }
-        }
     }
 }
 

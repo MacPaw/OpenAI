@@ -117,20 +117,15 @@ class OpenAITestsDecoder: XCTestCase {
                 ChatFunctionDeclaration(
                     name: "get_current_weather",
                     description: "Get the current weather in a given location",
-                    parameters: [
-                        "type": .string("object"),
-                        "properties": .dictionary([
-                            "location": .dictionary([
-                                "type": .string("string"),
-                                "description": .string("The city and state, e.g. San Francisco, CA")
-                            ]),
-                            "unit": .dictionary([
-                                "type": .string("string"),
-                                "enum": .array([.string("celsius"), .string("fahrenheit")])
-                            ])
-                        ]),
-                        "required": .array([.string("location")])
-                    ]
+                    parameters:
+                      JSONSchema(
+                        type: .object,
+                        properties: [
+                          "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
+                          "unit": .init(type: .string, enumValues: ["celsius", "fahrenheit"])
+                        ],
+                        required: ["location"]
+                      )
                 )
             ]
         )
