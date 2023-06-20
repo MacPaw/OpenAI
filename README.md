@@ -208,6 +208,8 @@ Using the OpenAI Chat API, you can build your own applications with `gpt-3.5-tur
      public let model: Model
      /// The messages to generate chat completions for
      public let messages: [Chat]
+     /// A list of functions the model may generate JSON inputs for.
+     public let functions: [ChatFunctionDeclaration]?
      /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and  We generally recommend altering this or top_p but not both.
      public let temperature: Double?
      /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
@@ -317,6 +319,61 @@ for try await result in openAI.chatsStream(query: query) {
    //Handle result here
 }
 ```
+
+**Function calls**
+```swift
+let openAI = OpenAI(apiToken: "...")
+// Declare functions which GPT-3 might decide to call.
+let functions = [
+  ChatFunctionDeclaration(
+      name: "get_current_weather",
+      description: "Get the current weather in a given location",
+      parameters:
+        JSONSchema(
+          type: .object,
+          properties: [
+            "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
+            "unit": .init(type: .string, enumValues: ["celsius", "fahrenheit"])
+          ],
+          required: ["location"]
+        )
+  )
+]
+let query = ChatQuery(
+  model: "gpt-3.5-turbo-0613",  // 0613 is the earliest version with function calls support.
+  messages: [
+      Chat(role: .user, content: "What's the weather like in Boston?")
+  ],
+  functions: functions
+)
+let result = try await openAI.chats(query: query)
+```
+
+Result will be (serialized as JSON here for readability):
+```json
+{
+  "id": "chatcmpl-1234",
+  "object": "chat.completion",
+  "created": 1686000000,
+  "model": "gpt-3.5-turbo-0613",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "function_call": {
+          "name": "get_current_weather",
+          "arguments": "{\n  \"location\": \"Boston, MA\"\n}"
+        }
+      },
+      "finish_reason": "function_call"
+    }
+  ],
+  "usage": { "total_tokens": 100, "completion_tokens": 18, "prompt_tokens": 82 }
+}
+
+```
+
 
 Review [Chat Documentation](https://platform.openai.com/docs/guides/chat) for more info.
 

@@ -17,9 +17,9 @@ struct DetailView: View {
     @State var inputText: String = ""
     @FocusState private var isFocused: Bool
     @State private var showsModelSelectionSheet = false
-    @State private var selectedChatModel: Model = .gpt3_5Turbo
+    @State private var selectedChatModel: Model = .gpt4_0613
 
-    private let availableChatModels: [Model] = [.gpt3_5Turbo, .gpt4]
+    private let availableChatModels: [Model] = [.gpt3_5Turbo0613, .gpt4_0613]
 
     let conversation: Conversation
     let error: Error?
@@ -237,6 +237,14 @@ struct ChatBubble: View {
                     .foregroundColor(userForegroundColor)
                     .background(userBackgroundColor)
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            case .function:
+              Text(message.content)
+                  .font(.footnote.monospaced())
+                  .padding(.horizontal, 16)
+                  .padding(.vertical, 12)
+                  .background(assistantBackgroundColor)
+                  .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+              Spacer(minLength: 24)
             case .system:
                 EmptyView()
             }
@@ -252,7 +260,14 @@ struct DetailView_Previews: PreviewProvider {
                 messages: [
                     Message(id: "1", role: .assistant, content: "Hello, how can I help you today?", createdAt: Date(timeIntervalSinceReferenceDate: 0)),
                     Message(id: "2", role: .user, content: "I need help with my subscription.", createdAt: Date(timeIntervalSinceReferenceDate: 100)),
-                    Message(id: "3", role: .assistant, content: "Sure, what seems to be the problem with your subscription?", createdAt: Date(timeIntervalSinceReferenceDate: 200))
+                    Message(id: "3", role: .assistant, content: "Sure, what seems to be the problem with your subscription?", createdAt: Date(timeIntervalSinceReferenceDate: 200)),
+                    Message(id: "4", role: .function, content:
+                              """
+                              get_current_weather({
+                                "location": "Glasgow, Scotland",
+                                "format": "celsius"
+                              })
+                              """, createdAt: Date(timeIntervalSinceReferenceDate: 200))
                 ]
             ),
             error: nil,
