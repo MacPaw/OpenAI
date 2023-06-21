@@ -65,7 +65,7 @@ To initialize API instance you need to [obtain](https://platform.openai.com/acco
 
 Once you have a token, you can initialize `OpenAI` class, which is an entry point to the API.
 
-> ⚠️ OpenAI strongly recommends developers of client-side applications proxy requests through a separate backend service to keep their API key safe. API keys can access and manipulate customer billing, usage, and organizational data, so it's a significant risk to expose them.
+> ⚠️ OpenAI strongly recommends developers of client-side applications proxy requests through a separate backend service to keep their API key safe. API keys can access and manipulate customer billing, usage, and organizational data, so it's a significant risk to [expose](https://nshipster.com/secrets/) them.
 
 ```swift
 let openAI = OpenAI(apiToken: "YOUR_TOKEN_HERE")
