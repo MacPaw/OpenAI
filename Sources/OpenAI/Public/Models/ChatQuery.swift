@@ -35,6 +35,25 @@ public struct Chat: Codable, Equatable {
         self.name = name
         self.functionCall = functionCall
     }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(role, forKey: .role)
+
+        if let name = name {
+            try container.encode(name, forKey: .name)
+        }
+
+        if let functionCall = functionCall {
+            try container.encode(functionCall, forKey: .functionCall)
+        }
+
+        // Should add 'nil' to 'content' property for function calling response
+        // See https://openai.com/blog/function-calling-and-other-api-updates
+        if content != nil || (role == .assistant && functionCall != nil) {
+            try container.encode(content, forKey: .content)
+        }
+    }
 }
 
 public struct ChatFunctionCall: Codable, Equatable {
