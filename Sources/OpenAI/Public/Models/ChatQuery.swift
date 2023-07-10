@@ -191,6 +191,8 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     public let messages: [Chat]
     /// A list of functions the model may generate JSON inputs for.
     public let functions: [ChatFunctionDeclaration]?
+    /// Controls how the model responds to function calls. "none" means the model does not call a function, and responds to the end-user. "auto" means the model can pick between and end-user or calling a function. Specifying a particular function via `{"name": "my_function"}` forces the model to call that function. "none" is the default when no functions are present. "auto" is the default if functions are present.
+    public let functionCall: FunctionCall?
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and  We generally recommend altering this or top_p but not both.
     public let temperature: Double?
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
@@ -211,11 +213,38 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     public let user: String?
     
     var stream: Bool = false
+
+    public enum FunctionCall: Codable, Equatable {
+        case none
+        case auto
+        case function(String)
+        
+        enum CodingKeys: String, CodingKey {
+            case none = "none"
+            case auto = "auto"
+            case function = "name"
+        }
+        
+        public func encode(to encoder: Encoder) throws {
+            switch self {
+            case .none:
+                var container = encoder.singleValueContainer()
+                try container.encode(CodingKeys.none.rawValue)
+            case .auto:
+                var container = encoder.singleValueContainer()
+                try container.encode(CodingKeys.auto.rawValue)
+            case .function(let name):
+                var container = encoder.container(keyedBy: CodingKeys.self)
+                try container.encode(name, forKey: .function)
+            }
+        }
+    }
     
     enum CodingKeys: String, CodingKey {
         case model
         case messages
         case functions
+        case functionCall = "function_call"
         case temperature
         case topP = "top_p"
         case n
@@ -228,10 +257,11 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         case user
     }
     
-  public init(model: Model, messages: [Chat], functions: [ChatFunctionDeclaration]? = nil, temperature: Double? = nil, topP: Double? = nil, n: Int? = nil, stop: [String]? = nil, maxTokens: Int? = nil, presencePenalty: Double? = nil, frequencyPenalty: Double? = nil, logitBias: [String : Int]? = nil, user: String? = nil, stream: Bool = false) {
+  public init(model: Model, messages: [Chat], functions: [ChatFunctionDeclaration]? = nil, functionCall: FunctionCall? = nil, temperature: Double? = nil, topP: Double? = nil, n: Int? = nil, stop: [String]? = nil, maxTokens: Int? = nil, presencePenalty: Double? = nil, frequencyPenalty: Double? = nil, logitBias: [String : Int]? = nil, user: String? = nil, stream: Bool = false) {
         self.model = model
         self.messages = messages
         self.functions = functions
+        self.functionCall = functionCall
         self.temperature = temperature
         self.topP = topP
         self.n = n
