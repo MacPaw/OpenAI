@@ -74,7 +74,7 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
             
             if let apiError = apiError {
                 do {
-                    let decoded = try JSONDecoder().decode(APIErrorResponse.self, from: data)
+                    let decoded = try JSONDecoder().decode(APIErrorResponse.self, from: jsonData)
                     onProcessingError?(self, decoded)
                 } catch {
                     onProcessingError?(self, apiError)
