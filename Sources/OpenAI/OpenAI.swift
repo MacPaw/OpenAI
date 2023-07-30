@@ -39,6 +39,7 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     private let session: URLSessionProtocol
+    private let dataTaskManager: URLSessionDataTaskManager
     private var streamingSessions: [NSObject] = []
     
     public let configuration: Configuration
@@ -54,6 +55,7 @@ final public class OpenAI: OpenAIProtocol {
     init(configuration: Configuration, session: URLSessionProtocol) {
         self.configuration = configuration
         self.session = session
+        self.dataTaskManager = URLSessionDataTaskManager(session: session)
     }
 
     public convenience init(configuration: Configuration, session: URLSession = URLSession.shared) {
@@ -110,7 +112,7 @@ final public class OpenAI: OpenAIProtocol {
 }
 
 extension OpenAI {
-    private func generateHeaders() -> [String: String] {
+    internal func generateHeaders() -> [String: String] {
         var headers = configuration.additionalHeaders
         headers["Authorization"] = "Bearer \(configuration.token)"
         if let organizationIdentifier = configuration.organizationIdentifier {
@@ -125,34 +127,7 @@ extension OpenAI {
     func performRequest<ResultType: Codable>(request: any URLRequestBuildable, completion: @escaping (Result<ResultType, Error>) -> Void) {
         do {
             let request = try request.build()
-            let task = session.dataTask(with: request) { data, _, error in
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                guard let data = data else {
-                    completion(.failure(OpenAIError.emptyData))
-                    return
-                }
-
-                var apiError: Error? = nil
-                do {
-                    let decoded = try JSONDecoder().decode(ResultType.self, from: data)
-                    completion(.success(decoded))
-                } catch {
-                    apiError = error
-                }
-
-                if let apiError = apiError {
-                    do {
-                        let decoded = try JSONDecoder().decode(APIErrorResponse.self, from: data)
-                        completion(.failure(decoded))
-                    } catch {
-                        completion(.failure(apiError))
-                    }
-                }
-            }
-            task.resume()
+            dataTaskManager.performDataTask(with: request, completion: completion)
         } catch {
             completion(.failure(error))
         }
