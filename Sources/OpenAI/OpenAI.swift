@@ -33,7 +33,7 @@ final public class OpenAI: OpenAIProtocol {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host
-            self.timeoutInterval = timeoutInterval            
+            self.timeoutInterval = timeoutInterval
             self.additionalHeaders = additionalHeaders ?? [:]
         }
     }
@@ -110,7 +110,7 @@ final public class OpenAI: OpenAIProtocol {
 }
 
 extension OpenAI {
-    func generateHeaders() -> [String: String] {
+    private func generateHeaders() -> [String: String] {
         var headers = configuration.additionalHeaders
         headers["Authorization"] = "Bearer \(configuration.token)"
         if let organizationIdentifier = configuration.organizationIdentifier {
