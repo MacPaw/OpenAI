@@ -6,36 +6,27 @@
 //
 
 import Foundation
-#if canImport(FoundationNetworking)
-import FoundationNetworking
-#endif
 
-final class MultipartFormDataRequest<ResultType> {
+struct MultipartFormDataRequest<BodyType: MultipartFormDataBodyEncodable, ResultType>: BaseRequest, URLRequestBuildable {
+    var body: MultipartFormDataBodyEncodable?
+    var url: URL
+    var headers: [String: String]
+    var method: String = "POST"
+    var timeoutInterval: TimeInterval
+    var boundary: String = UUID().uuidString
     
-    let body: MultipartFormDataBodyEncodable
-    let url: URL
-    let method: String
-        
-    init(body: MultipartFormDataBodyEncodable, url: URL, method: String = "POST") {
+    init(body: BodyType?, url: URL, method: String = "POST", headers: [String: String]?, timeoutInterval: TimeInterval) {
         self.body = body
         self.url = url
         self.method = method
+        self.headers = headers ?? [:]
+        self.headers["Content-Type"] = "multipart/form-data; boundary=\(boundary)"
+        self.timeoutInterval = timeoutInterval
+    }
+    
+    func getBody() throws -> Data? {
+        return body?.encode(boundary: boundary)
     }
 }
 
-extension MultipartFormDataRequest: URLRequestBuildable {
-    
-    func build(token: String, organizationIdentifier: String?, timeoutInterval: TimeInterval) throws -> URLRequest {
-        var request = URLRequest(url: url)
-        let boundary: String = UUID().uuidString
-        request.timeoutInterval = timeoutInterval
-        request.httpMethod = method
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        if let organizationIdentifier {
-            request.setValue(organizationIdentifier, forHTTPHeaderField: "OpenAI-Organization")
-        }
-        request.httpBody = body.encode(boundary: boundary)
-        return request
-    }
-}
+

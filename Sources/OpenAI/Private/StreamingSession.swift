@@ -28,6 +28,8 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
         return session
     }()
     
+    private var accumulatedData = "" // This will hold incomplete JSON data
+    
     init(urlRequest: URLRequest) {
         self.urlRequest = urlRequest
     }
@@ -47,7 +49,12 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
             onProcessingError?(self, StreamingError.unknownContent)
             return
         }
-        let jsonObjects = stringContent
+        
+        print(stringContent)
+        
+        accumulatedData.append(stringContent)
+        
+        let jsonObjects = accumulatedData
             .components(separatedBy: "data:")
             .filter { $0.isEmpty == false }
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -67,8 +74,19 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
             do {
                 let decoder = JSONDecoder()
                 let object = try decoder.decode(ResultType.self, from: jsonData)
+                accumulatedData = "" // Reset accumulatedData, since the jsonData is complete and valid.
                 onReceiveContent?(self, object)
+            } catch let error as DecodingError {
+                if case .dataCorrupted = error {
+                    // Invalid JSON - this isn't an error condition, we simply don't have all the data yet, so we'll wait for
+                    // this function to be called again, and will append the data we subsequently receive to the accumulatedData
+                    // variable so that we can try to process that longer, more complete string at that point.
+                } else {
+                    // Handle other decoding errors
+                    apiError = error
+                }
             } catch {
+                // Handle non-DecodingErrors
                 apiError = error
             }
             

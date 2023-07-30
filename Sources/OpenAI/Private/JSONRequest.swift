@@ -5,37 +5,26 @@
 //  Created by Sergii Kryvoblotskyi on 12/19/22.
 //
 
-import Foundation
-#if canImport(FoundationNetworking)
-import FoundationNetworking
-#endif
 
-final class JSONRequest<ResultType> {
-    
-    let body: Codable?
-    let url: URL
-    let method: String
-    
-    init(body: Codable? = nil, url: URL, method: String = "POST") {
+import Foundation
+
+struct JSONRequest<BodyType: Encodable, ResultType>: BaseRequest, URLRequestBuildable {
+    var body: BodyType?
+    var url: URL
+    var method: String = "POST"
+    var headers: [String: String]
+    var timeoutInterval: TimeInterval
+        
+    init(body: BodyType? = nil, url: URL, method: String = "POST", headers: [String: String]?, timeoutInterval: TimeInterval) {
         self.body = body
         self.url = url
         self.method = method
+        self.headers = headers ?? [:]
+        self.headers["Content-Type"] = "application/json"
+        self.timeoutInterval = timeoutInterval
     }
-}
-
-extension JSONRequest: URLRequestBuildable {
     
-    func build(token: String, organizationIdentifier: String?, timeoutInterval: TimeInterval) throws -> URLRequest {
-        var request = URLRequest(url: url, timeoutInterval: timeoutInterval)
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        if let organizationIdentifier {
-            request.setValue(organizationIdentifier, forHTTPHeaderField: "OpenAI-Organization")
-        }
-        request.httpMethod = method
-        if let body = body {
-            request.httpBody = try JSONEncoder().encode(body)
-        }
-        return request
+    func getBody() throws -> Data? {
+        return try body.map { try JSONEncoder().encode($0) }
     }
 }

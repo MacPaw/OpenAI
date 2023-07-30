@@ -26,11 +26,20 @@ final public class OpenAI: OpenAIProtocol {
         /// Default request timeout
         public let timeoutInterval: TimeInterval
         
-        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", timeoutInterval: TimeInterval = 60.0) {
+        /// A dictionary of HTTP headers to include in requests to OpenAI (or any proxy server the request may be sent to)
+        public var additionalHeaders: [String: String]
+        
+        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", timeoutInterval: TimeInterval = 60.0, additionalHeaders: [String: String]? = nil) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host
             self.timeoutInterval = timeoutInterval
+            
+            self.additionalHeaders = additionalHeaders ?? [:]
+            self.additionalHeaders["Authorization"] = "Bearer \(token)"
+            if let organizationIdentifier = organizationIdentifier {
+                self.additionalHeaders["OpenAI-Organization"] = organizationIdentifier
+            }
         }
     }
     
@@ -57,51 +66,51 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     public func completions(query: CompletionsQuery, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<CompletionsResult>(body: query, url: buildURL(path: .completions)), completion: completion)
+        performRequest(request: JSONRequest<CompletionsQuery, CompletionsResult>(body: query, url: buildURL(path: .completions), headers: configuration.additionalHeaders, timeoutInterval: configuration.timeoutInterval), completion: completion)
     }
     
     public func completionsStream(query: CompletionsQuery, onResult: @escaping (Result<CompletionsResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        performSteamingRequest(request: JSONRequest<CompletionsResult>(body: query.makeStreamable(), url: buildURL(path: .completions)), onResult: onResult, completion: completion)
+        performSteamingRequest(request: JSONRequest<CompletionsQuery, CompletionsResult>(body: query.makeStreamable(), url: buildURL(path: .completions), headers: configuration.additionalHeaders, timeoutInterval: configuration.timeoutInterval), onResult: onResult, completion: completion)
     }
     
     public func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ImagesResult>(body: query, url: buildURL(path: .images)), completion: completion)
+        performRequest(request: JSONRequest<ImagesQuery, ImagesResult>(body: query, url: buildURL(path: .images), headers: configuration.additionalHeaders, timeoutInterval: configuration.timeoutInterval), completion: completion)
     }
     
     public func embeddings(query: EmbeddingsQuery, completion: @escaping (Result<EmbeddingsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<EmbeddingsResult>(body: query, url: buildURL(path: .embeddings)), completion: completion)
+        performRequest(request: JSONRequest<EmbeddingsQuery, EmbeddingsResult>(body: query, url: buildURL(path: .embeddings), headers: configuration.additionalHeaders, timeoutInterval: configuration.timeoutInterval), completion: completion)
     }
     
     public func chats(query: ChatQuery, completion: @escaping (Result<ChatResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: .chats)), completion: completion)
+        performRequest(request: JSONRequest<ChatQuery, ChatResult>(body: query, url: buildURL(path: .chats), headers: configuration.additionalHeaders, timeoutInterval: configuration.timeoutInterval), completion: completion)
     }
     
     public func chatsStream(query: ChatQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        performSteamingRequest(request: JSONRequest<ChatResult>(body: query.makeStreamable(), url: buildURL(path: .chats)), onResult: onResult, completion: completion)
+        performSteamingRequest(request: JSONRequest<ChatQuery, ChatResult>(body: query.makeStreamable(), url: buildURL(path: .chats), headers: configuration.additionalHeaders, timeoutInterval: configuration.timeoutInterval), onResult: onResult, completion: completion)
     }
     
     public func edits(query: EditsQuery, completion: @escaping (Result<EditsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<EditsResult>(body: query, url: buildURL(path: .edits)), completion: completion)
+        performRequest(request: JSONRequest<EditsQuery, EditsResult>(body: query, url: buildURL(path: .edits), headers: configuration.additionalHeaders, timeoutInterval: configuration.timeoutInterval), completion: completion)
     }
     
     public func model(query: ModelQuery, completion: @escaping (Result<ModelResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ModelResult>(url: buildURL(path: .models.withPath(query.model)), method: "GET"), completion: completion)
+        performRequest(request: JSONRequest<ModelQuery, ModelResult>(url: buildURL(path: .models.withPath(query.model)), method: "GET", headers: configuration.additionalHeaders, timeoutInterval: configuration.timeoutInterval), completion: completion)
     }
     
     public func models(completion: @escaping (Result<ModelsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ModelsResult>(url: buildURL(path: .models), method: "GET"), completion: completion)
+        performRequest(request: JSONRequest<Empty, ModelsResult>(url: buildURL(path: .models), method: "GET", headers: configuration.additionalHeaders, timeoutInterval: configuration.timeoutInterval), completion: completion)
     }
     
     public func moderations(query: ModerationsQuery, completion: @escaping (Result<ModerationsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ModerationsResult>(body: query, url: buildURL(path: .moderations)), completion: completion)
+        performRequest(request: JSONRequest<ModerationsQuery, ModerationsResult>(body: query, url: buildURL(path: .moderations), headers: configuration.additionalHeaders, timeoutInterval: configuration.timeoutInterval), completion: completion)
     }
     
     public func audioTranscriptions(query: AudioTranscriptionQuery, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void) {
-        performRequest(request: MultipartFormDataRequest<AudioTranscriptionResult>(body: query, url: buildURL(path: .audioTranscriptions)), completion: completion)
+        performRequest(request: MultipartFormDataRequest<AudioTranscriptionQuery, AudioTranscriptionResult>(body: query, url: buildURL(path: .audioTranscriptions), headers: configuration.additionalHeaders, timeoutInterval: configuration.timeoutInterval), completion: completion)
     }
     
     public func audioTranslations(query: AudioTranslationQuery, completion: @escaping (Result<AudioTranslationResult, Error>) -> Void) {
-        performRequest(request: MultipartFormDataRequest<AudioTranslationResult>(body: query, url: buildURL(path: .audioTranslations)), completion: completion)
+        performRequest(request: MultipartFormDataRequest<AudioTranslationQuery, AudioTranslationResult>(body: query, url: buildURL(path: .audioTranslations), headers: configuration.additionalHeaders, timeoutInterval: configuration.timeoutInterval), completion: completion)
     }
 }
 
@@ -109,7 +118,7 @@ extension OpenAI {
 
     func performRequest<ResultType: Codable>(request: any URLRequestBuildable, completion: @escaping (Result<ResultType, Error>) -> Void) {
         do {
-            let request = try request.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
+            let request = try request.build()
             let task = session.dataTask(with: request) { data, _, error in
                 if let error = error {
                     completion(.failure(error))
@@ -145,7 +154,7 @@ extension OpenAI {
     
     func performSteamingRequest<ResultType: Codable>(request: any URLRequestBuildable, onResult: @escaping (Result<ResultType, Error>) -> Void, completion: ((Error?) -> Void)?) {
         do {
-            let request = try request.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
+            let request = try request.build()
             let session = StreamingSession<ResultType>(urlRequest: request)
             session.onReceiveContent = {_, object in
                 onResult(.success(object))
