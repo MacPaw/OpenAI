@@ -48,9 +48,7 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
         guard let stringContent = String(data: data, encoding: .utf8) else {
             onProcessingError?(self, StreamingError.unknownContent)
             return
-        }
-        
-        print(stringContent)
+        }                
         
         accumulatedData.append(stringContent)
         
