@@ -50,52 +50,73 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
             return
         }                
         
+        // As data comes in, we process it by trying to decode to JSON. Since we may not have yet received a fully valid
+        // JSON string yet, we keep appending content if we're unable to decode due to a "dataCorrupted" error, trying again
+        // on the next pass in case that new data has completed the string to create valid (parsable) JSON, and so on.
+        // Note that while OpenAI's API doesn't appear to return partial string fragments, proxy service such as Helicone
+        // do seem to do so, making this logic necessary.
         accumulatedData.append(stringContent)
-        
+        processAccumulatedData()
+    }
+    
+    func processAccumulatedData() {
         let jsonObjects = accumulatedData
             .components(separatedBy: "data:")
             .filter { $0.isEmpty == false }
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-        guard jsonObjects.isEmpty == false, jsonObjects.first != streamingCompletionMarker else {
+        guard !jsonObjects.isEmpty, jsonObjects.first != streamingCompletionMarker else {
             return
         }
-        jsonObjects.forEach { jsonContent  in
-            guard jsonContent != streamingCompletionMarker else {
-                return
-            }
-            guard let jsonData = jsonContent.data(using: .utf8) else {
-                onProcessingError?(self, StreamingError.unknownContent)
-                return
-            }
-            
-            var apiError: Error? = nil
-            do {
-                let decoder = JSONDecoder()
-                let object = try decoder.decode(ResultType.self, from: jsonData)
-                accumulatedData = "" // Reset accumulatedData, since the jsonData is complete and valid.
+        jsonObjects.forEach { jsonContent in
+            processJsonContent(jsonContent: jsonContent)
+        }
+    }
+    
+    private func processJsonContent(jsonContent: String) {
+        guard jsonContent != streamingCompletionMarker else {
+            return
+        }
+        
+        guard let jsonData = jsonContent.data(using: .utf8) else {
+            onProcessingError?(self, StreamingError.unknownContent)
+            return
+        }
+        
+        do {
+            if let object = try decodeResultType(from: jsonData) {
+                accumulatedData = "" // Successfully decoded, so reset accumulatedData.
                 onReceiveContent?(self, object)
-            } catch let error as DecodingError {
-                if case .dataCorrupted = error {
-                    // Invalid JSON - this isn't an error condition, we simply don't have all the data yet, so we'll wait for
-                    // this function to be called again, and will append the data we subsequently receive to the accumulatedData
-                    // variable so that we can try to process that longer, more complete string at that point.
-                } else {
-                    // Handle other decoding errors
-                    apiError = error
-                }
-            } catch {
-                // Handle non-DecodingErrors
-                apiError = error
             }
-            
-            if let apiError = apiError {
-                do {
-                    let decoded = try JSONDecoder().decode(APIErrorResponse.self, from: data)
-                    onProcessingError?(self, decoded)
-                } catch {
-                    onProcessingError?(self, apiError)
-                }
+        } catch let apiError {
+            handleApiError(apiError, data: jsonData)
+        }
+    }
+    
+    private func decodeResultType(from data: Data) throws -> ResultType? {
+        let decoder = JSONDecoder()
+        do {
+            return try decoder.decode(ResultType.self, from: data)
+        } catch let error as DecodingError {
+            if case .dataCorrupted = error {
+                // Invalid JSON - this isn't an error condition, we simply don't have all the data yet.
+                // We'll wait for this function to be called again, and will append the data we subsequently
+                // receive to the accumulatedData variable, so that we can try to process that longer,
+                // more complete string at that point.
+                
+                return nil // Return nil to indicate that the data is not yet complete.
+            } else {
+                // Handle other decoding errors
+                throw error
             }
+        }
+    }
+    
+    private func handleApiError(_ error: Error, data: Data) {
+        do {
+            let decoded = try JSONDecoder().decode(APIErrorResponse.self, from: data)
+            onProcessingError?(self, decoded)
+        } catch {
+            onProcessingError?(self, error)
         }
     }
 }
