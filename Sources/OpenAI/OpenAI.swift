@@ -15,29 +15,32 @@ final public class OpenAI: OpenAIProtocol {
     public struct Configuration {
         
         /// OpenAI API token. See https://platform.openai.com/docs/api-reference/authentication
-        public let token: String
+        public var token: String
         
         /// Optional OpenAI organization identifier. See https://platform.openai.com/docs/api-reference/authentication
-        public let organizationIdentifier: String?
+        public var organizationIdentifier: String?
         
         /// API host. Set this property if you use some kind of proxy or your own server. Default is api.openai.com
-        public let host: String
+        public var host: String
         
         /// Default request timeout
-        public let timeoutInterval: TimeInterval
+        public var timeoutInterval: TimeInterval
+
+        public var routeVersion: String
         
-        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", timeoutInterval: TimeInterval = 60.0) {
+        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", timeoutInterval: TimeInterval = 60.0, routeVersion: String = "/v1") {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host
             self.timeoutInterval = timeoutInterval
+            self.routeVersion = routeVersion
         }
     }
     
     private let session: URLSessionProtocol
     private var streamingSessions: [NSObject] = []
     
-    public let configuration: Configuration
+    public var configuration: Configuration
 
     public convenience init(apiToken: String) {
         self.init(configuration: Configuration(token: apiToken), session: URLSession.shared)
@@ -171,6 +174,7 @@ extension OpenAI {
         var components = URLComponents()
         components.scheme = "https"
         components.host = configuration.host
+        let path = self.routeVersion + path
         components.path = path
         return components.url!
     }
@@ -179,16 +183,16 @@ extension OpenAI {
 typealias APIPath = String
 extension APIPath {
     
-    static let completions = "/v1/completions"
-    static let images = "/v1/images/generations"
-    static let embeddings = "/v1/embeddings"
-    static let chats = "/v1/chat/completions"
-    static let edits = "/v1/edits"
-    static let models = "/v1/models"
-    static let moderations = "/v1/moderations"
+    static let completions = "/completions"
+    static let images = "/images/generations"
+    static let embeddings = "/embeddings"
+    static let chats = "/chat/completions"
+    static let edits = "/edits"
+    static let models = "/models"
+    static let moderations = "/moderations"
     
-    static let audioTranscriptions = "/v1/audio/transcriptions"
-    static let audioTranslations = "/v1/audio/translations"
+    static let audioTranscriptions = "/audio/transcriptions"
+    static let audioTranslations = "/audio/translations"
     
     func withPath(_ path: String) -> String {
         self + "/" + path
