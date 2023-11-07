@@ -106,6 +106,30 @@ class OpenAITestsDecoder: XCTestCase {
         ], usage: .init(promptTokens: 9, completionTokens: 12, totalTokens: 21))
         try decode(data, expectedValue)
     }
+    
+    func testImageQuery() async throws {
+        let imageQuery = ImagesQuery(
+            prompt: "test",
+            model: .dall_e_2,
+            n: 1,
+            size: "10"
+        )
+        
+        let expectedValue = """
+        {
+            "model": "dall-e-2",
+            "prompt": "test",
+            "n": 1,
+            "size": "10"
+        }
+        """
+        
+        // To compare serialized JSONs we first convert them both into NSDictionary which are comparable (unline native swift dictionaries)
+        let imageQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(imageQuery))
+        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
+        
+        XCTAssertEqual(imageQueryAsDict, expectedValueAsDict)
+    }
   
     func testChatQueryWithFunctionCall() async throws {
         let chatQuery = ChatQuery(
