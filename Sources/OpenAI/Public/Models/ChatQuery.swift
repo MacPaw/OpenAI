@@ -7,6 +7,19 @@
 
 import Foundation
 
+// See more https://platform.openai.com/docs/guides/text-generation/json-mode
+public struct ResponseFormat: Codable, Equatable {
+    public static let jsonObject = ResponseFormat(type: .jsonObject)
+    public static let text = ResponseFormat(type: .text)
+    
+    public let type: Self.ResponseFormatType
+    
+    public enum ResponseFormatType: String, Codable, Equatable {
+        case jsonObject = "json_object"
+        case text
+    }
+}
+
 public struct Chat: Codable, Equatable {
     public let role: Role
     /// The contents of the message. `content` is required for all messages except assistant messages with function calls.
@@ -14,7 +27,6 @@ public struct Chat: Codable, Equatable {
     /// The name of the author of this message. `name` is required if role is `function`, and it should be the name of the function whose response is in the `content`. May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
     public let name: String?
     public let functionCall: ChatFunctionCall?
-    public let responseFormat: ResponseFormat?
     
     public enum Role: String, Codable, Equatable {
         case system
@@ -28,15 +40,13 @@ public struct Chat: Codable, Equatable {
         case content
         case name
         case functionCall = "function_call"
-        case responseFormat = "response_format"
     }
     
-    public init(role: Role, content: String? = nil, name: String? = nil, functionCall: ChatFunctionCall? = nil, responseFormat: ResponseFormat? = nil) {
+    public init(role: Role, content: String? = nil, name: String? = nil, functionCall: ChatFunctionCall? = nil) {
         self.role = role
         self.content = content
         self.name = name
         self.functionCall = functionCall
-        self.responseFormat = responseFormat
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -71,13 +81,6 @@ public struct ChatFunctionCall: Codable, Equatable {
     }
 }
 
-public enum ResponseFormat: Codable, Equatable {
-    case jsonObject
-
-    enum CodingKeys: String, CodingKey {
-        case jsonObject = "json_object"
-    }
-}
 
 /// See the [guide](/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
 public struct JSONSchema: Codable, Equatable {
@@ -222,6 +225,8 @@ public struct ChatQueryFunctionCall: Codable, Equatable {
 public struct ChatQuery: Equatable, Codable, Streamable {
     /// ID of the model to use. Currently, only gpt-3.5-turbo and gpt-3.5-turbo-0301 are supported.
     public let model: Model
+    /// An object specifying the format that the model must output.
+    public let responseFormat: ResponseFormat?
     /// The messages to generate chat completions for
     public let messages: [Chat]
     /// A list of functions the model may generate JSON inputs for.
@@ -290,9 +295,10 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         case frequencyPenalty = "frequency_penalty"
         case logitBias = "logit_bias"
         case user
+        case responseFormat = "response_format"
     }
     
-  public init(model: Model, messages: [Chat], functions: [ChatFunctionDeclaration]? = nil, functionCall: FunctionCall? = nil, temperature: Double? = nil, topP: Double? = nil, n: Int? = nil, stop: [String]? = nil, maxTokens: Int? = nil, presencePenalty: Double? = nil, frequencyPenalty: Double? = nil, logitBias: [String : Int]? = nil, user: String? = nil, stream: Bool = false) {
+    public init(model: Model, messages: [Chat], responseFormat: ResponseFormat? = nil, functions: [ChatFunctionDeclaration]? = nil, functionCall: FunctionCall? = nil, temperature: Double? = nil, topP: Double? = nil, n: Int? = nil, stop: [String]? = nil, maxTokens: Int? = nil, presencePenalty: Double? = nil, frequencyPenalty: Double? = nil, logitBias: [String : Int]? = nil, user: String? = nil, stream: Bool = false) {
         self.model = model
         self.messages = messages
         self.functions = functions
@@ -300,6 +306,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         self.temperature = temperature
         self.topP = topP
         self.n = n
+        self.responseFormat = responseFormat
         self.stop = stop
         self.maxTokens = maxTokens
         self.presencePenalty = presencePenalty

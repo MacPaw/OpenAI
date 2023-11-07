@@ -113,6 +113,7 @@ class OpenAITestsDecoder: XCTestCase {
             messages: [
                 Chat(role: .user, content: "What's the weather like in Boston?")
             ],
+            responseFormat: .init(type: .jsonObject),
             functions: [
                 ChatFunctionDeclaration(
                     name: "get_current_weather",
@@ -135,6 +136,9 @@ class OpenAITestsDecoder: XCTestCase {
           "messages": [
             { "role": "user", "content": "What's the weather like in Boston?" }
           ],
+          "response_format": {
+            "type": "json_object"
+           },
           "functions": [
             {
               "name": "get_current_weather",
