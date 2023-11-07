@@ -14,6 +14,7 @@ public struct Chat: Codable, Equatable {
     /// The name of the author of this message. `name` is required if role is `function`, and it should be the name of the function whose response is in the `content`. May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
     public let name: String?
     public let functionCall: ChatFunctionCall?
+    public let responseFormat: ResponseFormat?
     
     public enum Role: String, Codable, Equatable {
         case system
@@ -27,13 +28,15 @@ public struct Chat: Codable, Equatable {
         case content
         case name
         case functionCall = "function_call"
+        case responseFormat = "response_format"
     }
     
-    public init(role: Role, content: String? = nil, name: String? = nil, functionCall: ChatFunctionCall? = nil) {
+    public init(role: Role, content: String? = nil, name: String? = nil, functionCall: ChatFunctionCall? = nil, responseFormat: ResponseFormat? = nil) {
         self.role = role
         self.content = content
         self.name = name
         self.functionCall = functionCall
+        self.responseFormat = responseFormat
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -65,6 +68,14 @@ public struct ChatFunctionCall: Codable, Equatable {
     public init(name: String?, arguments: String?) {
         self.name = name
         self.arguments = arguments
+    }
+}
+
+public enum ResponseFormat: Codable, Equatable {
+    case jsonObject
+
+    enum CodingKeys: String, CodingKey {
+        case jsonObject = "json_object"
     }
 }
 
