@@ -129,7 +129,8 @@ class OpenAITestsDecoder: XCTestCase {
             "n": 1,
             "size": "10",
             "style": "vivid",
-            "user": "user"
+            "user": "user",
+            "response_format": "b64_json"
         }
         """
         

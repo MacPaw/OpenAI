@@ -46,7 +46,7 @@ class OpenAITests: XCTestCase {
     func testImages() async throws {
         let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", model: .dall_e_2, n: 1, size: "1024x1024")
         let imagesResult = ImagesResult(created: 100, data: [
-            .init(url: "http://foo.bar")
+            .init(url: "http://foo.bar", b64_json: nil)
         ])
         try self.stub(result: imagesResult)
         let result = try await openAI.images(query: query)
