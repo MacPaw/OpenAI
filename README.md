@@ -662,12 +662,16 @@ Models are represented as a typealias `typealias Model = String`.
 
 ```swift
 public extension Model {
+		static let gpt4_1106_preview = "gpt-4-1106-preview"
+		static let gpt4_vision_preview = "gpt-4-vision-preview"
     static let gpt4 = "gpt-4"
     static let gpt4_0314 = "gpt-4-0314"
     static let gpt4_32k = "gpt-4-32k"
     static let gpt4_32k_0314 = "gpt-4-32k-0314"
     static let gpt3_5Turbo = "gpt-3.5-turbo"
+    static let gpt3_5Turbo_1106 = "gpt-3.5-turbo-1106"
     static let gpt3_5Turbo0301 = "gpt-3.5-turbo-0301"
+
     
     static let textDavinci_003 = "text-davinci-003"
     static let textDavinci_002 = "text-davinci-002"
@@ -693,6 +697,9 @@ public extension Model {
     static let textModerationStable = "text-moderation-stable"
     static let textModerationLatest = "text-moderation-latest"
     static let moderation = "text-moderation-001"
+    
+    static let dall_e_2 = "dall-e-2"
+		static let dall_e_3 = "dall-e-3"
 }
 ```
 
