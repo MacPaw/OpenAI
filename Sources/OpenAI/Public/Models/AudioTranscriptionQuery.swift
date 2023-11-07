@@ -7,7 +7,17 @@
 
 import Foundation
 
+public enum AudioResponseFormat: String, Codable, Equatable {
+    case json
+    case text
+    case verboseJson = "verbose_json"
+    case srt
+    case vtt
+}
+
 public struct AudioTranscriptionQuery: Codable, Equatable {
+    public typealias ResponseFormat = AudioResponseFormat
+    
     public let file: Data
     public let fileName: String
     public let model: Model
@@ -16,14 +26,6 @@ public struct AudioTranscriptionQuery: Codable, Equatable {
     public let prompt: String?
     public let temperature: Double?
     public let language: String?
-    
-    public enum ResponseFormat: String, Codable, Equatable {
-        case json
-        case text
-        case verboseJson = "verbose_json"
-        case srt
-        case vtt
-    }
     
     public init(file: Data, fileName: String, model: Model, prompt: String? = nil, temperature: Double? = nil, language: String? = nil, responseFormat: Self.ResponseFormat? = nil) {
         self.file = file
