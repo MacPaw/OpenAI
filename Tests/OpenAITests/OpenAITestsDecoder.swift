@@ -66,14 +66,18 @@ class OpenAITestsDecoder: XCTestCase {
             },
             {
               "url": "https://bar.foo"
+            },
+            {
+                "b64_json": "test"
             }
           ]
         }
         """
         
         let expectedValue = ImagesResult(created: 1589478378, data: [
-            .init(url: "https://foo.bar"),
-            .init(url: "https://bar.foo")
+            .init(url: "https://foo.bar", b64_json: nil),
+            .init(url: "https://bar.foo", b64_json: nil),
+            .init(url: nil, b64_json: "test")
         ])
         try decode(data, expectedValue)
     }
@@ -111,8 +115,11 @@ class OpenAITestsDecoder: XCTestCase {
         let imageQuery = ImagesQuery(
             prompt: "test",
             model: .dall_e_2,
+            responseFormat: .b64_json,
             n: 1,
-            size: "10"
+            size: "10",
+            style: "vivid",
+            user: "user"
         )
         
         let expectedValue = """
@@ -120,7 +127,9 @@ class OpenAITestsDecoder: XCTestCase {
             "model": "dall-e-2",
             "prompt": "test",
             "n": 1,
-            "size": "10"
+            "size": "10",
+            "style": "vivid",
+            "user": "user"
         }
         """
         
