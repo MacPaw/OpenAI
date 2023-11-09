@@ -63,7 +63,6 @@ class OpenAITests: XCTestCase {
     }
     
     func testImageEdit() async throws {
-//        let imageData = Data()
         let query = ImageEditsQuery(image: Data(), fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
         let imagesResult = ImagesResult(created: 100, data: [
             .init(url: "http://foo.bar")
