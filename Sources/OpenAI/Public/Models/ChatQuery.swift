@@ -7,6 +7,8 @@
 
 import Foundation
 
+
+
 // See more https://platform.openai.com/docs/guides/text-generation/json-mode
 public struct ResponseFormat: Codable, Equatable {
     public static let jsonObject = ResponseFormat(type: .jsonObject)
@@ -20,10 +22,89 @@ public struct ResponseFormat: Codable, Equatable {
     }
 }
 
+public struct ChatContent: Codable, Equatable {
+    let type: ChatContentType
+    let value: String
+    
+    public enum ChatContentType: String, Codable {
+        case text
+        case imageUrl = "image_url"
+    }
+    
+    public struct ImageUrl: Codable, Equatable {
+        let url: String
+        
+        enum CodingKeys: CodingKey {
+            case url
+        }
+    }
+    
+    
+    enum CodingKeys: CodingKey {
+        case type
+        case value
+    }
+    
+    public static func text(_ text: String) -> Self {
+        Self.init(text)
+    }
+    
+    public static func imageUrl(_ url: String) -> Self {
+        Self.init(type: .imageUrl, value: url)
+    }
+    
+    public init(type: ChatContentType, value: String) {
+        self.type = type
+        self.value = value
+    }
+    
+    public init(_ text: String) {
+        self.type = .text
+        self.value = text
+    }
+    
+    // we need to perform a custom encoding since the `value` key is variable based on the `type`
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: ChatContent.CodingKeys.self)
+        var dynamicContainer = encoder.container(keyedBy: DynamicKey.self)
+        
+        try container.encode(type, forKey: .type)
+        
+        switch self.type {
+        case .text:
+            try dynamicContainer.encode(value, forKey: .init(stringValue: "text"))
+            break
+        case .imageUrl:
+            var nested = dynamicContainer.nestedContainer(keyedBy: ImageUrl.CodingKeys.self, forKey: .init(stringValue: "image_url"))
+            try nested.encode(value, forKey: .url)
+            break
+        }
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.type = try container.decode(ChatContentType.self, forKey: .type)
+        
+        let dynamicContainer = try decoder.container(keyedBy: DynamicKey.self)
+        
+        switch self.type {
+        case .text:
+            self.value = try dynamicContainer.decode(String.self, forKey: .init(stringValue: "text"))
+            break
+        case .imageUrl:
+            let nested = try dynamicContainer.nestedContainer(keyedBy: ImageUrl.CodingKeys.self, forKey: .init(stringValue: "image_url"))
+            self.value = try nested.decode(String.self, forKey: .url)
+            break
+        }
+    }
+}
+
+
 public struct Chat: Codable, Equatable {
     public let role: Role
     /// The contents of the message. `content` is required for all messages except assistant messages with function calls.
-    public let content: String?
+    public let content: StringOrCodable<[ChatContent]>?
+    
     /// The name of the author of this message. `name` is required if role is `function`, and it should be the name of the function whose response is in the `content`. May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
     public let name: String?
     public let functionCall: ChatFunctionCall?
@@ -42,9 +123,33 @@ public struct Chat: Codable, Equatable {
         case functionCall = "function_call"
     }
     
-    public init(role: Role, content: String? = nil, name: String? = nil, functionCall: ChatFunctionCall? = nil) {
+    public init(role: Role, content stringContent: String? = nil, name: String? = nil, functionCall: ChatFunctionCall? = nil) {
+        let stringOrCodable: StringOrCodable<[ChatContent]>?;
+        
+        if let string = stringContent {
+            stringOrCodable = .string(string)
+        } else {
+            stringOrCodable = nil
+        }
+        
+        self.init(role: role, contents: stringOrCodable, name: name, functionCall: functionCall)
+    }
+    
+    public init(role: Role, content arr: [ChatContent]? = nil ,name: String? = nil, functionCall: ChatFunctionCall? = nil) {
+        let stringOrCodable: StringOrCodable<[ChatContent]>?
+        
+        if let arr = arr {
+            stringOrCodable = .object(arr)
+        } else {
+            stringOrCodable = nil
+        }
+        
+        self.init(role: role, contents: stringOrCodable, name: name, functionCall: functionCall)
+    }
+    
+    public init(role: Role, contents: StringOrCodable<[ChatContent]>? = nil, name: String? = nil, functionCall: ChatFunctionCall? = nil) {
         self.role = role
-        self.content = content
+        self.content = contents
         self.name = name
         self.functionCall = functionCall
     }

@@ -200,6 +200,42 @@ class OpenAITestsDecoder: XCTestCase {
         
         XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
     }
+    
+    func testChatContentImage() async throws {
+        let expectedValue = """
+        {
+            "type": "image_url",
+            "image_url": {
+                "url": "https://example.com"
+            }
+        }
+        """
+        
+        let data = ChatContent(type: .imageUrl, value: "https://example.com")
+        
+        // To compare serialized JSONs we first convert them both into NSDictionary which are comparable (unline native swift dictionaries)
+        let resultDict = try jsonDataAsNSDictionary(JSONEncoder().encode(data))
+        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
+        
+        XCTAssertEqual(resultDict, expectedValueAsDict)
+    }
+    
+    func testChatContentText() async throws {
+        let expectedValue = """
+        {
+            "type": "text",
+            "text": "hello world"
+        }
+        """
+        
+        let data = ChatContent(type: .text, value: "hello world")
+        
+        // To compare serialized JSONs we first convert them both into NSDictionary which are comparable (unline native swift dictionaries)
+        let resultDict = try jsonDataAsNSDictionary(JSONEncoder().encode(data))
+        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
+        
+        XCTAssertEqual(resultDict, expectedValueAsDict)
+    }
 
     func testChatCompletionWithFunctionCall() async throws {
         let data = """
@@ -235,12 +271,16 @@ class OpenAITestsDecoder: XCTestCase {
             created: 1677652288,
             model: .gpt3_5Turbo,
             choices: [
-                .init(index: 0, message:
-                        Chat(role: .assistant,
-                             functionCall: ChatFunctionCall(name: "get_current_weather", arguments: nil)),
-                      finishReason: "function_call")
+                .init(
+                    index: 0,
+                    // TODO: Fix "Ambiguous use of 'init(role:content:name:functionCall:)'" when omitting content
+                    // maybe by removing `init` the overload?
+                    message: Chat(role: .assistant, content: nil as String?, functionCall: .init(name: "get_current_weather", arguments: nil)),
+                    finishReason: "function_call"
+                )
             ],
             usage: .init(promptTokens: 82, completionTokens: 18, totalTokens: 100))
+        
         try decode(data, expectedValue)
     }
 
