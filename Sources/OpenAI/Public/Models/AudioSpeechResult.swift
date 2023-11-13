@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(AVFoundation)
 import AVFoundation
+#endif
 
 public struct AudioSpeechResult {
     
@@ -33,6 +35,7 @@ public struct AudioSpeechResult {
         try data.write(to: fileURL)
     }
     
+    #if canImport(AVFoundation)
     /// Gets an `AVAudioPlayer` instance configured with the audio data.
     ///
     /// - Returns: An `AVAudioPlayer` instance or nil if there is no audio data or if there is issue initializing an `AVAudioPlayer`.
@@ -51,5 +54,5 @@ public struct AudioSpeechResult {
             return nil
         }
     }
-    
+    #endif
 }
