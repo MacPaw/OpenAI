@@ -7,6 +7,11 @@
 
 import Foundation
 
+public enum ToolChoice: String, Codable {
+    case auto
+    case none
+}
+
 public struct ChatQuery: Equatable, Codable, Streamable {
     /// ID of the model to use. Currently, only gpt-3.5-turbo and gpt-3.5-turbo-0301 are supported.
     public let model: Model
@@ -16,6 +21,9 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     public let messages: [Chat]
     /// A list of functions the model may generate JSON inputs for.
     public let functions: [ChatFunctionDeclaration]?
+    
+    public let tools: [Tool]?
+    
     /// Controls how the model responds to function calls. "none" means the model does not call a function, and responds to the end-user. "auto" means the model can pick between and end-user or calling a function. Specifying a particular function via `{"name": "my_function"}` forces the model to call that function. "none" is the default when no functions are present. "auto" is the default if functions are present.
     public let functionCall: FunctionCall?
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and  We generally recommend altering this or top_p but not both.
@@ -37,6 +45,16 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
     public let user: String?
     
+    /// Controls which (if any) function is called by the model. 
+    /// `none` means the model will not call a function and instead generates a message.
+    /// `auto` means the model can pick between generating a message or calling a function
+    ///
+    /// Specifying a particular function via ``Tool.ToolValue`` forces the model to call that function.
+    ///
+    /// `none` is default when no functions are present
+    /// `auto` is default if functions are present
+    public let toolChoice: AnyOf<ToolChoice, Tool.ToolValue>?
+    
     var stream: Bool = false
 
     
@@ -56,11 +74,33 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         case logitBias = "logit_bias"
         case user
         case responseFormat = "response_format"
+        case tools
+        case toolChoice = "tool_choice"
     }
     
-    public init(model: Model, messages: [Chat], responseFormat: ResponseFormat? = nil, functions: [ChatFunctionDeclaration]? = nil, functionCall: FunctionCall? = nil, temperature: Double? = nil, topP: Double? = nil, n: Int? = nil, stop: [String]? = nil, maxTokens: Int? = nil, presencePenalty: Double? = nil, frequencyPenalty: Double? = nil, logitBias: [String : Int]? = nil, user: String? = nil, stream: Bool = false) {
+    public init(
+        model: Model,
+        messages: [Chat],
+        responseFormat: ResponseFormat? = nil,
+        tools: [Tool]? = nil,
+        toolChoice: AnyOf<ToolChoice, Tool.ToolValue>? = nil,
+        functions: [ChatFunctionDeclaration]? = nil,
+        functionCall: FunctionCall? = nil,
+        temperature: Double? = nil,
+        topP: Double? = nil,
+        n: Int? = nil,
+        stop: [String]? = nil,
+        maxTokens: Int? = nil,
+        presencePenalty: Double? = nil,
+        frequencyPenalty: Double? = nil,
+        logitBias: [String : Int]? = nil,
+        user: String? = nil,
+        stream: Bool = false
+    ) {
         self.model = model
         self.messages = messages
+        self.tools = tools
+        self.toolChoice = toolChoice
         self.functions = functions
         self.functionCall = functionCall
         self.temperature = temperature

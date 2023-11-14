@@ -1,6 +1,6 @@
 //
 //  JSONSchema.swift
-//  
+//
 //
 //  Created by Federico Vitale on 14/11/23.
 //
@@ -18,6 +18,10 @@ public struct JSONSchema: Codable, Equatable {
     public let multipleOf: Int?
     public let minimum: Int?
     public let maximum: Int?
+    
+    // OpenAI Docs says:
+    // To describe a function that accepts no parameters, provide the value {"type": "object", "properties": {}}.
+    public static let empty = JSONSchema(type: .object, properties: [:])
     
     private enum CodingKeys: String, CodingKey {
         case type, properties, required, pattern, const
