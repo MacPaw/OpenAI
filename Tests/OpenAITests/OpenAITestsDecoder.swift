@@ -111,6 +111,38 @@ class OpenAITestsDecoder: XCTestCase {
         try decode(data, expectedValue)
     }
     
+    func testChatCompletionStreamResult() throws {
+        let data = """
+        {
+          "id": "test",
+          "object": "test",
+          "created": 0,
+          "model": "gpt-4",
+          "choices": [
+            {
+              "delta": {
+                "content": "hello!"
+              },
+              "index": 0,
+              "finish_details": {
+                    "type": "stop",
+                    "stop": ""
+                }
+            }
+          ]
+        }
+        """
+        
+        let expectedValue = ChatStreamResult(id: "test", object: "test", created: 0, model: .gpt4, choices: [
+            .init(index: 0, delta: .init(content: "hello!", role: nil, name: nil, functionCall: nil), finishReason: nil)
+        ])
+        
+        let a = try jsonDataAsNSDictionary(JSONEncoder().encode(expectedValue))
+        let b = try jsonDataAsNSDictionary(data.data(using: .utf8)!)
+        
+        XCTAssertEqual(a, b)
+    }
+    
     func testImageQuery() async throws {
         let imageQuery = ImagesQuery(
             prompt: "test",
