@@ -197,8 +197,8 @@ extension OpenAI {
                     return
                 }
                 
-                var apiError: Error? = nil
                 completion(.success(AudioSpeechResult(audioData: data)))
+                let apiError: Error? = nil
                 
                 if let apiError = apiError {
                     do {
