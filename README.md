@@ -129,7 +129,7 @@ struct CompletionsResult: Codable, Equatable {
 **Example**
 
 ```swift
-let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, max_tokens: 100, top_p: 1, frequency_penalty: 0, presence_penalty: 0, stop: ["\\n"])
+let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
 openAI.completions(query: query) { result in
   //Handle result here
 }
