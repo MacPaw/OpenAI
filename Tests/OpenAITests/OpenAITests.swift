@@ -62,6 +62,44 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(inError, apiError)
     }
     
+    func testImageEdit() async throws {
+        let query = ImageEditsQuery(image: Data(), fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+        let imagesResult = ImagesResult(created: 100, data: [
+            .init(url: "http://foo.bar")
+        ])
+        try self.stub(result: imagesResult)
+        let result = try await openAI.imageEdits(query: query)
+        XCTAssertEqual(result, imagesResult)
+    }
+    
+    func testImageEditError() async throws {
+        let query = ImageEditsQuery(image: Data(), fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.imageEdits(query: query) }
+        XCTAssertEqual(inError, apiError)
+    }
+    
+    func testImageVariation() async throws {
+        let query = ImageVariationsQuery(image: Data(), fileName: "whitecat.png", n: 1, size: "1024x1024")
+        let imagesResult = ImagesResult(created: 100, data: [
+            .init(url: "http://foo.bar")
+        ])
+        try self.stub(result: imagesResult)
+        let result = try await openAI.imageVariations(query: query)
+        XCTAssertEqual(result, imagesResult)
+    }
+    
+    func testImageVariationError() async throws {
+        let query = ImageVariationsQuery(image: Data(), fileName: "whitecat.png", n: 1, size: "1024x1024")
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.imageVariations(query: query) }
+        XCTAssertEqual(inError, apiError)
+    }
+    
     func testChats() async throws {
        let query = ChatQuery(model: .gpt4, messages: [
            .init(role: .system, content: "You are Librarian-GPT. You know everything about the books."),
