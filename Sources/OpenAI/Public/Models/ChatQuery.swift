@@ -123,22 +123,12 @@ public struct Chat: Codable, Equatable {
         case functionCall = "function_call"
     }
     
-    public init(role: Role, content stringContent: String? = nil, name: String? = nil, functionCall: ChatFunctionCall? = nil) {
-        let stringOrCodable: StringOrCodable<[ChatContent]>?;
-        
-        if let string = stringContent {
-            stringOrCodable = .string(string)
-        } else {
-            stringOrCodable = nil
-        }
-        
-        self.init(role: role, contents: stringOrCodable, name: name, functionCall: functionCall)
-    }
-    
-    public init(role: Role, content arr: [ChatContent]? = nil ,name: String? = nil, functionCall: ChatFunctionCall? = nil) {
+    public init(role: Role, content codable: Codable? = nil ,name: String? = nil, functionCall: ChatFunctionCall? = nil) {
         let stringOrCodable: StringOrCodable<[ChatContent]>?
         
-        if let arr = arr {
+        if let string = codable as? String {
+            stringOrCodable = .string(string)
+        } else if let arr = codable as? [ChatContent] {
             stringOrCodable = .object(arr)
         } else {
             stringOrCodable = nil
