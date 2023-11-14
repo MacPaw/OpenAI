@@ -305,9 +305,7 @@ class OpenAITestsDecoder: XCTestCase {
             choices: [
                 .init(
                     index: 0,
-                    // TODO: Fix "Ambiguous use of 'init(role:content:name:functionCall:)'" when omitting content
-                    // maybe by removing `init` the overload?
-                    message: Chat(role: .assistant, content: nil as String?, functionCall: .init(name: "get_current_weather", arguments: nil)),
+                    message: Chat(role: .assistant, functionCall: .init(name: "get_current_weather", arguments: nil)),
                     finishReason: "function_call"
                 )
             ],
