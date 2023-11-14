@@ -28,6 +28,8 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
         return session
     }()
     
+    private var previousChunkBuffer = ""
+
     init(urlRequest: URLRequest) {
         self.urlRequest = urlRequest
     }
@@ -47,14 +49,25 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
             onProcessingError?(self, StreamingError.unknownContent)
             return
         }
-        let jsonObjects = stringContent
+        processJSON(from: stringContent)
+    }
+    
+}
+
+extension StreamingSession {
+    
+    private func processJSON(from stringContent: String) {
+        let jsonObjects = "\(previousChunkBuffer)\(stringContent)"
             .components(separatedBy: "data:")
             .filter { $0.isEmpty == false }
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        
+        previousChunkBuffer = ""
+        
         guard jsonObjects.isEmpty == false, jsonObjects.first != streamingCompletionMarker else {
             return
         }
-        jsonObjects.forEach { jsonContent  in
+        jsonObjects.enumerated().forEach { (index, jsonContent)  in
             guard jsonContent != streamingCompletionMarker else {
                 return
             }
@@ -77,9 +90,14 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
                     let decoded = try JSONDecoder().decode(APIErrorResponse.self, from: jsonData)
                     onProcessingError?(self, decoded)
                 } catch {
-                    onProcessingError?(self, apiError)
+                    if index == jsonObjects.count - 1 {
+                        previousChunkBuffer = "data: \(jsonContent)" // Chunk ends in a partial JSON
+                    } else {
+                        onProcessingError?(self, apiError)
+                    }
                 }
             }
         }
     }
+    
 }
