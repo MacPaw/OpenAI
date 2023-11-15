@@ -23,6 +23,10 @@ class OpenAITestsDecoder: XCTestCase {
         XCTAssertEqual(decoded, expectedValue)
     }
     
+    func jsonDataAsNSDictionary(_ data: Data) throws -> NSDictionary {
+        return NSDictionary(dictionary: try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any])
+    }
+    
     func testCompletions() async throws {
         let data = """
         {
@@ -102,7 +106,106 @@ class OpenAITestsDecoder: XCTestCase {
         ], usage: .init(promptTokens: 9, completionTokens: 12, totalTokens: 21))
         try decode(data, expectedValue)
     }
-    
+  
+    func testChatQueryWithFunctionCall() async throws {
+        let chatQuery = ChatQuery(
+            model: .gpt3_5Turbo,
+            messages: [
+                Chat(role: .user, content: "What's the weather like in Boston?")
+            ],
+            functions: [
+                ChatFunctionDeclaration(
+                    name: "get_current_weather",
+                    description: "Get the current weather in a given location",
+                    parameters:
+                      JSONSchema(
+                        type: .object,
+                        properties: [
+                          "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
+                          "unit": .init(type: .string, enumValues: ["celsius", "fahrenheit"])
+                        ],
+                        required: ["location"]
+                      )
+                )
+            ]
+        )
+        let expectedValue = """
+        {
+          "model": "gpt-3.5-turbo",
+          "messages": [
+            { "role": "user", "content": "What's the weather like in Boston?" }
+          ],
+          "functions": [
+            {
+              "name": "get_current_weather",
+              "description": "Get the current weather in a given location",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "location": {
+                    "type": "string",
+                    "description": "The city and state, e.g. San Francisco, CA"
+                  },
+                  "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] }
+                },
+                "required": ["location"]
+              }
+            }
+          ],
+          "stream": false
+        }
+        """
+        
+        // To compare serialized JSONs we first convert them both into NSDictionary which are comparable (unline native swift dictionaries)
+        let chatQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(chatQuery))
+        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
+        
+        XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
+    }
+
+    func testChatCompletionWithFunctionCall() async throws {
+        let data = """
+        {
+          "id": "chatcmpl-1234",
+          "object": "chat.completion",
+          "created": 1677652288,
+          "model": "gpt-3.5-turbo",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": null,
+                "function_call": {
+                  "name": "get_current_weather"
+                }
+              },
+              "finish_reason": "function_call"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 82,
+            "completion_tokens": 18,
+            "total_tokens": 100
+          }
+        }
+        """
+        
+        let expectedValue = ChatResult(
+            id: "chatcmpl-1234",
+            object: "chat.completion",
+            created: 1677652288,
+            model: .gpt3_5Turbo,
+            choices: [
+                .init(index: 0, message:
+                        Chat(role: .assistant,
+                             functionCall: ChatFunctionCall(name: "get_current_weather", arguments: nil)),
+                      finishReason: "function_call")
+            ],
+            usage: .init(promptTokens: 82, completionTokens: 18, totalTokens: 100))
+        try decode(data, expectedValue)
+    }
+
     func testEdits() async throws {
         let data = """
         {

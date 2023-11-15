@@ -20,6 +20,9 @@ This repository contains Swift community-maintained implementation over [OpenAI]
     - [Chats](#chats)
         - [Chats Streaming](#chats-streaming) 
     - [Images](#images)
+        - [Create Image](#create-image)
+        - [Create Image Edit](#create-image-edit)
+        - [Create Image Variation](#create-image-variation)
     - [Audio](#audio)
         - [Audio Transcriptions](#audio-transcriptions)
         - [Audio Translations](#audio-translations)
@@ -64,6 +67,8 @@ To initialize API instance you need to [obtain](https://platform.openai.com/acco
 <img width="1081" alt="company" src="https://user-images.githubusercontent.com/1411778/213204726-0772373e-14db-4d5d-9a58-bc249bac4c57.png">
 
 Once you have a token, you can initialize `OpenAI` class, which is an entry point to the API.
+
+> ⚠️ OpenAI strongly recommends developers of client-side applications proxy requests through a separate backend service to keep their API key safe. API keys can access and manipulate customer billing, usage, and organizational data, so it's a significant risk to [expose](https://nshipster.com/secrets/) them.
 
 ```swift
 let openAI = OpenAI(apiToken: "YOUR_TOKEN_HERE")
@@ -127,7 +132,7 @@ struct CompletionsResult: Codable, Equatable {
 **Example**
 
 ```swift
-let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, max_tokens: 100, top_p: 1, frequency_penalty: 0, presence_penalty: 0, stop: ["\\n"])
+let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
 openAI.completions(query: query) { result in
   //Handle result here
 }
@@ -208,6 +213,8 @@ Using the OpenAI Chat API, you can build your own applications with `gpt-3.5-tur
      public let model: Model
      /// The messages to generate chat completions for
      public let messages: [Chat]
+     /// A list of functions the model may generate JSON inputs for.
+     public let functions: [ChatFunctionDeclaration]?
      /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and  We generally recommend altering this or top_p but not both.
      public let temperature: Double?
      /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
@@ -318,6 +325,61 @@ for try await result in openAI.chatsStream(query: query) {
 }
 ```
 
+**Function calls**
+```swift
+let openAI = OpenAI(apiToken: "...")
+// Declare functions which GPT-3 might decide to call.
+let functions = [
+  ChatFunctionDeclaration(
+      name: "get_current_weather",
+      description: "Get the current weather in a given location",
+      parameters:
+        JSONSchema(
+          type: .object,
+          properties: [
+            "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
+            "unit": .init(type: .string, enumValues: ["celsius", "fahrenheit"])
+          ],
+          required: ["location"]
+        )
+  )
+]
+let query = ChatQuery(
+  model: "gpt-3.5-turbo-0613",  // 0613 is the earliest version with function calls support.
+  messages: [
+      Chat(role: .user, content: "What's the weather like in Boston?")
+  ],
+  functions: functions
+)
+let result = try await openAI.chats(query: query)
+```
+
+Result will be (serialized as JSON here for readability):
+```json
+{
+  "id": "chatcmpl-1234",
+  "object": "chat.completion",
+  "created": 1686000000,
+  "model": "gpt-3.5-turbo-0613",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "function_call": {
+          "name": "get_current_weather",
+          "arguments": "{\n  \"location\": \"Boston, MA\"\n}"
+        }
+      },
+      "finish_reason": "function_call"
+    }
+  ],
+  "usage": { "total_tokens": 100, "completion_tokens": 18, "prompt_tokens": 82 }
+}
+
+```
+
+
 Review [Chat Documentation](https://platform.openai.com/docs/guides/chat) for more info.
 
 ### Images
@@ -325,6 +387,8 @@ Review [Chat Documentation](https://platform.openai.com/docs/guides/chat) for mo
 Given a prompt and/or an input image, the model will generate a new image.
 
 As Artificial Intelligence continues to develop, so too does the intriguing concept of Dall-E. Developed by OpenAI, a research lab for artificial intelligence purposes, Dall-E has been classified as an AI system that can generate images based on descriptions provided by humans. With its potential applications spanning from animation and illustration to design and engineering - not to mention the endless possibilities in between - it's easy to see why there is such excitement over this new technology.
+
+### Create Image
 
 **Request**
 
@@ -350,6 +414,7 @@ struct ImagesResult: Codable, Equatable {
     public let data: [URLResult]
 }
 ```
+
 **Example**
 
 ```swift
@@ -373,6 +438,79 @@ let result = try await openAI.images(query: query)
 **Generated image**
 
 ![Generated Image](https://user-images.githubusercontent.com/1411778/213134082-ba988a72-fca0-4213-8805-63e5f8324cab.png)
+
+### Create Image Edit
+
+Creates an edited or extended image given an original image and a prompt.
+
+**Request**
+
+```swift
+public struct ImageEditsQuery: Codable {
+    /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
+    public let image: Data
+    public let fileName: String
+    /// An additional image whose fully transparent areas (e.g. where alpha is zero) indicate where image should be edited. Must be a valid PNG file, less than 4MB, and have the same dimensions as image.
+    public let mask: Data?
+    public let maskFileName: String?
+    /// A text description of the desired image(s). The maximum length is 1000 characters.
+    public let prompt: String
+    /// The number of images to generate. Must be between 1 and 10.
+    public let n: Int?
+    /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
+    public let size: String?
+}
+```
+
+**Response**
+
+Uses the ImagesResult response similarly to ImagesQuery.
+
+**Example**
+
+```swift
+let data = image.pngData()
+let query = ImagesEditQuery(image: data, fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+openAI.imageEdits(query: query) { result in
+  //Handle result here
+}
+//or
+let result = try await openAI.imageEdits(query: query)
+```
+
+### Create Image Variation
+
+Creates a variation of a given image.
+
+**Request**
+
+```swift
+public struct ImageVariationsQuery: Codable {
+    /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
+    public let image: Data
+    public let fileName: String
+    /// The number of images to generate. Must be between 1 and 10.
+    public let n: Int?
+    /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
+    public let size: String?
+}
+```
+
+**Response**
+
+Uses the ImagesResult response similarly to ImagesQuery.
+
+**Example**
+
+```swift
+let data = image.pngData()
+let query = ImagesVariationQuery(image: data, fileName: "whitecat.png", n: 1, size: "1024x1024")
+openAI.imageVariations(query: query) { result in
+  //Handle result here
+}
+//or
+let result = try await openAI.imageVariations(query: query)
+```
 
 Review [Images Documentation](https://platform.openai.com/docs/api-reference/images) for more info.
 

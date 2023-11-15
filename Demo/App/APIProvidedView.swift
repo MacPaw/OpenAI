@@ -12,6 +12,7 @@ import SwiftUI
 struct APIProvidedView: View {
     @Binding var apiKey: String
     @StateObject var chatStore: ChatStore
+    @StateObject var imageStore: ImageStore
     @StateObject var miscStore: MiscStore
     @State var isShowingAPIConfigModal: Bool = true
 
@@ -29,6 +30,11 @@ struct APIProvidedView: View {
                 idProvider: idProvider
             )
         )
+        self._imageStore = StateObject(
+            wrappedValue: ImageStore(
+                openAIClient: OpenAI(apiToken: apiKey.wrappedValue)
+            )
+        )
         self._miscStore = StateObject(
             wrappedValue: MiscStore(
                 openAIClient: OpenAI(apiToken: apiKey.wrappedValue)
@@ -39,10 +45,13 @@ struct APIProvidedView: View {
     var body: some View {
         ContentView(
             chatStore: chatStore,
+            imageStore: imageStore,
             miscStore: miscStore
         )
         .onChange(of: apiKey) { newApiKey in
-            chatStore.openAIClient = OpenAI(apiToken: newApiKey)
+            let client = OpenAI(apiToken: newApiKey)
+            chatStore.openAIClient = client
+            miscStore.openAIClient = client
         }
     }
 }

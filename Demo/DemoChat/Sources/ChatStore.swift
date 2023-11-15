@@ -85,22 +85,53 @@ public final class ChatStore: ObservableObject {
                 return
             }
 
+            let weatherFunction = ChatFunctionDeclaration(
+                name: "getWeatherData",
+                description: "Get the current weather in a given location",
+                parameters: .init(
+                  type: .object,
+                  properties: [
+                    "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA")
+                  ],
+                  required: ["location"]
+                )
+            )
+
+            let functions = [weatherFunction]
+            
             let chatsStream: AsyncThrowingStream<ChatStreamResult, Error> = openAIClient.chatsStream(
                 query: ChatQuery(
                     model: model,
                     messages: conversation.messages.map { message in
                         Chat(role: message.role, content: message.content)
-                    }
+                    },
+                    functions: functions
                 )
             )
 
+            var functionCallName = ""
+            var functionCallArguments = ""
             for try await partialChatResult in chatsStream {
                 for choice in partialChatResult.choices {
                     let existingMessages = conversations[conversationIndex].messages
+                    // Function calls are also streamed, so we need to accumulate.
+                    if let functionCallDelta = choice.delta.functionCall {
+                        if let nameDelta = functionCallDelta.name {
+                          functionCallName += nameDelta
+                        }
+                        if let argumentsDelta = functionCallDelta.arguments {
+                          functionCallArguments += argumentsDelta
+                        }
+                    }
+                    var messageText = choice.delta.content ?? ""
+                    if let finishReason = choice.finishReason,
+                       finishReason == "function_call" {
+                        messageText += "Function call: name=\(functionCallName) arguments=\(functionCallArguments)"
+                    }
                     let message = Message(
                         id: partialChatResult.id,
                         role: choice.delta.role ?? .assistant,
-                        content: choice.delta.content ?? "",
+                        content: messageText,
                         createdAt: Date(timeIntervalSince1970: TimeInterval(partialChatResult.created))
                     )
                     if let existingMessageIndex = existingMessages.firstIndex(where: { $0.id == partialChatResult.id }) {

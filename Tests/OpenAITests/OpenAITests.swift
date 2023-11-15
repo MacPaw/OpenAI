@@ -62,6 +62,44 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(inError, apiError)
     }
     
+    func testImageEdit() async throws {
+        let query = ImageEditsQuery(image: Data(), fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+        let imagesResult = ImagesResult(created: 100, data: [
+            .init(url: "http://foo.bar")
+        ])
+        try self.stub(result: imagesResult)
+        let result = try await openAI.imageEdits(query: query)
+        XCTAssertEqual(result, imagesResult)
+    }
+    
+    func testImageEditError() async throws {
+        let query = ImageEditsQuery(image: Data(), fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.imageEdits(query: query) }
+        XCTAssertEqual(inError, apiError)
+    }
+    
+    func testImageVariation() async throws {
+        let query = ImageVariationsQuery(image: Data(), fileName: "whitecat.png", n: 1, size: "1024x1024")
+        let imagesResult = ImagesResult(created: 100, data: [
+            .init(url: "http://foo.bar")
+        ])
+        try self.stub(result: imagesResult)
+        let result = try await openAI.imageVariations(query: query)
+        XCTAssertEqual(result, imagesResult)
+    }
+    
+    func testImageVariationError() async throws {
+        let query = ImageVariationsQuery(image: Data(), fileName: "whitecat.png", n: 1, size: "1024x1024")
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.imageVariations(query: query) }
+        XCTAssertEqual(inError, apiError)
+    }
+    
     func testChats() async throws {
        let query = ChatQuery(model: .gpt4, messages: [
            .init(role: .system, content: "You are Librarian-GPT. You know everything about the books."),
@@ -76,7 +114,29 @@ class OpenAITests: XCTestCase {
         
        let result = try await openAI.chats(query: query)
        XCTAssertEqual(result, chatResult)
-   }
+    }
+
+    func testChatsFunction() async throws {
+        let query = ChatQuery(model: .gpt3_5Turbo0613, messages: [
+            .init(role: .system, content: "You are Weather-GPT. You know everything about the weather."),
+            .init(role: .user, content: "What's the weather like in Boston?"),
+        ], functions: [
+            .init(name: "get_current_weather", description: "Get the current weather in a given location", parameters: .init(type: .object, properties: [
+                "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
+                "unit": .init(type: .string, enumValues: ["celsius", "fahrenheit"])
+            ], required: ["location"]))
+        ], functionCall: .auto)
+        
+        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
+         .init(index: 0, message: .init(role: .system, content: "bar"), finishReason: "baz"),
+         .init(index: 0, message: .init(role: .user, content: "bar1"), finishReason: "baz1"),
+         .init(index: 0, message: .init(role: .assistant, content: "bar2"), finishReason: "baz2")
+         ], usage: .init(promptTokens: 100, completionTokens: 200, totalTokens: 300))
+        try self.stub(result: chatResult)
+        
+        let result = try await openAI.chats(query: query)
+        XCTAssertEqual(result, chatResult)
+    }
     
     func testChatsError() async throws {
         let query = ChatQuery(model: .gpt4, messages: [

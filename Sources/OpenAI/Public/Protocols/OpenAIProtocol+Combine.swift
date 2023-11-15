@@ -42,6 +42,20 @@ public extension OpenAIProtocol {
         }
         .eraseToAnyPublisher()
     }
+    
+    func imageEdits(query: ImageEditsQuery) -> AnyPublisher<ImagesResult, Error> {
+        Future<ImagesResult, Error> {
+            imageEdits(query: query, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    func imageVariations(query: ImageVariationsQuery) -> AnyPublisher<ImagesResult, Error> {
+        Future<ImagesResult, Error> {
+            imageVariations(query: query, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
 
     func embeddings(query: EmbeddingsQuery) -> AnyPublisher<EmbeddingsResult, Error> {
         Future<EmbeddingsResult, Error> {
