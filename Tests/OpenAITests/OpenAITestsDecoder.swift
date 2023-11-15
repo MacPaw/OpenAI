@@ -441,4 +441,36 @@ class OpenAITestsDecoder: XCTestCase {
         let expectedValue = AudioTranslationResult(text: "Hello, world!")
         try decode(data, expectedValue)
     }
+    
+    func testTool() async throws {
+        let data  = """
+        {
+            "type": "function",
+            "function": {
+                "name": "test_name",
+                "description": "test_desc",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "city": {
+                            "type": "string",
+                            "description": "param_desc_test"
+                        }
+                    }
+                }
+            }
+        }
+        """
+        
+        let value = Tool(type: .function, value: .function(.init(
+                name: "test_name",
+                description: "test_desc",
+                parameters: .init(type: .object, properties: [
+                    "city": .init(type: .string, description: "param_desc_test")
+                ])
+            )
+        ))
+        
+        try decode(data, value)
+    }
 }
