@@ -7,7 +7,9 @@
 
 import Foundation
 
-public struct Chat: Codable, Equatable {
+public struct Message: Codable, Equatable {
+    public typealias StringOrChatContent = Codable
+    
     public let role: Role
     /// The contents of the message. `content` is required for all messages except assistant messages with function calls.
     public let content: StringOrCodable<[ChatContent]>?
@@ -30,7 +32,7 @@ public struct Chat: Codable, Equatable {
         case functionCall = "function_call"
     }
     
-    public init(role: Role, content codable: Codable? = nil ,name: String? = nil, functionCall: ChatFunctionCall? = nil) {
+    public init(role: Role, content codable: StringOrChatContent? = nil ,name: String? = nil, functionCall: ChatFunctionCall? = nil) {
         let stringOrCodable: StringOrCodable<[ChatContent]>?
         
         if let string = codable as? String {
@@ -41,12 +43,12 @@ public struct Chat: Codable, Equatable {
             stringOrCodable = nil
         }
         
-        self.init(role: role, contents: stringOrCodable, name: name, functionCall: functionCall)
+        self.init(role: role, content: stringOrCodable, name: name, functionCall: functionCall)
     }
     
-    public init(role: Role, contents: StringOrCodable<[ChatContent]>? = nil, name: String? = nil, functionCall: ChatFunctionCall? = nil) {
+    public init(role: Role, content: StringOrCodable<[ChatContent]>? = nil, name: String? = nil, functionCall: ChatFunctionCall? = nil) {
         self.role = role
-        self.content = contents
+        self.content = content
         self.name = name
         self.functionCall = functionCall
     }

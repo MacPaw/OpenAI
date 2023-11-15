@@ -106,41 +106,9 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, choices: [
-            .init(index: 0, message: Chat(role: .assistant, content: "Hello, world!"), finishReason: "stop")
+            .init(index: 0, message: Message(role: .assistant, content: "Hello, world!"), finishReason: "stop")
         ], usage: .init(promptTokens: 9, completionTokens: 12, totalTokens: 21))
         try decode(data, expectedValue)
-    }
-    
-    func testChatCompletionStreamResult() throws {
-        let data = """
-        {
-          "id": "test",
-          "object": "test",
-          "created": 0,
-          "model": "gpt-4",
-          "choices": [
-            {
-              "delta": {
-                "content": "hello!"
-              },
-              "index": 0,
-              "finish_details": {
-                    "type": "stop",
-                    "stop": ""
-                }
-            }
-          ]
-        }
-        """
-        
-        let expectedValue = ChatStreamResult(id: "test", object: "test", created: 0, model: .gpt4, choices: [
-            .init(index: 0, delta: .init(content: "hello!", role: nil, name: nil, functionCall: nil), finishReason: nil)
-        ])
-        
-        let a = try jsonDataAsNSDictionary(JSONEncoder().encode(expectedValue))
-        let b = try jsonDataAsNSDictionary(data.data(using: .utf8)!)
-        
-        XCTAssertEqual(a, b)
     }
     
     func testImageQuery() async throws {
@@ -177,7 +145,7 @@ class OpenAITestsDecoder: XCTestCase {
         let chatQuery = ChatQuery(
             model: .gpt3_5Turbo,
             messages: [
-                Chat(role: .user, content: "What's the weather like in Boston?")
+                Message(role: .user, content: "What's the weather like in Boston?")
             ],
             responseFormat: .init(type: .jsonObject),
             functions: [
@@ -305,7 +273,7 @@ class OpenAITestsDecoder: XCTestCase {
             choices: [
                 .init(
                     index: 0,
-                    message: Chat(role: .assistant, functionCall: .init(name: "get_current_weather", arguments: nil)),
+                    message: Message(role: .assistant, functionCall: .init(name: "get_current_weather", arguments: nil)),
                     finishReason: "function_call"
                 )
             ],

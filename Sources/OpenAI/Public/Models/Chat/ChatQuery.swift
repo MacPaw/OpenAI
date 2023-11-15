@@ -18,7 +18,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     /// An object specifying the format that the model must output.
     public let responseFormat: ResponseFormat?
     /// The messages to generate chat completions for
-    public let messages: [Chat]
+    public let messages: [Message]
     /// A list of functions the model may generate JSON inputs for.
     public let functions: [ChatFunctionDeclaration]?
     
@@ -80,7 +80,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     
     public init(
         model: Model,
-        messages: [Chat],
+        messages: [Message],
         responseFormat: ResponseFormat? = nil,
         tools: [Tool]? = nil,
         toolChoice: AnyOf<ToolChoice, Tool.ToolValue>? = nil,
