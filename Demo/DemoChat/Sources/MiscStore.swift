@@ -5,8 +5,9 @@
 //  Created by Aled Samuel on 22/04/2023.
 //
 
-import Foundation
+import UIKit
 import OpenAI
+import AVFAudio
 
 public final class MiscStore: ObservableObject {
     public var openAIClient: OpenAIProtocol
@@ -19,7 +20,7 @@ public final class MiscStore: ObservableObject {
         self.openAIClient = openAIClient
     }
     
-    // MARK: Models
+    // MARK: - Models
     
     @MainActor
     func getModels() async {
@@ -32,11 +33,11 @@ public final class MiscStore: ObservableObject {
         }
     }
     
-    // MARK: Moderations
+    // MARK: - Moderations
     
     @Published var moderationConversation = Conversation(id: "", messages: [])
     @Published var moderationConversationError: Error?
-
+    
     @MainActor
     func sendModerationMessage(_ message: Message) async {
         moderationConversation.messages.append(message)
@@ -89,6 +90,34 @@ public final class MiscStore: ObservableObject {
             
         } catch {
             moderationConversationError = error
+        }
+    }
+    
+    // MARK: - Speech
+    struct AudioObject: Identifiable {
+        let id = UUID()
+        let prompt: String
+        let audioPlayer: AVAudioPlayer?
+        let originResponse: AudioSpeechResult
+        let format: String
+    }
+    
+    @Published var audioObjects: [AudioObject] = []
+    
+    @MainActor
+    func createSpeech(_ query: AudioSpeechQuery) async {
+        guard let input = query.input, !input.isEmpty else { return }
+        do {
+            let response = try await openAIClient.audioCreateSpeech(query: query)
+            guard let data = response.audioData else { return }
+            let player = try? AVAudioPlayer(data: data)
+            let audioObject = AudioObject(prompt: input,
+                                          audioPlayer: player,
+                                          originResponse: response,
+                                          format: query.response_format.rawValue)
+            audioObjects.append(audioObject)
+        } catch {
+            NSLog("\(error)")
         }
     }
 }
