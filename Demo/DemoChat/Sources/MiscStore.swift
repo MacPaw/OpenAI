@@ -38,13 +38,13 @@ public final class MiscStore: ObservableObject {
     @Published var moderationConversationError: Error?
 
     @MainActor
-    func sendModerationMessage(_ message: Message) async {
+    func sendModerationMessage(_ message: MessageModel) async {
         moderationConversation.messages.append(message)
         await completeModerationChat(message: message)
     }
     
     @MainActor
-    func completeModerationChat(message: Message) async {
+    func completeModerationChat(message: MessageModel) async {
         
         moderationConversationError = nil
         
@@ -75,7 +75,7 @@ public final class MiscStore: ObservableObject {
                 \(circleEmoji(for: result.categories.violenceGraphic)) Violence/Graphic
                 """
                 
-                let message = Message(
+                let message = MessageModel(
                     id: response.id,
                     role: .assistant,
                     content: content,

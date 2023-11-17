@@ -8,7 +8,7 @@
 import Foundation
 
 struct Conversation {
-    init(id: String, messages: [Message] = []) {
+    init(id: String, messages: [MessageModel] = []) {
         self.id = id
         self.messages = messages
     }
@@ -16,7 +16,7 @@ struct Conversation {
     typealias ID = String
     
     let id: String
-    var messages: [Message]
+    var messages: [MessageModel]
 }
 
 extension Conversation: Equatable, Identifiable {}

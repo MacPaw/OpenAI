@@ -24,7 +24,7 @@ public struct ModerationChatView: View {
             sendMessage: { message, _ in
                 Task {
                     await store.sendModerationMessage(
-                        Message(
+                        MessageModel(
                             id: idProvider(),
                             role: .user,
                             content: message,

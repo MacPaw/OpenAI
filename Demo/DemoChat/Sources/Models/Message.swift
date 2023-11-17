@@ -8,11 +8,11 @@
 import Foundation
 import OpenAI
 
-struct Message {
+struct MessageModel {
     var id: String
-    var role: Chat.Role
+    var role: Message.Role
     var content: String
     var createdAt: Date
 }
 
-extension Message: Equatable, Codable, Hashable, Identifiable {}
+extension MessageModel: Equatable, Codable, Hashable, Identifiable {}

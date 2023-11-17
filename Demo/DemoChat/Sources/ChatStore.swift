@@ -54,7 +54,7 @@ public final class ChatStore: ObservableObject {
     
     @MainActor
     func sendMessage(
-        _ message: Message,
+        _ message: MessageModel,
         conversationId: Conversation.ID,
         model: Model
     ) async {
@@ -103,7 +103,7 @@ public final class ChatStore: ObservableObject {
                 query: ChatQuery(
                     model: model,
                     messages: conversation.messages.map { message in
-                        Chat(role: message.role, content: message.content)
+                        Message(role: message.role, content: message.content)
                     },
                     functions: functions
                 )
@@ -128,7 +128,7 @@ public final class ChatStore: ObservableObject {
                        finishReason == "function_call" {
                         messageText += "Function call: name=\(functionCallName) arguments=\(functionCallArguments)"
                     }
-                    let message = Message(
+                    let message = MessageModel(
                         id: partialChatResult.id,
                         role: choice.delta.role ?? .assistant,
                         content: messageText,
@@ -137,7 +137,7 @@ public final class ChatStore: ObservableObject {
                     if let existingMessageIndex = existingMessages.firstIndex(where: { $0.id == partialChatResult.id }) {
                         // Meld into previous message
                         let previousMessage = existingMessages[existingMessageIndex]
-                        let combinedMessage = Message(
+                        let combinedMessage = MessageModel(
                             id: message.id, // id stays the same for different deltas
                             role: message.role,
                             content: previousMessage.content + message.content,

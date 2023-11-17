@@ -193,7 +193,7 @@ struct DetailView: View {
 }
 
 struct ChatBubble: View {
-    let message: Message
+    let message: MessageModel
 
     private var assistantBackgroundColor: Color {
         #if os(iOS)
@@ -258,10 +258,10 @@ struct DetailView_Previews: PreviewProvider {
             conversation: Conversation(
                 id: "1",
                 messages: [
-                    Message(id: "1", role: .assistant, content: "Hello, how can I help you today?", createdAt: Date(timeIntervalSinceReferenceDate: 0)),
-                    Message(id: "2", role: .user, content: "I need help with my subscription.", createdAt: Date(timeIntervalSinceReferenceDate: 100)),
-                    Message(id: "3", role: .assistant, content: "Sure, what seems to be the problem with your subscription?", createdAt: Date(timeIntervalSinceReferenceDate: 200)),
-                    Message(id: "4", role: .function, content:
+                    MessageModel(id: "1", role: .assistant, content: "Hello, how can I help you today?", createdAt: Date(timeIntervalSinceReferenceDate: 0)),
+                    MessageModel(id: "2", role: .user, content: "I need help with my subscription.", createdAt: Date(timeIntervalSinceReferenceDate: 100)),
+                    MessageModel(id: "3", role: .assistant, content: "Sure, what seems to be the problem with your subscription?", createdAt: Date(timeIntervalSinceReferenceDate: 200)),
+                    MessageModel(id: "4", role: .function, content:
                               """
                               get_current_weather({
                                 "location": "Glasgow, Scotland",

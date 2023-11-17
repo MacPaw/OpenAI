@@ -49,7 +49,7 @@ public struct ChatView: View {
                     sendMessage: { message, selectedModel in
                         Task {
                             await store.sendMessage(
-                                Message(
+                                MessageModel(
                                     id: idProvider(),
                                     role: .user,
                                     content: message,
