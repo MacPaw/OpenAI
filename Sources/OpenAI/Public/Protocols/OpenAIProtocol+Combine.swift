@@ -15,6 +15,7 @@ import Combine
 @available(watchOS 6.0, *)
 public extension OpenAIProtocol {
 
+    @available(*, deprecated, message: "Completions are now marked 'Legacy' in OpenAI API, use chats instead.")
     func completions(query: CompletionsQuery) -> AnyPublisher<CompletionsResult, Error> {
         Future<CompletionsResult, Error> {
             completions(query: query, completion: $0)
@@ -22,6 +23,7 @@ public extension OpenAIProtocol {
         .eraseToAnyPublisher()
     }
     
+    @available(*, deprecated, message: "Completions are now marked 'Legacy' in OpenAI API, use chats instead.")
     func completionsStream(query: CompletionsQuery) -> AnyPublisher<Result<CompletionsResult, Error>, Error> {
         let progress = PassthroughSubject<Result<CompletionsResult, Error>, Error>()
         completionsStream(query: query) { result in

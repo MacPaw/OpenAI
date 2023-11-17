@@ -23,6 +23,7 @@ class OpenAITests: XCTestCase {
         self.openAI = OpenAI(configuration: configuration, session: self.urlSession)
     }
     
+    @available(*, deprecated, message: "Completions are now marked 'Legacy' in OpenAI API, use chats instead.")
     func testCompletions() async throws {
         let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
         let expectedResult = CompletionsResult(id: "foo", object: "bar", created: 100500, model: .babbage, choices: [
@@ -34,6 +35,7 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(result, expectedResult)
     }
     
+    @available(*, deprecated, message: "Completions are now marked 'Legacy' in OpenAI API, use chats instead.")
     func testCompletionsAPIError() async throws {
         let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")

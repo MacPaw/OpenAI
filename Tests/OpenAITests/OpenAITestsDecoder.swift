@@ -462,7 +462,7 @@ class OpenAITestsDecoder: XCTestCase {
         }
         """
         
-        let value = Tool(type: .function, value: .function(.init(
+        let value = ChatTool(type: .function, value: .function(.init(
                 name: "test_name",
                 description: "test_desc",
                 parameters: .init(type: .object, properties: [

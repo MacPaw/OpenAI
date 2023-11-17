@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ChatQuery+.swift
 //  
 //
 //  Created by Federico Vitale on 14/11/23.
@@ -28,8 +28,8 @@ extension ChatQuery {
         case function(String)
         
         enum CodingKeys: String, CodingKey {
-            case none = "none"
-            case auto = "auto"
+            case none
+            case auto
             case function = "name"
         }
         

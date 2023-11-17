@@ -71,12 +71,12 @@ public struct JSONSchema: Codable, Equatable {
     }
 
     public enum JSONType: String, Codable {
-        case integer = "integer"
-        case string = "string"
-        case boolean = "boolean"
-        case array = "array"
-        case object = "object"
-        case number = "number"
+        case integer
+        case string
+        case boolean
+        case array
+        case object
+        case number
         case `null` = "null"
     }
 

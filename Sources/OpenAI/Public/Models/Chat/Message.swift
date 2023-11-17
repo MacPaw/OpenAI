@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Message.swift
 //  
 //
 //  Created by Federico Vitale on 14/11/23.
@@ -32,7 +32,7 @@ public struct Message: Codable, Equatable {
         case functionCall = "function_call"
     }
     
-    public init(role: Role, content codable: StringOrChatContent? = nil ,name: String? = nil, functionCall: ChatFunctionCall? = nil) {
+    public init(role: Role, content codable: StringOrChatContent? = nil, name: String? = nil, functionCall: ChatFunctionCall? = nil) {
         let stringOrCodable: StringOrCodable<[ChatContent]>?
         
         if let string = codable as? String {

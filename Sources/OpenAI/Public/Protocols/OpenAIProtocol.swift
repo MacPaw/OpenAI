@@ -23,7 +23,8 @@ public protocol OpenAIProtocol {
      - Parameters:
        - query: A `CompletionsQuery` object containing the input parameters for the API request. This includes the prompt, model, temperature, max tokens, and other settings.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<CompletionsResult, Error>`, will contain either the `CompletionsResult` object with the generated completions, or an error if the request failed.
-    **/
+    */
+    @available(*, deprecated, message: "Completions are now marked 'Legacy' in OpenAI API, use chats instead.")
     func completions(query: CompletionsQuery, completion: @escaping (Result<CompletionsResult, Error>) -> Void)
 
     /**
@@ -41,7 +42,8 @@ public protocol OpenAIProtocol {
        - query: A `CompletionsQuery` object containing the input parameters for the API request. This includes the prompt, model, temperature, max tokens, and other settings.
        - onResult: A closure which receives the result when the API request finishes. The closure's parameter, `Result<CompletionsResult, Error>`, will contain either the `CompletionsResult` object with the generated completions, or an error if the request failed.
        - completion: A closure that is being called when all chunks are delivered or uncrecoverable error occured
-    **/
+    */
+    @available(*, deprecated, message: "CompletionsStream is now marked 'Legacy' in OpenAI API, use chatsStream instead.")
     func completionsStream(query: CompletionsQuery, onResult: @escaping (Result<CompletionsResult, Error>) -> Void, completion: ((Error?) -> Void)?)
     
     /**
@@ -58,7 +60,7 @@ public protocol OpenAIProtocol {
      - Parameters:
        - query: An `ImagesQuery` object containing the input parameters for the API request. This includes the query parameters such as the model, text prompt, image size, and other settings.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ImagesResult, Error>`, will contain either the `ImagesResult` object with the generated images, or an error if the request failed.
-    **/
+    */
     func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void)
     
     /**

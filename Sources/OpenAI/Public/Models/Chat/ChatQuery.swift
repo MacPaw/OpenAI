@@ -22,7 +22,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     /// A list of functions the model may generate JSON inputs for.
     public let functions: [ChatFunctionDeclaration]?
     
-    public let tools: [Tool]?
+    public let tools: [ChatTool]?
     
     /// Controls how the model responds to function calls. "none" means the model does not call a function, and responds to the end-user. "auto" means the model can pick between and end-user or calling a function. Specifying a particular function via `{"name": "my_function"}` forces the model to call that function. "none" is the default when no functions are present. "auto" is the default if functions are present.
     public let functionCall: FunctionCall?
@@ -53,7 +53,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     ///
     /// `none` is default when no functions are present
     /// `auto` is default if functions are present
-    public let toolChoice: AnyOf<ToolChoice, Tool.ToolValue>?
+    public let toolChoice: AnyOf<ToolChoice, ChatTool.ToolValue>?
     
     var stream: Bool = false
 
@@ -82,8 +82,8 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         model: Model,
         messages: [Message],
         responseFormat: ResponseFormat? = nil,
-        tools: [Tool]? = nil,
-        toolChoice: AnyOf<ToolChoice, Tool.ToolValue>? = nil,
+        tools: [ChatTool]? = nil,
+        toolChoice: AnyOf<ToolChoice, ChatTool.ToolValue>? = nil,
         functions: [ChatFunctionDeclaration]? = nil,
         functionCall: FunctionCall? = nil,
         temperature: Double? = nil,

@@ -1,16 +1,20 @@
 //
-//  File.swift
-//  
+//  ChatTool.swift
+//
 //
 //  Created by Federico Vitale on 14/11/23.
 //
 
 import Foundation
 
-public struct Tool: Codable, Equatable {
-    /// The type of the tool.
+public struct ChatTool: Codable, Equatable {
     let type: ToolType
     let value: ToolValue
+    
+    enum CodingKeys: CodingKey {
+        case type
+        case value
+    }
     
     init(type: ToolType, value: ToolValue) {
         self.type = type
@@ -30,27 +34,21 @@ public struct Tool: Codable, Equatable {
         }
     }
     
-    
-    enum CodingKeys: CodingKey {
-        case type
-        case value
-    }
-    
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let dynamicContainer = try decoder.container(keyedBy: DynamicKey.self)
-        self.type = try container.decode(Tool.ToolType.self, forKey: .type)
+        self.type = try container.decode(ChatTool.ToolType.self, forKey: .type)
         
         switch self.type {
         case .function:
-            self.value = try dynamicContainer.decode(Tool.ToolValue.self, forKey: .init(stringValue: "function"))
+            self.value = try dynamicContainer.decode(ChatTool.ToolValue.self, forKey: .init(stringValue: "function"))
             break
         }
     }
 }
 
 
-extension Tool {
+extension ChatTool {
     public enum ToolType: String, Codable {
         case function
     }

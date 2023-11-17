@@ -12,6 +12,8 @@ import Foundation
 @available(tvOS 13.0, *)
 @available(watchOS 6.0, *)
 public extension OpenAIProtocol {
+    
+    @available(*, deprecated, message: "Completions are now marked 'Legacy' in OpenAI API, use chats instead.")
     func completions(
         query: CompletionsQuery
     ) async throws -> CompletionsResult {
@@ -27,6 +29,7 @@ public extension OpenAIProtocol {
         }
     }
     
+    @available(*, deprecated, message: "Completions are now marked 'Legacy' in OpenAI API, use chatsStream instead.")
     func completionsStream(
         query: CompletionsQuery
     ) -> AsyncThrowingStream<CompletionsResult, Error> {

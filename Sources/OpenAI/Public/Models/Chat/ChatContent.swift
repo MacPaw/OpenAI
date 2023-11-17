@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ChatContent.swift
 //  
 //
 //  Created by Federico Vitale on 14/11/23.
@@ -11,22 +11,22 @@ public struct ChatContent: Codable, Equatable {
     let type: ChatContentType
     let value: String
     
+    enum CodingKeys: CodingKey {
+        case type
+        case value
+    }
+    
     public enum ChatContentType: String, Codable {
         case text
         case imageUrl = "image_url"
     }
     
-    public struct ImageUrl: Codable, Equatable {
+    public struct ChatImageUrl: Codable, Equatable {
         let url: String
         
         enum CodingKeys: CodingKey {
             case url
         }
-    }
-    
-    enum CodingKeys: CodingKey {
-        case type
-        case value
     }
     
     public static func text(_ text: String) -> Self {
@@ -47,7 +47,7 @@ public struct ChatContent: Codable, Equatable {
         self.value = text
     }
     
-    // we need to perform a custom encoding since the `value` key is variable based on the `type`
+    // Custom encoding since the `value` key is variable based on the `type`
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: ChatContent.CodingKeys.self)
         var dynamicContainer = encoder.container(keyedBy: DynamicKey.self)
@@ -59,7 +59,7 @@ public struct ChatContent: Codable, Equatable {
             try dynamicContainer.encode(value, forKey: .init(stringValue: "text"))
             break
         case .imageUrl:
-            var nested = dynamicContainer.nestedContainer(keyedBy: ImageUrl.CodingKeys.self, forKey: .init(stringValue: "image_url"))
+            var nested = dynamicContainer.nestedContainer(keyedBy: ChatImageUrl.CodingKeys.self, forKey: .init(stringValue: "image_url"))
             try nested.encode(value, forKey: .url)
             break
         }
@@ -76,7 +76,7 @@ public struct ChatContent: Codable, Equatable {
             self.value = try dynamicContainer.decode(String.self, forKey: .init(stringValue: "text"))
             break
         case .imageUrl:
-            let nested = try dynamicContainer.nestedContainer(keyedBy: ImageUrl.CodingKeys.self, forKey: .init(stringValue: "image_url"))
+            let nested = try dynamicContainer.nestedContainer(keyedBy: ChatImageUrl.CodingKeys.self, forKey: .init(stringValue: "image_url"))
             self.value = try nested.decode(String.self, forKey: .url)
             break
         }

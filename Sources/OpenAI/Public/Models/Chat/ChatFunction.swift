@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Only available for **ASSISTANT** user type.
 public struct ChatFunctionCall: Codable, Equatable {
     /// The name of the function to call.
     public let name: String?
