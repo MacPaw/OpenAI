@@ -66,14 +66,18 @@ class OpenAITestsDecoder: XCTestCase {
             },
             {
               "url": "https://bar.foo"
+            },
+            {
+                "b64_json": "test"
             }
           ]
         }
         """
         
         let expectedValue = ImagesResult(created: 1589478378, data: [
-            .init(url: "https://foo.bar"),
-            .init(url: "https://bar.foo")
+            .init(url: "https://foo.bar", b64_json: nil),
+            .init(url: "https://bar.foo", b64_json: nil),
+            .init(url: nil, b64_json: "test")
         ])
         try decode(data, expectedValue)
     }
@@ -106,6 +110,36 @@ class OpenAITestsDecoder: XCTestCase {
         ], usage: .init(promptTokens: 9, completionTokens: 12, totalTokens: 21))
         try decode(data, expectedValue)
     }
+    
+    func testImageQuery() async throws {
+        let imageQuery = ImagesQuery(
+            prompt: "test",
+            model: .dall_e_2,
+            responseFormat: .b64_json,
+            n: 1,
+            size: "10",
+            style: "vivid",
+            user: "user"
+        )
+        
+        let expectedValue = """
+        {
+            "model": "dall-e-2",
+            "prompt": "test",
+            "n": 1,
+            "size": "10",
+            "style": "vivid",
+            "user": "user",
+            "response_format": "b64_json"
+        }
+        """
+        
+        // To compare serialized JSONs we first convert them both into NSDictionary which are comparable (unline native swift dictionaries)
+        let imageQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(imageQuery))
+        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
+        
+        XCTAssertEqual(imageQueryAsDict, expectedValueAsDict)
+    }
   
     func testChatQueryWithFunctionCall() async throws {
         let chatQuery = ChatQuery(
@@ -113,6 +147,7 @@ class OpenAITestsDecoder: XCTestCase {
             messages: [
                 Chat(role: .user, content: "What's the weather like in Boston?")
             ],
+            responseFormat: .init(type: .jsonObject),
             functions: [
                 ChatFunctionDeclaration(
                     name: "get_current_weather",
@@ -135,6 +170,9 @@ class OpenAITestsDecoder: XCTestCase {
           "messages": [
             { "role": "user", "content": "What's the weather like in Boston?" }
           ],
+          "response_format": {
+            "type": "json_object"
+           },
           "functions": [
             {
               "name": "get_current_weather",
