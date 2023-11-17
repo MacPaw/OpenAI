@@ -65,7 +65,7 @@ class OpenAITests: XCTestCase {
     func testImageEdit() async throws {
         let query = ImageEditsQuery(image: Data(), fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
         let imagesResult = ImagesResult(created: 100, data: [
-            .init(url: "http://foo.bar")
+            .init(url: "http://foo.bar", b64_json: nil)
         ])
         try self.stub(result: imagesResult)
         let result = try await openAI.imageEdits(query: query)
@@ -84,7 +84,7 @@ class OpenAITests: XCTestCase {
     func testImageVariation() async throws {
         let query = ImageVariationsQuery(image: Data(), fileName: "whitecat.png", n: 1, size: "1024x1024")
         let imagesResult = ImagesResult(created: 100, data: [
-            .init(url: "http://foo.bar")
+            .init(url: "http://foo.bar", b64_json: nil)
         ])
         try self.stub(result: imagesResult)
         let result = try await openAI.imageVariations(query: query)
