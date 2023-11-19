@@ -101,3 +101,44 @@ extension ChatTool {
     }
 }
 
+public struct ToolCall: Codable, Equatable {
+    public let index: Int
+    public let id: String
+    public let type: ChatTool.ToolType
+    public let value: ToolCallValue
+    
+    public enum ToolCallValue: Codable, Equatable {
+        case function(Function)
+        
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
+            
+            switch self {
+            case .function(let function):
+                try container.encode(function)
+                break
+            }
+        }
+        
+        
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            
+            if let function = try? container.decode(Function.self) {
+                self = .function(function)
+            }  else {
+                throw DecodingError.dataCorrupted(
+                    DecodingError.Context(
+                        codingPath: decoder.codingPath,
+                        debugDescription: "Invalid data encountered when decoding StringOrCodable<T>"
+                    )
+                )
+            }
+        }
+    }
+    
+    public struct Function : Codable, Equatable {
+        public let name: String
+        public let arguments: String
+    }
+}
