@@ -8,8 +8,8 @@
 import Foundation
 
 public struct ChatContent: Codable, Equatable {
-    let type: ChatContentType
-    let value: String
+    public let type: ChatContentType
+    public let value: String
     
     enum CodingKeys: CodingKey {
         case type

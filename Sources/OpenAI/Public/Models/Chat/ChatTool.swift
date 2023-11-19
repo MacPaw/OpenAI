@@ -8,15 +8,15 @@
 import Foundation
 
 public struct ChatTool: Codable, Equatable {
-    let type: ToolType
-    let value: ToolValue
+    public let type: ToolType
+    public let value: ToolValue
     
     enum CodingKeys: CodingKey {
         case type
         case value
     }
     
-    init(type: ToolType, value: ToolValue) {
+    public init(type: ToolType, value: ToolValue) {
         self.type = type
         self.value = value
     }
@@ -55,15 +55,15 @@ extension ChatTool {
     
     public struct Function: Codable, Equatable {
         /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
-        let name: String
+        public let name: String
         
         /// The parameters the functions accepts, described as a JSON Schema object. See the guide for examples, and the JSON Schema reference for documentation about the format.
-        let parameters: JSONSchema
+        public let parameters: JSONSchema
         
         /// A description of what the function does, used by the model to choose when and how to call the function.
-        let description: String?
+        public let description: String?
         
-        init(name: String, description: String? = nil, parameters: JSONSchema = .empty) {
+        public init(name: String, description: String? = nil, parameters: JSONSchema = .empty) {
             self.name = name
             self.parameters = parameters
             self.description = description
