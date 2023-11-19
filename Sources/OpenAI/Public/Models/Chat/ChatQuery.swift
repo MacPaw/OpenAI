@@ -53,7 +53,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     ///
     /// `none` is default when no functions are present
     /// `auto` is default if functions are present
-    public let toolChoice: AnyOf<ToolChoice, ChatTool.ToolValue>?
+    public let toolChoice: EnumOrCodable<ToolChoice, ChatTool.ToolValue>?
     
     var stream: Bool = false
 
@@ -83,7 +83,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         messages: [Message],
         responseFormat: ResponseFormat? = nil,
         tools: [ChatTool]? = nil,
-        toolChoice: AnyOf<ToolChoice, ChatTool.ToolValue>? = nil,
+        toolChoice: EnumOrCodable<ToolChoice, ChatTool.ToolValue>? = nil,
         functions: [ChatFunctionDeclaration]? = nil,
         functionCall: FunctionCall? = nil,
         temperature: Double? = nil,

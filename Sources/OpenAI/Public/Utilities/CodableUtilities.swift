@@ -77,10 +77,10 @@ public enum StringOrCodable<T: Codable>: Equatable, Codable where T: Equatable {
     }
 }
 
-/// Same as ``StringOrCodable`` but accepts 2 codable generics instead of String as first generic argument
-public enum AnyOf<T: Codable, U: Codable>: Equatable, Codable where T: Equatable, U: Equatable {
-    case objectA(T)
-    case objectB(U)
+
+public enum EnumOrCodable<E: Codable, C: Codable>: Equatable, Codable where E: Equatable, C: Equatable {
+    case `enum`(E)
+    case codable(C)
     
     enum CodingKeys: CodingKey {
         case objectA
@@ -91,9 +91,9 @@ public enum AnyOf<T: Codable, U: Codable>: Equatable, Codable where T: Equatable
         var container = encoder.singleValueContainer()
         
         switch self {
-        case .objectB(let value):
+        case .codable(let value):
             try container.encode(value)
-        case .objectA(let value):
+        case .enum(let value):
             try container.encode(value)
         }
     }
@@ -102,15 +102,15 @@ public enum AnyOf<T: Codable, U: Codable>: Equatable, Codable where T: Equatable
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         
-        if let valueT = try? container.decode(T.self) {
-            self = .objectA(valueT)
-        } else if let valueU = try? container.decode(U.self) {
-            self = .objectB(valueU)
+        if let value = try? container.decode(E.self) {
+            self = .enum(value)
+        } else if let value = try? container.decode(C.self) {
+            self = .codable(value)
         } else {
             throw DecodingError.dataCorrupted(
                 DecodingError.Context(
                     codingPath: decoder.codingPath,
-                    debugDescription: "Invalid data encountered when decoding StringOrCodable<T>"
+                    debugDescription: "Invalid data encountered when decoding EnumOrCodable<E, C>"
                 )
             )
         }
