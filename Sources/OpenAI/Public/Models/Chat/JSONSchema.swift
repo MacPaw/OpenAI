@@ -45,8 +45,8 @@ public struct JSONSchema: Codable, Equatable {
         public let maxItems: Int?
         public let uniqueItems: Bool?
         
-        public static func string(description: String?=nil) -> Self {
-            return Property(type: .string, description: description)
+        public static func string(description: String?=nil, enumValues: [String]?=nil) -> Self {
+            return Property(type: .string, description: description, enumValues: enumValues)
         }
         
         public static func boolean(description: String?=nil) -> Self {
