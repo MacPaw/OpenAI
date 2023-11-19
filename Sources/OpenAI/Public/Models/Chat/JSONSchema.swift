@@ -44,6 +44,18 @@ public struct JSONSchema: Codable, Equatable {
         public let minItems: Int?
         public let maxItems: Int?
         public let uniqueItems: Bool?
+        
+        public static func string(description: String?=nil) -> Self {
+            return Property(type: .string, description: description)
+        }
+        
+        public static func boolean(description: String?=nil) -> Self {
+            return Property(type: .boolean, description: description)
+        }
+        
+        public static func number(description: String?=nil) -> Self {
+            return Property(type: .number, description: description)
+        }
 
         private enum CodingKeys: String, CodingKey {
             case type, description, format, items, required, pattern, const
