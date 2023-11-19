@@ -107,6 +107,49 @@ public struct ToolCall: Codable, Equatable {
     public let type: ChatTool.ToolType
     public let value: ToolCallValue
     
+    public init(index: Int, id: String, type: ChatTool.ToolType, value: ToolCallValue) {
+        self.index = index
+        self.id = id
+        self.type = type
+        self.value = value
+    }
+    
+    enum CodingKeys: CodingKey {
+        case index
+        case id
+        case type
+        case value
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        var dynamicContainer = encoder.container(keyedBy: DynamicKey.self)
+
+        try container.encode(type, forKey: .type)
+        try container.encode(id, forKey: .id)
+        try container.encode(index, forKey: .index)
+        
+        switch value {
+        case .function(let function):
+            try dynamicContainer.encode(function, forKey: .init(stringValue: "function"))
+            break
+        }
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let dynamicContainer = try decoder.container(keyedBy: DynamicKey.self)
+        self.type = try container.decode(ChatTool.ToolType.self, forKey: .type)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.index = try container.decode(Int.self, forKey: .index)
+        
+        switch self.type {
+        case .function:
+            self.value = try dynamicContainer.decode(ToolCallValue.self, forKey: .init(stringValue: "function"))
+            break
+        }
+    }
+    
     public enum ToolCallValue: Codable, Equatable {
         case function(Function)
         
@@ -139,6 +182,10 @@ public struct ToolCall: Codable, Equatable {
     
     public struct Function : Codable, Equatable {
         public let name: String
-        public let arguments: String
+        public let arguments: String?
+        
+        public static func withName(_ name: String, arguments: String? = nil) -> Self {
+            return Function(name: name, arguments: arguments)
+        }
     }
 }
