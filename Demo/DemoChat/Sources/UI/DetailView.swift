@@ -176,6 +176,7 @@ struct DetailView: View {
                     .frame(width: 24, height: 24)
                     .padding(.trailing)
             }
+            .disabled(inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
         }
         .padding(.bottom)
     }
@@ -183,7 +184,12 @@ struct DetailView: View {
     private func tapSendMessage(
         scrollViewProxy: ScrollViewProxy
     ) {
-        sendMessage(inputText, selectedChatModel)
+        let message = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if message.isEmpty {
+            return
+        }
+        
+        sendMessage(message, selectedChatModel)
         inputText = ""
         
 //        if let lastMessage = conversation.messages.last {

@@ -17,3 +17,5 @@ public struct ImagesResult: Codable, Equatable {
     public let created: TimeInterval
     public let data: [URLResult]
 }
+
+extension ImagesResult.URLResult: Hashable { }

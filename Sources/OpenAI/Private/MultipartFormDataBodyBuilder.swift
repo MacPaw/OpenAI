@@ -32,11 +32,13 @@ private extension MultipartFormDataEntry {
         var body = Data()
         switch self {
         case .file(let paramName, let fileName, let fileData, let contentType):
-            body.append("--\(boundary)\r\n")
-            body.append("Content-Disposition: form-data; name=\"\(paramName)\"; filename=\"\(fileName)\"\r\n")
-            body.append("Content-Type: \(contentType)\r\n\r\n")
-            body.append(fileData)
-            body.append("\r\n")
+            if let fileName, let fileData {
+                body.append("--\(boundary)\r\n")
+                body.append("Content-Disposition: form-data; name=\"\(paramName)\"; filename=\"\(fileName)\"\r\n")
+                body.append("Content-Type: \(contentType)\r\n\r\n")
+                body.append(fileData)
+                body.append("\r\n")
+            }
         case .string(let paramName, let value):
             if let value {
                 body.append("--\(boundary)\r\n")

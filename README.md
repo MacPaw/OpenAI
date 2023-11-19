@@ -20,6 +20,9 @@ This repository contains Swift community-maintained implementation over [OpenAI]
     - [Chats](#chats)
         - [Chats Streaming](#chats-streaming) 
     - [Images](#images)
+        - [Create Image](#create-image)
+        - [Create Image Edit](#create-image-edit)
+        - [Create Image Variation](#create-image-variation)
     - [Audio](#audio)
         - [Audio Transcriptions](#audio-transcriptions)
         - [Audio Translations](#audio-translations)
@@ -32,6 +35,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
     - [Utilities](#utilities)
     - [Combine Extensions](#combine-extensions)
 - [Example Project](#example-project)
+- [Contribution Guidelines](#contribution-guidelines)
 - [Links](#links)
 - [License](#license)
 
@@ -385,6 +389,8 @@ Given a prompt and/or an input image, the model will generate a new image.
 
 As Artificial Intelligence continues to develop, so too does the intriguing concept of Dall-E. Developed by OpenAI, a research lab for artificial intelligence purposes, Dall-E has been classified as an AI system that can generate images based on descriptions provided by humans. With its potential applications spanning from animation and illustration to design and engineering - not to mention the endless possibilities in between - it's easy to see why there is such excitement over this new technology.
 
+### Create Image
+
 **Request**
 
 ```swift
@@ -409,6 +415,7 @@ struct ImagesResult: Codable, Equatable {
     public let data: [URLResult]
 }
 ```
+
 **Example**
 
 ```swift
@@ -432,6 +439,79 @@ let result = try await openAI.images(query: query)
 **Generated image**
 
 ![Generated Image](https://user-images.githubusercontent.com/1411778/213134082-ba988a72-fca0-4213-8805-63e5f8324cab.png)
+
+### Create Image Edit
+
+Creates an edited or extended image given an original image and a prompt.
+
+**Request**
+
+```swift
+public struct ImageEditsQuery: Codable {
+    /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
+    public let image: Data
+    public let fileName: String
+    /// An additional image whose fully transparent areas (e.g. where alpha is zero) indicate where image should be edited. Must be a valid PNG file, less than 4MB, and have the same dimensions as image.
+    public let mask: Data?
+    public let maskFileName: String?
+    /// A text description of the desired image(s). The maximum length is 1000 characters.
+    public let prompt: String
+    /// The number of images to generate. Must be between 1 and 10.
+    public let n: Int?
+    /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
+    public let size: String?
+}
+```
+
+**Response**
+
+Uses the ImagesResult response similarly to ImagesQuery.
+
+**Example**
+
+```swift
+let data = image.pngData()
+let query = ImagesEditQuery(image: data, fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+openAI.imageEdits(query: query) { result in
+  //Handle result here
+}
+//or
+let result = try await openAI.imageEdits(query: query)
+```
+
+### Create Image Variation
+
+Creates a variation of a given image.
+
+**Request**
+
+```swift
+public struct ImageVariationsQuery: Codable {
+    /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
+    public let image: Data
+    public let fileName: String
+    /// The number of images to generate. Must be between 1 and 10.
+    public let n: Int?
+    /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
+    public let size: String?
+}
+```
+
+**Response**
+
+Uses the ImagesResult response similarly to ImagesQuery.
+
+**Example**
+
+```swift
+let data = image.pngData()
+let query = ImagesVariationQuery(image: data, fileName: "whitecat.png", n: 1, size: "1024x1024")
+openAI.imageVariations(query: query) { result in
+  //Handle result here
+}
+//or
+let result = try await openAI.imageVariations(query: query)
+```
 
 Review [Images Documentation](https://platform.openai.com/docs/api-reference/images) for more info.
 
@@ -699,7 +779,7 @@ public extension Model {
     static let moderation = "text-moderation-001"
     
     static let dall_e_2 = "dall-e-2"
-		static let dall_e_3 = "dall-e-3"
+    static let dall_e_3 = "dall-e-3"
 }
 ```
 
@@ -880,6 +960,37 @@ func audioTranslations(query: AudioTranslationQuery) -> AnyPublisher<AudioTransl
 You can find example iOS application in [Demo](/Demo) folder. 
 
 ![mockuuups-iphone-13-pro-mockup-perspective-right](https://user-images.githubusercontent.com/1411778/231449395-2ad6bab6-c21f-43dc-8977-f45f505b609d.png)
+
+## Contribution Guidelines
+Make your Pull Requests clear and obvious to anyone viewing them.  
+Set `main` as your target branch.
+
+#### Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) principles in naming PRs and branches:
+
+- `Feat: ...` for new features and new functionality implementations.
+- `Bug: ...` for bug fixes.
+- `Fix: ...` for minor issues fixing, like typos or inaccuracies in code.
+- `Chore: ...` for boring stuff like code polishing, refactoring, deprecation fixing etc.
+
+PR naming example: `Feat: Add Threads API handling` or `Bug: Fix message result duplication`
+
+Branch naming example: `feat/add-threads-API-handling` or `bug/fix-message-result-duplication`
+
+#### Write description to pull requests in following format:
+- What
+
+  ...
+- Why
+  
+  ...
+- Affected Areas
+
+  ...
+- More Info
+
+  ...
+
+We'll appreciate you including tests to your code if it is needed and possible. ❤️
 
 ## Links
 
