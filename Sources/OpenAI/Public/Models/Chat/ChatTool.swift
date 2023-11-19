@@ -181,7 +181,7 @@ public struct ToolCall: Codable, Equatable {
     }
     
     public struct Function : Codable, Equatable {
-        public let name: String
+        public let name: String?
         public let arguments: String?
         
         public static func withName(_ name: String, arguments: String? = nil) -> Self {
