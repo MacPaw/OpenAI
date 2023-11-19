@@ -75,19 +75,27 @@ public struct Message: Codable, Equatable {
         self.init(role: role, content: stringOrCodable, name: name, functionCall: functionCall)
     }
     
-    public init(role: Role, content: StringOrCodable<[ChatContent]>? = nil, name: String? = nil, functionCall: ChatFunctionCall? = nil) {
+    public init(role: Role, content: StringOrCodable<[ChatContent]>? = nil, name: String? = nil) {
+        self.role = role
+        self.content = content
+        self.name = name
+        self.functionCall = nil
+        self.toolCalls = []
+    }
+    
+    public init(role: Role, content: StringOrCodable<[ChatContent]>? = nil, name: String? = nil, functionCall: ChatFunctionCall?) {
         self.role = role
         self.content = content
         self.name = name
         self.functionCall = functionCall
-        self.toolCalls = nil
+        self.toolCalls = []
     }
     
     public init(
         role: Role,
         content: StringOrCodable<[ChatContent]>? = nil,
         name: String? = nil,
-        toolCalls: [ToolCall]? = nil
+        toolCalls: [ToolCall]?
     ) {
         self.role = role
         self.content = content
