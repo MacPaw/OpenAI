@@ -104,13 +104,13 @@ class OpenAITests: XCTestCase {
     
     func testChats() async throws {
         let query = ChatQuery(model: .gpt4, messages: [
-            .init(role: .system, content: "You are Librarian-GPT. You know everything about the books."),
-            .init(role: .user, content: "Who wrote Harry Potter?")
+            .init(role: .system, content: "You are Librarian-GPT. You know everything about the books.", toolCalls: nil),
+            .init(role: .user, content: "Who wrote Harry Potter?", toolCalls: nil),
         ])
         let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-            .init(index: 0, message: .init(role: .system, content: "bar"), finishReason: "baz"),
-            .init(index: 0, message: .init(role: .user, content: "bar1"), finishReason: "baz1"),
-            .init(index: 0, message: .init(role: .assistant, content: "bar2"), finishReason: "baz2")
+            .init(index: 0, message: .init(role: .system, content: "bar", toolCalls: nil), finishReason: "baz"),
+            .init(index: 0, message: .init(role: .user, content: "bar1", toolCalls: nil), finishReason: "baz1"),
+            .init(index: 0, message: .init(role: .assistant, content: "bar2", toolCalls: nil), finishReason: "baz2")
         ], usage: .init(promptTokens: 100, completionTokens: 200, totalTokens: 300))
         try self.stub(result: chatResult)
         
@@ -118,11 +118,55 @@ class OpenAITests: XCTestCase {
         
         XCTAssertEqual(result, chatResult)
     }
+    
+    func testChatsTools() async throws {
+        let tools: [ChatTool] = [
+            ChatTool(type: .function, value: .function(
+                .init(
+                    name: "get_weather",
+                    description: "Get the current weather in the given location",
+                    parameters: .init(
+                        type: .object,
+                        properties: [
+                            "location": .string(description: "The city and state, e.g San Francisco, CA"),
+                            "unit": .string(enumValues: ["celsius", "fahrenheit"])
+                        ],
+                        required: ["location"]
+                    )
+                )
+            ))
+        ]
+        
+        let messages: [Message] = [
+            .init(role: .system, content: "You are Weather-GPT. You know everything about the weather.", toolCalls: nil),
+            .init(role: .user, content: "What's the weather like in Boston?", toolCalls: nil),
+        ]
+        
+        let query = ChatQuery(model: .gpt3_5Turbo_1106, messages: messages, tools: tools)
+        
+        let chatResult = ChatResult(
+            id: "id-12312",
+            object: "foo",
+            created: 100,
+            model: .gpt3_5Turbo,
+            choices: [
+                .init(index: 0, message: .init(role: .system, content: "bar", toolCalls: nil), finishReason: "baz"),
+                .init(index: 0, message: .init(role: .user, content: "bar1", toolCalls: nil), finishReason: "baz1"),
+                .init(index: 0, message: .init(role: .assistant, content: "bar2", toolCalls: nil), finishReason: "baz2")
+            ], 
+            usage: .init(promptTokens: 100, completionTokens: 200, totalTokens: 300)
+        )
+        
+        try self.stub(result: chatResult)
+        
+        let result = try await openAI.chats(query: query)
+        XCTAssertEqual(result, chatResult)
+    }
 
     func testChatsFunction() async throws {
         let query = ChatQuery(model: .gpt3_5Turbo_1106, messages: [
-            .init(role: .system, content: "You are Weather-GPT. You know everything about the weather."),
-            .init(role: .user, content: "What's the weather like in Boston?"),
+            .init(role: .system, content: "You are Weather-GPT. You know everything about the weather.", toolCalls: nil),
+            .init(role: .user, content: "What's the weather like in Boston?", toolCalls: nil),
         ], functions: [
             .init(name: "get_current_weather", description: "Get the current weather in a given location", parameters: .init(type: .object, properties: [
                 "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
@@ -131,9 +175,9 @@ class OpenAITests: XCTestCase {
         ], functionCall: .auto)
         
         let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-         .init(index: 0, message: .init(role: .system, content: "bar"), finishReason: "baz"),
-         .init(index: 0, message: .init(role: .user, content: "bar1"), finishReason: "baz1"),
-         .init(index: 0, message: .init(role: .assistant, content: "bar2"), finishReason: "baz2")
+         .init(index: 0, message: .init(role: .system, content: "bar", toolCalls: nil), finishReason: "baz"),
+         .init(index: 0, message: .init(role: .user, content: "bar1", toolCalls: nil), finishReason: "baz1"),
+         .init(index: 0, message: .init(role: .assistant, content: "bar2", toolCalls: nil), finishReason: "baz2")
          ], usage: .init(promptTokens: 100, completionTokens: 200, totalTokens: 300))
         try self.stub(result: chatResult)
         
@@ -143,8 +187,8 @@ class OpenAITests: XCTestCase {
     
     func testChatsError() async throws {
         let query = ChatQuery(model: .gpt4, messages: [
-            .init(role: .system, content: "You are Librarian-GPT. You know everything about the books."),
-            .init(role: .user, content: "Who wrote Harry Potter?")
+            .init(role: .system, content: "You are Librarian-GPT. You know everything about the books.", toolCalls: nil),
+            .init(role: .user, content: "Who wrote Harry Potter?", toolCalls: nil)
         ])
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)

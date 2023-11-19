@@ -106,7 +106,7 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, choices: [
-            .init(index: 0, message: Message(role: .assistant, content: "Hello, world!"), finishReason: "stop")
+            .init(index: 0, message: Message(role: .assistant, content: "Hello, world!", toolCalls: nil), finishReason: "stop")
         ], usage: .init(promptTokens: 9, completionTokens: 12, totalTokens: 21))
         try decode(data, expectedValue)
     }
@@ -140,12 +140,57 @@ class OpenAITestsDecoder: XCTestCase {
         
         XCTAssertEqual(imageQueryAsDict, expectedValueAsDict)
     }
+    
+    func testToolEncode() async throws {
+        let value: ChatTool = ChatTool(type: .function, value: .function(
+            .init(
+                name: "test",
+                description: "test",
+                parameters: .init(
+                    type: .object,
+                    properties: [
+                        "location": .string(description: "location.desc"),
+                        "unit": .string(enumValues: ["unit.A", "unit.B"])
+                    ],
+                    required: ["location"]
+                )
+            )
+        ))
+        
+        
+        let expectedValue = """
+            {
+                "type": "function",
+                "function": {
+                  "name": "test",
+                  "description": "test",
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      "location": {
+                        "type": "string",
+                        "description": "location.desc"
+                      },
+                      "unit": { "type": "string", "enum": ["unit.A", "unit.B"] }
+                    },
+                    "required": ["location"]
+                  }
+                }
+            }
+        """
+        
+        // To compare serialized JSONs we first convert them both into NSDictionary which are comparable (unline native swift dictionaries)
+        let result = try jsonDataAsNSDictionary(JSONEncoder().encode(value))
+        let expectedResult = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
+        
+        XCTAssertEqual(result, expectedResult)
+    }
   
     func testChatQueryWithFunctionCall() async throws {
         let chatQuery = ChatQuery(
             model: .gpt3_5Turbo,
             messages: [
-                Message(role: .user, content: "What's the weather like in Boston?")
+                Message(role: .user, content: "What's the weather like in Boston?", toolCalls: nil)
             ],
             responseFormat: .init(type: .jsonObject),
             functions: [
@@ -235,6 +280,68 @@ class OpenAITestsDecoder: XCTestCase {
         let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
         
         XCTAssertEqual(resultDict, expectedValueAsDict)
+    }
+    
+    func testChatResultWithToolCall() async throws {
+        let data = """
+        {
+          "id": "chatcmpl-1234",
+          "object": "chat.completion",
+          "created": 1677652288,
+          "model": "gpt-3.5-turbo",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": null,
+                "tool_calls": [
+                    {
+                        "index": 0,
+                        "id": "id",
+                        "type": "function",
+                        "function": {
+                            "name": "get_current_weather"
+                        }
+                    }
+                ]
+              },
+              "finish_reason": "stop"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 82,
+            "completion_tokens": 18,
+            "total_tokens": 100
+          }
+        }
+        """
+        
+        let expectedValue = ChatResult(
+            id: "chatcmpl-1234",
+            object: "chat.completion",
+            created: 1677652288,
+            model: .gpt3_5Turbo,
+            choices: [
+                .init(
+                    index: 0,
+                    message: Message(role: .assistant, toolCalls: [
+                        .init(
+                            index: 0,
+                            id: "id",
+                            type: .function,
+                            value: .function(
+                                .withName("get_current_weather")
+                            )
+                        )
+                    ]),
+                    finishReason: "stop"
+                )
+            ],
+            usage: .init(promptTokens: 82, completionTokens: 18, totalTokens: 100)
+        )
+        
+        try decode(data, expectedValue)
     }
 
     func testChatCompletionWithFunctionCall() async throws {

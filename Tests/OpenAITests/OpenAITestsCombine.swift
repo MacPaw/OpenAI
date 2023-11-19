@@ -39,13 +39,13 @@ final class OpenAITestsCombine: XCTestCase {
     
     func testChats() throws {
        let query = ChatQuery(model: .gpt4, messages: [
-           .init(role: .system, content: "You are Librarian-GPT. You know everything about the books."),
-           .init(role: .user, content: "Who wrote Harry Potter?")
+           .init(role: .system, content: "You are Librarian-GPT. You know everything about the books.", toolCalls: nil),
+           .init(role: .user, content: "Who wrote Harry Potter?", toolCalls: nil)
        ])
        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-        .init(index: 0, message: .init(role: .system, content: "bar"), finishReason: "baz"),
-        .init(index: 0, message: .init(role: .user, content: "bar1"), finishReason: "baz1"),
-        .init(index: 0, message: .init(role: .assistant, content: "bar2"), finishReason: "baz2")
+        .init(index: 0, message: .init(role: .system, content: "bar", toolCalls: nil), finishReason: "baz"),
+        .init(index: 0, message: .init(role: .user, content: "bar1", toolCalls: nil), finishReason: "baz1"),
+        .init(index: 0, message: .init(role: .assistant, content: "bar2", toolCalls: nil), finishReason: "baz2")
         ], usage: .init(promptTokens: 100, completionTokens: 200, totalTokens: 300))
        try self.stub(result: chatResult)
        let result = try awaitPublisher(openAI.chats(query: query))
