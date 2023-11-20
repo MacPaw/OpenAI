@@ -117,7 +117,20 @@ public final class MiscStore: ObservableObject {
                                           format: query.responseFormat.rawValue)
             audioObjects.append(audioObject)
         } catch {
-            NSLog("\(error)")
+            print(error.localizedDescription)
         }
     }
+    
+    func getFileInDocumentsDirectory(_ data: Data, fileName: String, _ dir: @escaping (URL) -> Void) {
+        if let fileURL = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) {
+            let saveURL = fileURL.appendingPathComponent(fileName)
+            do {
+                try data.write(to: saveURL)
+                dir(saveURL)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
 }

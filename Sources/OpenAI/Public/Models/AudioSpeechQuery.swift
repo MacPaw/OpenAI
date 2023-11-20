@@ -55,20 +55,22 @@ public struct AudioSpeechQuery: Codable, Equatable {
         case speed
     }
     
+    private enum Constants {
+        static let normalSpeed = 1.0
+        static let maxSpeed = 4.0
+        static let minSpeed = 0.25
+    }
+    
     public init(model: Model?,
                 input: String,
                 voice: AudioSpeechVoice,
                 responseFormat: AudioSpeechResponseFormat = .mp3,
                 speed: Double?) {
         
-        self.model = {
-            AudioSpeechQuery.validateSpeechModel(model)
-        }()
+        self.model = AudioSpeechQuery.handleProperSpeechModel(model)
         self.input = input
         self.voice = voice
-        self.speed = {
-            AudioSpeechQuery.validateSpeechSpeed(speed)
-        }()
+        self.speed = AudioSpeechQuery.normalizeSpeechSpeed(speed)
         self.responseFormat = responseFormat
     }
     
@@ -76,24 +78,22 @@ public struct AudioSpeechQuery: Codable, Equatable {
 
 extension AudioSpeechQuery {
     
-    private static func validateSpeechModel(_ inputModel: Model?) -> Model {
+    private static func handleProperSpeechModel(_ inputModel: Model?) -> Model {
         guard let inputModel else { return .tts_1 }
         let isModelOfIncorrentFormat = inputModel != .tts_1 && inputModel != .tts_1_hd
         guard !isModelOfIncorrentFormat else {
-            NSLog("[AudioSpeech] 'AudioSpeechQuery' must have a valid Text-To-Speech model, 'tts-1' or 'tts-1-hd'. Setting model to 'tts-1'.")
+            print("[AudioSpeech] 'AudioSpeechQuery' must have a valid Text-To-Speech model, 'tts-1' or 'tts-1-hd'. Setting model to 'tts-1'.")
             return .tts_1
         }
         return inputModel
     }
     
-    private static func validateSpeechSpeed(_ inputSpeed: Double?) -> String {
-        guard let inputSpeed else { return "1.0" }
-        let minSpeed = 0.25
-        let maxSpeed = 4.0
-        let isSpeedOutOfBounds = inputSpeed >= maxSpeed && inputSpeed <= minSpeed
+    private static func normalizeSpeechSpeed(_ inputSpeed: Double?) -> String {
+        guard let inputSpeed else { return "\(Constants.normalSpeed)" }
+        let isSpeedOutOfBounds = inputSpeed >= Constants.maxSpeed && inputSpeed <= Constants.minSpeed
         guard !isSpeedOutOfBounds else {
-            NSLog("[AudioSpeech] Speed value must be between 0.25 and 4.0. Setting value to closest valid.")
-            return inputSpeed < minSpeed ? "1.0" : "4.0"
+            print("[AudioSpeech] Speed value must be between 0.25 and 4.0. Setting value to closest valid.")
+            return inputSpeed < Constants.minSpeed ? "\(Constants.minSpeed)" : "\(Constants.maxSpeed)"
         }
         return "\(inputSpeed)"
     }

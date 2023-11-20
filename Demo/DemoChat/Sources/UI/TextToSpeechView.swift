@@ -117,7 +117,7 @@ public struct TextToSpeechView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button {
-                                saveAudioDataToFile(audioData: object.originResponse.audioData!, fileName: "GeneratedAudio.\(object.format)")
+                                presentUserDirectoryDocumentPicker(for: object.originResponse.audioData!, filename: "GeneratedAudio.\(object.format)")
                             } label: {
                                 Image(systemName: "square.and.arrow.down")
                             }
@@ -136,24 +136,20 @@ public struct TextToSpeechView: View {
 
 extension TextToSpeechView {
     
-    func saveAudioDataToFile(audioData: Data, fileName: String) {
-        if let fileURL = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) {
-            let saveURL = fileURL.appendingPathComponent(fileName)
+    private func presentUserDirectoryDocumentPicker(for audioData: Data, filename: String) {
+        store.getFileInDocumentsDirectory(audioData, fileName: filename) { fileUrl in
+            let filePickerVC = UIDocumentPickerViewController(forExporting: [fileUrl], asCopy: false)
+            filePickerVC.shouldShowFileExtensions = true
             
-            do {
-                try audioData.write(to: saveURL)
-                
-                let filePicker = UIDocumentPickerViewController(forExporting: [saveURL], asCopy: false)
-                filePicker.shouldShowFileExtensions = true
-                
-                guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                      let rootViewController = windowScene.windows.first?.rootViewController else { return }
-                rootViewController.present(filePicker, animated: true, completion: nil)
-                
-            } catch {
-                NSLog("Failed to save audio data: \(error)")
-            }
+            guard let vc = getCurrentViewController() else { return }
+            vc.present(filePickerVC, animated: true, completion: nil)
         }
+    }
+    
+    private func getCurrentViewController() -> UIViewController? {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootViewController = windowScene.windows.first?.rootViewController else { return nil }
+        return rootViewController
     }
     
 }
