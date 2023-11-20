@@ -11,14 +11,14 @@ import UIKit
 
 public struct TextToSpeechView: View {
     
-    @ObservedObject var store: MiscStore
+    @ObservedObject var store: SpeechStore
     
     @State private var prompt: String = ""
     @State private var voice: AudioSpeechQuery.AudioSpeechVoice = .alloy
     @State private var speed: Double = 1
     @State private var responseFormat: AudioSpeechQuery.AudioSpeechResponseFormat = .mp3
     
-    public init(store: MiscStore) {
+    public init(store: SpeechStore) {
         self.store = store
     }
     
