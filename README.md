@@ -549,11 +549,6 @@ public struct AudioSpeechQuery: Codable, Equatable {
 ```swift
 /// Audio data for one of the following formats :`mp3`, `opus`, `aac`, `flac`
 public let audioData: Data?
-
-public func saveAs(_ name: String, format: AudioSpeechQuery.AudioSpeechResponseFormat, to path: URL) throws
-
-// If AVFoundation available
-public func getAudioPlayer() -> AVAudioPlayer?
 ```
 
 **Example:**   

@@ -61,25 +61,18 @@ public struct AudioSpeechQuery: Codable, Equatable {
         static let minSpeed = 0.25
     }
     
-    public init(model: Model?,
-                input: String,
-                voice: AudioSpeechVoice,
-                responseFormat: AudioSpeechResponseFormat = .mp3,
-                speed: Double?) {
-        
-        self.model = AudioSpeechQuery.handleProperSpeechModel(model)
+    public init(model: Model, input: String, voice: AudioSpeechVoice, responseFormat: AudioSpeechResponseFormat = .mp3, speed: Double?) {
+        self.model = AudioSpeechQuery.validateSpeechModel(model)
+        self.speed = AudioSpeechQuery.normalizeSpeechSpeed(speed)
         self.input = input
         self.voice = voice
-        self.speed = AudioSpeechQuery.normalizeSpeechSpeed(speed)
         self.responseFormat = responseFormat
     }
-    
 }
 
-extension AudioSpeechQuery {
+private extension AudioSpeechQuery {
     
-    private static func handleProperSpeechModel(_ inputModel: Model?) -> Model {
-        guard let inputModel else { return .tts_1 }
+    static func validateSpeechModel(_ inputModel: Model) -> Model {
         let isModelOfIncorrentFormat = inputModel != .tts_1 && inputModel != .tts_1_hd
         guard !isModelOfIncorrentFormat else {
             print("[AudioSpeech] 'AudioSpeechQuery' must have a valid Text-To-Speech model, 'tts-1' or 'tts-1-hd'. Setting model to 'tts-1'.")
@@ -88,7 +81,7 @@ extension AudioSpeechQuery {
         return inputModel
     }
     
-    private static func normalizeSpeechSpeed(_ inputSpeed: Double?) -> String {
+    static func normalizeSpeechSpeed(_ inputSpeed: Double?) -> String {
         guard let inputSpeed else { return "\(Constants.normalSpeed)" }
         let isSpeedOutOfBounds = inputSpeed >= Constants.maxSpeed && inputSpeed <= Constants.minSpeed
         guard !isSpeedOutOfBounds else {
@@ -97,5 +90,4 @@ extension AudioSpeechQuery {
         }
         return "\(inputSpeed)"
     }
-    
 }

@@ -45,16 +45,15 @@ public final class SpeechStore: ObservableObject {
         }
     }
     
-    func getFileInDocumentsDirectory(_ data: Data, fileName: String, _ dir: @escaping (URL) -> Void) {
+    func getFileInDocumentsDirectory(_ data: Data, fileName: String, _ completion: @escaping (URL) -> Void) {
         if let fileURL = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) {
             let saveURL = fileURL.appendingPathComponent(fileName)
             do {
                 try data.write(to: saveURL)
-                dir(saveURL)
+                completion(saveURL)
             } catch {
                 print(error.localizedDescription)
             }
         }
     }
-    
 }

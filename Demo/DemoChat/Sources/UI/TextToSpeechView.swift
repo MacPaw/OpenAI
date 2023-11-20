@@ -117,7 +117,7 @@ public struct TextToSpeechView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button {
-                                presentUserDirectoryDocumentPicker(for: object.originResponse.audioData!, filename: "GeneratedAudio.\(object.format)")
+                                presentUserDirectoryDocumentPicker(for: object.originResponse.audioData, filename: "GeneratedAudio.\(object.format)")
                             } label: {
                                 Image(systemName: "square.and.arrow.down")
                             }
@@ -131,12 +131,12 @@ public struct TextToSpeechView: View {
         .scrollDismissesKeyboard(.interactively)
         .navigationTitle("Create Speech")
     }
-    
 }
 
 extension TextToSpeechView {
     
-    private func presentUserDirectoryDocumentPicker(for audioData: Data, filename: String) {
+    private func presentUserDirectoryDocumentPicker(for audioData: Data?, filename: String) {
+        guard let audioData else { return }
         store.getFileInDocumentsDirectory(audioData, fileName: filename) { fileUrl in
             let filePickerVC = UIDocumentPickerViewController(forExporting: [fileUrl], asCopy: false)
             filePickerVC.shouldShowFileExtensions = true
@@ -145,11 +145,4 @@ extension TextToSpeechView {
             vc.present(filePickerVC, animated: true, completion: nil)
         }
     }
-    
-    private func getCurrentViewController() -> UIViewController? {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let rootViewController = windowScene.windows.first?.rootViewController else { return nil }
-        return rootViewController
-    }
-    
 }
