@@ -18,9 +18,6 @@ public struct TextToSpeechView: View {
     @State private var speed: Double = 1
     @State private var responseFormat: AudioSpeechQuery.AudioSpeechResponseFormat = .mp3
     
-    private let formats: [AudioSpeechQuery.AudioSpeechResponseFormat] = [.mp3, .aac, .flac, .opus]
-    private let voices: [AudioSpeechQuery.AudioSpeechVoice] = [.alloy, .echo, .fable, .onyx, .nova, .shimmer]
-    
     public init(store: MiscStore) {
         self.store = store
     }
@@ -50,7 +47,8 @@ public struct TextToSpeechView: View {
                 }
                 HStack {
                     Picker("Voice", selection: $voice) {
-                        ForEach(voices, id: \.self) { voice in
+                        let allVoices = AudioSpeechQuery.AudioSpeechVoice.allCases
+                        ForEach(allVoices, id: \.self) { voice in
                             Text("\(voice.rawValue.capitalized)")
                         }
                     }
@@ -67,7 +65,8 @@ public struct TextToSpeechView: View {
                 }
                 HStack {
                     Picker("Format", selection: $responseFormat) {
-                        ForEach(formats, id: \.self) { format in
+                        let allFormats = AudioSpeechQuery.AudioSpeechResponseFormat.allCases
+                        ForEach(allFormats, id: \.self) { format in
                             Text(".\(format.rawValue)")
                         }
                     }
@@ -83,7 +82,7 @@ public struct TextToSpeechView: View {
                         let query = AudioSpeechQuery(model: .tts_1,
                                                      input: prompt,
                                                      voice: voice,
-                                                     response_format: responseFormat,
+                                                     responseFormat: responseFormat,
                                                      speed: speed)
                         Task {
                             await store.createSpeech(query)
@@ -132,6 +131,10 @@ public struct TextToSpeechView: View {
         .scrollDismissesKeyboard(.interactively)
         .navigationTitle("Create Speech")
     }
+    
+}
+
+extension TextToSpeechView {
     
     func saveAudioDataToFile(audioData: Data, fileName: String) {
         if let fileURL = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) {

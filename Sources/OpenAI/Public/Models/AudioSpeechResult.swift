@@ -25,7 +25,7 @@ public struct AudioSpeechResult {
     public func saveAs(_ name: String, format: AudioSpeechQuery.AudioSpeechResponseFormat, to path: URL) throws {
         guard let data = audioData else {
             throw NSError(
-                domain: Bundle.main.bundleIdentifier!,
+                domain: Bundle.main.bundleIdentifier ?? "",
                 code: 1,
                 userInfo: [NSLocalizedDescriptionKey: "No audio data"]
             )

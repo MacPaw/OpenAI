@@ -14,13 +14,13 @@ public struct AudioSpeechQuery: Codable, Equatable {
     ///
     /// To get aquinted with each of the voices and listen to the samples visit:
     /// [OpenAI Text-to-Speech – Voice Options](https://platform.openai.com/docs/guides/text-to-speech/voice-options)
-    public enum AudioSpeechVoice: String, Codable {
-        case alloy,
-             echo,
-             fable,
-             onyx,
-             nova,
-             shimmer
+    public enum AudioSpeechVoice: String, Codable, CaseIterable {
+        case alloy
+        case echo
+        case fable
+        case onyx
+        case nova
+        case shimmer
     }
     
     /// Encapsulates the response formats available for audio data.
@@ -30,11 +30,11 @@ public struct AudioSpeechQuery: Codable, Equatable {
     /// -  opus
     /// -  aac
     /// -  flac
-    public enum AudioSpeechResponseFormat: String, Codable {
-        case mp3,
-             opus,
-             aac,
-             flac
+    public enum AudioSpeechResponseFormat: String, Codable, CaseIterable {
+        case mp3
+        case opus
+        case aac
+        case flac
     }
     /// One of the available TTS models: tts-1 or tts-1-hd
     public let model: Model
@@ -43,36 +43,59 @@ public struct AudioSpeechQuery: Codable, Equatable {
     /// The voice to use when generating the audio. Supported voices are alloy, echo, fable, onyx, nova, and shimmer.
     public let voice: AudioSpeechVoice
     /// The format to audio in. Supported formats are mp3, opus, aac, and flac.
-    public let response_format: AudioSpeechResponseFormat
+    public let responseFormat: AudioSpeechResponseFormat
     /// The speed of the generated audio. Enter a value between **0.25** and **4.0**. Default: **1.0**
     public let speed: String?
+    
+    public enum CodingKeys: String, CodingKey {
+        case model
+        case input
+        case voice
+        case responseFormat = "response_format"
+        case speed
+    }
     
     public init(model: Model?,
                 input: String,
                 voice: AudioSpeechVoice,
-                response_format: AudioSpeechResponseFormat = .mp3,
+                responseFormat: AudioSpeechResponseFormat = .mp3,
                 speed: Double?) {
         
         self.model = {
-            guard let model else { return .tts_1 }
-            let isModelOfIncorrentFormat = model != .tts_1 && model != .tts_1_hd
-            guard !isModelOfIncorrentFormat else {
-                NSLog("[AudioSpeech] 'AudioSpeechQuery' must have a valid Text-To-Speech model, 'tts-1' or 'tts-1-hd'. Setting model to 'tts-1'.")
-                return .tts_1
-            }
-            return model
+            AudioSpeechQuery.validateSpeechModel(model)
         }()
         self.input = input
         self.voice = voice
         self.speed = {
-            guard let speed else { return "1.0" }
-            let isSpeedOutOfBounds = speed >= 4.0 && speed <= 0.25
-            guard !isSpeedOutOfBounds else {
-                NSLog("[AudioSpeech] Speed value must be between 0.25 and 4.0. Setting value to closest valid.")
-                return speed < 0.25 ? "1.0" : "4.0"
-            }
-            return String("\(speed)")
+            AudioSpeechQuery.validateSpeechSpeed(speed)
         }()
-        self.response_format = response_format
+        self.responseFormat = responseFormat
     }
+    
+}
+
+extension AudioSpeechQuery {
+    
+    private static func validateSpeechModel(_ inputModel: Model?) -> Model {
+        guard let inputModel else { return .tts_1 }
+        let isModelOfIncorrentFormat = inputModel != .tts_1 && inputModel != .tts_1_hd
+        guard !isModelOfIncorrentFormat else {
+            NSLog("[AudioSpeech] 'AudioSpeechQuery' must have a valid Text-To-Speech model, 'tts-1' or 'tts-1-hd'. Setting model to 'tts-1'.")
+            return .tts_1
+        }
+        return inputModel
+    }
+    
+    private static func validateSpeechSpeed(_ inputSpeed: Double?) -> String {
+        guard let inputSpeed else { return "1.0" }
+        let minSpeed = 0.25
+        let maxSpeed = 4.0
+        let isSpeedOutOfBounds = inputSpeed >= maxSpeed && inputSpeed <= minSpeed
+        guard !isSpeedOutOfBounds else {
+            NSLog("[AudioSpeech] Speed value must be between 0.25 and 4.0. Setting value to closest valid.")
+            return inputSpeed < minSpeed ? "1.0" : "4.0"
+        }
+        return "\(inputSpeed)"
+    }
+    
 }

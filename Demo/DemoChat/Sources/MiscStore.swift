@@ -114,7 +114,7 @@ public final class MiscStore: ObservableObject {
             let audioObject = AudioObject(prompt: input,
                                           audioPlayer: player,
                                           originResponse: response,
-                                          format: query.response_format.rawValue)
+                                          format: query.responseFormat.rawValue)
             audioObjects.append(audioObject)
         } catch {
             NSLog("\(error)")
