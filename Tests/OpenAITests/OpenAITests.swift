@@ -259,7 +259,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testAudioSpeechError() async throws {
-        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, response_format: .mp3, speed: 1.0)
+        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 1.0)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
