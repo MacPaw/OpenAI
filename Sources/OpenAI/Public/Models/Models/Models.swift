@@ -69,6 +69,13 @@ public extension Model {
     static let textDavinci_001 = "text-davinci-001"
     static let codeDavinciEdit_001 = "code-davinci-edit-001"
     
+    // Speech
+    
+    /// The latest text to speech model, optimized for speed.
+    static let tts_1 = "tts-1"
+    /// The latest text to speech model, optimized for quality.
+    static let tts_1_hd = "tts-1-hd"
+    
     // Transcriptions / Translations
     
     static let whisper_1 = "whisper-1"

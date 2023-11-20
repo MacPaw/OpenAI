@@ -5,7 +5,7 @@
 //  Created by Aled Samuel on 22/04/2023.
 //
 
-import Foundation
+import UIKit
 import OpenAI
 
 public final class MiscStore: ObservableObject {
@@ -19,7 +19,7 @@ public final class MiscStore: ObservableObject {
         self.openAIClient = openAIClient
     }
     
-    // MARK: Models
+    // MARK: - Models
     
     @MainActor
     func getModels() async {
@@ -32,11 +32,11 @@ public final class MiscStore: ObservableObject {
         }
     }
     
-    // MARK: Moderations
+    // MARK: - Moderations
     
     @Published var moderationConversation = Conversation(id: "", messages: [])
     @Published var moderationConversationError: Error?
-
+    
     @MainActor
     func sendModerationMessage(_ message: Message) async {
         moderationConversation.messages.append(message)
