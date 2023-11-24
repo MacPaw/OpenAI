@@ -472,7 +472,7 @@ Uses the ImagesResult response similarly to ImagesQuery.
 
 ```swift
 let data = image.pngData()
-let query = ImagesEditQuery(image: data, fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+let query = ImageEditQuery(image: data, fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
 openAI.imageEdits(query: query) { result in
   //Handle result here
 }
@@ -506,7 +506,7 @@ Uses the ImagesResult response similarly to ImagesQuery.
 
 ```swift
 let data = image.pngData()
-let query = ImagesVariationQuery(image: data, fileName: "whitecat.png", n: 1, size: "1024x1024")
+let query = ImageVariationQuery(image: data, fileName: "whitecat.png", n: 1, size: "1024x1024")
 openAI.imageVariations(query: query) { result in
   //Handle result here
 }
