@@ -539,7 +539,7 @@ public struct AudioSpeechQuery: Codable, Equatable {
     public let model: Model // tts-1 or tts-1-hd  
     public let input: String
     public let voice: AudioSpeechVoice
-    public let response_format: AudioSpeechResponseFormat
+    public let responseFormat: AudioSpeechResponseFormat
     public let speed: String? // Initializes with Double?
     //...
 }
@@ -555,13 +555,13 @@ public let audioData: Data?
 **Example:**   
 
 ```swift
-let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, response_format: .mp3, speed: 1.0)
+let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 1.0)
 
 openAI.audioCreateSpeech(query: query) { result in
     // Handle response here
 }
 //or
-let result = try await openAI.audioTranscriptions(query: query)
+let result = try await openAI.audioCreateSpeech(query: query)
 ```
 [OpenAI Create Speech – Documentation](https://platform.openai.com/docs/api-reference/audio/createSpeech)
 
