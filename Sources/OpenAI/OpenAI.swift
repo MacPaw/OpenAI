@@ -127,27 +127,20 @@ extension OpenAI {
                                             timeoutInterval: configuration.timeoutInterval)
             let task = session.dataTask(with: request) { data, _, error in
                 if let error = error {
-                    completion(.failure(error))
-                    return
+                    return completion(.failure(error))
                 }
                 guard let data = data else {
-                    completion(.failure(OpenAIError.emptyData))
-                    return
+                    return completion(.failure(OpenAIError.emptyData))
                 }
 
-                var apiError: Error? = nil
                 do {
-                    let decoded = try JSONDecoder().decode(ResultType.self, from: data)
+                    let decoder = JSONDecoder()
+                    let decoded = try decoder.decode(ResultType.self, from: data)
                     completion(.success(decoded))
                 } catch {
-                    apiError = error
-                }
-
-                if let apiError = apiError {
-                    do {
-                        let decoded = try JSONDecoder().decode(APIErrorResponse.self, from: data)
+                    if let decoded = try? decoder.decode(APIErrorResponse.self, from: data)
                         completion(.failure(decoded))
-                    } catch {
+                    } else {
                         completion(.failure(apiError))
                     }
                 }
