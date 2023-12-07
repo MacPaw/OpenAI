@@ -138,10 +138,10 @@ extension OpenAI {
                     let decoded = try decoder.decode(ResultType.self, from: data)
                     completion(.success(decoded))
                 } catch {
-                    if let decoded = try? decoder.decode(APIErrorResponse.self, from: data)
+                    if let decoded = try? decoder.decode(APIErrorResponse.self, from: data) {
                         completion(.failure(decoded))
                     } else {
-                        completion(.failure(apiError))
+                        completion(.failure(error))
                     }
                 }
             }
