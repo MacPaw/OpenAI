@@ -133,16 +133,13 @@ extension OpenAI {
                     return completion(.failure(OpenAIError.emptyData))
                 }
 
-                do {
-                    let decoder = JSONDecoder()
-                    let decoded = try decoder.decode(ResultType.self, from: data)
+                let decoder = JSONDecoder()
+                if let decoded = try? decoder.decode(ResultType.self, from: data) {
                     completion(.success(decoded))
-                } catch {
-                    if let decoded = try? decoder.decode(APIErrorResponse.self, from: data) {
-                        completion(.failure(decoded))
-                    } else {
-                        completion(.failure(error))
-                    }
+                } else if let decoded = try? decoder.decode(APIErrorResponse.self, from: data) {
+                    completion(.failure(decoded))
+                } else {
+                    completion(.failure(OpenAIError.failedToDecodeData))
                 }
             }
             task.resume()
