@@ -9,7 +9,6 @@ import Foundation
 
 public enum OpenAIError: Error {
     case emptyData
-    case failedToDecodeData
 }
 
 public struct APIError: Error, Decodable, Equatable {
