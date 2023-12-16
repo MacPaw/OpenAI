@@ -29,6 +29,9 @@ extension JSONRequest: URLRequestBuildable {
         var request = URLRequest(url: url, timeoutInterval: timeoutInterval)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        // TODO: ONLY PASS IF ASSISTANTS API
+        request.setValue("assistants=v1", forHTTPHeaderField: "OpenAI-Beta")
+
         if let organizationIdentifier {
             request.setValue(organizationIdentifier, forHTTPHeaderField: "OpenAI-Organization")
         }

@@ -55,7 +55,45 @@ final public class OpenAI: OpenAIProtocol {
     public convenience init(configuration: Configuration, session: URLSession = URLSession.shared) {
         self.init(configuration: configuration, session: session as URLSessionProtocol)
     }
-    
+
+    // UPDATES FROM 11-06-23
+    public func threadsAddMessage(threadId: String, query: ThreadAddMessageQuery, completion: @escaping (Result<ThreadAddMessageResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<ThreadsMessagesResult>(body: query, url: buildRunsURL(path: .threadsMessages, threadId: threadId)), completion: completion)
+    }
+
+    public func threadsMessages(threadId: String, before: String?, completion: @escaping (Result<ThreadsMessagesResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<ThreadsMessagesResult>(body: nil, url: buildRunsURL(path: .threadsMessages, threadId: threadId, before: before), method: "GET"), completion: completion)
+    }
+
+    public func runRetrieve(threadId: String, runId: String, completion: @escaping (Result<RunRetreiveResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<RunRetreiveResult>(body: nil, url: buildRunRetrieveURL(path: .runRetrieve, threadId: threadId, runId: runId, before: nil), method: "GET"), completion: completion)
+    }
+
+    public func runRetrieveSteps(threadId: String, runId: String, before: String?, completion: @escaping (Result<RunRetreiveStepsResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<RunRetreiveStepsResult>(body: nil, url: buildRunRetrieveURL(path: .runRetrieveSteps, threadId: threadId, runId: runId, before: before), method: "GET"), completion: completion)
+    }
+
+    public func runs(threadId: String, query: RunsQuery, completion: @escaping (Result<RunsResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<RunsResult>(body: query, url: buildRunsURL(path: .runs, threadId: threadId)), completion: completion)
+    }
+
+    public func threads(query: ThreadsQuery, completion: @escaping (Result<ThreadsResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<ThreadsResult>(body: query, url: buildURL(path: .threads)), completion: completion)
+    }
+
+    public func assistants(query: AssistantsQuery?, method: String, after: String?, completion: @escaping (Result<AssistantsResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<AssistantsResult>(body: query, url: buildURL(path: .assistants, after: after), method: method), completion: completion)
+    }
+
+    public func assistantModify(query: AssistantsQuery, asstId: String, completion: @escaping (Result<AssistantsResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<AssistantsResult>(body: query, url: buildAssistantURL(path: .assistantsModify, assistantId: asstId)), completion: completion)
+    }
+
+    public func files(query: FilesQuery, completion: @escaping (Result<FilesResult, Error>) -> Void) {
+        performRequest(request: MultipartFormDataRequest<FilesResult>(body: query, url: buildURL(path: .files)), completion: completion)
+    }
+    // END UPDATES FROM 11-06-23
+
     public func completions(query: CompletionsQuery, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
         performRequest(request: JSONRequest<CompletionsResult>(body: query, url: buildURL(path: .completions)), completion: completion)
     }
@@ -137,6 +175,9 @@ extension OpenAI {
 
                 var apiError: Error? = nil
                 do {
+
+                    let errorText = String(data: data, encoding: .utf8)
+
                     let decoded = try JSONDecoder().decode(ResultType.self, from: data)
                     completion(.success(decoded))
                 } catch {
@@ -168,6 +209,7 @@ extension OpenAI {
                 onResult(.success(object))
             }
             session.onProcessingError = {_, error in
+                print("OpenAI API error = \(error.localizedDescription)")
                 onResult(.failure(error))
             }
             session.onComplete = { [weak self] object, error in
@@ -218,18 +260,63 @@ extension OpenAI {
 
 extension OpenAI {
     
-    func buildURL(path: String) -> URL {
+    func buildURL(path: String, after: String? = nil) -> URL {
         var components = URLComponents()
         components.scheme = "https"
         components.host = configuration.host
         components.path = path
+        if let after {
+            components.queryItems = [URLQueryItem(name: "after", value: after)]
+        }
+        return components.url!
+    }
+
+    func buildRunsURL(path: String, threadId: String, before: String? = nil) -> URL {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = configuration.host
+        components.path = path.replacingOccurrences(of: "THREAD_ID", with: threadId)
+        if let before {
+            components.queryItems = [URLQueryItem(name: "before", value: before)]
+        }
+        return components.url!
+    }
+
+    func buildRunRetrieveURL(path: String, threadId: String, runId: String, before: String? = nil) -> URL {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = configuration.host
+        components.path = path.replacingOccurrences(of: "THREAD_ID", with: threadId)
+                              .replacingOccurrences(of: "RUN_ID", with: runId)
+        if let before {
+            components.queryItems = [URLQueryItem(name: "before", value: before)]
+        }
+        return components.url!
+    }
+
+    func buildAssistantURL(path: String, assistantId: String) -> URL {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = configuration.host
+        components.path = path.replacingOccurrences(of: "ASST_ID", with: assistantId)
+
         return components.url!
     }
 }
 
 typealias APIPath = String
 extension APIPath {
-    
+    // 1106
+    static let assistants = "/v1/assistants"
+    static let assistantsModify = "/v1/assistants/ASST_ID"
+    static let threads = "/v1/threads"
+    static let runs = "/v1/threads/THREAD_ID/runs"
+    static let runRetrieve = "/v1/threads/THREAD_ID/runs/RUN_ID"
+    static let runRetrieveSteps = "/v1/threads/THREAD_ID/runs/RUN_ID/steps"
+    static let threadsMessages = "/v1/threads/THREAD_ID/messages"
+    static let files = "/v1/files"
+    // 1106 end
+
     static let completions = "/v1/completions"
     static let embeddings = "/v1/embeddings"
     static let chats = "/v1/chat/completions"

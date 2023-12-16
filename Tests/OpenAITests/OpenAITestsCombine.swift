@@ -123,6 +123,57 @@ final class OpenAITestsCombine: XCTestCase {
         let result = try awaitPublisher(openAI.audioTranslations(query: query))
         XCTAssertEqual(result, transcriptionResult)
     }
+
+    // 1106
+    func testAssistantQuery() throws {
+        let query = AssistantsQuery(model: .gpt4_1106_preview, name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: [])
+        let expectedResult = AssistantsResult(id: "asst_1234", data: [AssistantsResult.AssistantContent(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)], tools: [])
+        try self.stub(result: expectedResult)
+
+        let result = try awaitPublisher(openAI.assistants(query: query, method: "POST", after: nil))
+        XCTAssertEqual(result, expectedResult)
+    }
+
+    func testThreadsQuery() throws {
+        let query = ThreadsQuery(messages: [Chat(role: .user, content: "Hello, What is AI?")])
+        let expectedResult = ThreadsResult(id: "thread_1234")
+
+        try self.stub(result: expectedResult)
+        let result = try awaitPublisher(openAI.threads(query: query))
+
+        XCTAssertEqual(result, expectedResult)
+    }
+
+    func testRunsQuery() throws {
+        let query = RunsQuery(assistantId: "asst_7654321")
+        let expectedResult = RunsResult(id: "run_1234")
+
+        try self.stub(result: expectedResult)
+        let result = try awaitPublisher(openAI.runs(threadId: "thread_1234", query: query))
+        
+        XCTAssertEqual(result, expectedResult)
+    }
+
+    func testRunRetrieveQuery() throws {
+        let expectedResult = RunRetreiveResult(status: "in_progress")
+        try self.stub(result: expectedResult)
+
+        let result = try awaitPublisher(openAI.runRetrieve(threadId: "thread_1234", runId: "run_1234"))
+
+        XCTAssertEqual(result, expectedResult)
+    }
+
+    func testThreadsMessageQuery() throws {
+        let expectedResult = ThreadsMessagesResult(data: [ThreadsMessagesResult.ThreadsMessage(id: "thread_1234", role: Chat.Role.user.rawValue, content: [ThreadsMessagesResult.ThreadsMessage.ThreadsMessageContent(type: "text", text: ThreadsMessagesResult.ThreadsMessage.ThreadsMessageContent.ThreadsMessageContentText(value: "Hello, What is AI?"))])])
+        try self.stub(result: expectedResult)
+
+        let result = try awaitPublisher(openAI.threadsMessages(threadId: "thread_1234", before: nil))
+
+        XCTAssertEqual(result, expectedResult)
+    }
+    // 1106 end
+
+
 }
 
 @available(tvOS 13.0, *)
