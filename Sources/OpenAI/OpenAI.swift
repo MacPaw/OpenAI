@@ -175,9 +175,6 @@ extension OpenAI {
 
                 var apiError: Error? = nil
                 do {
-
-                    let errorText = String(data: data, encoding: .utf8)
-
                     let decoded = try JSONDecoder().decode(ResultType.self, from: data)
                     completion(.success(decoded))
                 } catch {
@@ -209,7 +206,6 @@ extension OpenAI {
                 onResult(.success(object))
             }
             session.onProcessingError = {_, error in
-                print("OpenAI API error = \(error.localizedDescription)")
                 onResult(.failure(error))
             }
             session.onComplete = { [weak self] object, error in
