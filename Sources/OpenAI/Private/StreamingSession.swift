@@ -72,20 +72,21 @@ extension StreamingSession {
                 return
             }
             guard let jsonData = jsonContent.data(using: .utf8) else {
-                return onProcessingError?(self, StreamingError.unknownContent)
+                onProcessingError?(self, StreamingError.unknownContent)
+                return
             }
-            
+
+            let decoder = JSONDecoder()
             do {
-                let decoder = JSONDecoder()
                 let object = try decoder.decode(ResultType.self, from: jsonData)
                 onReceiveContent?(self, object)
             } catch {
-                if let decoded = try decoder.decode(APIErrorResponse.self, from: jsonData) {
+                if let decoded = try? decoder.decode(APIErrorResponse.self, from: jsonData) {
                     onProcessingError?(self, decoded)
                 } else if index == jsonObjects.count - 1 {
                     previousChunkBuffer = "data: \(jsonContent)" // Chunk ends in a partial JSON
                 } else {
-                        onProcessingError?(self, error)
+                    onProcessingError?(self, error)
                 }
             }
         }
