@@ -75,7 +75,6 @@ extension StreamingSession {
                 onProcessingError?(self, StreamingError.unknownContent)
                 return
             }
-
             let decoder = JSONDecoder()
             do {
                 let object = try decoder.decode(ResultType.self, from: jsonData)
