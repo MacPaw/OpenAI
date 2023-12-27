@@ -132,7 +132,6 @@ extension OpenAI {
                 guard let data = data else {
                     return completion(.failure(OpenAIError.emptyData))
                 }
-                
                 let decoder = JSONDecoder()
                 do {
                     completion(.success(try decoder.decode(ResultType.self, from: data)))
