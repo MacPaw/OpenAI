@@ -22,15 +22,19 @@ final public class OpenAI: OpenAIProtocol {
         
         /// API host. Set this property if you use some kind of proxy or your own server. Default is api.openai.com
         public let host: String
+
+        // Path prefix
+        public let pathPrefix: String
         
         /// Default request timeout
         public let timeoutInterval: TimeInterval
         
-        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", timeoutInterval: TimeInterval = 60.0) {
+        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", timeoutInterval: TimeInterval = 60.0, pathPrefix: String = "") {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host
             self.timeoutInterval = timeoutInterval
+            self.pathPrefix = pathPrefix
         }
     }
     
@@ -57,63 +61,63 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     public func completions(query: CompletionsQuery, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<CompletionsResult>(body: query, url: buildURL(path: .completions)), completion: completion)
+        performRequest(request: JSONRequest<CompletionsResult>(body: query, url: buildURL(path: .completions, pathPrefix: .pathPrefix)), completion: completion)
     }
     
     public func completionsStream(query: CompletionsQuery, onResult: @escaping (Result<CompletionsResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        performSteamingRequest(request: JSONRequest<CompletionsResult>(body: query.makeStreamable(), url: buildURL(path: .completions)), onResult: onResult, completion: completion)
+        performSteamingRequest(request: JSONRequest<CompletionsResult>(body: query.makeStreamable(), url: buildURL(path: .completions, pathPrefix: .pathPrefix)), onResult: onResult, completion: completion)
     }
     
     public func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ImagesResult>(body: query, url: buildURL(path: .images)), completion: completion)
+        performRequest(request: JSONRequest<ImagesResult>(body: query, url: buildURL(path: .images, pathPrefix: .pathPrefix)), completion: completion)
     }
     
     public func imageEdits(query: ImageEditsQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
-        performRequest(request: MultipartFormDataRequest<ImagesResult>(body: query, url: buildURL(path: .imageEdits)), completion: completion)
+        performRequest(request: MultipartFormDataRequest<ImagesResult>(body: query, url: buildURL(path: .imageEdits, pathPrefix: .pathPrefix)), completion: completion)
     }
     
     public func imageVariations(query: ImageVariationsQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
-        performRequest(request: MultipartFormDataRequest<ImagesResult>(body: query, url: buildURL(path: .imageVariations)), completion: completion)
+        performRequest(request: MultipartFormDataRequest<ImagesResult>(body: query, url: buildURL(path: .imageVariations, pathPrefix: .pathPrefix)), completion: completion)
     }
     
     public func embeddings(query: EmbeddingsQuery, completion: @escaping (Result<EmbeddingsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<EmbeddingsResult>(body: query, url: buildURL(path: .embeddings)), completion: completion)
+        performRequest(request: JSONRequest<EmbeddingsResult>(body: query, url: buildURL(path: .embeddings, pathPrefix: .pathPrefix)), completion: completion)
     }
     
     public func chats(query: ChatQuery, completion: @escaping (Result<ChatResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: .chats)), completion: completion)
+        performRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: .chats, pathPrefix: .pathPrefix)), completion: completion)
     }
     
     public func chatsStream(query: ChatQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        performSteamingRequest(request: JSONRequest<ChatResult>(body: query.makeStreamable(), url: buildURL(path: .chats)), onResult: onResult, completion: completion)
+        performSteamingRequest(request: JSONRequest<ChatResult>(body: query.makeStreamable(), url: buildURL(path: .chats, pathPrefix: .pathPrefix)), onResult: onResult, completion: completion)
     }
     
     public func edits(query: EditsQuery, completion: @escaping (Result<EditsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<EditsResult>(body: query, url: buildURL(path: .edits)), completion: completion)
+        performRequest(request: JSONRequest<EditsResult>(body: query, url: buildURL(path: .edits, pathPrefix: .pathPrefix)), completion: completion)
     }
     
     public func model(query: ModelQuery, completion: @escaping (Result<ModelResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ModelResult>(url: buildURL(path: .models.withPath(query.model)), method: "GET"), completion: completion)
+        performRequest(request: JSONRequest<ModelResult>(url: buildURL(path: .models.withPath(query.model), pathPrefix: .pathPrefix), method: "GET"), completion: completion)
     }
     
     public func models(completion: @escaping (Result<ModelsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ModelsResult>(url: buildURL(path: .models), method: "GET"), completion: completion)
+        performRequest(request: JSONRequest<ModelsResult>(url: buildURL(path: .models, pathPrefix: .pathPrefix), method: "GET"), completion: completion)
     }
     
     public func moderations(query: ModerationsQuery, completion: @escaping (Result<ModerationsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ModerationsResult>(body: query, url: buildURL(path: .moderations)), completion: completion)
+        performRequest(request: JSONRequest<ModerationsResult>(body: query, url: buildURL(path: .moderations, pathPrefix: .pathPrefix)), completion: completion)
     }
     
     public func audioTranscriptions(query: AudioTranscriptionQuery, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void) {
-        performRequest(request: MultipartFormDataRequest<AudioTranscriptionResult>(body: query, url: buildURL(path: .audioTranscriptions)), completion: completion)
+        performRequest(request: MultipartFormDataRequest<AudioTranscriptionResult>(body: query, url: buildURL(path: .audioTranscriptions, pathPrefix: .pathPrefix)), completion: completion)
     }
     
     public func audioTranslations(query: AudioTranslationQuery, completion: @escaping (Result<AudioTranslationResult, Error>) -> Void) {
-        performRequest(request: MultipartFormDataRequest<AudioTranslationResult>(body: query, url: buildURL(path: .audioTranslations)), completion: completion)
+        performRequest(request: MultipartFormDataRequest<AudioTranslationResult>(body: query, url: buildURL(path: .audioTranslations, pathPrefix: .pathPrefix)), completion: completion)
     }
     
     public func audioCreateSpeech(query: AudioSpeechQuery, completion: @escaping (Result<AudioSpeechResult, Error>) -> Void) {
-        performSpeechRequest(request: JSONRequest<AudioSpeechResult>(body: query, url: buildURL(path: .audioSpeech)), completion: completion)
+        performSpeechRequest(request: JSONRequest<AudioSpeechResult>(body: query, url: buildURL(path: .audioSpeech, pathPrefix: .pathPrefix)), completion: completion)
     }
     
 }
@@ -218,11 +222,11 @@ extension OpenAI {
 
 extension OpenAI {
     
-    func buildURL(path: String) -> URL {
+    func buildURL(path: String, pathPrefix: String) -> URL {
         var components = URLComponents()
         components.scheme = "https"
         components.host = configuration.host
-        components.path = path
+        components.path = pathPrefix + path
         return components.url!
     }
 }
