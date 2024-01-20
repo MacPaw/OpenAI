@@ -12,12 +12,20 @@ public struct ModerationsResult: Codable, Equatable {
     public struct CategoryResult: Codable, Equatable {
         
         public struct Categories: Codable, Equatable {
+            /// Content that expresses, incites, or promotes harassing language towards any target.
+            public let harassment: Bool
+            /// Harassment content that also includes violence or serious harm towards any target.
+            public let harassmentThreatening: Bool
             /// Content that expresses, incites, or promotes hate based on race, gender, ethnicity, religion, nationality, sexual orientation, disability status, or caste.
             public let hate: Bool
             /// Hateful content that also includes violence or serious harm towards the targeted group.
             public let hateThreatening: Bool
             /// Content that promotes, encourages, or depicts acts of self-harm, such as suicide, cutting, and eating disorders.
             public let selfHarm: Bool
+            /// Content where the speaker expresses that they are engaging or intend to engage in acts of self-harm, such as suicide, cutting, and eating disorders.
+            public let selfHarmIntent: Bool
+            /// Content that encourages performing acts of self-harm, such as suicide, cutting, and eating disorders, or that gives instructions or advice on how to commit such acts.
+            public let selfHarmInstructions: Bool
             /// Content meant to arouse sexual excitement, such as the description of sexual activity, or that promotes sexual services (excluding sex education and wellness).
             public let sexual: Bool
             /// Sexual content that includes an individual who is under 18 years old.
@@ -28,9 +36,13 @@ public struct ModerationsResult: Codable, Equatable {
             public let violenceGraphic: Bool
             
             enum CodingKeys: String, CodingKey {
+                case harassment
+                case harassmentThreatening = "harassment/threatening"
                 case hate
                 case hateThreatening = "hate/threatening"
                 case selfHarm = "self-harm"
+                case selfHarmIntent = "self-harm/intent"
+                case selfHarmInstructions = "self-harm/instructions"
                 case sexual
                 case sexualMinors = "sexual/minors"
                 case violence
@@ -39,12 +51,20 @@ public struct ModerationsResult: Codable, Equatable {
         }
         
         public struct CategoryScores: Codable, Equatable {
+            /// Content that expresses, incites, or promotes harassing language towards any target.
+            public let harassment: Double
+            /// Harassment content that also includes violence or serious harm towards any target.
+            public let harassmentThreatening: Double
             /// Content that expresses, incites, or promotes hate based on race, gender, ethnicity, religion, nationality, sexual orientation, disability status, or caste.
             public let hate: Double
             /// Hateful content that also includes violence or serious harm towards the targeted group.
             public let hateThreatening: Double
             /// Content that promotes, encourages, or depicts acts of self-harm, such as suicide, cutting, and eating disorders.
             public let selfHarm: Double
+            /// Content where the speaker expresses that they are engaging or intend to engage in acts of self-harm, such as suicide, cutting, and eating disorders.
+            public let selfHarmIntent: Double
+            /// Content that encourages performing acts of self-harm, such as suicide, cutting, and eating disorders, or that gives instructions or advice on how to commit such acts.
+            public let selfHarmInstructions: Double
             /// Content meant to arouse sexual excitement, such as the description of sexual activity, or that promotes sexual services (excluding sex education and wellness).
             public let sexual: Double
             /// Sexual content that includes an individual who is under 18 years old.
@@ -55,9 +75,13 @@ public struct ModerationsResult: Codable, Equatable {
             public let violenceGraphic: Double
             
             enum CodingKeys: String, CodingKey {
+                case harassment
+                case harassmentThreatening = "harassment/threatening"
                 case hate
                 case hateThreatening = "hate/threatening"
                 case selfHarm = "self-harm"
+                case selfHarmIntent = "self-harm/intent"
+                case selfHarmInstructions = "self-harm/instructions"
                 case sexual
                 case sexualMinors = "sexual/minors"
                 case violence
