@@ -224,7 +224,7 @@ public struct ChatQueryFunctionCall: Codable, Equatable {
 
 public struct ChatQuery: Equatable, Codable, Streamable {
     /// ID of the model to use. Currently, only gpt-3.5-turbo and gpt-3.5-turbo-0301 are supported.
-    public let model: Model
+    public let model: ChatModel
     /// An object specifying the format that the model must output.
     public let responseFormat: ResponseFormat?
     /// The messages to generate chat completions for
@@ -298,7 +298,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         case responseFormat = "response_format"
     }
     
-    public init(model: Model, messages: [Chat], responseFormat: ResponseFormat? = nil, functions: [ChatFunctionDeclaration]? = nil, functionCall: FunctionCall? = nil, temperature: Double? = nil, topP: Double? = nil, n: Int? = nil, stop: [String]? = nil, maxTokens: Int? = nil, presencePenalty: Double? = nil, frequencyPenalty: Double? = nil, logitBias: [String : Int]? = nil, user: String? = nil, stream: Bool = false) {
+    public init(model: ChatModel, messages: [Chat], responseFormat: ResponseFormat? = nil, functions: [ChatFunctionDeclaration]? = nil, functionCall: FunctionCall? = nil, temperature: Double? = nil, topP: Double? = nil, n: Int? = nil, stop: [String]? = nil, maxTokens: Int? = nil, presencePenalty: Double? = nil, frequencyPenalty: Double? = nil, logitBias: [String : Int]? = nil, user: String? = nil, stream: Bool = false) {
         self.model = model
         self.messages = messages
         self.functions = functions

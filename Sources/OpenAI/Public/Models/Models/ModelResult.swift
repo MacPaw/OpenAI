@@ -9,11 +9,13 @@ import Foundation
 
 public struct ModelResult: Codable, Equatable {
 
-    public let id: Model
+    public let created: Int
+    public let id: String
     public let object: String
     public let ownedBy: String
     
     enum CodingKeys: String, CodingKey {
+        case created
         case id
         case object
         case ownedBy = "owned_by"

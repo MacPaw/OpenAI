@@ -9,7 +9,7 @@ import Foundation
 
 public struct CompletionsQuery: Codable, Streamable {
     /// ID of the model to use.
-    public let model: Model
+    public let model: CompletionsModel
     /// The prompt(s) to generate completions for, encoded as a string, array of strings, array of tokens, or array of token arrays.
     public let prompt: String
     /// What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
@@ -42,7 +42,7 @@ public struct CompletionsQuery: Codable, Streamable {
         case user
     }
     
-    public init(model: Model, prompt: String, temperature: Double? = nil, maxTokens: Int? = nil, topP: Double? = nil, frequencyPenalty: Double? = nil, presencePenalty: Double? = nil, stop: [String]? = nil, user: String? = nil) {
+    public init(model: CompletionsModel, prompt: String, temperature: Double? = nil, maxTokens: Int? = nil, topP: Double? = nil, frequencyPenalty: Double? = nil, presencePenalty: Double? = nil, stop: [String]? = nil, user: String? = nil) {
         self.model = model
         self.prompt = prompt
         self.temperature = temperature

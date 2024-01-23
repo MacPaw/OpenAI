@@ -104,6 +104,6 @@ public struct ModerationsResult: Codable, Equatable {
     }
     
     public let id: String
-    public let model: Model
+    public let model: String
     public let results: [CategoryResult]
 }

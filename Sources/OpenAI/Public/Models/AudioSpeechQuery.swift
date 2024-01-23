@@ -37,7 +37,7 @@ public struct AudioSpeechQuery: Codable, Equatable {
         case flac
     }
     /// One of the available TTS models: tts-1 or tts-1-hd
-    public let model: Model
+    public let model: AudioSpeechModel
     /// The text to generate audio for. The maximum length is 4096 characters.
     public let input: String?
     /// The voice to use when generating the audio. Supported voices are alloy, echo, fable, onyx, nova, and shimmer.
@@ -61,8 +61,8 @@ public struct AudioSpeechQuery: Codable, Equatable {
         static let minSpeed = 0.25
     }
     
-    public init(model: Model, input: String, voice: AudioSpeechVoice, responseFormat: AudioSpeechResponseFormat = .mp3, speed: Double?) {
-        self.model = AudioSpeechQuery.validateSpeechModel(model)
+    public init(model: AudioSpeechModel, input: String, voice: AudioSpeechVoice, responseFormat: AudioSpeechResponseFormat = .mp3, speed: Double? = nil) {
+        self.model = model
         self.speed = AudioSpeechQuery.normalizeSpeechSpeed(speed)
         self.input = input
         self.voice = voice
@@ -71,16 +71,7 @@ public struct AudioSpeechQuery: Codable, Equatable {
 }
 
 private extension AudioSpeechQuery {
-    
-    static func validateSpeechModel(_ inputModel: Model) -> Model {
-        let isModelOfIncorrentFormat = inputModel != .tts_1 && inputModel != .tts_1_hd
-        guard !isModelOfIncorrentFormat else {
-            print("[AudioSpeech] 'AudioSpeechQuery' must have a valid Text-To-Speech model, 'tts-1' or 'tts-1-hd'. Setting model to 'tts-1'.")
-            return .tts_1
-        }
-        return inputModel
-    }
-    
+
     static func normalizeSpeechSpeed(_ inputSpeed: Double?) -> String {
         guard let inputSpeed else { return "\(Constants.normalSpeed)" }
         let isSpeedOutOfBounds = inputSpeed >= Constants.maxSpeed && inputSpeed <= Constants.minSpeed

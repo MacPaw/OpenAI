@@ -11,9 +11,9 @@ public struct ModerationsQuery: Codable {
     /// The input text to classify.
     public let input: String
     /// ID of the model to use.
-    public let model: Model?
+    public let model: ModerationsModel?
 
-    public init(input: String, model: Model? = nil) {
+    public init(input: String, model: ModerationsModel? = nil) {
         self.input = input
         self.model = model
     }

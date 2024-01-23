@@ -20,14 +20,14 @@ public struct AudioTranscriptionQuery: Codable, Equatable {
     
     public let file: Data
     public let fileName: String
-    public let model: Model
+    public let model: AudioTranscriptionModel
     public let responseFormat: Self.ResponseFormat?
     
     public let prompt: String?
     public let temperature: Double?
     public let language: String?
     
-    public init(file: Data, fileName: String, model: Model, prompt: String? = nil, temperature: Double? = nil, language: String? = nil, responseFormat: Self.ResponseFormat? = nil) {
+    public init(file: Data, fileName: String, model: AudioTranscriptionModel, prompt: String? = nil, temperature: Double? = nil, language: String? = nil, responseFormat: Self.ResponseFormat? = nil) {
         self.file = file
         self.fileName = fileName
         self.model = model

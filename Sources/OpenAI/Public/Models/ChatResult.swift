@@ -39,7 +39,7 @@ public struct ChatResult: Codable, Equatable {
     public let id: String
     public let object: String
     public let created: TimeInterval
-    public let model: Model
+    public let model: String
     public let choices: [Choice]
     public let usage: Usage?
     
@@ -50,14 +50,5 @@ public struct ChatResult: Codable, Equatable {
         case model
         case choices
         case usage
-    }
-    
-    init(id: String, object: String, created: TimeInterval, model: Model, choices: [Choice], usage: Usage) {
-        self.id = id
-        self.object = object
-        self.created = created
-        self.model = model
-        self.choices = choices
-        self.usage = usage
     }
 }
