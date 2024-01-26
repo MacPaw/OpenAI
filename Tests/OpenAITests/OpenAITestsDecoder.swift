@@ -59,7 +59,7 @@ class OpenAITestsDecoder: XCTestCase {
           "id": "chatcmpl-123",
           "object": "chat.completion",
           "created": 1677652288,
-          "model": "gpt-4",
+          "model": "\(ChatModel.gpt_3_5_turbo_1106.rawValue)",
           "choices": [{
             "index": 0,
             "message": {
@@ -76,7 +76,7 @@ class OpenAITestsDecoder: XCTestCase {
         }
         """
         
-        let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, choices: [
+        let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: ChatModel.gpt_3_5_turbo_1106.rawValue, choices: [
             .init(index: 0, message: Chat(role: .assistant, content: "Hello, world!"), finishReason: "stop")
         ], usage: .init(promptTokens: 9, completionTokens: 12, totalTokens: 21))
         try decode(data, expectedValue)
@@ -88,7 +88,7 @@ class OpenAITestsDecoder: XCTestCase {
             model: .dall_e_2,
             responseFormat: .b64_json,
             n: 1,
-            size: "10",
+            size: ._256,
             style: "vivid",
             user: "user"
         )
@@ -98,7 +98,7 @@ class OpenAITestsDecoder: XCTestCase {
             "model": "dall-e-2",
             "prompt": "test",
             "n": 1,
-            "size": "10",
+            "size": "256x256",
             "style": "vivid",
             "user": "user",
             "response_format": "b64_json"
@@ -114,7 +114,7 @@ class OpenAITestsDecoder: XCTestCase {
   
     func testChatQueryWithFunctionCall() async throws {
         let chatQuery = ChatQuery(
-            model: .gpt3_5Turbo,
+            model: .gpt_3_5_turbo_1106,
             messages: [
                 Chat(role: .user, content: "What's the weather like in Boston?")
             ],
@@ -137,7 +137,7 @@ class OpenAITestsDecoder: XCTestCase {
         )
         let expectedValue = """
         {
-          "model": "gpt-3.5-turbo",
+          "model": "\(ChatModel.gpt_3_5_turbo_1106.rawValue)",
           "messages": [
             { "role": "user", "content": "What's the weather like in Boston?" }
           ],
@@ -204,7 +204,7 @@ class OpenAITestsDecoder: XCTestCase {
             id: "chatcmpl-1234",
             object: "chat.completion",
             created: 1677652288,
-            model: .gpt3_5Turbo,
+            model: ChatModel.gpt_3_5_turbo.rawValue,
             choices: [
                 .init(index: 0, message:
                         Chat(role: .assistant,
@@ -215,31 +215,6 @@ class OpenAITestsDecoder: XCTestCase {
         try decode(data, expectedValue)
     }
 
-    func testEdits() async throws {
-        let data = """
-        {
-          "object": "edit",
-          "created": 1589478378,
-          "choices": [
-            {
-              "text": "What day of the week is it?",
-              "index": 0,
-            }
-          ],
-          "usage": {
-            "prompt_tokens": 25,
-            "completion_tokens": 32,
-            "total_tokens": 57
-          }
-        }
-        """
-        
-        let expectedValue = EditsResult(object: "edit", created: 1589478378, choices: [
-            .init(text: "What day of the week is it?", index: 0)
-        ], usage: .init(promptTokens: 25, completionTokens: 32, totalTokens: 57))
-        try decode(data, expectedValue)
-    }
-    
     func testEmbeddings() async throws {
         let data = """
         {
@@ -263,9 +238,9 @@ class OpenAITestsDecoder: XCTestCase {
         }
         """
         
-        let expectedValue = EmbeddingsResult(data: [
+        let expectedValue = EmbeddingsResult(object: "list", data: [
             .init(object: "embedding", embedding: [0.0023064255, -0.009327292, -0.0028842222], index: 0)
-        ], model: .textEmbeddingAda, usage: .init(promptTokens: 8, totalTokens: 8))
+        ], model: EmbeddingsModel.text_embedding_ada_002.rawValue, usage: .init(promptTokens: 8, totalTokens: 8))
         try decode(data, expectedValue)
     }
     
@@ -274,19 +249,22 @@ class OpenAITestsDecoder: XCTestCase {
         {
           "data": [
             {
-              "id": "gpt-3.5-turbo",
-              "object": "model",
-              "owned_by": "organization-owner"
-            },
-            {
-              "id": "gpt-4",
-              "object": "model",
-              "owned_by": "organization-owner"
-            },
-            {
-              "id": "text-davinci-001",
+              "created": 1000000000,
+              "id": "\(ChatModel.gpt_3_5_turbo.rawValue)",
               "object": "model",
               "owned_by": "openai"
+            },
+            {
+              "created": 1000000000,
+              "id": "\(ImageModel.dall_e_2.rawValue)",
+              "object": "model",
+              "owned_by": "system"
+            },
+            {
+              "created": 1000000000,
+              "id": "\(AudioTranscriptionModel.whisper_1.rawValue)",
+              "object": "model",
+              "owned_by": "openai-internal"
             }
           ],
           "object": "list"
@@ -294,9 +272,9 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = ModelsResult(data: [
-            .init(id: .gpt3_5Turbo, object: "model", ownedBy: "organization-owner"),
-            .init(id: .gpt4, object: "model", ownedBy: "organization-owner"),
-            .init(id: .textDavinci_001, object: "model", ownedBy: "openai")
+            .init(created: TimeInterval(1_000_000_000), id: ChatModel.gpt_3_5_turbo.rawValue, object: "model", ownedBy: "openai"),
+            .init(created: TimeInterval(1_000_000_000), id: ImageModel.dall_e_2.rawValue, object: "model", ownedBy: "system"),
+            .init(created: TimeInterval(1_000_000_000), id: AudioTranscriptionModel.whisper_1.rawValue, object: "model", ownedBy: "openai-internal")
         ], object: "list")
         try decode(data, expectedValue)
     }
@@ -304,13 +282,14 @@ class OpenAITestsDecoder: XCTestCase {
     func testModelType() async throws {
         let data = """
         {
-          "id": "text-davinci-003",
+          "created": 1000000000,
+          "id": "\(AudioSpeechModel.tts_1.rawValue)",
           "object": "model",
-          "owned_by": "openai"
+          "owned_by": "openai-internal"
         }
         """
         
-        let expectedValue = ModelResult(id: .textDavinci_003, object: "model", ownedBy: "openai")
+        let expectedValue = ModelResult(created: TimeInterval(1_000_000_000), id: AudioSpeechModel.tts_1.rawValue, object: "model", ownedBy: "openai-internal")
         try decode(data, expectedValue)
     }
     
@@ -318,7 +297,7 @@ class OpenAITestsDecoder: XCTestCase {
         let data = """
         {
           "id": "modr-5MWoLO",
-          "model": "text-moderation-001",
+          "model": "\(ModerationsModel.textModerationLatest.rawValue)",
           "results": [
             {
               "categories": {
@@ -353,7 +332,7 @@ class OpenAITestsDecoder: XCTestCase {
         }
         """
         
-        let expectedValue = ModerationsResult(id: "modr-5MWoLO", model: .moderation, results: [
+        let expectedValue = ModerationsResult(id: "modr-5MWoLO", model: ModerationsModel.textModerationLatest.rawValue, results: [
             .init(categories: .init(harassment: false, harassmentThreatening: false, hate: false, hateThreatening: true, selfHarm: false, selfHarmIntent: false, selfHarmInstructions: false, sexual: false, sexualMinors: false, violence: true, violenceGraphic: false),
                   categoryScores: .init(harassment: 0.0431830403405153, harassmentThreatening: 0.1229622494034651, hate: 0.22714105248451233, hateThreatening: 0.4132447838783264, selfHarm: 0.00523239187896251, selfHarmIntent: 0.307237106114835, selfHarmInstructions: 0.42189350703096, sexual: 0.01407341007143259, sexualMinors: 0.0038522258400917053, violence: 0.9223177433013916, violenceGraphic: 0.036865197122097015),
                   flagged: true)

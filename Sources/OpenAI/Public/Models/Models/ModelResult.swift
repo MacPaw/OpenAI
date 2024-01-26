@@ -9,7 +9,7 @@ import Foundation
 
 public struct ModelResult: Codable, Equatable {
 
-    public let created: Int
+    public let created: TimeInterval
     public let id: String
     public let object: String
     public let ownedBy: String
