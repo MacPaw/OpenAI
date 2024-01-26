@@ -73,13 +73,3 @@ public enum ModerationsModel: String, Model {
     case textModerationStable = "text-moderation-stable" // UNLISTED AT MODEL ENDPOINT -- text-moderation-005 RETURNED BY ENDPOINT
     case textModerationLatest = "text-moderation-latest" // UNLISTED AT MODEL ENDPOINT -- text-moderation-006 RETURNED BY ENDPOINT
 }
-
-public enum CompletionsModel: String, Model {
-    /// Replacement for the GPT-3 ada and babbage base models.
-    case babbage_002 = "babbage-002" // system -- LEGACY COMPLETIONS
-    /// Replacement for the GPT-3 curie and davinci base models.
-    case davinci_002 = "davinci-002" // system -- LEGACY COMPLETIONS
-
-    case gpt_3_5_turbo_instruct = "gpt-3.5-turbo-instruct" // system -- LEGACY COMPLETIONS
-    case gpt_3_5_turbo_instruct_0914 = "gpt-3.5-turbo-instruct-0914" // system -- LEGACY COMPLETIONS
-}
