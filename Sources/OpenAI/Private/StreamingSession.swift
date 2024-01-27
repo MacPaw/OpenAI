@@ -57,7 +57,7 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
 extension StreamingSession {
     
     private func processJSON(from stringContent: String) {
-        let jsonObjects = "\(previousChunkBuffer)\(stringContent)"
+        let jsonObjects = "\(previousChunkBuffer)\(stringContent)".trimmingCharacters(in: .whitespacesAndNewlines)
             .components(separatedBy: "data:")
             .filter { $0.isEmpty == false }
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
