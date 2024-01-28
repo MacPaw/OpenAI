@@ -57,6 +57,9 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
 extension StreamingSession {
     
     private func processJSON(from stringContent: String) {
+        if stringContent.isEmpty {
+            return
+        }
         let jsonObjects = "\(previousChunkBuffer)\(stringContent)"
             .components(separatedBy: "data:")
             .filter { $0.isEmpty == false }
@@ -68,7 +71,7 @@ extension StreamingSession {
             return
         }
         jsonObjects.enumerated().forEach { (index, jsonContent)  in
-            guard jsonContent != streamingCompletionMarker else {
+            guard jsonContent != streamingCompletionMarker && !jsonContent.isEmpty else {
                 return
             }
             guard let jsonData = jsonContent.data(using: .utf8) else {
