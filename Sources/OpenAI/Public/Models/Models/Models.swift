@@ -5,50 +5,70 @@
 //  Created by Sergii Kryvoblotskyi on 12/19/22.
 //
 
-import Foundation
-
+/// Defines all available OpenAI models supported by the library.
 public typealias Model = String
+
 public extension Model {
-    
-    // Chat Completions
-    
-    /// More capable than any GPT-3.5 model, able to do more complex tasks, and optimized for chat. Will be updated with our latest model iteration 2 weeks after it is released.
-    static let gpt4 = "gpt-4"
+    // Chat Completion
+    // GPT-4
 
-    /// GPT-4 Turbo, teh latest gpt-4 model with improved instruction following, JSON mode, reproducible outputs, parallel function calling and more.
-    /// Maximum of 4096 output tokens
-    static let gpt4_1106_preview = "gpt-4-1106-preview"
+    /// `gpt-4-turbo`, the latest gpt-4 model with improved instruction following, JSON mode, reproducible outputs, parallel function calling and more. Maximum of 4096 output tokens
+    static let gpt4_turbo_preview = "gpt-4-turbo-preview"
 
-    /// Ability to understand images, in addition to all other GPT-4 Turbo capabilities.
+    /// `gpt-4-vision-preview`, able to understand images, in addition to all other GPT-4 Turbo capabilities.
     static let gpt4_vision_preview = "gpt-4-vision-preview"
-
-    /// Snapshot of gpt-4 from March 14th 2023. Unlike gpt-4, this model will not receive updates, and will only be supported for a three month period ending on June 14th 2023.
+    
+    /// Snapshot of `gpt-4-turbo-preview` from January 25th 2024. This model reduces cases of “laziness” where the model doesn’t complete a task. Also fixes the bug impacting non-English UTF-8 generations. Maximum of 4096 output tokens
+    static let gpt4_0125_preview = "gpt-4-0125-preview"
+    
+    /// Snapshot of `gpt-4-turbo-preview` from November 6th 2023. Improved instruction following, JSON mode, reproducible outputs, parallel function calling and more. Maximum of 4096 output tokens
+    @available(*, deprecated, message: "Please upgrade to the newer model")
+    static let gpt4_1106_preview = "gpt-4-1106-preview"
+    
+    /// Most capable `gpt-4` model, outperforms any GPT-3.5 model, able to do more complex tasks, and optimized for chat.
+    static let gpt4 = "gpt-4"
+    
+    /// Snapshot of `gpt-4` from June 13th 2023 with function calling data. Unlike `gpt-4`, this model will not receive updates, and will be deprecated 3 months after a new version is released.
+    static let gpt4_0613 = "gpt-4-0613"
+    
+    /// Snapshot of `gpt-4` from March 14th 2023. Unlike gpt-4, this model will not receive updates, and will only be supported for a three month period ending on June 14th 2023.
     @available(*, deprecated, message: "Please upgrade to the newer model")
     static let gpt4_0314 = "gpt-4-0314"
-    /// Snapshot of gpt-4 from June 13th 2023 with function calling data. Unlike gpt-4, this model will not receive updates, and will be deprecated 3 months after a new version is released.
-    static let gpt4_0613 = "gpt-4-0613"
-    /// Same capabilities as the base gpt-4 mode but with 4x the context length. Will be updated with our latest model iteration.
+    
+    /// Same capabilities as the base `gpt-4` model but with 4x the context length. Will be updated with our latest model iteration.
     static let gpt4_32k = "gpt-4-32k"
-    /// Snapshot of gpt-4-32 from March 14th 2023. Unlike gpt-4-32k, this model will not receive updates, and will only be supported for a three month period ending on June 14th 2023.
+    
+    /// Snapshot of `gpt-4-32k` from June 13th 2023. Unlike `gpt-4-32k`, this model will not receive updates, and will be deprecated 3 months after a new version is released.
+    static let gpt4_32k_0613 = "gpt-4-32k-0613"
+    
+    /// Snapshot of `gpt-4-32k` from March 14th 2023. Unlike `gpt-4-32k`, this model will not receive updates, and will only be supported for a three month period ending on June 14th 2023.
     @available(*, deprecated, message: "Please upgrade to the newer model")
     static let gpt4_32k_0314 = "gpt-4-32k-0314"
-    /// Snapshot of gpt-4-32 from June 13th 2023. Unlike gpt-4-32k, this model will not receive updates, and will be deprecated 3 months after a new version is released.
-    static let gpt4_32k_0613 = "gpt-4-32k-0613"
 
-    /// The latest GPT-3.5 Turbo model with improved instruction following, JSON mode, reproducible outputs, parallel function calling and more.
-    static let gpt3_5Turbo_1106 = "gpt-3.5-turbo-1106"
-
-    /// Most capable GPT-3.5 model and optimized for chat at 1/10th the cost of text-davinci-003. Will be updated with our latest model iteration.
+    // GPT-3.5
+    
+    /// Most capable `gpt-3.5-turbo` model and optimized for chat. Will be updated with our latest model iteration.
     static let gpt3_5Turbo = "gpt-3.5-turbo"
-    /// Snapshot of gpt-3.5-turbo from March 1st 2023. Unlike gpt-3.5-turbo, this model will not receive updates, and will only be supported for a three month period ending on June 1st 2023.
+    
+    /// Snapshot of `gpt-3.5-turbo` from January 25th 2024. Decreased prices by 50%. Various improvements including higher accuracy at responding in requested formats and a fix for a bug which caused a text encoding issue for non-English language function calls.
+    static let gpt3_5Turbo_0125 = "gpt-3.5-turbo-0125"
+    
+    /// Snapshot of `gpt-3.5-turbo` from November 6th 2023. The latest `gpt-3.5-turbo` model with improved instruction following, JSON mode, reproducible outputs, parallel function calling and more.
     @available(*, deprecated, message: "Please upgrade to the newer model")
-    static let gpt3_5Turbo0301 = "gpt-3.5-turbo-0301"
-    /// Snapshot of gpt-3.5-turbo from June 13th 2023 with function calling data. Unlike gpt-3.5-turbo, this model will not receive updates, and will be deprecated 3 months after a new version is released.
+    static let gpt3_5Turbo_1106 = "gpt-3.5-turbo-1106"
+    
+    /// Snapshot of `gpt-3.5-turbo` from June 13th 2023 with function calling data. Unlike `gpt-3.5-turbo`, this model will not receive updates, and will be deprecated 3 months after a new version is released.
     @available(*, deprecated, message: "Please upgrade to the newer model")
     static let gpt3_5Turbo0613 = "gpt-3.5-turbo-0613"
-    /// Same capabilities as the standard gpt-3.5-turbo model but with 4 times the context.
+    
+    /// Snapshot of `gpt-3.5-turbo` from March 1st 2023. Unlike `gpt-3.5-turbo`, this model will not receive updates, and will only be supported for a three month period ending on June 1st 2023.
+    @available(*, deprecated, message: "Please upgrade to the newer model")
+    static let gpt3_5Turbo0301 = "gpt-3.5-turbo-0301"
+    
+    /// Same capabilities as the standard `gpt-3.5-turbo` model but with 4 times the context.
     static let gpt3_5Turbo_16k = "gpt-3.5-turbo-16k"
-    /// Snapshot of gpt-3.5-turbo-16k from June 13th 2023. Unlike gpt-3.5-turbo-16k, this model will not receive updates, and will be deprecated 3 months after a new version is released.
+    
+    /// Snapshot of `gpt-3.5-turbo-16k` from June 13th 2023. Unlike `gpt-3.5-turbo-16k`, this model will not receive updates, and will be deprecated 3 months after a new version is released.
     static let gpt3_5Turbo_16k_0613 = "gpt-3.5-turbo-16k-0613"
 
     // Completions
@@ -101,6 +121,8 @@ public extension Model {
     static let textSearchAda = "text-search-ada-doc-001"
     static let textSearchBabbageDoc = "text-search-babbage-doc-001"
     static let textSearchBabbageQuery001 = "text-search-babbage-query-001"
+    static let textEmbedding3 = "text-embedding-3-small"
+    static let textEmbedding3Large = "text-embedding-3-large"
     
     // Moderations
     
@@ -108,5 +130,5 @@ public extension Model {
     static let textModerationStable = "text-moderation-stable"
     /// Most capable moderation model. Accuracy will be slightly higher than the stable model.
     static let textModerationLatest = "text-moderation-latest"
-    static let moderation = "text-moderation-001"
+    static let moderation = "text-moderation-007"
 }

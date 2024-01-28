@@ -117,7 +117,7 @@ class OpenAITests: XCTestCase {
     }
 
     func testChatsFunction() async throws {
-        let query = ChatQuery(model: .gpt3_5Turbo_1106, messages: [
+        let query = ChatQuery(model: .gpt3_5Turbo_0125, messages: [
             .init(role: .system, content: "You are Weather-GPT. You know everything about the weather."),
             .init(role: .user, content: "What's the weather like in Boston?"),
         ], functions: [
