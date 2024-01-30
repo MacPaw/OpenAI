@@ -27,11 +27,11 @@ public final class AssistantStore: ObservableObject {
     // MARK: Models
 
     @MainActor
-    func createAssistant(name: String, description: String, instructions: String, codeInterpreter: Bool, retrievel: Bool, fileIds: [String]? = nil) async -> String? {
+    func createAssistant(name: String, description: String, instructions: String, codeInterpreter: Bool, retrieval: Bool, functions: [FunctionDeclaration], fileIds: [String]? = nil) async -> String? {
         do {
-            let tools = createToolsArray(codeInterpreter: codeInterpreter, retrieval: retrievel)
+            let tools = createToolsArray(codeInterpreter: codeInterpreter, retrieval: retrieval, functions: functions)
             let query = AssistantsQuery(model: Model.gpt4_1106_preview, name: name, description: description, instructions: instructions, tools:tools, fileIds: fileIds)
-            let response = try await openAIClient.assistants(query: query, method: "POST", after: nil)
+            let response = try await openAIClient.assistantCreate(query: query)
             
             // Refresh assistants with one just created (or modified)
             let _ = await getAssistants()
@@ -47,11 +47,11 @@ public final class AssistantStore: ObservableObject {
     }
 
     @MainActor
-    func modifyAssistant(asstId: String, name: String, description: String, instructions: String, codeInterpreter: Bool, retrievel: Bool, fileIds: [String]? = nil) async -> String? {
+    func modifyAssistant(asstId: String, name: String, description: String, instructions: String, codeInterpreter: Bool, retrieval: Bool, functions: [FunctionDeclaration], fileIds: [String]? = nil) async -> String? {
         do {
-            let tools = createToolsArray(codeInterpreter: codeInterpreter, retrieval: retrievel)
+            let tools = createToolsArray(codeInterpreter: codeInterpreter, retrieval: retrieval, functions: functions)
             let query = AssistantsQuery(model: Model.gpt4_1106_preview, name: name, description: description, instructions: instructions, tools:tools, fileIds: fileIds)
-            let response = try await openAIClient.assistantModify(query: query, asstId: asstId)
+            let response = try await openAIClient.assistantModify(query: query, assistantId: asstId)
 
             // Returns assistantId
             return response.id
@@ -66,15 +66,24 @@ public final class AssistantStore: ObservableObject {
     @MainActor
     func getAssistants(limit: Int = 20, after: String? = nil) async -> [Assistant] {
         do {
-            let response = try await openAIClient.assistants(query: nil, method: "GET", after: after)
+            let response = try await openAIClient.assistants(after: after)
 
             var assistants = [Assistant]()
             for result in response.data ?? [] {
-                let codeInterpreter = result.tools?.filter { $0.toolType == "code_interpreter" }.first != nil
-                let retrieval = result.tools?.filter { $0.toolType == "retrieval" }.first != nil
+                let tools = result.tools ?? []
+                let codeInterpreter = tools.contains { $0 == .codeInterpreter }
+                let retrieval = tools.contains { $0 == .retrieval }
+                let functions = tools.compactMap {
+                    switch $0 {
+                    case let .function(declaration):
+                        return declaration
+                    default:
+                        return nil
+                    }
+                }
                 let fileIds = result.fileIds ?? []
 
-                assistants.append(Assistant(id: result.id, name: result.name, description: result.description, instructions: result.instructions, codeInterpreter: codeInterpreter, retrieval: retrieval, fileIds: fileIds))
+                assistants.append(Assistant(id: result.id, name: result.name ?? "", description: result.description, instructions: result.instructions, codeInterpreter: codeInterpreter, retrieval: retrieval, fileIds: fileIds, functions: functions))
             }
             if after == nil {
                 availableAssistants = assistants
@@ -112,14 +121,14 @@ public final class AssistantStore: ObservableObject {
         }
     }
 
-    func createToolsArray(codeInterpreter: Bool, retrieval: Bool) -> [Tool] {
+    func createToolsArray(codeInterpreter: Bool, retrieval: Bool, functions: [FunctionDeclaration]) -> [Tool] {
         var tools = [Tool]()
         if codeInterpreter {
-            tools.append(Tool(toolType: "code_interpreter"))
+            tools.append(.codeInterpreter)
         }
         if retrieval {
-            tools.append(Tool(toolType: "retrieval"))
+            tools.append(.retrieval)
         }
-        return tools
+        return tools + functions.map { .function($0) }
     }
 }

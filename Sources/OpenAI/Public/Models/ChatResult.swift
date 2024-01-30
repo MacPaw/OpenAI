@@ -13,7 +13,7 @@ public struct ChatResult: Codable, Equatable {
       
         public let index: Int
         /// Exists only if it is a complete message.
-        public let message: Chat
+        public let message: Message
         /// Exists only if it is a complete message.
         public let finishReason: String?
         

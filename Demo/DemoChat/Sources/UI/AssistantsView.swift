@@ -7,6 +7,7 @@
 
 import Combine
 import SwiftUI
+import OpenAI
 
 public struct AssistantsView: View {
     @ObservedObject var store: ChatStore
@@ -27,6 +28,7 @@ public struct AssistantsView: View {
 
     @State private var codeInterpreter: Bool = false
     @State private var retrieval: Bool = false
+    @State private var functions: [FunctionDeclaration] = []
     @State var isLoadingMore = false
     @State private var isModalPresented = false
     @State private var isUploading = false
@@ -59,67 +61,83 @@ public struct AssistantsView: View {
                         }, isLoadingMore: $isLoadingMore
                 )
                 .toolbar {
-                    ToolbarItem(
-                        placement: .primaryAction
-                    ) {
-                        Menu {
-                            Button("Get Assistants") {
-                                Task {
-                                    let _ = await assistantStore.getAssistants()
-                                }
+                    ToolbarItemGroup(placement: .primaryAction) {
+                        Button {
+                            mode = .create
+                            isModalPresented = true
+                        } label: {
+                            Label("Create Assistant", systemImage: "plus")
+                        }
+                        Button {
+                            guard let asstId = assistantStore.selectedAssistantId else {
+                                return
                             }
-                            Button("Create Assistant") {
-                                mode = .create
-                                isModalPresented = true
+                            
+                            // Create new local conversation to represent new thread.
+                            store.createConversation(type: .assistant, assistantId: asstId)
+                        } label: {
+                            Label("Start Chat", systemImage: "plus.message")
+                        }
+                        .disabled(assistantStore.selectedAssistantId == nil)
+                        Button {
+                            Task {
+                                let _ = await assistantStore.getAssistants()
                             }
                         } label: {
-                            Image(systemName: "plus")
+                            Label("Get Assistants", systemImage: "arrow.triangle.2.circlepath")
                         }
-
-                        .buttonStyle(.borderedProminent)
                     }
                 }
             } detail: {
-
-            }
-            .sheet(isPresented: $isModalPresented, onDismiss: {
-                resetAssistantCreator()
-            }, content: {
-                AssistantModalContentView(name: $name, description: $description, customInstructions: $customInstructions,
-                                          codeInterpreter: $codeInterpreter, retrieval: $retrieval, fileIds: $fileIds,
-                                          isUploading: $isUploading, modify: mode == .modify, isPickerPresented: $isPickerPresented, selectedFileURL: $selectedFileURL) {
-                    Task {
-                        await handleOKTap()
-                    }
-                } onFileUpload: {
-                    Task {
-                        guard let selectedFileURL  else { return }
-
-                        isUploading = true
-                        let file = await assistantStore.uploadFile(url: selectedFileURL)
-                        uploadedFileId =  file?.id
-                        isUploading = false
-
-                        if uploadedFileId == nil {
-                            print("Failed to upload")
-                            self.selectedFileURL = nil
-                        }
-                        else {
-                            // if successful upload , we can show it.
-                            if let uploadedFileId = uploadedFileId {
-                                self.selectedFileURL = nil
-
-                                fileIds += [uploadedFileId]
-
-                                print("Successful upload!")
-                            }
-                        }
-                    }
+                if assistantStore.selectedAssistantId != nil {
+                    assistantContentView()
+                } else {
+                    Text("Select an assistant")
                 }
-            })
+            }
+            .sheet(isPresented: $isModalPresented) {
+                resetAssistantCreator()
+            } content: {
+                assistantContentView()
+            }
         }
     }
 
+    @ViewBuilder
+    private func assistantContentView() -> some View {
+        AssistantModalContentView(name: $name, description: $description, customInstructions: $customInstructions,
+                                  codeInterpreter: $codeInterpreter, retrieval: $retrieval, functions: $functions, fileIds: $fileIds,
+                                  isUploading: $isUploading, modify: mode == .modify, isPickerPresented: $isPickerPresented, selectedFileURL: $selectedFileURL) {
+            Task {
+                await handleOKTap()
+            }
+        } onFileUpload: {
+            Task {
+                guard let selectedFileURL  else { return }
+                
+                isUploading = true
+                let file = await assistantStore.uploadFile(url: selectedFileURL)
+                uploadedFileId =  file?.id
+                isUploading = false
+                
+                if uploadedFileId == nil {
+                    print("Failed to upload")
+                    self.selectedFileURL = nil
+                }
+                else {
+                    // if successful upload , we can show it.
+                    if let uploadedFileId = uploadedFileId {
+                        self.selectedFileURL = nil
+                        
+                        fileIds += [uploadedFileId]
+                        
+                        print("Successful upload!")
+                    }
+                }
+            }
+        }
+    }
+    
     private func handleOKTap() async {
 
         var mergedFileIds = [String]()
@@ -129,26 +147,26 @@ public struct AssistantsView: View {
         let asstId: String?
 
         switch mode {
-            // Create new Assistant and start a new conversation with it.
+        // Create new Assistant and select it
         case .create:
-            asstId = await assistantStore.createAssistant(name: name, description: description, instructions: customInstructions, codeInterpreter: codeInterpreter, retrievel: retrieval, fileIds: mergedFileIds.isEmpty ? nil : mergedFileIds)
-            // Modify existing Assistant and start new conversation with it.
+            asstId = await assistantStore.createAssistant(name: name, description: description, instructions: customInstructions, codeInterpreter: codeInterpreter, retrieval: retrieval, functions: functions, fileIds: mergedFileIds.isEmpty ? nil : mergedFileIds)
+            assistantStore.selectedAssistantId = asstId
+        // Modify existing Assistant
         case .modify:
-            guard let selectedAssistantId = assistantStore.selectedAssistantId else { return print("Cannot modify assistant, not selected.") }
+            guard let selectedAssistantId = assistantStore.selectedAssistantId else {
+                print("Cannot modify assistant, not selected.")
+                return
+            }
 
-            asstId = await assistantStore.modifyAssistant(asstId: selectedAssistantId, name: name, description: description, instructions: customInstructions, codeInterpreter: codeInterpreter, retrievel: retrieval, fileIds: mergedFileIds.isEmpty ? nil : mergedFileIds)
+            asstId = await assistantStore.modifyAssistant(asstId: selectedAssistantId, name: name, description: description, instructions: customInstructions, codeInterpreter: codeInterpreter, retrieval: retrieval, functions: functions, fileIds: mergedFileIds.isEmpty ? nil : mergedFileIds)
         }
 
         // Reset Assistant Creator after attempted creation or modification.
         resetAssistantCreator()
 
-        guard let asstId else {
-            print("failed to create Assistant.")
-            return
+        if asstId == nil {
+            print("Failed to modify or create Assistant.")
         }
-
-        // Create new local conversation to represent new thread.
-        store.createConversation(type: .assistant, assistantId: asstId)
     }
 
     private func loadMoreAssistants() {
@@ -172,6 +190,7 @@ public struct AssistantsView: View {
 
         codeInterpreter = false
         retrieval = false
+        functions = []
         selectedFileURL = nil
         uploadedFileId = nil
         fileIds = []
@@ -187,10 +206,10 @@ public struct AssistantsView: View {
         customInstructions = selectedAssistant?.instructions ?? ""
         codeInterpreter = selectedAssistant?.codeInterpreter ?? false
         retrieval = selectedAssistant?.retrieval ?? false
+        functions = selectedAssistant?.functions ?? []
         fileIds = selectedAssistant?.fileIds ?? []
 
         mode = .modify
-        isModalPresented = true
 
     }
 }

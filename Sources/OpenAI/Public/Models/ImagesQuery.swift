@@ -13,7 +13,7 @@ public enum ImageResponseFormat: String, Codable, Equatable {
     case b64_json
 }
 
-public struct ImagesQuery: Codable {
+public struct ImagesQuery: Codable, Equatable {
     public typealias ResponseFormat = ImageResponseFormat
     
     /// A text description of the desired image(s). The maximum length is 1000 characters.

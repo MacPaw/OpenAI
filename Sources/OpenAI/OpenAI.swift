@@ -57,36 +57,48 @@ final public class OpenAI: OpenAIProtocol {
     }
 
     // UPDATES FROM 11-06-23
-    public func threadsAddMessage(threadId: String, query: ThreadAddMessageQuery, completion: @escaping (Result<ThreadAddMessageResult, Error>) -> Void) {
+    public func threadsAddMessage(threadId: String, query: MessageQuery, completion: @escaping (Result<ThreadAddMessageResult, Error>) -> Void) {
         performRequest(request: JSONRequest<ThreadsMessagesResult>(body: query, url: buildRunsURL(path: .threadsMessages, threadId: threadId)), completion: completion)
     }
 
-    public func threadsMessages(threadId: String, before: String?, completion: @escaping (Result<ThreadsMessagesResult, Error>) -> Void) {
+    public func threadsMessages(threadId: String, before: String? = nil, completion: @escaping (Result<ThreadsMessagesResult, Error>) -> Void) {
         performRequest(request: JSONRequest<ThreadsMessagesResult>(body: nil, url: buildRunsURL(path: .threadsMessages, threadId: threadId, before: before), method: "GET"), completion: completion)
     }
 
-    public func runRetrieve(threadId: String, runId: String, completion: @escaping (Result<RunRetreiveResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<RunRetreiveResult>(body: nil, url: buildRunRetrieveURL(path: .runRetrieve, threadId: threadId, runId: runId, before: nil), method: "GET"), completion: completion)
+    public func runRetrieve(threadId: String, runId: String, completion: @escaping (Result<RunResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<RunResult>(body: nil, url: buildRunRetrieveURL(path: .runRetrieve, threadId: threadId, runId: runId), method: "GET"), completion: completion)
     }
 
-    public func runRetrieveSteps(threadId: String, runId: String, before: String?, completion: @escaping (Result<RunRetreiveStepsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<RunRetreiveStepsResult>(body: nil, url: buildRunRetrieveURL(path: .runRetrieveSteps, threadId: threadId, runId: runId, before: before), method: "GET"), completion: completion)
+    public func runRetrieveSteps(threadId: String, runId: String, before: String? = nil, completion: @escaping (Result<RunRetrieveStepsResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<RunRetrieveStepsResult>(body: nil, url: buildRunRetrieveURL(path: .runRetrieveSteps, threadId: threadId, runId: runId, before: before), method: "GET"), completion: completion)
+    }
+    
+    public func runSubmitToolOutputs(threadId: String, runId: String, query: RunToolOutputsQuery, completion: @escaping (Result<RunResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<RunResult>(body: query, url: buildURL(path: .runSubmitToolOutputs(threadId: threadId, runId: runId)), method: "POST"), completion: completion)
     }
 
-    public func runs(threadId: String, query: RunsQuery, completion: @escaping (Result<RunsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<RunsResult>(body: query, url: buildRunsURL(path: .runs, threadId: threadId)), completion: completion)
+    public func runs(threadId: String, query: RunsQuery, completion: @escaping (Result<RunResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<RunResult>(body: query, url: buildRunsURL(path: .runs, threadId: threadId)), completion: completion)
     }
 
     public func threads(query: ThreadsQuery, completion: @escaping (Result<ThreadsResult, Error>) -> Void) {
         performRequest(request: JSONRequest<ThreadsResult>(body: query, url: buildURL(path: .threads)), completion: completion)
     }
-
-    public func assistants(query: AssistantsQuery?, method: String, after: String?, completion: @escaping (Result<AssistantsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<AssistantsResult>(body: query, url: buildURL(path: .assistants, after: after), method: method), completion: completion)
+    
+    public func threadRun(query: ThreadRunQuery, completion: @escaping (Result<RunResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<RunResult>(body: query, url: buildURL(path: .threadRun)), completion: completion)
     }
 
-    public func assistantModify(query: AssistantsQuery, asstId: String, completion: @escaping (Result<AssistantsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<AssistantsResult>(body: query, url: buildAssistantURL(path: .assistantsModify, assistantId: asstId)), completion: completion)
+    public func assistants(after: String? = nil, completion: @escaping (Result<AssistantsResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<AssistantsResult>(url: buildURL(path: .assistants, after: after), method: "GET"), completion: completion)
+    }
+
+    public func assistantCreate(query: AssistantsQuery, completion: @escaping (Result<AssistantResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<AssistantsResult>(body: query, url: buildURL(path: .assistants), method: "POST"), completion: completion)
+    }
+
+    public func assistantModify(query: AssistantsQuery, assistantId: String, completion: @escaping (Result<AssistantResult, Error>) -> Void) {
+        performRequest(request: JSONRequest<AssistantsResult>(body: query, url: buildAssistantURL(path: .assistantsModify, assistantId: assistantId), method: "POST"), completion: completion)
     }
 
     public func files(query: FilesQuery, completion: @escaping (Result<FilesResult, Error>) -> Void) {
@@ -306,9 +318,13 @@ extension APIPath {
     static let assistants = "/v1/assistants"
     static let assistantsModify = "/v1/assistants/ASST_ID"
     static let threads = "/v1/threads"
+    static let threadRun = "/v1/threads/runs"
     static let runs = "/v1/threads/THREAD_ID/runs"
     static let runRetrieve = "/v1/threads/THREAD_ID/runs/RUN_ID"
     static let runRetrieveSteps = "/v1/threads/THREAD_ID/runs/RUN_ID/steps"
+    static func runSubmitToolOutputs(threadId: String, runId: String) -> String {
+        "/v1/threads/\(threadId)/runs/\(runId)/submit_tool_outputs"
+    }
     static let threadsMessages = "/v1/threads/THREAD_ID/messages"
     static let files = "/v1/files"
     // 1106 end

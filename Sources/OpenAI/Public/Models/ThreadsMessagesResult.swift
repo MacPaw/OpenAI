@@ -30,8 +30,13 @@ public struct ThreadsMessagesResult: Codable, Equatable {
                     case fildId = "file_id"
                 }
             }
+            
+            public enum ContentType: String, Codable {
+                case text
+                case imageFile = "image_file"
+            }
 
-            public let type: String
+            public let type: ContentType
             public let text: ThreadsMessageContentText?
             public let imageFile: ThreadsMessageContentText?
 
@@ -43,9 +48,7 @@ public struct ThreadsMessagesResult: Codable, Equatable {
         }
 
         public let id: String
-
-        public let role: String
-
+        public let role: Chat.Role
         public let content: [ThreadsMessageContent]
 
         enum CodingKeys: String, CodingKey {
@@ -55,11 +58,9 @@ public struct ThreadsMessagesResult: Codable, Equatable {
         }
     }
 
-
     public let data: [ThreadsMessage]
 
     enum CodingKeys: String, CodingKey {
         case data
     }
-
 }

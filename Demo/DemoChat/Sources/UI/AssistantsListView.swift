@@ -20,10 +20,15 @@ struct AssistantsListView: View {
                 editActions: [.delete],
                 selection: $selectedAssistantId
             ) { $assistant in
-                Text(
-                    assistant.name
-                )
-                .lineLimit(2)
+                HStack {
+                    Text(assistant.name)
+                        .lineLimit(2)
+                    Spacer()
+                    if assistant.id == selectedAssistantId {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.accentColor)
+                    }
+                }
                 .onAppear {
                     if assistant.id == assistants.last?.id {
                         onLoadMoreAssistants()

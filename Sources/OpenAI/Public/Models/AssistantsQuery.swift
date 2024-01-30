@@ -7,18 +7,12 @@
 
 import Foundation
 
-public struct AssistantsQuery: Codable {
-
+public struct AssistantsQuery: Codable, Equatable {
     public let model: Model
-
-    public let name: String
-
-    public let description: String
-
-    public let instructions: String
-
+    public let name: String?
+    public let description: String?
+    public let instructions: String?
     public let tools: [Tool]?
-
     public let fileIds: [String]?
 
     enum CodingKeys: String, CodingKey {
@@ -30,27 +24,12 @@ public struct AssistantsQuery: Codable {
         case fileIds = "file_ids"
     }
     
-    public init(model: Model, name: String, description: String, instructions: String, tools: [Tool], fileIds: [String]? = nil) {
+    public init(model: Model, name: String?, description: String?, instructions: String?, tools: [Tool]?, fileIds: [String]? = nil) {
         self.model = model
         self.name = name
-
         self.description = description
         self.instructions = instructions
-
         self.tools = tools
         self.fileIds = fileIds
     }
-}
-
-public struct Tool: Codable, Equatable {
-    public let toolType: String
-
-    enum CodingKeys: String, CodingKey {
-        case toolType = "type"
-    }
-
-    public init(toolType: String) {
-        self.toolType = toolType
-    }
-
 }

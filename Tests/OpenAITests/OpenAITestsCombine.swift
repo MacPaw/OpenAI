@@ -38,13 +38,13 @@ final class OpenAITestsCombine: XCTestCase {
     
     func testChats() throws {
        let query = ChatQuery(model: .gpt4, messages: [
-           .init(role: .system, content: "You are Librarian-GPT. You know everything about the books."),
-           .init(role: .user, content: "Who wrote Harry Potter?")
+            .system(content: "You are Librarian-GPT. You know everything about the books."),
+            .user(content: "Who wrote Harry Potter?")
        ])
        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-        .init(index: 0, message: .init(role: .system, content: "bar"), finishReason: "baz"),
-        .init(index: 0, message: .init(role: .user, content: "bar1"), finishReason: "baz1"),
-        .init(index: 0, message: .init(role: .assistant, content: "bar2"), finishReason: "baz2")
+        .init(index: 0, message: .system(content: "bar"), finishReason: "baz"),
+        .init(index: 0, message: .user(content: "bar1"), finishReason: "baz1"),
+        .init(index: 0, message: .assistant(content: "bar2"), finishReason: "baz2")
         ], usage: .init(promptTokens: 100, completionTokens: 200, totalTokens: 300))
        try self.stub(result: chatResult)
        let result = try awaitPublisher(openAI.chats(query: query))
@@ -125,17 +125,35 @@ final class OpenAITestsCombine: XCTestCase {
     }
 
     // 1106
-    func testAssistantQuery() throws {
-        let query = AssistantsQuery(model: .gpt4_1106_preview, name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: [])
-        let expectedResult = AssistantsResult(id: "asst_1234", data: [AssistantsResult.AssistantContent(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)], tools: [])
+    func testAssistantsQuery() throws {
+        let expectedAssistant = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
+        let expectedResult = AssistantsResult(data: [expectedAssistant], firstId: expectedAssistant.id, lastId: expectedAssistant.id, hasMore: false)
         try self.stub(result: expectedResult)
 
-        let result = try awaitPublisher(openAI.assistants(query: query, method: "POST", after: nil))
+        let result = try awaitPublisher(openAI.assistants())
+        XCTAssertEqual(result, expectedResult)
+    }
+
+    func testAssistantCreateQuery() throws {
+        let query = AssistantsQuery(model: .gpt4_1106_preview, name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: [])
+        let expectedResult = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
+        try self.stub(result: expectedResult)
+
+        let result = try awaitPublisher(openAI.assistantCreate(query: query))
+        XCTAssertEqual(result, expectedResult)
+    }
+    
+    func testAssistantModifyQuery() throws {
+        let query = AssistantsQuery(model: .gpt4_1106_preview, name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: [])
+        let expectedResult = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
+        try self.stub(result: expectedResult)
+        
+        let result = try awaitPublisher(openAI.assistantModify(query: query, assistantId: "asst_9876"))
         XCTAssertEqual(result, expectedResult)
     }
 
     func testThreadsQuery() throws {
-        let query = ThreadsQuery(messages: [Chat(role: .user, content: "Hello, What is AI?")])
+        let query = ThreadsQuery(messages: [MessageQuery(role: .user, content: "Hello, What is AI?")])
         let expectedResult = ThreadsResult(id: "thread_1234")
 
         try self.stub(result: expectedResult)
@@ -143,10 +161,19 @@ final class OpenAITestsCombine: XCTestCase {
 
         XCTAssertEqual(result, expectedResult)
     }
+    
+    func testThreadRunQuery() throws {
+        let query = ThreadRunQuery(assistantId: "asst_7654321", thread: .init(messages: [.init(role: .user, content: "Hello, What is AI?")]))
+        let expectedResult = RunResult(id: "run_1234", threadId: "thread_1234", status: .completed, requiredAction: nil)
+        try self.stub(result: expectedResult)
+        
+        let result = try awaitPublisher(openAI.threadRun(query: query))
+        XCTAssertEqual(result, expectedResult)
+    }
 
     func testRunsQuery() throws {
         let query = RunsQuery(assistantId: "asst_7654321")
-        let expectedResult = RunsResult(id: "run_1234")
+        let expectedResult = RunResult(id: "run_1234", threadId: "thread_1234", status: .inProgress, requiredAction: nil)
 
         try self.stub(result: expectedResult)
         let result = try awaitPublisher(openAI.runs(threadId: "thread_1234", query: query))
@@ -155,24 +182,59 @@ final class OpenAITestsCombine: XCTestCase {
     }
 
     func testRunRetrieveQuery() throws {
-        let expectedResult = RunRetreiveResult(status: "in_progress")
+        let expectedResult = RunResult(id: "run_1234", threadId: "thread_1234", status: .inProgress, requiredAction: nil)
         try self.stub(result: expectedResult)
 
         let result = try awaitPublisher(openAI.runRetrieve(threadId: "thread_1234", runId: "run_1234"))
 
         XCTAssertEqual(result, expectedResult)
     }
+    
+    func testRunRetrieveStepsQuery() throws {
+        let expectedResult = RunRetrieveStepsResult(data: [.init(id: "step_1234", stepDetails: .init(toolCalls: [.init(id: "tool_456", type: .retrieval, codeInterpreter: nil, function: nil)]))])
+        try self.stub(result: expectedResult)
+        
+        let result = try awaitPublisher(openAI.runRetrieveSteps(threadId: "thread_1234", runId: "run_1234"))
+        XCTAssertEqual(result, expectedResult)
+    }
 
+    func testRunSubmitToolOutputsQuery() throws {
+        let query = RunToolOutputsQuery(toolOutputs: [.init(toolCallId: "call_123", output: "Success")])
+        let expectedResult = RunResult(id: "run_123", threadId: "thread_456", status: .inProgress, requiredAction: nil)
+        try self.stub(result: expectedResult)
+        
+        let result = try awaitPublisher(openAI.runSubmitToolOutputs(threadId: "thread_456", runId: "run_123", query: query))
+        XCTAssertEqual(result, expectedResult)
+    }
+    
+    func testThreadAddMessageQuery() throws {
+        let query = MessageQuery(role: .user, content: "Hello, What is AI?", fileIds: ["file_123"])
+        let expectedResult = ThreadAddMessageResult(id: "message_1234")
+        try self.stub(result: expectedResult)
+        
+        let result = try awaitPublisher(openAI.threadsAddMessage(threadId: "thread_1234", query: query))
+        XCTAssertEqual(result, expectedResult)
+    }
+    
     func testThreadsMessageQuery() throws {
-        let expectedResult = ThreadsMessagesResult(data: [ThreadsMessagesResult.ThreadsMessage(id: "thread_1234", role: Chat.Role.user.rawValue, content: [ThreadsMessagesResult.ThreadsMessage.ThreadsMessageContent(type: "text", text: ThreadsMessagesResult.ThreadsMessage.ThreadsMessageContent.ThreadsMessageContentText(value: "Hello, What is AI?"), imageFile: nil)])])
+        let expectedResult = ThreadsMessagesResult(data: [.init(id: "thread_1234", role: .user, content: [.init(type: .text, text: .init(value: "Hello, What is AI?"), imageFile: nil)])])
         try self.stub(result: expectedResult)
 
-        let result = try awaitPublisher(openAI.threadsMessages(threadId: "thread_1234", before: nil))
+        let result = try awaitPublisher(openAI.threadsMessages(threadId: "thread_1234"))
 
         XCTAssertEqual(result, expectedResult)
     }
+    
+    func testFilesQuery() throws {
+        let data = try XCTUnwrap("{\"test\":\"data\"}".data(using: .utf8))
+        let query = FilesQuery(purpose: "assistant", file: data, fileName: "test.json", contentType: "application/json")
+        let expectedResult = FilesResult(id: "file_1234", name: "test.json")
+        try self.stub(result: expectedResult)
+        
+        let result = try awaitPublisher(openAI.files(query: query))
+        XCTAssertEqual(result, expectedResult)
+    }
     // 1106 end
-
 
 }
 

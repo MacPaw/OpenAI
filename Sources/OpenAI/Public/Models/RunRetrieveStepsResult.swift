@@ -1,5 +1,5 @@
 //
-//  RunRetreiveStepsResult.swift
+//  RunRetrieveStepsResult.swift
 //  
 //
 //  Created by Chris Dillard on 11/07/2023.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct RunRetreiveStepsResult: Codable, Equatable {
+public struct RunRetrieveStepsResult: Codable, Equatable {
     
     public struct StepDetailsTopLevel: Codable, Equatable {
         public let id: String
@@ -27,25 +27,38 @@ public struct RunRetreiveStepsResult: Codable, Equatable {
             }
 
             public struct ToolCall: Codable, Equatable {
+                public enum ToolType: String, Codable {
+                    case codeInterpreter = "code_interpreter"
+                    case function
+                    case retrieval
+                }
+                
                 public let id: String
-                public let type: String
-                public let code: CodeToolCall?
+                public let type: ToolType
+                public let codeInterpreter: CodeInterpreterCall?
+                public let function: FunctionCall?
                 
                 enum CodingKeys: String, CodingKey {
                     case id
                     case type
-                    case code = "code_interpreter"
+                    case codeInterpreter = "code_interpreter"
+                    case function
                 }
 
-                public struct CodeToolCall: Codable, Equatable {
+                public struct CodeInterpreterCall: Codable, Equatable {
                     public let input: String
-                    public let outputs: [CodeToolCallOutput]?
+                    public let outputs: [CodeInterpreterCallOutput]?
 
-                    public struct CodeToolCallOutput: Codable, Equatable {
+                    public struct CodeInterpreterCallOutput: Codable, Equatable {
                         public let type: String
                         public let logs: String?
-
                     }
+                }
+                
+                public struct FunctionCall: Codable, Equatable {
+                    public let name: String
+                    public let arguments: String
+                    public let output: String?
                 }
             }
         }
