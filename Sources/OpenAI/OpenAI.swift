@@ -127,29 +127,16 @@ extension OpenAI {
                                             timeoutInterval: configuration.timeoutInterval)
             let task = session.dataTask(with: request) { data, _, error in
                 if let error = error {
-                    completion(.failure(error))
-                    return
+                    return completion(.failure(error))
                 }
                 guard let data = data else {
-                    completion(.failure(OpenAIError.emptyData))
-                    return
+                    return completion(.failure(OpenAIError.emptyData))
                 }
-
-                var apiError: Error? = nil
+                let decoder = JSONDecoder()
                 do {
-                    let decoded = try JSONDecoder().decode(ResultType.self, from: data)
-                    completion(.success(decoded))
+                    completion(.success(try decoder.decode(ResultType.self, from: data)))
                 } catch {
-                    apiError = error
-                }
-
-                if let apiError = apiError {
-                    do {
-                        let decoded = try JSONDecoder().decode(APIErrorResponse.self, from: data)
-                        completion(.failure(decoded))
-                    } catch {
-                        completion(.failure(apiError))
-                    }
+                    completion(.failure((try? decoder.decode(APIErrorResponse.self, from: data)) ?? error))
                 }
             }
             task.resume()
@@ -189,25 +176,13 @@ extension OpenAI {
             
             let task = session.dataTask(with: request) { data, _, error in
                 if let error = error {
-                    completion(.failure(error))
-                    return
+                    return completion(.failure(error))
                 }
                 guard let data = data else {
-                    completion(.failure(OpenAIError.emptyData))
-                    return
+                    return completion(.failure(OpenAIError.emptyData))
                 }
                 
                 completion(.success(AudioSpeechResult(audioData: data)))
-                let apiError: Error? = nil
-                
-                if let apiError = apiError {
-                    do {
-                        let decoded = try JSONDecoder().decode(APIErrorResponse.self, from: data)
-                        completion(.failure(decoded))
-                    } catch {
-                        completion(.failure(apiError))
-                    }
-                }
             }
             task.resume()
         } catch {
