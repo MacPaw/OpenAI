@@ -59,11 +59,11 @@ public extension Model {
     
     /// Snapshot of `gpt-3.5-turbo` from June 13th 2023 with function calling data. Unlike `gpt-3.5-turbo`, this model will not receive updates, and will be deprecated 3 months after a new version is released.
     @available(*, deprecated, message: "Please upgrade to the newer model")
-    static let gpt3_5Turbo0613 = "gpt-3.5-turbo-0613"
+    static let gpt3_5Turbo_0613 = "gpt-3.5-turbo-0613"
     
     /// Snapshot of `gpt-3.5-turbo` from March 1st 2023. Unlike `gpt-3.5-turbo`, this model will not receive updates, and will only be supported for a three month period ending on June 1st 2023.
     @available(*, deprecated, message: "Please upgrade to the newer model")
-    static let gpt3_5Turbo0301 = "gpt-3.5-turbo-0301"
+    static let gpt3_5Turbo_0301 = "gpt-3.5-turbo-0301"
     
     /// Same capabilities as the standard `gpt-3.5-turbo` model but with 4 times the context.
     static let gpt3_5Turbo_16k = "gpt-3.5-turbo-16k"

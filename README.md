@@ -799,8 +799,8 @@ public extension Model {
     static let gpt3_5Turbo = "gpt-3.5-turbo"
     static let gpt3_5Turbo_0125 = "gpt-3.5-turbo-0125"
     static let gpt3_5Turbo_1106 = "gpt-3.5-turbo-1106"
-    static let gpt3_5Turbo0613 = "gpt-3.5-turbo-0613"
-    static let gpt3_5Turbo0301 = "gpt-3.5-turbo-0301"
+    static let gpt3_5Turbo_0613 = "gpt-3.5-turbo-0613"
+    static let gpt3_5Turbo_0301 = "gpt-3.5-turbo-0301"
     static let gpt3_5Turbo_16k = "gpt-3.5-turbo-16k"
     static let gpt3_5Turbo_16k_0613 = "gpt-3.5-turbo-16k-0613"
     
