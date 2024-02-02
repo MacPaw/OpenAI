@@ -62,9 +62,9 @@ extension StreamingSession {
         }
         let jsonObjects = "\(previousChunkBuffer)\(stringContent)"
             .components(separatedBy: "data:")
-            .filter { $0.isEmpty == false }
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-        
+            .filter { $0.isEmpty == false }
+
         previousChunkBuffer = ""
         
         guard jsonObjects.isEmpty == false, jsonObjects.first != streamingCompletionMarker else {
