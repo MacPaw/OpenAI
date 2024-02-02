@@ -347,7 +347,7 @@ class OpenAITestsDecoder: XCTestCase {
         let data = """
         {
           "id": "modr-5MWoLO",
-          "model": "text-moderation-001",
+          "model": "text-moderation-007",
           "results": [
             {
               "categories": {
