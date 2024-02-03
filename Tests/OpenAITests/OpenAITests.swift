@@ -24,9 +24,9 @@ class OpenAITests: XCTestCase {
     }
 
     func testImages() async throws {
-        let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", model: .dall_e_2, n: 1, size: ._1024)
-        let imagesResult = ImagesResult(created: 100, data: [
-            .init(url: "http://foo.bar", b64_json: nil)
+        let query = ImageGenerateParams(prompt: "White cat with heterochromia sitting on the kitchen table", model: .dall_e_2, n: 1, size: ._1024)
+        let imagesResult = ImagesResponse(created: 100, data: [
+            .init(b64_json: nil, revised_prompt: nil, url: "http://foo.bar")
         ])
         try self.stub(result: imagesResult)
         let result = try await openAI.images(query: query)
@@ -34,7 +34,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testImagesError() async throws {
-        let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: ._1024)
+        let query = ImageGenerateParams(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: ._1024)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
@@ -43,9 +43,9 @@ class OpenAITests: XCTestCase {
     }
     
     func testImageEdit() async throws {
-        let query = ImageEditsQuery(image: Data(), fileName: "whitecat.png", mask: Data(), maskFileName: "mask.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: ._1024)
-        let imagesResult = ImagesResult(created: 100, data: [
-            .init(url: "http://foo.bar", b64_json: nil)
+        let query = ImageEditParams(image: Data(), prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", mask: Data(), n: 1, size: ._1024)
+        let imagesResult = ImagesResponse(created: 100, data: [
+            .init(b64_json: nil, revised_prompt: nil, url: "http://foo.bar")
         ])
         try self.stub(result: imagesResult)
         let result = try await openAI.imageEdits(query: query)
@@ -53,7 +53,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testImageEditError() async throws {
-        let query = ImageEditsQuery(image: Data(), fileName: "whitecat.png", mask: Data(), maskFileName: "mask.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: ._1024)
+        let query = ImageEditParams(image: Data(), prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", mask: Data(), n: 1, size: ._1024)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
@@ -62,9 +62,9 @@ class OpenAITests: XCTestCase {
     }
     
     func testImageVariation() async throws {
-        let query = ImageVariationsQuery(image: Data(), fileName: "whitecat.png", n: 1, size: "1024x1024")
-        let imagesResult = ImagesResult(created: 100, data: [
-            .init(url: "http://foo.bar", b64_json: nil)
+        let query = ImageCreateVariationParams(image: Data(), n: 1, size: "1024x1024")
+        let imagesResult = ImagesResponse(created: 100, data: [
+            .init(b64_json: nil, revised_prompt: nil, url: "http://foo.bar")
         ])
         try self.stub(result: imagesResult)
         let result = try await openAI.imageVariations(query: query)
@@ -72,7 +72,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testImageVariationError() async throws {
-        let query = ImageVariationsQuery(image: Data(), fileName: "whitecat.png", n: 1, size: "1024x1024")
+        let query = ImageCreateVariationParams(image: Data(), n: 1, size: "1024x1024")
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
@@ -81,15 +81,15 @@ class OpenAITests: XCTestCase {
     }
     
     func testChats() async throws {
-       let query = ChatQuery(model: .gpt_3_5_turbo_1106, messages: [
-           .init(role: .system, content: "You are Librarian-GPT. You know everything about the books."),
-           .init(role: .user, content: "Who wrote Harry Potter?")
-       ])
-       let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: ChatModel.gpt_3_5_turbo_1106.rawValue, choices: [
-        .init(index: 0, message: .init(role: .system, content: "bar"), finishReason: "baz"),
-        .init(index: 0, message: .init(role: .user, content: "bar1"), finishReason: "baz1"),
-        .init(index: 0, message: .init(role: .assistant, content: "bar2"), finishReason: "baz2")
-        ], usage: .init(promptTokens: 100, completionTokens: 200, totalTokens: 300))
+       let query = ChatCompletionCreateParams(messages: [
+           .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
+           .user(.init(content: .string("Who wrote Harry Potter?")))
+       ], model: .gpt_3_5_turbo)
+        let chatResult = ChatCompletion(id: "id-12312", choices: [
+            .init(finish_reason: "baz", index: 0, logprobs: nil, message: .system(.init(content: "bar"))),
+            .init(finish_reason: "baz1", index: 0, logprobs: nil, message: .user(.init(content: .string("bar1")))),
+            .init(finish_reason: "baz2", index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")))
+        ], created: 100, model: ChatModel.gpt_3_5_turbo.rawValue, object: "foo", system_fingerprint: nil, usage: .init(completion_tokens: 200, prompt_tokens: 100, total_tokens: 300))
        try self.stub(result: chatResult)
         
        let result = try await openAI.chats(query: query)
@@ -97,32 +97,31 @@ class OpenAITests: XCTestCase {
     }
 
     func testChatsFunction() async throws {
-        let query = ChatQuery(model: .gpt_3_5_turbo_1106, messages: [
-            .init(role: .system, content: "You are Weather-GPT. You know everything about the weather."),
-            .init(role: .user, content: "What's the weather like in Boston?"),
-        ], functions: [
-            .init(name: "get_current_weather", description: "Get the current weather in a given location", parameters: .init(type: .object, properties: [
+        let query = ChatCompletionCreateParams(messages: [
+            .system(.init(content: "You are Weather-GPT. You know everything about the weather.")),
+            .user(.init(content: .string("What's the weather like in Boston?"))),
+        ], model: .gpt_3_5_turbo, tool_choice: .auto, tools: [
+            .init(function: .init(name: "get_current_weather", description: "Get the current weather in a given location", parameters: .init(type: .object, properties: [
                 "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
-                "unit": .init(type: .string, enumValues: ["celsius", "fahrenheit"])
-            ], required: ["location"]))
-        ], functionCall: .auto)
-        
-        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: ChatModel.gpt_3_5_turbo_1106.rawValue, choices: [
-         .init(index: 0, message: .init(role: .system, content: "bar"), finishReason: "baz"),
-         .init(index: 0, message: .init(role: .user, content: "bar1"), finishReason: "baz1"),
-         .init(index: 0, message: .init(role: .assistant, content: "bar2"), finishReason: "baz2")
-         ], usage: .init(promptTokens: 100, completionTokens: 200, totalTokens: 300))
+                "unit": .init(type: .string, enum: ["celsius", "fahrenheit"])
+            ], required: ["location"])))
+        ])
+
+        let chatResult = ChatCompletion(id: "id-12312", choices: [
+         .init(finish_reason: "baz", index: 0, logprobs: nil, message: .system(.init(content: "bar"))),
+         .init(finish_reason: "baz1", index: 0, logprobs: nil, message: .user(.init(content: .string("bar1")))),
+         .init(finish_reason: "baz2", index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")))
+         ], created: 100, model: ChatModel.gpt_3_5_turbo.rawValue, object: "foo", system_fingerprint: nil, usage: .init(completion_tokens: 200, prompt_tokens: 100, total_tokens: 300))
         try self.stub(result: chatResult)
-        
         let result = try await openAI.chats(query: query)
         XCTAssertEqual(result, chatResult)
     }
     
     func testChatsError() async throws {
-        let query = ChatQuery(model: .gpt_3_5_turbo_16k, messages: [
-            .init(role: .system, content: "You are Librarian-GPT. You know everything about the books."),
-            .init(role: .user, content: "Who wrote Harry Potter?")
-        ])
+        let query = ChatCompletionCreateParams(messages: [
+            .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
+            .user(.init(content: .string("Who wrote Harry Potter?")))
+        ], model: .gpt_3_5_turbo)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
 
@@ -131,12 +130,18 @@ class OpenAITests: XCTestCase {
     }
     
     func testEmbeddings() async throws {
-        let query = EmbeddingsQuery(model: .text_embedding_ada_002, input: "The food was delicious and the waiter...")
-        let embeddingsResult = EmbeddingsResult(object: "embeddings", data: [
-            .init(object: "id-sdasd", embedding: [0.1, 0.2, 0.3, 0.4], index: 0),
-            .init(object: "id-sdasd1", embedding: [0.4, 0.1, 0.7, 0.1], index: 1),
-            .init(object: "id-sdasd2", embedding: [0.8, 0.1, 0.2, 0.8], index: 2)
-        ], model: EmbeddingsModel.text_embedding_ada_002.rawValue, usage: .init(promptTokens: 10, totalTokens: 10))
+        let query = EmbeddingCreateParams(
+            input: .string("The food was delicious and the waiter..."),
+            model: .text_embedding_ada_002)
+        let embeddingsResult = EmbeddingResponse(
+            data: [
+                .init(embedding: [0.1, 0.2, 0.3, 0.4], index: 0, object: "id-sdasd"),
+                .init(embedding: [0.4, 0.1, 0.7, 0.1], index: 1, object: "id-sdasd1"),
+                .init(embedding: [0.8, 0.1, 0.2, 0.8], index: 2, object: "id-sdasd2")
+            ],
+            model: EmbeddingsModel.text_embedding_ada_002.rawValue,
+            object: "embeddings",
+            usage: .init(prompt_tokens: 10, total_tokens: 10))
         try self.stub(result: embeddingsResult)
         
         let result = try await openAI.embeddings(query: query)
@@ -144,7 +149,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testEmbeddingsError() async throws {
-        let query = EmbeddingsQuery(model: .text_embedding_ada_002, input: "The food was delicious and the waiter...")
+        let query = EmbeddingCreateParams(input: .string("The food was delicious and the waiter..."), model: .text_embedding_ada_002)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
 
@@ -159,8 +164,8 @@ class OpenAITests: XCTestCase {
     }
     
     func testRetrieveModel() async throws {
-        let query = ModelQuery(model: ChatModel.gpt_3_5_turbo_1106.rawValue)
-        let modelResult = ModelResult(created: TimeInterval(1_000_000_000), id: ChatModel.gpt_3_5_turbo_1106.rawValue, object: "model", ownedBy: "organization-owner")
+        let query = ModelCreateParams(model: ChatModel.gpt_3_5_turbo.rawValue)
+        let modelResult = Model(id: ChatModel.gpt_3_5_turbo.rawValue, created: 999, object: "model", owned_by: "openai")
         try self.stub(result: modelResult)
         
         let result = try await openAI.model(query: query)
@@ -168,7 +173,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testRetrieveModelError() async throws {
-        let query = ModelQuery(model: ChatModel.gpt_3_5_turbo_1106.rawValue)
+        let query = ModelCreateParams(model: ChatModel.gpt_3_5_turbo.rawValue)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
@@ -177,10 +182,10 @@ class OpenAITests: XCTestCase {
     }
     
     func testListModels() async throws {
-        let listModelsResult = ModelsResult(data: [
-            .init(created: TimeInterval(1_000_000_000), id: "model-id-0", object: "model", ownedBy: "organization-owner"),
-            .init(created: TimeInterval(1_000_000_000), id: "model-id-1", object: "model", ownedBy: "organization-owner"),
-            .init(created: TimeInterval(1_000_000_000), id: "model-id-2", object: "model", ownedBy: "openai")
+        let listModelsResult = ModelsResponse(data: [
+            .init(id: "model-id-0", created: 7777, object: "model", owned_by: "organization-owner"),
+            .init(id: "model-id-1", created: 7777, object: "model", owned_by: "organization-owner"),
+            .init(id: "model-id-2", created: 7777, object: "model", owned_by: "openai")
         ], object: "list")
         try self.stub(result: listModelsResult)
         
@@ -191,17 +196,17 @@ class OpenAITests: XCTestCase {
     func testListModelsError() async throws {
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
-        
         let apiError: APIError = try await XCTExpectError { try await openAI.models() }
         XCTAssertEqual(inError, apiError)
     }
     
     func testModerations() async throws {
-        let query = ModerationsQuery(input: "Hello, world!")
-        let moderationsResult = ModerationsResult(id: "foo", model: ModerationsModel.textModerationLatest.rawValue, results: [
-            .init(categories: .init(harassment: false, harassmentThreatening: false, hate: false, hateThreatening: false, selfHarm: false, selfHarmIntent: false, selfHarmInstructions: false, sexual: false, sexualMinors: false, violence: false, violenceGraphic: false),
-                  categoryScores: .init(harassment: 0.1, harassmentThreatening: 0.1, hate: 0.1, hateThreatening: 0.1, selfHarm: 0.1, selfHarmIntent: 0.1, selfHarmInstructions: 0.1, sexual: 0.1, sexualMinors: 0.1, violence: 0.1, violenceGraphic: 0.1),
-                  flagged: false)
+        let query = ModerationCreateParams(input: .string("Hello, world!"))
+        let moderationsResult = ModerationCreateResponse(id: "foo", model: ModerationsModel.textModerationLatest.rawValue, results: [
+            .init(
+                categories: .init(harassment: false, harassment_threatening: false, hate: false, hate_threatening: false, self_harm: false, self_harm_intent: false, self_harm_instructions: false, sexual: false, sexual_minors: false, violence: false, violence_graphic: false),
+                category_scores: .init(harassment: 0.1, harassment_threatening: 0.1, hate: 0.1, hate_threatening: 0.1, self_harm: 0.1, self_harm_intent: 0.1, self_harm_instructions: 0.1, sexual: 0.1, sexual_minors: 0.1, violence: 0.1, violence_graphic: 0.1),
+                flagged: false)
         ])
         try self.stub(result: moderationsResult)
         
@@ -210,7 +215,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testModerationsError() async throws {
-        let query = ModerationsQuery(input: "Hello, world!")
+        let query = ModerationCreateParams(input: .string("Hello, world!"))
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
@@ -219,7 +224,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testAudioSpeechError() async throws {
-        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 1.0)
+        let query = SpeechCreateParams(input: "Hello, world!", model: .tts_1, voice: .alloy, response_format: .mp3, speed: 1.0)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
@@ -229,8 +234,8 @@ class OpenAITests: XCTestCase {
     
     func testAudioTranscriptions() async throws {
         let data = Data()
-        let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
-        let transcriptionResult = AudioTranscriptionResult(text: "Hello, world!")
+        let query = TranscriptionCreateParams(file: data, fileType: .m4a, model: .whisper_1)
+        let transcriptionResult = Transcription(text: "Hello, world!")
         try self.stub(result: transcriptionResult)
         
         let result = try await openAI.audioTranscriptions(query: query)
@@ -239,7 +244,7 @@ class OpenAITests: XCTestCase {
     
     func testAudioTranscriptionsError() async throws {
         let data = Data()
-        let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
+        let query = TranscriptionCreateParams(file: data, fileType: .m4a, model: .whisper_1)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
@@ -249,8 +254,8 @@ class OpenAITests: XCTestCase {
     
     func testAudioTranslations() async throws {
         let data = Data()
-        let query = AudioTranslationQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
-        let transcriptionResult = AudioTranslationResult(text: "Hello, world!")
+        let query = TranslationCreateParams(file: data, fileType: .m4a, model: .whisper_1)
+        let transcriptionResult = Translation(text: "Hello, world!")
         try self.stub(result: transcriptionResult)
         
         let result = try await openAI.audioTranslations(query: query)
@@ -259,7 +264,7 @@ class OpenAITests: XCTestCase {
     
     func testAudioTranslationsError() async throws {
         let data = Data()
-        let query = AudioTranslationQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
+        let query = TranslationCreateParams(file: data, fileType: .m4a, model: .whisper_1)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
@@ -283,8 +288,8 @@ class OpenAITests: XCTestCase {
     
     func testJSONRequestCreation() throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        let completionQuery = ChatQuery(model: .gpt_3_5_turbo_1106, messages: [Chat(role: .user, content: "how are you?")])
-        let jsonRequest = JSONRequest<ChatResult>(body: completionQuery, url: URL(string: "http://google.com")!)
+        let completionQuery = ChatCompletionCreateParams(messages: [.user(.init(content: .string("how are you?")))], model: .gpt_3_5_turbo_1106)
+        let jsonRequest = JSONRequest<ChatCompletion>(body: completionQuery, url: URL(string: "http://google.com")!)
         let urlRequest = try jsonRequest.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
         
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")
@@ -295,8 +300,8 @@ class OpenAITests: XCTestCase {
     
     func testMultipartRequestCreation() throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        let completionQuery = AudioTranslationQuery(file: Data(), fileName: "foo", model: .whisper_1)
-        let jsonRequest = MultipartFormDataRequest<ChatResult>(body: completionQuery, url: URL(string: "http://google.com")!)
+        let completionQuery = TranslationCreateParams(file: Data(), fileType: .mp3, model: .whisper_1)
+        let jsonRequest = MultipartFormDataRequest<ChatCompletion>(body: completionQuery, url: URL(string: "http://google.com")!)
         let urlRequest = try jsonRequest.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
         
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")

@@ -11,7 +11,7 @@ import OpenAI
 public final class ImageStore: ObservableObject {
     public var openAIClient: OpenAIProtocol
     
-    @Published var images: [ImagesResult.URLResult] = []
+    @Published var images: [ImagesResponse.URLResult] = []
     
     public init(
         openAIClient: OpenAIProtocol
@@ -20,7 +20,7 @@ public final class ImageStore: ObservableObject {
     }
     
     @MainActor
-    func images(query: ImagesQuery) async {
+    func images(query: ImageGenerateParams) async {
         images.removeAll()
         do {
             let response = try await openAIClient.images(query: query)

@@ -1,5 +1,5 @@
 //
-//  ModerationsQuery.swift
+//  ModerationCreateParams.swift
 //  
 //
 //  Created by Aled Samuel on 10/04/2023.
@@ -7,13 +7,20 @@
 
 import Foundation
 
-public struct ModerationsQuery: Codable {
+public struct ModerationCreateParams: Codable {
+    public typealias Model = ModerationsModel
+
     /// The input text to classify.
     public let input: Input
-    /// ID of the model to use.
-    public let model: ModerationsModel?
+    /// Two content moderations models are available: text-moderation-stable and text-moderation-latest.
+    /// The default is text-moderation-latest which will be automatically upgraded over time. This ensures you are always using our most accurate model. If you use text-moderation-stable, we will provide advanced notice before updating the model. Accuracy of text-moderation-stable may be slightly lower than for text-moderation-latest.
+    /// Defaults to text-moderation-latest
+    public let model: Self.Model?
 
-    public init(input: Input, model: ModerationsModel? = nil) {
+    public init(
+        input: Input,
+        model: Self.Model? = nil
+    ) {
         self.input = input
         self.model = model
     }

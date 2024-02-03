@@ -1,5 +1,5 @@
 //
-//  ImageVariationsQuery.swift
+//  ImageCreateVariationParams.swift
 //  
 //
 //  Created by Aled Samuel on 24/04/2023.
@@ -7,8 +7,8 @@
 
 import Foundation
 
-public struct ImageVariationsQuery: Codable {
-    public typealias ResponseFormat = ImagesQuery.ResponseFormat
+public struct ImageCreateVariationParams: Codable {
+    public typealias ResponseFormat = ImageGenerateParams.ResponseFormat
     public typealias Model = ImageModel
 
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square.
@@ -17,11 +17,13 @@ public struct ImageVariationsQuery: Codable {
     /// Defaults to dall-e-2
     public let model: Self.Model?
     /// The number of images to generate. Must be between 1 and 10.
+    /// Defaults to 1
     public let n: Int?
     /// The format in which the generated images are returned. Must be one of url or b64_json.
     /// Defaults to url
     public let response_format: Self.ResponseFormat?
     /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
+    /// Defaults to 1024x1024
     public let size: String?
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
     /// https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids
@@ -44,7 +46,7 @@ public struct ImageVariationsQuery: Codable {
     }
 }
 
-extension ImageVariationsQuery: MultipartFormDataBodyEncodable {
+extension ImageCreateVariationParams: MultipartFormDataBodyEncodable {
     func encode(boundary: String) -> Data {
         var entries: [MultipartFormDataEntry] = [
             .file(paramName: "image", fileName: "image.png", fileData: image, contentType: "image/png")]

@@ -99,7 +99,7 @@ public final class ChatStore: ObservableObject {
 
             let functions = [weatherFunction]
             
-            let chatsStream: AsyncThrowingStream<ChatStreamResult, Error> = openAIClient.chatsStream(
+            let chatsStream: AsyncThrowingStream<ChatCompletionChunk, Error> = openAIClient.chatsStream(
                 query: ChatQuery(
                     model: model,
                     messages: conversation.messages.map { message in
@@ -111,8 +111,8 @@ public final class ChatStore: ObservableObject {
 
             var functionCallName = ""
             var functionCallArguments = ""
-            for try await partialChatResult in chatsStream {
-                for choice in partialChatResult.choices {
+            for try await partialChatCompletion in chatsStream {
+                for choice in partialChatCompletion.choices {
                     let existingMessages = conversations[conversationIndex].messages
                     // Function calls are also streamed, so we need to accumulate.
                     if let functionCallDelta = choice.delta.functionCall {
@@ -129,12 +129,12 @@ public final class ChatStore: ObservableObject {
                         messageText += "Function call: name=\(functionCallName) arguments=\(functionCallArguments)"
                     }
                     let message = Message(
-                        id: partialChatResult.id,
+                        id: partialChatCompletion.id,
                         role: choice.delta.role ?? .assistant,
                         content: messageText,
-                        createdAt: Date(timeIntervalSince1970: TimeInterval(partialChatResult.created))
+                        createdAt: Date(timeIntervalSince1970: TimeInterval(partialChatCompletion.created))
                     )
-                    if let existingMessageIndex = existingMessages.firstIndex(where: { $0.id == partialChatResult.id }) {
+                    if let existingMessageIndex = existingMessages.firstIndex(where: { $0.id == partialChatCompletion.id }) {
                         // Meld into previous message
                         let previousMessage = existingMessages[existingMessageIndex]
                         let combinedMessage = Message(

@@ -105,23 +105,23 @@ Using the OpenAI Chat API, you can build your own applications with `gpt-3.5-tur
      /// The messages to generate chat completions for
      public let messages: [Chat]
      /// A list of functions the model may generate JSON inputs for.
-     public let functions: [ChatFunctionDeclaration]?
+     public let tools: [ChatFunctionDeclaration]?
      /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and  We generally recommend altering this or top_p but not both.
      public let temperature: Double?
      /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-     public let topP: Double?
+     public let top_p: Double?
      /// How many chat completion choices to generate for each input message.
      public let n: Int?
      /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
      public let stop: [String]?
      /// The maximum number of tokens to generate in the completion.
-     public let maxTokens: Int?
+     public let max_tokens: Int?
      /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-     public let presencePenalty: Double?
+     public let presence_penalty: Double?
      /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-     public let frequencyPenalty: Double?
+     public let frequency_penalty: Double?
      ///Modify the likelihood of specified tokens appearing in the completion.
-     public let logitBias: [String:Int]?
+     public let logit_bias: [String:Int]?
      /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
      public let user: String?
 }
@@ -130,7 +130,7 @@ Using the OpenAI Chat API, you can build your own applications with `gpt-3.5-tur
 **Response**
 
 ```swift
-struct ChatResult: Codable, Equatable {
+struct ChatCompletion: Codable, Equatable {
     public struct Choice: Codable, Equatable {
         public let index: Int
         public let message: Chat
@@ -138,9 +138,9 @@ struct ChatResult: Codable, Equatable {
     }
     
     public struct Usage: Codable, Equatable {
-        public let promptTokens: Int
-        public let completionTokens: Int
-        public let totalTokens: Int
+        public let prompt_tokens: Int
+        public let completion_tokens: Int
+        public let total_tokens: Int
     }
     
     public let id: String
@@ -155,13 +155,13 @@ struct ChatResult: Codable, Equatable {
 **Example**
 
 ```swift
-let query = ChatQuery(model: .gpt3_5Turbo, messages: [.init(role: .user, content: "who are you")])
+let query = ChatQuery(model: .gpt_3_5_turbo, messages: [.user(.init(content: "who are you"))])
 let result = try await openAI.chats(query: query)
 ```
 
 ```
 (lldb) po result
-▿ ChatResult
+▿ ChatCompletion
   - id : "chatcmpl-6pwjgxGV2iPP4QGdyOLXnTY0LE3F8"
   - object : "chat.completion"
   - created : 1677838528.0
@@ -229,7 +229,7 @@ let functions = [
           type: .object,
           properties: [
             "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
-            "unit": .init(type: .string, enumValues: ["celsius", "fahrenheit"])
+            "unit": .init(type: .string, enum: ["celsius", "fahrenheit"])
           ],
           required: ["location"]
         )
@@ -240,7 +240,7 @@ let query = ChatQuery(
   messages: [
       Chat(role: .user, content: "What's the weather like in Boston?")
   ],
-  functions: functions
+  tools: functions
 )
 let result = try await openAI.chats(query: query)
 ```
@@ -257,12 +257,12 @@ Result will be (serialized as JSON here for readability):
       "index": 0,
       "message": {
         "role": "assistant",
-        "function_call": {
+        "tool_calls": {
           "name": "get_current_weather",
           "arguments": "{\n  \"location\": \"Boston, MA\"\n}"
         }
       },
-      "finish_reason": "function_call"
+      "finish_reason": "tool_calls"
     }
   ],
   "usage": { "total_tokens": 100, "completion_tokens": 18, "prompt_tokens": 82 }
@@ -284,7 +284,7 @@ As Artificial Intelligence continues to develop, so too does the intriguing conc
 **Request**
 
 ```swift
-struct ImagesQuery: Codable {
+struct ImageGenerateParams: Codable {
     /// A text description of the desired image(s). The maximum length is 1000 characters.
     public let prompt: String
     /// The number of images to generate. Must be between 1 and 10.
@@ -297,7 +297,7 @@ struct ImagesQuery: Codable {
 **Response**
 
 ```swift
-struct ImagesResult: Codable, Equatable {
+struct ImagesResponse: Codable, Equatable {
     public struct URLResult: Codable, Equatable {
         public let url: String
     }
@@ -309,7 +309,7 @@ struct ImagesResult: Codable, Equatable {
 **Example**
 
 ```swift
-let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: "1024x1024")
+let query = ImageGenerateParams(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: "1024x1024")
 openAI.images(query: query) { result in
   //Handle result here
 }
@@ -337,7 +337,7 @@ Creates an edited or extended image given an original image and a prompt.
 **Request**
 
 ```swift
-public struct ImageEditsQuery: Codable {
+public struct ImageEditParams: Codable {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
     public let image: Data
     public let fileName: String
@@ -355,13 +355,13 @@ public struct ImageEditsQuery: Codable {
 
 **Response**
 
-Uses the ImagesResult response similarly to ImagesQuery.
+Uses the ImagesResponse response similarly to ImageGenerateParams.
 
 **Example**
 
 ```swift
 let data = image.pngData()
-let query = ImageEditQuery(image: data, fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+let query = ImageEditParams(image: data, fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
 openAI.imageEdits(query: query) { result in
   //Handle result here
 }
@@ -376,7 +376,7 @@ Creates a variation of a given image.
 **Request**
 
 ```swift
-public struct ImageVariationsQuery: Codable {
+public struct ImageCreateVariationParams: Codable {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
     public let image: Data
     public let fileName: String
@@ -389,7 +389,7 @@ public struct ImageVariationsQuery: Codable {
 
 **Response**
 
-Uses the ImagesResult response similarly to ImagesQuery.
+Uses the ImagesResponse response similarly to ImageGenerateParams.
 
 **Example**
 
@@ -427,8 +427,8 @@ public struct AudioSpeechQuery: Codable, Equatable {
     //...
     public let model: Model // tts-1 or tts-1-hd  
     public let input: String
-    public let voice: AudioSpeechVoice
-    public let responseFormat: AudioSpeechResponseFormat
+    public let voice: Voice
+    public let responseFormat: SpeechResponseFormat
     public let speed: String? // Initializes with Double?
     //...
 }
@@ -462,7 +462,7 @@ Transcribes audio into the input language.
 **Request**
 
 ```swift
-public struct AudioTranscriptionQuery: Codable, Equatable {
+public struct TranscriptionCreateParams: Codable, Equatable {
     
     public let file: Data
     public let fileName: String
@@ -477,7 +477,7 @@ public struct AudioTranscriptionQuery: Codable, Equatable {
 **Response**
 
 ```swift
-public struct AudioTranscriptionResult: Codable, Equatable {
+public struct Transcription: Codable, Equatable {
     
     public let text: String
 }
@@ -487,7 +487,7 @@ public struct AudioTranscriptionResult: Codable, Equatable {
 
 ```swift
 let data = Data(contentsOfURL:...)
-let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)        
+let query = TranscriptionCreateParams(file: data, fileName: "audio.m4a", model: .whisper_1)        
 
 openAI.audioTranscriptions(query: query) { result in
     //Handle result here
@@ -503,7 +503,7 @@ Translates audio into into English.
 **Request**
 
 ```swift
-public struct AudioTranslationQuery: Codable, Equatable {
+public struct TranslationCreateParams: Codable, Equatable {
     
     public let file: Data
     public let fileName: String
@@ -517,7 +517,7 @@ public struct AudioTranslationQuery: Codable, Equatable {
 **Response**
 
 ```swift
-public struct AudioTranslationResult: Codable, Equatable {
+public struct Translation: Codable, Equatable {
     
     public let text: String
 }
@@ -527,7 +527,7 @@ public struct AudioTranslationResult: Codable, Equatable {
 
 ```swift
 let data = Data(contentsOfURL:...)
-let query = AudioTranslationQuery(file: data, fileName: "audio.m4a", model: .whisper_1)  
+let query = TranslationCreateParams(file: data, fileName: "audio.m4a", model: .whisper_1)  
 
 openAI.audioTranslations(query: query) { result in
     //Handle result here
@@ -545,7 +545,7 @@ Get a vector representation of a given input that can be easily consumed by mach
 **Request**
 
 ```swift
-struct EmbeddingsQuery: Codable {
+struct EmbeddingCreateParams: Codable {
     /// ID of the model to use.
     public let model: Model
     /// Input text to get embeddings for
@@ -556,7 +556,7 @@ struct EmbeddingsQuery: Codable {
 **Response**
 
 ```swift
-struct EmbeddingsResult: Codable, Equatable {
+struct Embedding: Codable, Equatable {
 
     public struct Embedding: Codable, Equatable {
 
@@ -572,7 +572,7 @@ struct EmbeddingsResult: Codable, Equatable {
 **Example**
 
 ```swift
-let query = EmbeddingsQuery(model: .textSearchBabbageDoc, input: "The food was delicious and the waiter...")
+let query = EmbeddingCreateParams(model: .textSearchBabbageDoc, input: "The food was delicious and the waiter...")
 openAI.embeddings(query: query) { result in
   //Handle response here
 }
@@ -709,7 +709,7 @@ public struct ModelResult: Codable, Equatable {
 
     public let id: Model
     public let object: String
-    public let ownedBy: String
+    public let owned_by: String
 }
 ```
 
@@ -733,7 +733,7 @@ Given a input text, outputs if the model classifies it as violating OpenAI's con
 **Request**
 
 ```swift
-public struct ModerationsQuery: Codable {
+public struct ModerationCreateParams: Codable {
     
     public let input: String
     public let model: Model?
@@ -743,7 +743,7 @@ public struct ModerationsQuery: Codable {
 **Response**
 
 ```swift
-public struct ModerationsResult: Codable, Equatable {
+public struct ModerationCreateResponse: Codable, Equatable {
 
     public let id: String
     public let model: Model
@@ -754,7 +754,7 @@ public struct ModerationsResult: Codable, Equatable {
 **Example**
 
 ```swift
-let query = ModerationsQuery(input: "I want to kill them.")
+let query = ModerationCreateParams(input: "I want to kill them.")
 openAI.moderations(query: query) { result in
   //Handle result here
 }
@@ -810,15 +810,15 @@ Read more about Cosine Similarity [here](https://en.wikipedia.org/wiki/Cosine_si
 The library contains built-in [Combine](https://developer.apple.com/documentation/combine) extensions.
 
 ```swift
-func images(query: ImagesQuery) -> AnyPublisher<ImagesResult, Error>
-func embeddings(query: EmbeddingsQuery) -> AnyPublisher<EmbeddingsResult, Error>
-func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error>
+func images(query: ImageGenerateParams) -> AnyPublisher<ImagesResponse, Error>
+func embeddings(query: EmbeddingCreateParams) -> AnyPublisher<Embedding, Error>
+func chats(query: ChatQuery) -> AnyPublisher<ChatCompletion, Error>
 func edits(query: EditsQuery) -> AnyPublisher<EditsResult, Error>
 func model(query: ModelQuery) -> AnyPublisher<ModelResult, Error>
 func models() -> AnyPublisher<ModelsResult, Error>
-func moderations(query: ModerationsQuery) -> AnyPublisher<ModerationsResult, Error>
-func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error>
-func audioTranslations(query: AudioTranslationQuery) -> AnyPublisher<AudioTranslationResult, Error>
+func moderations(query: ModerationCreateParams) -> AnyPublisher<ModerationCreateResponse, Error>
+func audioTranscriptions(query: TranscriptionCreateParams) -> AnyPublisher<Transcription, Error>
+func audioTranslations(query: TranslationCreateParams) -> AnyPublisherTranslation Error>
 ```
 
 ## Example Project

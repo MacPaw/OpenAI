@@ -11,12 +11,7 @@ import FoundationNetworking
 #endif
 
 final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSessionDelegate, URLSessionDataDelegate {
-    
-    enum StreamingError: Error {
-        case unknownContent
-        case emptyContent
-    }
-    
+
     var onReceiveContent: ((StreamingSession, ResultType) -> Void)?
     var onProcessingError: ((StreamingSession, Error) -> Void)?
     var onComplete: ((StreamingSession, Error?) -> Void)?
@@ -51,7 +46,11 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
         }
         processJSON(from: stringContent)
     }
-    
+
+    enum StreamingError: Error {
+        case unknownContent
+        case emptyContent
+    }
 }
 
 extension StreamingSession {
@@ -78,7 +77,7 @@ extension StreamingSession {
                 onProcessingError?(self, StreamingError.unknownContent)
                 return
             }
-            
+
             var apiError: Error? = nil
             do {
                 let decoder = JSONDecoder()
@@ -102,5 +101,4 @@ extension StreamingSession {
             }
         }
     }
-    
 }

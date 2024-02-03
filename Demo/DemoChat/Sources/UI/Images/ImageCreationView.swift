@@ -46,7 +46,7 @@ public struct ImageCreationView: View {
                 HStack {
                     Button("Create Image" + (n == 1 ? "" : "s")) {
                         Task {
-                            let query = ImagesQuery(prompt: prompt, n: n, size: size)
+                            let query = ImageGenerateParams(prompt: prompt, n: n, size: size)
                             await store.images(query: query)
                         }
                     }

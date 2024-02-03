@@ -1,5 +1,5 @@
 //
-//  ImageEditsQuery.swift
+//  ImageEditParams.swift
 //  
 //
 //  Created by Aled Samuel on 24/04/2023.
@@ -7,27 +7,27 @@
 
 import Foundation
 
-public struct ImageEditsQuery: Codable {
-    public typealias ResponseFormat = ImagesQuery.ResponseFormat
+public struct ImageEditParams: Codable {
+    public typealias ResponseFormat = ImageGenerateParams.ResponseFormat
     public typealias Model = ImageModel
-    public typealias Size = ImagesQuery.Size
+    public typealias Size = ImageGenerateParams.Size
 
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
     public let image: Data
     /// An additional image whose fully transparent areas (e.g. where alpha is zero) indicate where image should be edited. Must be a valid PNG file, less than 4MB, and have the same dimensions as image.
-    public let mask: Data?
-    /// A text description of the desired image(s). The maximum length is 1000 characters.
     public let prompt: String
+    /// The number of images to generate. Must be between 1 and 10.
+    public let mask: Data?
     /// The model to use for image generation.
     /// Defaults to dall-e-2
     public let model: Self.Model?
-    /// The number of images to generate. Must be between 1 and 10.
+    /// A text description of the desired image(s). The maximum length is 1000 characters.
     public let n: Int?
     /// The format in which the generated images are returned. Must be one of url or b64_json.
     /// Defaults to url
     public let response_format: Self.ResponseFormat?
     /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
-    public let size: Self.Size?
+    public let size: Size?
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
     /// https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids
     public let user: String?
@@ -43,8 +43,8 @@ public struct ImageEditsQuery: Codable {
         user: String? = nil
     ) {
         self.image = image
-        self.mask = mask
         self.prompt = prompt
+        self.mask = mask
         self.model = model
         self.n = n
         self.response_format = response_format
@@ -53,7 +53,7 @@ public struct ImageEditsQuery: Codable {
     }
 }
 
-extension ImageEditsQuery: MultipartFormDataBodyEncodable {
+extension ImageEditParams: MultipartFormDataBodyEncodable {
     func encode(boundary: String) -> Data {
         var entries: [MultipartFormDataEntry] = [
             .file(paramName: "image", fileName: "image.png", fileData: image, contentType: "image/png"),

@@ -1,5 +1,5 @@
 //
-//  ChatQuery.swift
+//  ChatCompletionCreateParams.swift
 //  
 //
 //  Created by Sergii Kryvoblotskyi on 02/04/2023.
@@ -9,7 +9,7 @@ import Foundation
 
 /// Creates a model response for the given chat conversation
 /// https://platform.openai.com/docs/guides/text-generation
-public struct ChatQuery: Equatable, Codable, Streamable {
+public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
     public typealias Model = ChatModel
 
     /// A list of messages comprising the conversation so far
@@ -198,7 +198,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
 
         public struct ChatCompletionSystemMessageParam: Codable, Equatable {
-            public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
+            public typealias Role = ChatCompletionCreateParams.ChatCompletionMessageParam.Role
 
             /// The contents of the system message.
             public let content: String
@@ -223,7 +223,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
 
         public struct ChatCompletionUserMessageParam: Codable, Equatable {
-            public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
+            public typealias Role = ChatCompletionCreateParams.ChatCompletionMessageParam.Role
 
             /// The contents of the user message.
             public let content: Content
@@ -348,7 +348,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
         
         internal struct ChatCompletionMessageParam: Codable, Equatable {
-            typealias Role = ChatQuery.ChatCompletionMessageParam.Role
+            typealias Role = ChatCompletionCreateParams.ChatCompletionMessageParam.Role
 
             let role: Self.Role
 
@@ -358,7 +358,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
 
         public struct ChatCompletionAssistantMessageParam: Codable, Equatable {
-            public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
+            public typealias Role = ChatCompletionCreateParams.ChatCompletionMessageParam.Role
 
             //// The role of the messages author, in this case assistant.
             public let role: Self.Role = .assistant
@@ -387,7 +387,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
 
             public struct ChatCompletionMessageToolCallParam: Codable, Equatable {
-                public typealias ToolsType = ChatQuery.ChatCompletionToolParam.ToolsType
+                public typealias ToolsType = ChatCompletionCreateParams.ChatCompletionToolParam.ToolsType
 
                 /// The ID of the tool call.
                 public let id: String
@@ -415,7 +415,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
 
         public struct ChatCompletionToolMessageParam: Codable, Equatable {
-            public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
+            public typealias Role = ChatCompletionCreateParams.ChatCompletionMessageParam.Role
 
             /// The contents of the tool message.
             public let content: String
@@ -593,7 +593,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 }
 
                 public struct Property: Codable, Equatable {
-                    public typealias JSONType = ChatQuery.ChatCompletionToolParam.FunctionDefinition.FunctionParameters.JSONType
+                    public typealias JSONType = ChatCompletionCreateParams.ChatCompletionToolParam.FunctionDefinition.FunctionParameters.JSONType
 
                     public let type: Self.JSONType
                     public let description: String?
@@ -643,7 +643,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     }
 
                     public struct Items: Codable, Equatable {
-                        public typealias JSONType = ChatQuery.ChatCompletionToolParam.FunctionDefinition.FunctionParameters.JSONType
+                        public typealias JSONType = ChatCompletionCreateParams.ChatCompletionToolParam.FunctionDefinition.FunctionParameters.JSONType
 
                         public let type: Self.JSONType
                         public let properties: [String: Property]?

@@ -1,5 +1,5 @@
 //
-//  EmbeddingsQuery.swift
+//  EmbeddingCreateParams.swift
 //  
 //
 //  Created by Sergii Kryvoblotskyi on 02/04/2023.
@@ -7,23 +7,30 @@
 
 import Foundation
 
-public struct EmbeddingsQuery: Codable {
+public struct EmbeddingCreateParams: Codable {
+    public typealias Model = EmbeddingsModel
 
-    /// ID of the model to use.
-    public let model: EmbeddingsModel
-    /// Input text to get embeddings for.
-    public let input: Input
-    public let encoding_format: EncodingFormat?
+    /// Input text to embed, encoded as a string or array of tokens. To embed multiple inputs in a single request, pass an array of strings or array of token arrays. The input must not exceed the max input tokens for the model (8192 tokens for text-embedding-ada-002), cannot be an empty string, and any array must be 2048 dimensions or less.
+    public let input: Self.Input
+    /// ID of the model to use. You can use the List models API to see all of your available models, or see our Model overview for descriptions of them.
+    /// https://platform.openai.com/docs/api-reference/models/list
+    /// https://platform.openai.com/docs/models/overview
+    public let model: Self.Model
+    /// The format to return the embeddings in. Can be either float or base64.
+    /// https://pypi.org/project/pybase64/
+    public let encoding_format: Self.EncodingFormat?
+    /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
+    /// https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids
     public let user: String?
 
     public init(
-        input: Input,
-        model: EmbeddingsModel,
+        input: Self.Input,
+        model: Self.Model,
         encoding_format: Self.EncodingFormat? = nil,
         user: String? = nil
     ) {
-        self.model = model
         self.input = input
+        self.model = model
         self.encoding_format = encoding_format
         self.user = user
     }

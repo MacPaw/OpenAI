@@ -15,43 +15,43 @@ import Combine
 @available(watchOS 6.0, *)
 public extension OpenAIProtocol {
 
-    func images(query: ImagesQuery) -> AnyPublisher<ImagesResult, Error> {
-        Future<ImagesResult, Error> {
+    func images(query: ImageGenerateParams) -> AnyPublisher<ImagesResponse, Error> {
+        Future<ImagesResponse, Error> {
             images(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
     
-    func imageEdits(query: ImageEditsQuery) -> AnyPublisher<ImagesResult, Error> {
-        Future<ImagesResult, Error> {
+    func imageEdits(query: ImageEditParams) -> AnyPublisher<ImagesResponse, Error> {
+        Future<ImagesResponse, Error> {
             imageEdits(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
     
-    func imageVariations(query: ImageVariationsQuery) -> AnyPublisher<ImagesResult, Error> {
-        Future<ImagesResult, Error> {
+    func imageVariations(query: ImageCreateVariationParams) -> AnyPublisher<ImagesResponse, Error> {
+        Future<ImagesResponse, Error> {
             imageVariations(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
 
-    func embeddings(query: EmbeddingsQuery) -> AnyPublisher<EmbeddingsResult, Error> {
-        Future<EmbeddingsResult, Error> {
+    func embeddings(query: EmbeddingCreateParams) -> AnyPublisher<EmbeddingResponse, Error> {
+        Future<EmbeddingResponse, Error> {
             embeddings(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
 
-    func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error> {
-        Future<ChatResult, Error> {
+    func chats(query: ChatCompletionCreateParams) -> AnyPublisher<ChatCompletion, Error> {
+        Future<ChatCompletion, Error> {
             chats(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
     
-    func chatsStream(query: ChatQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
-        let progress = PassthroughSubject<Result<ChatStreamResult, Error>, Error>()
+    func chatsStream(query: ChatCompletionCreateParams) -> AnyPublisher<Result<ChatCompletionChunk, Error>, Error> {
+        let progress = PassthroughSubject<Result<ChatCompletionChunk, Error>, Error>()
         chatsStream(query: query) { result in
             progress.send(result)
         } completion: { error in
@@ -64,36 +64,43 @@ public extension OpenAIProtocol {
         return progress.eraseToAnyPublisher()
     }
     
-    func model(query: ModelQuery) -> AnyPublisher<ModelResult, Error> {
-        Future<ModelResult, Error> {
+    func model(query: ModelCreateParams) -> AnyPublisher<Model, Error> {
+        Future<Model, Error> {
             model(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
     
-    func models() -> AnyPublisher<ModelsResult, Error> {
-        Future<ModelsResult, Error> {
+    func deleteModel(query: ModelCreateParams) -> AnyPublisher<ModelDeleted, Error> {
+        Future<ModelDeleted, Error> {
+            deleteModel(query: query, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+
+    func models() -> AnyPublisher<ModelsResponse, Error> {
+        Future<ModelsResponse, Error> {
             models(completion: $0)
         }
         .eraseToAnyPublisher()
     }
     
-    func moderations(query: ModerationsQuery) -> AnyPublisher<ModerationsResult, Error> {
-        Future<ModerationsResult, Error> {
+    func moderations(query: ModerationCreateParams) -> AnyPublisher<ModerationCreateResponse, Error> {
+        Future<ModerationCreateResponse, Error> {
             moderations(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
 
-    func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error> {
-        Future<AudioTranscriptionResult, Error> {
+    func audioTranscriptions(query: TranscriptionCreateParams) -> AnyPublisher<Transcription, Error> {
+        Future<Transcription, Error> {
             audioTranscriptions(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
 
-    func audioTranslations(query: AudioTranslationQuery) -> AnyPublisher<AudioTranslationResult, Error> {
-        Future<AudioTranslationResult, Error> {
+    func audioTranslations(query: TranslationCreateParams) -> AnyPublisher<Translation, Error> {
+        Future<Translation, Error> {
             audioTranslations(query: query, completion: $0)
         }
         .eraseToAnyPublisher()

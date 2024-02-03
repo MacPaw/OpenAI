@@ -14,8 +14,8 @@ import Foundation
 public extension OpenAIProtocol {
 
     func images(
-        query: ImagesQuery
-    ) async throws -> ImagesResult {
+        query: ImageGenerateParams
+    ) async throws -> ImagesResponse {
         try await withCheckedThrowingContinuation { continuation in
             images(query: query) { result in
                 switch result {
@@ -29,8 +29,8 @@ public extension OpenAIProtocol {
     }
     
     func imageEdits(
-        query: ImageEditsQuery
-    ) async throws -> ImagesResult {
+        query: ImageEditParams
+    ) async throws -> ImagesResponse {
         try await withCheckedThrowingContinuation { continuation in
             imageEdits(query: query) { result in
                 switch result {
@@ -44,8 +44,8 @@ public extension OpenAIProtocol {
     }
     
     func imageVariations(
-        query: ImageVariationsQuery
-    ) async throws -> ImagesResult {
+        query: ImageCreateVariationParams
+    ) async throws -> ImagesResponse {
         try await withCheckedThrowingContinuation { continuation in
             imageVariations(query: query) { result in
                 switch result {
@@ -59,8 +59,8 @@ public extension OpenAIProtocol {
     }
 
     func embeddings(
-        query: EmbeddingsQuery
-    ) async throws -> EmbeddingsResult {
+        query: EmbeddingCreateParams
+    ) async throws -> EmbeddingResponse {
         try await withCheckedThrowingContinuation { continuation in
             embeddings(query: query) { result in
                 switch result {
@@ -74,10 +74,16 @@ public extension OpenAIProtocol {
     }
     
     func chats(
-        query: ChatQuery
-    ) async throws -> ChatResult {
+        query: ChatCompletionCreateParams
+    ) async throws -> ChatCompletion {
         try await withCheckedThrowingContinuation { continuation in
             chats(query: query) { result in
+//                do {
+//                    print("ChatCompletion", "SUCCESS", try result.get())
+//                    print("ChatCompletion", "SUCCESS", try JSONEncoder.encode(try result.get()))
+//                } catch {
+//                    print("ChatCompletion", error.localizedDescription)
+//                }
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -89,8 +95,8 @@ public extension OpenAIProtocol {
     }
     
     func chatsStream(
-        query: ChatQuery
-    ) -> AsyncThrowingStream<ChatStreamResult, Error> {
+        query: ChatCompletionCreateParams
+    ) -> AsyncThrowingStream<ChatCompletionChunk, Error> {
         return AsyncThrowingStream { continuation in
             return chatsStream(query: query)  { result in
                 continuation.yield(with: result)
@@ -101,8 +107,8 @@ public extension OpenAIProtocol {
     }
     
     func model(
-        query: ModelQuery
-    ) async throws -> ModelResult {
+        query: ModelCreateParams
+    ) async throws -> Model {
         try await withCheckedThrowingContinuation { continuation in
             model(query: query) { result in
                 switch result {
@@ -114,8 +120,23 @@ public extension OpenAIProtocol {
             }
         }
     }
-    
-    func models() async throws -> ModelsResult {
+
+    func deleteModel(
+        query: ModelCreateParams
+    ) async throws -> ModelDeleted {
+        try await withCheckedThrowingContinuation { continuation in
+            deleteModel(query: query) { result in
+                switch result {
+                case let .success(success):
+                    return continuation.resume(returning: success)
+                case let .failure(failure):
+                    return continuation.resume(throwing: failure)
+                }
+            }
+        }
+    }
+
+    func models() async throws -> ModelsResponse {
         try await withCheckedThrowingContinuation { continuation in
             models() { result in
                 switch result {
@@ -129,8 +150,8 @@ public extension OpenAIProtocol {
     }
     
     func moderations(
-        query: ModerationsQuery
-    ) async throws -> ModerationsResult {
+        query: ModerationCreateParams
+    ) async throws -> ModerationCreateResponse {
         try await withCheckedThrowingContinuation { continuation in
             moderations(query: query) { result in
                 switch result {
@@ -144,8 +165,8 @@ public extension OpenAIProtocol {
     }
     
     func audioCreateSpeech(
-        query: AudioSpeechQuery
-    ) async throws -> AudioSpeechResult {
+        query: SpeechCreateParams
+    ) async throws -> Speech {
         try await withCheckedThrowingContinuation { continuation in
             audioCreateSpeech(query: query) { result in
                 switch result {
@@ -159,8 +180,8 @@ public extension OpenAIProtocol {
     }
     
     func audioTranscriptions(
-        query: AudioTranscriptionQuery
-    ) async throws -> AudioTranscriptionResult {
+        query: TranscriptionCreateParams
+    ) async throws -> Transcription {
         try await withCheckedThrowingContinuation { continuation in
             audioTranscriptions(query: query) { result in
                 switch result {
@@ -174,8 +195,8 @@ public extension OpenAIProtocol {
     }
     
     func audioTranslations(
-        query: AudioTranslationQuery
-    ) async throws -> AudioTranslationResult {
+        query: TranslationCreateParams
+    ) async throws -> Translation {
         try await withCheckedThrowingContinuation { continuation in
             audioTranslations(query: query) { result in
                 switch result {
