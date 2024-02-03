@@ -45,7 +45,7 @@ public struct AudioSpeechQuery: Codable, Equatable {
     /// The format to audio in. Supported formats are mp3, opus, aac, and flac.
     public let responseFormat: AudioSpeechResponseFormat
     /// The speed of the generated audio. Enter a value between **0.25** and **4.0**. Default: **1.0**
-    public let speed: String?
+    public let speed: Double?
     
     public enum CodingKeys: String, CodingKey {
         case model
@@ -72,13 +72,19 @@ public struct AudioSpeechQuery: Codable, Equatable {
 
 private extension AudioSpeechQuery {
 
-    static func normalizeSpeechSpeed(_ inputSpeed: Double?) -> String {
-        guard let inputSpeed else { return "\(Constants.normalSpeed)" }
-        let isSpeedOutOfBounds = inputSpeed >= Constants.maxSpeed && inputSpeed <= Constants.minSpeed
+    private enum Speed {
+        static let normal = 1.0
+        static let max = 4.0
+        static let min = 0.25
+    }
+
+    static func normalizeSpeechSpeed(_ inputSpeed: Double?) -> Double {
+        guard let inputSpeed else { return Self.Speed.normal }
+        let isSpeedOutOfBounds = inputSpeed <= Self.Speed.min || Self.Speed.max <= inputSpeed
         guard !isSpeedOutOfBounds else {
-            print("[AudioSpeech] Speed value must be between 0.25 and 4.0. Setting value to closest valid.")
-            return inputSpeed < Constants.minSpeed ? "\(Constants.minSpeed)" : "\(Constants.maxSpeed)"
+            print("[AudioSpeech] Speed value must be between \(Speed.min) and \(Speed.max). Setting value to closest valid.")
+            return inputSpeed < Self.Speed.min ? Self.Speed.min : Self.Speed.max
         }
-        return "\(inputSpeed)"
+        return inputSpeed
     }
 }
