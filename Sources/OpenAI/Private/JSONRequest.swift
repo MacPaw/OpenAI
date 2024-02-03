@@ -1,6 +1,6 @@
 //
 //  JSONRequest.swift
-//  
+//
 //
 //  Created by Sergii Kryvoblotskyi on 12/19/22.
 //
@@ -11,11 +11,11 @@ import FoundationNetworking
 #endif
 
 final class JSONRequest<ResultType> {
-    
+
     let body: Codable?
     let url: URL
     let method: String
-    
+
     init(body: Codable? = nil, url: URL, method: String = "POST") {
         self.body = body
         self.url = url
@@ -24,7 +24,7 @@ final class JSONRequest<ResultType> {
 }
 
 extension JSONRequest: URLRequestBuildable {
-    
+
     func build(token: String, organizationIdentifier: String?, timeoutInterval: TimeInterval) throws -> URLRequest {
         var request = URLRequest(url: url, timeoutInterval: timeoutInterval)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

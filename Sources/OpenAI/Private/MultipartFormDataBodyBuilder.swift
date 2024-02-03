@@ -1,6 +1,6 @@
 //
 //  MultipartFormDataBodyBuilder.swift
-//  
+//
 //
 //  Created by Sergii Kryvoblotskyi on 02/04/2023.
 //
@@ -8,15 +8,15 @@
 import Foundation
 
 final class MultipartFormDataBodyBuilder {
-        
+
     let boundary: String
     let entries: [MultipartFormDataEntry]
-    
+
     init(boundary: String, entries: [MultipartFormDataEntry]) {
         self.boundary = boundary
         self.entries = entries
     }
-    
+
     func build() -> Data {
         var httpData = entries
             .map { $0.makeBodyData(boundary: boundary) }
@@ -27,7 +27,7 @@ final class MultipartFormDataBodyBuilder {
 }
 
 private extension MultipartFormDataEntry {
-    
+
     func makeBodyData(boundary: String) -> Data {
         var body = Data()
         switch self {
@@ -51,7 +51,7 @@ private extension MultipartFormDataEntry {
 }
 
 private extension Data {
-    
+
     mutating func append(_ string: String) {
         let data = string.data(
             using: String.Encoding.utf8,

@@ -1,6 +1,6 @@
 //
 //  XCTestCase+Extensions.swift
-//  
+//
 //
 //  Created by Sergii Kryvoblotskyi on 04/04/2023.
 //
@@ -15,7 +15,7 @@ import Combine
 @available(tvOS 13.0, *)
 @available(iOS 13.0, *)
 extension XCTestCase {
-    
+
     func awaitPublisher<T: Publisher>(
         _ publisher: T,
         timeout: TimeInterval = 10,

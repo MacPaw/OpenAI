@@ -11,15 +11,15 @@ import AVFAudio
 
 public final class SpeechStore: ObservableObject {
     public var openAIClient: OpenAIProtocol
-    
+
     @Published var audioObjects: [AudioObject] = []
-    
+
     public init(
         openAIClient: OpenAIProtocol
     ) {
         self.openAIClient = openAIClient
     }
-    
+
     struct AudioObject: Identifiable {
         let id = UUID()
         let prompt: String
@@ -27,7 +27,7 @@ public final class SpeechStore: ObservableObject {
         let originResponse: AudioSpeechResult
         let format: String
     }
-    
+
     @MainActor
     func createSpeech(_ query: AudioSpeechQuery) async {
         guard let input = query.input, !input.isEmpty else { return }
@@ -44,7 +44,7 @@ public final class SpeechStore: ObservableObject {
             print(error.localizedDescription)
         }
     }
-    
+
     func getFileInDocumentsDirectory(_ data: Data, fileName: String, _ completion: @escaping (URL) -> Void) {
         if let fileURL = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) {
             let saveURL = fileURL.appendingPathComponent(fileName)

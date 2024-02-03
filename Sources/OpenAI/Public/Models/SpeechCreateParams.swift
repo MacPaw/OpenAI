@@ -1,6 +1,6 @@
 //
 //  AudioSpeechQuery.swift
-//  
+//
 //
 //  Created by Ihor Makhnyk on 13.11.2023.
 //
@@ -52,7 +52,7 @@ public struct SpeechCreateParams: Codable {
         case nova
         case shimmer
     }
-    
+
     /// Encapsulates the response formats available for audio data.
     ///
     /// **Formats:**

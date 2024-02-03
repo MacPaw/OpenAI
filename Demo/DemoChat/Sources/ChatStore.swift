@@ -43,15 +43,15 @@ public final class ChatStore: ObservableObject {
         let conversation = Conversation(id: idProvider(), messages: [])
         conversations.append(conversation)
     }
-    
+
     func selectConversation(_ conversationId: Conversation.ID?) {
         selectedConversationID = conversationId
     }
-    
+
     func deleteConversation(_ conversationId: Conversation.ID) {
         conversations.removeAll(where: { $0.id == conversationId })
     }
-    
+
     @MainActor
     func sendMessage(
         _ message: Message,
@@ -68,7 +68,7 @@ public final class ChatStore: ObservableObject {
             model: model
         )
     }
-    
+
     @MainActor
     func completeChat(
         conversationId: Conversation.ID,
@@ -77,7 +77,7 @@ public final class ChatStore: ObservableObject {
         guard let conversation = conversations.first(where: { $0.id == conversationId }) else {
             return
         }
-                
+
         conversationErrors[conversationId] = nil
 
         do {
@@ -98,7 +98,7 @@ public final class ChatStore: ObservableObject {
             )
 
             let functions = [weatherFunction]
-            
+
             let chatsStream: AsyncThrowingStream<ChatCompletionChunk, Error> = openAIClient.chatsStream(
                 query: ChatQuery(
                     model: model,

@@ -27,7 +27,7 @@ public extension OpenAIProtocol {
             }
         }
     }
-    
+
     func imageEdits(
         query: ImageEditParams
     ) async throws -> ImagesResponse {
@@ -42,7 +42,7 @@ public extension OpenAIProtocol {
             }
         }
     }
-    
+
     func imageVariations(
         query: ImageCreateVariationParams
     ) async throws -> ImagesResponse {
@@ -72,7 +72,7 @@ public extension OpenAIProtocol {
             }
         }
     }
-    
+
     func chats(
         query: ChatCompletionCreateParams
     ) async throws -> ChatCompletion {
@@ -93,7 +93,7 @@ public extension OpenAIProtocol {
             }
         }
     }
-    
+
     func chatsStream(
         query: ChatCompletionCreateParams
     ) -> AsyncThrowingStream<ChatCompletionChunk, Error> {
@@ -105,7 +105,7 @@ public extension OpenAIProtocol {
             }
         }
     }
-    
+
     func model(
         query: ModelCreateParams
     ) async throws -> Model {
@@ -148,7 +148,7 @@ public extension OpenAIProtocol {
             }
         }
     }
-    
+
     func moderations(
         query: ModerationCreateParams
     ) async throws -> ModerationCreateResponse {
@@ -163,7 +163,7 @@ public extension OpenAIProtocol {
             }
         }
     }
-    
+
     func audioCreateSpeech(
         query: SpeechCreateParams
     ) async throws -> Speech {
@@ -178,7 +178,7 @@ public extension OpenAIProtocol {
             }
         }
     }
-    
+
     func audioTranscriptions(
         query: TranscriptionCreateParams
     ) async throws -> Transcription {
@@ -193,7 +193,7 @@ public extension OpenAIProtocol {
             }
         }
     }
-    
+
     func audioTranslations(
         query: TranslationCreateParams
     ) async throws -> Translation {

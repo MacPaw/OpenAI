@@ -14,7 +14,7 @@ public struct EmbeddingResponse: Codable, Equatable {
     /// The object type, which is always "list".
     public let object: String
     public let usage: Usage
-    
+
     public struct Embedding: Codable, Equatable {
         /// The embedding vector, which is a list of floats. The length of vector depends on the model as listed in the embedding guide.
         /// https://platform.openai.com/docs/guides/embeddings

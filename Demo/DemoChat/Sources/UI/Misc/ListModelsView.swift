@@ -9,7 +9,7 @@ import SwiftUI
 
 public struct ListModelsView: View {
     @ObservedObject var store: MiscStore
-    
+
     public var body: some View {
         NavigationStack {
             List($store.availableModels) { row in

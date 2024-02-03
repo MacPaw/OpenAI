@@ -1,6 +1,6 @@
 //
 //  TranslationCreateParams.swift
-//  
+//
 //
 //  Created by Sergii Kryvoblotskyi on 02/04/2023.
 //
@@ -27,7 +27,7 @@ public struct TranslationCreateParams: Codable {
     /// The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the model will use log probability to automatically increase the temperature until certain thresholds are hit.
     /// Defaults to 0
     public let temperature: Double?
-    
+
     public init(
         file: Data,
         fileType: Self.FileType,
@@ -46,7 +46,7 @@ public struct TranslationCreateParams: Codable {
 }
 
 extension TranslationCreateParams: MultipartFormDataBodyEncodable {
-    
+
     func encode(boundary: String) -> Data {
         var entries: [MultipartFormDataEntry] = [
             .file(paramName: "file", fileName: fileType.fileName, fileData: file, contentType: fileType.contentType),

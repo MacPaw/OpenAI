@@ -1,6 +1,6 @@
 //
 //  ChatCompletionChunk.swift
-//  
+//
 //
 //  Created by Sergii Kryvoblotskyi on 15/05/2023.
 //

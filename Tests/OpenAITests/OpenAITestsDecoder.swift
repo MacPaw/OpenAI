@@ -1,6 +1,6 @@
 //
 //  OpenAITestsDecoder.swift
-//  
+//
 //
 //  Created by Aled Samuel on 10/04/2023.
 //
@@ -12,17 +12,17 @@ import XCTest
 @available(watchOS 6.0, *)
 @available(tvOS 13.0, *)
 class OpenAITestsDecoder: XCTestCase {
-    
+
     override func setUp() {
         super.setUp()
     }
-    
+
     private func decode<T: Decodable & Equatable>(_ jsonString: String, _ expectedValue: T) throws {
         let data = jsonString.data(using: .utf8)!
         let decoded = try JSONDecoder().decode(T.self, from: data)
         XCTAssertEqual(decoded, expectedValue)
     }
-    
+
     func jsonDataAsNSDictionary(_ data: Data) throws -> NSDictionary {
         return NSDictionary(dictionary: try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any])
     }
@@ -44,7 +44,7 @@ class OpenAITestsDecoder: XCTestCase {
           ]
         }
         """
-        
+
         let expectedValue = ImagesResponse(created: 1589478378, data: [
             .init(b64_json: nil, revised_prompt: nil, url: "https://foo.bar"),
             .init(b64_json: nil, revised_prompt: nil, url: "https://bar.foo"),
@@ -52,7 +52,7 @@ class OpenAITestsDecoder: XCTestCase {
         ])
         try decode(data, expectedValue)
     }
-    
+
     func testChatCompletion() async throws {
         let data = """
         {
@@ -75,13 +75,13 @@ class OpenAITestsDecoder: XCTestCase {
           }
         }
         """
-        
+
         let expectedValue = ChatCompletion(id: "chatcmpl-123", choices: [
             .init(finish_reason: "stop", index: 0, logprobs: nil, message: .assistant(.init(content: "Hello, world!")))
         ], created: 1677652288, model: ChatModel.gpt_3_5_turbo_1106.rawValue, object: "chat.completion", system_fingerprint: nil, usage: .init(completion_tokens: 12, prompt_tokens: 9, total_tokens: 21))
         try decode(data, expectedValue)
     }
-    
+
     func testImageQuery() async throws {
         let imageQuery = ImageGenerateParams(
             prompt: "test",
@@ -92,7 +92,7 @@ class OpenAITestsDecoder: XCTestCase {
             style: .vivid,
             user: "user"
         )
-        
+
         let expectedValue = """
         {
             "model": "dall-e-2",
@@ -104,14 +104,14 @@ class OpenAITestsDecoder: XCTestCase {
             "response_format": "b64_json"
         }
         """
-        
+
         // To compare serialized JSONs we first convert them both into NSDictionary which are comparable (unline native swift dictionaries)
         let imageQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(imageQuery))
         let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
-        
+
         XCTAssertEqual(imageQueryAsDict, expectedValueAsDict)
     }
-  
+
     func testChatQueryWithFunctionCall() async throws {
         let chatQuery = ChatCompletionCreateParams(
             messages: [
@@ -166,11 +166,11 @@ class OpenAITestsDecoder: XCTestCase {
           "stream": false
         }
         """
-        
+
         // To compare serialized JSONs we first convert them both into NSDictionary which are comparable (unline native swift dictionaries)
         let chatQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(chatQuery))
         let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
-        
+
         XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
     }
 
@@ -208,7 +208,7 @@ class OpenAITestsDecoder: XCTestCase {
           }
         }
         """
-        
+
         let expectedValue = ChatCompletion(
             id: "chatcmpl-1234",
             choices: [
@@ -246,13 +246,13 @@ class OpenAITestsDecoder: XCTestCase {
           }
         }
         """
-        
+
         let expectedValue = EmbeddingResponse(data: [
             .init(embedding: [0.0023064255, -0.009327292, -0.0028842222], index: 0, object: "embedding")
         ], model: EmbeddingsModel.text_embedding_ada_002.rawValue, object: "list", usage: .init(prompt_tokens: 8, total_tokens: 8))
         try decode(data, expectedValue)
     }
-    
+
     func testModels() async throws {
         let data = """
         {
@@ -279,7 +279,7 @@ class OpenAITestsDecoder: XCTestCase {
           "object": "list"
         }
         """
-        
+
         let expectedValue = ModelsResponse(data: [
             .init(id: ChatModel.gpt_3_5_turbo.rawValue, created: 222, object: "model", owned_by: "organization-owner"),
             .init(id: ImageModel.dall_e_2.rawValue, created: 111, object: "model", owned_by: "organization-owner"),
@@ -287,7 +287,7 @@ class OpenAITestsDecoder: XCTestCase {
         ], object: "list")
         try decode(data, expectedValue)
     }
-    
+
     func testModelType() async throws {
         let data = """
         {
@@ -297,11 +297,11 @@ class OpenAITestsDecoder: XCTestCase {
           "owned_by": "openai"
         }
         """
-        
+
         let expectedValue = Model(id: AudioTranscriptionModel.whisper_1.rawValue, created: 555, object: "model", owned_by: "openai")
         try decode(data, expectedValue)
     }
-    
+
     func testModerations() async throws {
         let data = """
         {
@@ -340,7 +340,7 @@ class OpenAITestsDecoder: XCTestCase {
           ]
         }
         """
-        
+
         let expectedValue = ModerationCreateResponse(id: "modr-5MWoLO", model: ModerationsModel.textModerationLatest.rawValue, results: [
             .init(categories: .init(harassment: false, harassment_threatening: false, hate: false, hate_threatening: true, self_harm: false, self_harm_intent: false, self_harm_instructions: false, sexual: false, sexual_minors: false, violence: true, violence_graphic: false),
                   category_scores: .init(harassment: 0.0431830403405153, harassment_threatening: 0.1229622494034651, hate: 0.22714105248451233, hate_threatening: 0.4132447838783264, self_harm: 0.00523239187896251, self_harm_intent: 0.307237106114835, self_harm_instructions: 0.42189350703096, sexual: 0.01407341007143259, sexual_minors: 0.0038522258400917053, violence: 0.9223177433013916, violence_graphic: 0.036865197122097015),
@@ -348,25 +348,25 @@ class OpenAITestsDecoder: XCTestCase {
         ])
         try decode(data, expectedValue)
     }
-    
+
     func testAudioTranscriptions() async throws {
         let data = """
         {
           "text": "Hello, world!"
         }
         """
-        
+
         let expectedValue = Transcription(text: "Hello, world!")
         try decode(data, expectedValue)
     }
-    
+
     func testAudioTranslations() async throws {
         let data = """
         {
           "text": "Hello, world!"
         }
         """
-        
+
         let expectedValue = Translation(text: "Hello, world!")
         try decode(data, expectedValue)
     }

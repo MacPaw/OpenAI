@@ -15,7 +15,7 @@ class OpenAITests: XCTestCase {
 
     var openAI: OpenAIProtocol!
     var urlSession: URLSessionMock!
-    
+
     override func setUp() {
         super.setUp()
         self.urlSession = URLSessionMock()
@@ -32,16 +32,16 @@ class OpenAITests: XCTestCase {
         let result = try await openAI.images(query: query)
         XCTAssertEqual(result, imagesResult)
     }
-    
+
     func testImagesError() async throws {
         let query = ImageGenerateParams(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: ._1024)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
-        
+
         let apiError: APIError = try await XCTExpectError { try await openAI.images(query: query) }
         XCTAssertEqual(inError, apiError)
     }
-    
+
     func testImageEdit() async throws {
         let query = ImageEditParams(image: Data(), prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", mask: Data(), n: 1, size: ._1024)
         let imagesResult = ImagesResponse(created: 100, data: [
@@ -51,16 +51,16 @@ class OpenAITests: XCTestCase {
         let result = try await openAI.imageEdits(query: query)
         XCTAssertEqual(result, imagesResult)
     }
-    
+
     func testImageEditError() async throws {
         let query = ImageEditParams(image: Data(), prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", mask: Data(), n: 1, size: ._1024)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
-        
+
         let apiError: APIError = try await XCTExpectError { try await openAI.imageEdits(query: query) }
         XCTAssertEqual(inError, apiError)
     }
-    
+
     func testImageVariation() async throws {
         let query = ImageCreateVariationParams(image: Data(), n: 1, size: "1024x1024")
         let imagesResult = ImagesResponse(created: 100, data: [
@@ -70,16 +70,16 @@ class OpenAITests: XCTestCase {
         let result = try await openAI.imageVariations(query: query)
         XCTAssertEqual(result, imagesResult)
     }
-    
+
     func testImageVariationError() async throws {
         let query = ImageCreateVariationParams(image: Data(), n: 1, size: "1024x1024")
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
-        
+
         let apiError: APIError = try await XCTExpectError { try await openAI.imageVariations(query: query) }
         XCTAssertEqual(inError, apiError)
     }
-    
+
     func testChats() async throws {
        let query = ChatCompletionCreateParams(messages: [
            .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
@@ -91,7 +91,7 @@ class OpenAITests: XCTestCase {
             .init(finish_reason: "baz2", index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")))
         ], created: 100, model: ChatModel.gpt_3_5_turbo.rawValue, object: "foo", system_fingerprint: nil, usage: .init(completion_tokens: 200, prompt_tokens: 100, total_tokens: 300))
        try self.stub(result: chatResult)
-        
+
        let result = try await openAI.chats(query: query)
        XCTAssertEqual(result, chatResult)
     }
@@ -116,7 +116,7 @@ class OpenAITests: XCTestCase {
         let result = try await openAI.chats(query: query)
         XCTAssertEqual(result, chatResult)
     }
-    
+
     func testChatsError() async throws {
         let query = ChatCompletionCreateParams(messages: [
             .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
@@ -128,7 +128,7 @@ class OpenAITests: XCTestCase {
         let apiError: APIError = try await XCTExpectError { try await openAI.chats(query: query) }
         XCTAssertEqual(inError, apiError)
     }
-    
+
     func testEmbeddings() async throws {
         let query = EmbeddingCreateParams(
             input: .string("The food was delicious and the waiter..."),
@@ -143,11 +143,11 @@ class OpenAITests: XCTestCase {
             object: "embeddings",
             usage: .init(prompt_tokens: 10, total_tokens: 10))
         try self.stub(result: embeddingsResult)
-        
+
         let result = try await openAI.embeddings(query: query)
         XCTAssertEqual(result, embeddingsResult)
     }
-    
+
     func testEmbeddingsError() async throws {
         let query = EmbeddingCreateParams(input: .string("The food was delicious and the waiter..."), model: .text_embedding_ada_002)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
@@ -156,31 +156,31 @@ class OpenAITests: XCTestCase {
         let apiError: APIError = try await XCTExpectError { try await openAI.embeddings(query: query) }
         XCTAssertEqual(inError, apiError)
     }
-    
+
     func testQueryString() throws {
         let pathParameter = APIPath.chats
         let result = APIPath.models.withPath(pathParameter)
         XCTAssertEqual(result, APIPath.models + "/" + pathParameter)
     }
-    
+
     func testRetrieveModel() async throws {
         let query = ModelCreateParams(model: ChatModel.gpt_3_5_turbo.rawValue)
         let modelResult = Model(id: ChatModel.gpt_3_5_turbo.rawValue, created: 999, object: "model", owned_by: "openai")
         try self.stub(result: modelResult)
-        
+
         let result = try await openAI.model(query: query)
         XCTAssertEqual(result, modelResult)
     }
-    
+
     func testRetrieveModelError() async throws {
         let query = ModelCreateParams(model: ChatModel.gpt_3_5_turbo.rawValue)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
-        
+
         let apiError: APIError = try await XCTExpectError { try await openAI.model(query: query) }
         XCTAssertEqual(inError, apiError)
     }
-    
+
     func testListModels() async throws {
         let listModelsResult = ModelsResponse(data: [
             .init(id: "model-id-0", created: 7777, object: "model", owned_by: "organization-owner"),
@@ -188,18 +188,18 @@ class OpenAITests: XCTestCase {
             .init(id: "model-id-2", created: 7777, object: "model", owned_by: "openai")
         ], object: "list")
         try self.stub(result: listModelsResult)
-        
+
         let result = try await openAI.models()
         XCTAssertEqual(result, listModelsResult)
     }
-    
+
     func testListModelsError() async throws {
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         let apiError: APIError = try await XCTExpectError { try await openAI.models() }
         XCTAssertEqual(inError, apiError)
     }
-    
+
     func testModerations() async throws {
         let query = ModerationCreateParams(input: .string("Hello, world!"))
         let moderationsResult = ModerationCreateResponse(id: "foo", model: ModerationsModel.textModerationLatest.rawValue, results: [
@@ -209,69 +209,69 @@ class OpenAITests: XCTestCase {
                 flagged: false)
         ])
         try self.stub(result: moderationsResult)
-        
+
         let result = try await openAI.moderations(query: query)
         XCTAssertEqual(result, moderationsResult)
     }
-    
+
     func testModerationsError() async throws {
         let query = ModerationCreateParams(input: .string("Hello, world!"))
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
-        
+
         let apiError: APIError = try await XCTExpectError { try await openAI.moderations(query: query) }
         XCTAssertEqual(inError, apiError)
     }
-    
+
     func testAudioSpeechError() async throws {
         let query = SpeechCreateParams(input: "Hello, world!", model: .tts_1, voice: .alloy, response_format: .mp3, speed: 1.0)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
-        
+
         let apiError: APIError = try await XCTExpectError { try await openAI.audioCreateSpeech(query: query) }
         XCTAssertEqual(inError, apiError)
     }
-    
+
     func testAudioTranscriptions() async throws {
         let data = Data()
         let query = TranscriptionCreateParams(file: data, fileType: .m4a, model: .whisper_1)
         let transcriptionResult = Transcription(text: "Hello, world!")
         try self.stub(result: transcriptionResult)
-        
+
         let result = try await openAI.audioTranscriptions(query: query)
         XCTAssertEqual(result, transcriptionResult)
     }
-    
+
     func testAudioTranscriptionsError() async throws {
         let data = Data()
         let query = TranscriptionCreateParams(file: data, fileType: .m4a, model: .whisper_1)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
-        
+
         let apiError: APIError = try await XCTExpectError { try await openAI.audioTranscriptions(query: query) }
         XCTAssertEqual(inError, apiError)
     }
-    
+
     func testAudioTranslations() async throws {
         let data = Data()
         let query = TranslationCreateParams(file: data, fileType: .m4a, model: .whisper_1)
         let transcriptionResult = Translation(text: "Hello, world!")
         try self.stub(result: transcriptionResult)
-        
+
         let result = try await openAI.audioTranslations(query: query)
         XCTAssertEqual(result, transcriptionResult)
     }
-    
+
     func testAudioTranslationsError() async throws {
         let data = Data()
         let query = TranslationCreateParams(file: data, fileType: .m4a, model: .whisper_1)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
-        
+
         let apiError: APIError = try await XCTExpectError { try await openAI.audioTranslations(query: query) }
         XCTAssertEqual(inError, apiError)
     }
-    
+
     func testSimilarity_Similar() {
         let vector1 = [0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251]
         let vector2 = [0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251, 0.213123, 0.3214124, 0.1414124, 0.3214521251]
@@ -285,37 +285,37 @@ class OpenAITests: XCTestCase {
         let similarity = Vector.cosineSimilarity(a: vector1, b: vector2)
         XCTAssertEqual(similarity, 0.9510201910206734, accuracy: 0.000001)
     }
-    
+
     func testJSONRequestCreation() throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         let completionQuery = ChatCompletionCreateParams(messages: [.user(.init(content: .string("how are you?")))], model: .gpt_3_5_turbo_1106)
         let jsonRequest = JSONRequest<ChatCompletion>(body: completionQuery, url: URL(string: "http://google.com")!)
         let urlRequest = try jsonRequest.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
-        
+
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Content-Type"), "application/json")
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "OpenAI-Organization"), configuration.organizationIdentifier)
         XCTAssertEqual(urlRequest.timeoutInterval, configuration.timeoutInterval)
     }
-    
+
     func testMultipartRequestCreation() throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         let completionQuery = TranslationCreateParams(file: Data(), fileType: .mp3, model: .whisper_1)
         let jsonRequest = MultipartFormDataRequest<ChatCompletion>(body: completionQuery, url: URL(string: "http://google.com")!)
         let urlRequest = try jsonRequest.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
-        
+
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "OpenAI-Organization"), configuration.organizationIdentifier)
         XCTAssertEqual(urlRequest.timeoutInterval, configuration.timeoutInterval)
     }
-    
+
     func testDefaultHostURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         let openAI = OpenAI(configuration: configuration, session: self.urlSession)
         let chatsURL = openAI.buildURL(path: .chats)
         XCTAssertEqual(chatsURL, URL(string: "https://api.openai.com/v1/chat/completions"))
     }
-    
+
     func testCustomURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", timeoutInterval: 14)
         let openAI = OpenAI(configuration: configuration, session: self.urlSession)
@@ -328,13 +328,13 @@ class OpenAITests: XCTestCase {
 @available(iOS 13.0, *)
 @available(watchOS 6.0, *)
 extension OpenAITests {
-    
+
     func stub(error: Error) {
         let error = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         let task = DataTaskMock.failed(with: error)
         self.urlSession.dataTask = task
     }
-    
+
     func stub(result: Codable) throws {
         let encoder = JSONEncoder()
         let data = try encoder.encode(result)
@@ -347,12 +347,12 @@ extension OpenAITests {
 @available(iOS 13.0, *)
 @available(watchOS 6.0, *)
 extension OpenAITests {
-    
+
     enum TypeError: Error {
         case unexpectedResult(String)
         case typeMismatch(String)
     }
-    
+
     func XCTExpectError<ErrorType: Error>(execute: () async throws -> Any) async throws -> ErrorType {
         do {
             let result = try await execute()

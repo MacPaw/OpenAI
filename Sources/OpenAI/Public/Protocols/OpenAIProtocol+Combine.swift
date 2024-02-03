@@ -1,6 +1,6 @@
 //
 //  OpenAIProtocol+Combine.swift
-//  
+//
 //
 //  Created by Sergii Kryvoblotskyi on 03/04/2023.
 //
@@ -21,14 +21,14 @@ public extension OpenAIProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     func imageEdits(query: ImageEditParams) -> AnyPublisher<ImagesResponse, Error> {
         Future<ImagesResponse, Error> {
             imageEdits(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
-    
+
     func imageVariations(query: ImageCreateVariationParams) -> AnyPublisher<ImagesResponse, Error> {
         Future<ImagesResponse, Error> {
             imageVariations(query: query, completion: $0)
@@ -49,7 +49,7 @@ public extension OpenAIProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     func chatsStream(query: ChatCompletionCreateParams) -> AnyPublisher<Result<ChatCompletionChunk, Error>, Error> {
         let progress = PassthroughSubject<Result<ChatCompletionChunk, Error>, Error>()
         chatsStream(query: query) { result in
@@ -63,14 +63,14 @@ public extension OpenAIProtocol {
         }
         return progress.eraseToAnyPublisher()
     }
-    
+
     func model(query: ModelCreateParams) -> AnyPublisher<Model, Error> {
         Future<Model, Error> {
             model(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
-    
+
     func deleteModel(query: ModelCreateParams) -> AnyPublisher<ModelDeleted, Error> {
         Future<ModelDeleted, Error> {
             deleteModel(query: query, completion: $0)
@@ -84,7 +84,7 @@ public extension OpenAIProtocol {
         }
         .eraseToAnyPublisher()
     }
-    
+
     func moderations(query: ModerationCreateParams) -> AnyPublisher<ModerationCreateResponse, Error> {
         Future<ModerationCreateResponse, Error> {
             moderations(query: query, completion: $0)

@@ -10,18 +10,18 @@ import OpenAI
 import UIKit
 
 public struct TextToSpeechView: View {
-    
+
     @ObservedObject var store: SpeechStore
-    
+
     @State private var prompt: String = ""
     @State private var voice: AudioSpeechQuery.AudioSpeechVoice = .alloy
     @State private var speed: Double = 1
     @State private var responseFormat: AudioSpeechQuery.AudioSpeechResponseFormat = .mp3
-    
+
     public init(store: SpeechStore) {
         self.store = store
     }
-    
+
     public var body: some View {
         List {
             Section {
@@ -103,7 +103,7 @@ public struct TextToSpeechView: View {
                             Button(action: {
                                 guard let player = object.audioPlayer,
                                         object.format != AudioSpeechQuery.AudioSpeechResponseFormat.opus.rawValue else { return }
-                                
+
                                 if player.isPlaying {
                                     player.stop()
                                 } else {
@@ -134,13 +134,13 @@ public struct TextToSpeechView: View {
 }
 
 extension TextToSpeechView {
-    
+
     private func presentUserDirectoryDocumentPicker(for audioData: Data?, filename: String) {
         guard let audioData else { return }
         store.getFileInDocumentsDirectory(audioData, fileName: filename) { fileUrl in
             let filePickerVC = UIDocumentPickerViewController(forExporting: [fileUrl], asCopy: false)
             filePickerVC.shouldShowFileExtensions = true
-            
+
             guard let vc = getCurrentViewController() else { return }
             vc.present(filePickerVC, animated: true, completion: nil)
         }

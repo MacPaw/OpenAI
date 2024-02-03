@@ -1,6 +1,6 @@
 //
 //  Utilities.swift
-//  
+//
 //
 //  Created by Sergii Kryvoblotskyi on 12/19/22.
 //
@@ -8,7 +8,7 @@
 import Foundation
 
 public struct Vector {
-    
+
     /// Returns the similarity between two vectors
     ///
     /// - Parameters:
@@ -27,7 +27,7 @@ public struct Vector {
         return 1 - Self.cosineSimilarity(a: a, b: b)
     }
 }
- 
+
 private extension Vector {
 
     static func round(_ input: Double, to places: Int = 1) -> Double {

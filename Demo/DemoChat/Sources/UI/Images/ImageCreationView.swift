@@ -10,18 +10,18 @@ import OpenAI
 
 public struct ImageCreationView: View {
     @ObservedObject var store: ImageStore
-    
+
     @State private var prompt: String = ""
     @State private var n: Int = 1
     @State private var size: String
-    
+
     private var sizes = ["256x256", "512x512", "1024x1024"]
-    
+
     public init(store: ImageStore) {
         self.store = store
         size = sizes[0]
     }
-    
+
     public var body: some View {
         List {
             Section {

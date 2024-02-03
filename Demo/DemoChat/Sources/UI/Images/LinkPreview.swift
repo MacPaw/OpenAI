@@ -10,13 +10,13 @@ import LinkPresentation
 
 struct LinkPreview: UIViewRepresentable {
     typealias UIViewType = LPLinkView
-    
+
     var previewURL: URL
-    
+
     func makeUIView(context: Context) -> LPLinkView {
         LPLinkView(url: previewURL)
     }
-    
+
     func updateUIView(_ uiView: UIViewType, context: Context) {
         LPMetadataProvider().startFetchingMetadata(for: previewURL) { metadata, error in
             if let error = error {

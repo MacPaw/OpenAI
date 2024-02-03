@@ -9,14 +9,14 @@ import SwiftUI
 
 public struct ModerationChatView: View {
     @ObservedObject var store: MiscStore
-    
+
     @Environment(\.dateProviderValue) var dateProvider
     @Environment(\.idProviderValue) var idProvider
 
     public init(store: MiscStore) {
         self.store = store
     }
-    
+
     public var body: some View {
         DetailView(
             conversation: store.moderationConversation,

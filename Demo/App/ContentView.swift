@@ -40,7 +40,7 @@ struct ContentView: View {
                 Label("Image", systemImage: "photo")
             }
             .tag(2)
-            
+
             MiscView(
                 store: miscStore
             )

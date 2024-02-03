@@ -9,7 +9,7 @@ import Foundation
 
 /// A list of model objects.
 public struct ModelsResponse: Codable, Equatable {
-    
+
     /// A list of model objects.
     public let data: [Model]
     /// The object type, which is always `list`

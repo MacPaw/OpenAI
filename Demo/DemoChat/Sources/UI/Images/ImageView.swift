@@ -9,11 +9,11 @@ import SwiftUI
 
 public struct ImageView: View {
     @ObservedObject var store: ImageStore
-    
+
     public init(store: ImageStore) {
         self.store = store
     }
-    
+
     public var body: some View {
         NavigationStack {
             List {
@@ -22,7 +22,7 @@ public struct ImageView: View {
                     .disabled(true)
                 NavigationLink("Create Image Variation", destination: ImageVariationView(store: store))
                     .disabled(true)
-                
+
             }
             .listStyle(.insetGrouped)
             .navigationTitle("Image")
@@ -32,14 +32,14 @@ public struct ImageView: View {
 
 public struct ImageEditView: View {
     @ObservedObject var store: ImageStore
-    
+
     public init(store: ImageStore) {
         self.store = store
     }
-    
+
     public var body: some View {
         List {
-            
+
         }
         .listStyle(.insetGrouped)
         .navigationTitle("Create Image Edit")
@@ -48,14 +48,14 @@ public struct ImageEditView: View {
 
 public struct ImageVariationView: View {
     @ObservedObject var store: ImageStore
-    
+
     public init(store: ImageStore) {
         self.store = store
     }
-    
+
     public var body: some View {
         List {
-            
+
         }
         .listStyle(.insetGrouped)
         .navigationTitle("Create Image Variation")

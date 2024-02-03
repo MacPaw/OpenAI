@@ -1,6 +1,6 @@
 //
 //  ChatCompletionCreateParams.swift
-//  
+//
 //
 //  Created by Sergii Kryvoblotskyi on 02/04/2023.
 //
@@ -346,7 +346,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
                 }
             }
         }
-        
+
         internal struct ChatCompletionMessageParam: Codable, Equatable {
             typealias Role = ChatCompletionCreateParams.ChatCompletionMessageParam.Role
 

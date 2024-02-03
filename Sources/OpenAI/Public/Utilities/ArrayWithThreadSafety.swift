@@ -1,6 +1,6 @@
 //
 //  ArrayWithThreadSafety.swift
-//  
+//
 //
 //  Created by James J Kalafus on 2024-02-01.
 //

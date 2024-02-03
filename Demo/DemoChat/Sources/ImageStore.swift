@@ -10,15 +10,15 @@ import OpenAI
 
 public final class ImageStore: ObservableObject {
     public var openAIClient: OpenAIProtocol
-    
+
     @Published var images: [ImagesResponse.URLResult] = []
-    
+
     public init(
         openAIClient: OpenAIProtocol
     ) {
         self.openAIClient = openAIClient
     }
-    
+
     @MainActor
     func images(query: ImageGenerateParams) async {
         images.removeAll()

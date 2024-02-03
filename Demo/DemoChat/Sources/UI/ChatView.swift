@@ -10,14 +10,14 @@ import SwiftUI
 
 public struct ChatView: View {
     @ObservedObject var store: ChatStore
-    
+
     @Environment(\.dateProviderValue) var dateProvider
     @Environment(\.idProviderValue) var idProvider
 
     public init(store: ChatStore) {
         self.store = store
     }
-    
+
     public var body: some View {
         NavigationSplitView {
             ListView(

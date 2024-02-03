@@ -1,6 +1,6 @@
 //
 //  APIError.swift
-//  
+//
 //
 //  Created by Sergii Kryvoblotskyi on 02/04/2023.
 //
@@ -52,7 +52,7 @@ public struct APIError: Error, Decodable, Equatable {
 }
 
 extension APIError: LocalizedError {
-    
+
     public var errorDescription: String? {
         return message
     }
@@ -63,7 +63,7 @@ public struct APIErrorResponse: Error, Decodable, Equatable {
 }
 
 extension APIErrorResponse: LocalizedError {
-    
+
     public var errorDescription: String? {
         return error.errorDescription
     }

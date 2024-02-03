@@ -180,7 +180,7 @@ struct DetailView: View {
         }
         .padding(.bottom)
     }
-    
+
     private func tapSendMessage(
         scrollViewProxy: ScrollViewProxy
     ) {
@@ -188,10 +188,10 @@ struct DetailView: View {
         if message.isEmpty {
             return
         }
-        
+
         sendMessage(message, selectedChatModel)
         inputText = ""
-        
+
 //        if let lastMessage = conversation.messages.last {
 //            scrollViewProxy.scrollTo(lastMessage.id, anchor: .bottom)
 //        }

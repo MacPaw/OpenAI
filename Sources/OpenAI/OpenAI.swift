@@ -13,19 +13,19 @@ import FoundationNetworking
 final public class OpenAI: OpenAIProtocol {
 
     public struct Configuration {
-        
+
         /// OpenAI API token. See https://platform.openai.com/docs/api-reference/authentication
         public let token: String
-        
+
         /// Optional OpenAI organization identifier. See https://platform.openai.com/docs/api-reference/authentication
         public let organizationIdentifier: String?
-        
+
         /// API host. Set this property if you use some kind of proxy or your own server. Default is api.openai.com
         public let host: String
-        
+
         /// Default request timeout
         public let timeoutInterval: TimeInterval
-        
+
         public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", timeoutInterval: TimeInterval = 60.0) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
@@ -33,7 +33,7 @@ final public class OpenAI: OpenAIProtocol {
             self.timeoutInterval = timeoutInterval
         }
     }
-    
+
     private let session: URLSessionProtocol
     private var streamingSessions = ArrayWithThreadSafety<NSObject>()
 
@@ -42,7 +42,7 @@ final public class OpenAI: OpenAIProtocol {
     public convenience init(apiToken: String) {
         self.init(configuration: Configuration(token: apiToken), session: URLSession.shared)
     }
-    
+
     public convenience init(configuration: Configuration) {
         self.init(configuration: configuration, session: URLSession.shared)
     }
@@ -63,27 +63,27 @@ final public class OpenAI: OpenAIProtocol {
     public func imageEdits(query: ImageEditParams, completion: @escaping (Result<ImagesResponse, Error>) -> Void) {
         performRequest(request: MultipartFormDataRequest<ImagesResponse>(body: query, url: buildURL(path: .imageEdits)), completion: completion)
     }
-    
+
     public func imageVariations(query: ImageCreateVariationParams, completion: @escaping (Result<ImagesResponse, Error>) -> Void) {
         performRequest(request: MultipartFormDataRequest<ImagesResponse>(body: query, url: buildURL(path: .imageVariations)), completion: completion)
     }
-    
+
     public func embeddings(query: EmbeddingCreateParams, completion: @escaping (Result<EmbeddingResponse, Error>) -> Void) {
         performRequest(request: JSONRequest<EmbeddingResponse>(body: query, url: buildURL(path: .embeddings)), completion: completion)
     }
-    
+
     public func chats(query: ChatCompletionCreateParams, completion: @escaping (Result<ChatCompletion, Error>) -> Void) {
         performRequest(request: JSONRequest<ChatCompletion>(body: query.makeNonStreamable(), url: buildURL(path: .chats)), completion: completion)
     }
-    
+
     public func chatsStream(query: ChatCompletionCreateParams, onResult: @escaping (Result<ChatCompletionChunk, Error>) -> Void, completion: ((Error?) -> Void)?) {
         performStreamingRequest(request: JSONRequest<ChatCompletion>(body: query.makeStreamable(), url: buildURL(path: .chats)), onResult: onResult, completion: completion)
     }
-    
+
     public func model(query: ModelCreateParams, completion: @escaping (Result<Model, Error>) -> Void) {
         performRequest(request: JSONRequest<Model>(url: buildURL(path: .models.withPath(query.model)), method: "GET"), completion: completion)
     }
-    
+
     public func deleteModel(query: ModelCreateParams, completion: @escaping (Result<ModelDeleted, Error>) -> Void) {
         performRequest(request: JSONRequest<Model>(url: buildURL(path: .models.withPath(query.model)), method: "DELETE"), completion: completion)
     } // TODO: test deleteModel
@@ -91,19 +91,19 @@ final public class OpenAI: OpenAIProtocol {
     public func models(completion: @escaping (Result<ModelsResponse, Error>) -> Void) {
         performRequest(request: JSONRequest<ModelsResponse>(url: buildURL(path: .models), method: "GET"), completion: completion)
     }
-    
+
     public func moderations(query: ModerationCreateParams, completion: @escaping (Result<ModerationCreateResponse, Error>) -> Void) {
         performRequest(request: JSONRequest<ModerationCreateResponse>(body: query, url: buildURL(path: .moderations)), completion: completion)
     }
-    
+
     public func audioTranscriptions(query: TranscriptionCreateParams, completion: @escaping (Result<Transcription, Error>) -> Void) {
         performRequest(request: MultipartFormDataRequest<Transcription>(body: query, url: buildURL(path: .audioTranscriptions)), completion: completion)
     }
-    
+
     public func audioTranslations(query: TranslationCreateParams, completion: @escaping (Result<Translation, Error>) -> Void) {
         performRequest(request: MultipartFormDataRequest<Translation>(body: query, url: buildURL(path: .audioTranslations)), completion: completion)
     }
-    
+
     public func audioCreateSpeech(query: SpeechCreateParams, completion: @escaping (Result<Speech, Error>) -> Void) {
         performSpeechRequest(request: JSONRequest<Speech>(body: query, url: buildURL(path: .audioSpeech)), completion: completion)
     }
@@ -114,7 +114,7 @@ extension OpenAI {
 
     func performRequest<ResultType: Codable>(request: any URLRequestBuildable, completion: @escaping (Result<ResultType, Error>) -> Void) {
         do {
-            let request = try request.build(token: configuration.token, 
+            let request = try request.build(token: configuration.token,
                                             organizationIdentifier: configuration.organizationIdentifier,
                                             timeoutInterval: configuration.timeoutInterval)
             let task = session.dataTask(with: request) { data, _, error in
@@ -149,10 +149,10 @@ extension OpenAI {
             completion(.failure(error))
         }
     }
-    
+
     func performStreamingRequest<ResultType: Codable>(request: any URLRequestBuildable, onResult: @escaping (Result<ResultType, Error>) -> Void, completion: ((Error?) -> Void)?) {
         do {
-            let request = try request.build(token: configuration.token, 
+            let request = try request.build(token: configuration.token,
                                             organizationIdentifier: configuration.organizationIdentifier,
                                             timeoutInterval: configuration.timeoutInterval)
             let session = StreamingSession<ResultType>(urlRequest: request)
@@ -172,13 +172,13 @@ extension OpenAI {
             completion?(error)
         }
     }
-    
+
     func performSpeechRequest(request: any URLRequestBuildable, completion: @escaping (Result<Speech, Error>) -> Void) {
         do {
-            let request = try request.build(token: configuration.token, 
+            let request = try request.build(token: configuration.token,
                                             organizationIdentifier: configuration.organizationIdentifier,
                                             timeoutInterval: configuration.timeoutInterval)
-            
+
             let task = session.dataTask(with: request) { data, _, error in
                 if let error = error {
                     completion(.failure(error))
@@ -188,10 +188,10 @@ extension OpenAI {
                     completion(.failure(OpenAIError.emptyData))
                     return
                 }
-                
+
                 completion(.success(Speech(audio: data)))
                 let apiError: Error? = nil
-                
+
                 if let apiError = apiError {
                     do {
                         let decoded = try JSONDecoder().decode(APIErrorResponse.self, from: data)
@@ -209,7 +209,7 @@ extension OpenAI {
 }
 
 extension OpenAI {
-    
+
     func buildURL(path: String) -> URL {
         var components = URLComponents()
         components.scheme = "https"
@@ -221,20 +221,20 @@ extension OpenAI {
 
 typealias APIPath = String
 extension APIPath {
-    
+
     static let embeddings = "/v1/embeddings"
     static let chats = "/v1/chat/completions"
     static let models = "/v1/models"
     static let moderations = "/v1/moderations"
-    
+
     static let audioSpeech = "/v1/audio/speech"
     static let audioTranscriptions = "/v1/audio/transcriptions"
     static let audioTranslations = "/v1/audio/translations"
-    
+
     static let images = "/v1/images/generations"
     static let imageEdits = "/v1/images/edits"
     static let imageVariations = "/v1/images/variations"
-    
+
     func withPath(_ path: String) -> String {
         self + "/" + path
     }

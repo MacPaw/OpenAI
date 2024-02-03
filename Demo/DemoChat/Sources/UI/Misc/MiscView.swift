@@ -9,11 +9,11 @@ import SwiftUI
 
 public struct MiscView: View {
     @ObservedObject var store: MiscStore
-    
+
     public init(store: MiscStore) {
         self.store = store
     }
-    
+
     public var body: some View {
         NavigationStack {
             List {

@@ -1,6 +1,6 @@
 //
 //  ModelResult.swift
-//  
+//
 //
 //  Created by Aled Samuel on 08/04/2023.
 //

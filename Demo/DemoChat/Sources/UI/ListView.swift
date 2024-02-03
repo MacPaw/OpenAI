@@ -10,7 +10,7 @@ import SwiftUI
 struct ListView: View {
     @Binding var conversations: [Conversation]
     @Binding var selectedConversationId: Conversation.ID?
-    
+
     var body: some View {
         List(
             $conversations,

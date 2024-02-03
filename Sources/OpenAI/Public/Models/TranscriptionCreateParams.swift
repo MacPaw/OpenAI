@@ -1,6 +1,6 @@
 //
 //  TranscriptionCreateParams.swift
-//  
+//
 //
 //  Created by Sergii Kryvoblotskyi on 02/04/2023.
 //
@@ -93,7 +93,7 @@ public struct TranscriptionCreateParams: Codable {
 }
 
 extension TranscriptionCreateParams: MultipartFormDataBodyEncodable {
-    
+
     func encode(boundary: String) -> Data {
         var entries: [MultipartFormDataEntry] = [
             .file(paramName: "file", fileName: fileType.fileName, fileData: file, contentType: fileType.contentType),
