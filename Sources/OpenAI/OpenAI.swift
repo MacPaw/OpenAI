@@ -56,55 +56,55 @@ final public class OpenAI: OpenAIProtocol {
         self.init(configuration: configuration, session: session as URLSessionProtocol)
     }
 
-    public func images(query: ImageGenerateParams, completion: @escaping (Result<ImagesResponse, Error>) -> Void) {
+    public func images_generate(query: ImageGenerateParams, completion: @escaping (Result<ImagesResponse, Error>) -> Void) {
         performRequest(request: JSONRequest<ImagesResponse>(body: query, url: buildURL(path: .images)), completion: completion)
     }
 
-    public func imageEdits(query: ImageEditParams, completion: @escaping (Result<ImagesResponse, Error>) -> Void) {
+    public func images_edit(query: ImageEditParams, completion: @escaping (Result<ImagesResponse, Error>) -> Void) {
         performRequest(request: MultipartFormDataRequest<ImagesResponse>(body: query, url: buildURL(path: .imageEdits)), completion: completion)
     }
 
-    public func imageVariations(query: ImageCreateVariationParams, completion: @escaping (Result<ImagesResponse, Error>) -> Void) {
+    public func images_create_variation(query: ImageCreateVariationParams, completion: @escaping (Result<ImagesResponse, Error>) -> Void) {
         performRequest(request: MultipartFormDataRequest<ImagesResponse>(body: query, url: buildURL(path: .imageVariations)), completion: completion)
     }
 
-    public func embeddings(query: EmbeddingCreateParams, completion: @escaping (Result<EmbeddingResponse, Error>) -> Void) {
+    public func embeddings_create(query: EmbeddingCreateParams, completion: @escaping (Result<EmbeddingResponse, Error>) -> Void) {
         performRequest(request: JSONRequest<EmbeddingResponse>(body: query, url: buildURL(path: .embeddings)), completion: completion)
     }
 
-    public func chats(query: ChatCompletionCreateParams, completion: @escaping (Result<ChatCompletion, Error>) -> Void) {
+    public func chat_completions(query: ChatCompletionCreateParams, completion: @escaping (Result<ChatCompletion, Error>) -> Void) {
         performRequest(request: JSONRequest<ChatCompletion>(body: query.makeNonStreamable(), url: buildURL(path: .chats)), completion: completion)
     }
 
-    public func chatsStream(query: ChatCompletionCreateParams, onResult: @escaping (Result<ChatCompletionChunk, Error>) -> Void, completion: ((Error?) -> Void)?) {
+    public func chat_with_streaming_response_completions(query: ChatCompletionCreateParams, onResult: @escaping (Result<ChatCompletionChunk, Error>) -> Void, completion: ((Error?) -> Void)?) {
         performStreamingRequest(request: JSONRequest<ChatCompletion>(body: query.makeStreamable(), url: buildURL(path: .chats)), onResult: onResult, completion: completion)
     }
 
-    public func model(query: ModelCreateParams, completion: @escaping (Result<Model, Error>) -> Void) {
+    public func models_retreive(query: ModelCreateParams, completion: @escaping (Result<Model, Error>) -> Void) {
         performRequest(request: JSONRequest<Model>(url: buildURL(path: .models.withPath(query.model)), method: "GET"), completion: completion)
     }
 
-    public func deleteModel(query: ModelCreateParams, completion: @escaping (Result<ModelDeleted, Error>) -> Void) {
+    public func models_delete(query: ModelCreateParams, completion: @escaping (Result<ModelDeleted, Error>) -> Void) {
         performRequest(request: JSONRequest<Model>(url: buildURL(path: .models.withPath(query.model)), method: "DELETE"), completion: completion)
     } // TODO: test deleteModel
 
-    public func models(completion: @escaping (Result<ModelsResponse, Error>) -> Void) {
+    public func models_list(completion: @escaping (Result<ModelsResponse, Error>) -> Void) {
         performRequest(request: JSONRequest<ModelsResponse>(url: buildURL(path: .models), method: "GET"), completion: completion)
     }
 
-    public func moderations(query: ModerationCreateParams, completion: @escaping (Result<ModerationCreateResponse, Error>) -> Void) {
+    public func moderations_create(query: ModerationCreateParams, completion: @escaping (Result<ModerationCreateResponse, Error>) -> Void) {
         performRequest(request: JSONRequest<ModerationCreateResponse>(body: query, url: buildURL(path: .moderations)), completion: completion)
     }
 
-    public func audioTranscriptions(query: TranscriptionCreateParams, completion: @escaping (Result<Transcription, Error>) -> Void) {
+    public func audio_transcriptions_create(query: TranscriptionCreateParams, completion: @escaping (Result<Transcription, Error>) -> Void) {
         performRequest(request: MultipartFormDataRequest<Transcription>(body: query, url: buildURL(path: .audioTranscriptions)), completion: completion)
     }
 
-    public func audioTranslations(query: TranslationCreateParams, completion: @escaping (Result<Translation, Error>) -> Void) {
+    public func audio_translations_create(query: TranslationCreateParams, completion: @escaping (Result<Translation, Error>) -> Void) {
         performRequest(request: MultipartFormDataRequest<Translation>(body: query, url: buildURL(path: .audioTranslations)), completion: completion)
     }
 
-    public func audioCreateSpeech(query: SpeechCreateParams, completion: @escaping (Result<Speech, Error>) -> Void) {
+    public func audio_speech_create(query: SpeechCreateParams, completion: @escaping (Result<Speech, Error>) -> Void) {
         performSpeechRequest(request: JSONRequest<Speech>(body: query, url: buildURL(path: .audioSpeech)), completion: completion)
     }
 

@@ -17,7 +17,7 @@ public extension OpenAIProtocol {
         query: ImageGenerateParams
     ) async throws -> ImagesResponse {
         try await withCheckedThrowingContinuation { continuation in
-            images(query: query) { result in
+            images_generate(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -32,7 +32,7 @@ public extension OpenAIProtocol {
         query: ImageEditParams
     ) async throws -> ImagesResponse {
         try await withCheckedThrowingContinuation { continuation in
-            imageEdits(query: query) { result in
+            images_edit(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -47,7 +47,7 @@ public extension OpenAIProtocol {
         query: ImageCreateVariationParams
     ) async throws -> ImagesResponse {
         try await withCheckedThrowingContinuation { continuation in
-            imageVariations(query: query) { result in
+            images_create_variation(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -62,7 +62,7 @@ public extension OpenAIProtocol {
         query: EmbeddingCreateParams
     ) async throws -> EmbeddingResponse {
         try await withCheckedThrowingContinuation { continuation in
-            embeddings(query: query) { result in
+            embeddings_create(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -77,7 +77,7 @@ public extension OpenAIProtocol {
         query: ChatCompletionCreateParams
     ) async throws -> ChatCompletion {
         try await withCheckedThrowingContinuation { continuation in
-            chats(query: query) { result in
+            chat_completions(query: query) { result in
 //                do {
 //                    print("ChatCompletion", "SUCCESS", try result.get())
 //                    print("ChatCompletion", "SUCCESS", try JSONEncoder.encode(try result.get()))
@@ -98,7 +98,7 @@ public extension OpenAIProtocol {
         query: ChatCompletionCreateParams
     ) -> AsyncThrowingStream<ChatCompletionChunk, Error> {
         return AsyncThrowingStream { continuation in
-            return chatsStream(query: query)  { result in
+            return chat_with_streaming_response_completions(query: query)  { result in
                 continuation.yield(with: result)
             } completion: { error in
                 continuation.finish(throwing: error)
@@ -110,7 +110,7 @@ public extension OpenAIProtocol {
         query: ModelCreateParams
     ) async throws -> Model {
         try await withCheckedThrowingContinuation { continuation in
-            model(query: query) { result in
+            models_retreive(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -125,7 +125,7 @@ public extension OpenAIProtocol {
         query: ModelCreateParams
     ) async throws -> ModelDeleted {
         try await withCheckedThrowingContinuation { continuation in
-            deleteModel(query: query) { result in
+            models_delete(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -138,7 +138,7 @@ public extension OpenAIProtocol {
 
     func models() async throws -> ModelsResponse {
         try await withCheckedThrowingContinuation { continuation in
-            models() { result in
+            models_list() { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -153,7 +153,7 @@ public extension OpenAIProtocol {
         query: ModerationCreateParams
     ) async throws -> ModerationCreateResponse {
         try await withCheckedThrowingContinuation { continuation in
-            moderations(query: query) { result in
+            moderations_create(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -168,7 +168,7 @@ public extension OpenAIProtocol {
         query: SpeechCreateParams
     ) async throws -> Speech {
         try await withCheckedThrowingContinuation { continuation in
-            audioCreateSpeech(query: query) { result in
+            audio_speech_create(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -183,7 +183,7 @@ public extension OpenAIProtocol {
         query: TranscriptionCreateParams
     ) async throws -> Transcription {
         try await withCheckedThrowingContinuation { continuation in
-            audioTranscriptions(query: query) { result in
+            audio_transcriptions_create(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -198,7 +198,7 @@ public extension OpenAIProtocol {
         query: TranslationCreateParams
     ) async throws -> Translation {
         try await withCheckedThrowingContinuation { continuation in
-            audioTranslations(query: query) { result in
+            audio_translations_create(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)

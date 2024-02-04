@@ -17,42 +17,42 @@ public extension OpenAIProtocol {
 
     func images(query: ImageGenerateParams) -> AnyPublisher<ImagesResponse, Error> {
         Future<ImagesResponse, Error> {
-            images(query: query, completion: $0)
+            images_generate(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
 
     func imageEdits(query: ImageEditParams) -> AnyPublisher<ImagesResponse, Error> {
         Future<ImagesResponse, Error> {
-            imageEdits(query: query, completion: $0)
+            images_edit(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
 
     func imageVariations(query: ImageCreateVariationParams) -> AnyPublisher<ImagesResponse, Error> {
         Future<ImagesResponse, Error> {
-            imageVariations(query: query, completion: $0)
+            images_create_variation(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
 
     func embeddings(query: EmbeddingCreateParams) -> AnyPublisher<EmbeddingResponse, Error> {
         Future<EmbeddingResponse, Error> {
-            embeddings(query: query, completion: $0)
+            embeddings_create(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
 
     func chats(query: ChatCompletionCreateParams) -> AnyPublisher<ChatCompletion, Error> {
         Future<ChatCompletion, Error> {
-            chats(query: query, completion: $0)
+            chat_completions(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
 
     func chatsStream(query: ChatCompletionCreateParams) -> AnyPublisher<Result<ChatCompletionChunk, Error>, Error> {
         let progress = PassthroughSubject<Result<ChatCompletionChunk, Error>, Error>()
-        chatsStream(query: query) { result in
+        chat_with_streaming_response_completions(query: query) { result in
             progress.send(result)
         } completion: { error in
             if let error {
@@ -66,42 +66,42 @@ public extension OpenAIProtocol {
 
     func model(query: ModelCreateParams) -> AnyPublisher<Model, Error> {
         Future<Model, Error> {
-            model(query: query, completion: $0)
+            models_retreive(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
 
     func deleteModel(query: ModelCreateParams) -> AnyPublisher<ModelDeleted, Error> {
         Future<ModelDeleted, Error> {
-            deleteModel(query: query, completion: $0)
+            models_delete(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
 
     func models() -> AnyPublisher<ModelsResponse, Error> {
         Future<ModelsResponse, Error> {
-            models(completion: $0)
+            models_list(completion: $0)
         }
         .eraseToAnyPublisher()
     }
 
     func moderations(query: ModerationCreateParams) -> AnyPublisher<ModerationCreateResponse, Error> {
         Future<ModerationCreateResponse, Error> {
-            moderations(query: query, completion: $0)
+            moderations_create(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
 
     func audioTranscriptions(query: TranscriptionCreateParams) -> AnyPublisher<Transcription, Error> {
         Future<Transcription, Error> {
-            audioTranscriptions(query: query, completion: $0)
+            audio_transcriptions_create(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
 
     func audioTranslations(query: TranslationCreateParams) -> AnyPublisher<Translation, Error> {
         Future<Translation, Error> {
-            audioTranslations(query: query, completion: $0)
+            audio_translations_create(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
