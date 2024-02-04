@@ -27,35 +27,6 @@ class OpenAITestsDecoder: XCTestCase {
         return NSDictionary(dictionary: try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any])
     }
     
-    func testCompletions() async throws {
-        let data = """
-        {
-          "id": "foo",
-          "object": "text_completion",
-          "created": 1589478378,
-          "model": "text-davinci-003",
-          "choices": [
-            {
-              "text": "Hello, world!",
-              "index": 0,
-              "logprobs": null,
-              "finish_reason": "length"
-            }
-          ],
-          "usage": {
-            "prompt_tokens": 5,
-            "completion_tokens": 7,
-            "total_tokens": 12
-          }
-        }
-        """
-        
-        let expectedValue = CompletionsResult(id: "foo", object: "text_completion", created: 1589478378, model: .textDavinci_003, choices: [
-            .init(text: "Hello, world!", index: 0, finishReason: "length")
-        ], usage: .init(promptTokens: 5, completionTokens: 7, totalTokens: 12))
-        try decode(data, expectedValue)
-    }
-    
     func testImages() async throws {
         let data = """
         {
@@ -333,13 +304,13 @@ class OpenAITestsDecoder: XCTestCase {
     func testModelType() async throws {
         let data = """
         {
-          "id": "text-davinci-003",
+          "id": "gpt-3.5-turbo",
           "object": "model",
           "owned_by": "openai"
         }
         """
         
-        let expectedValue = ModelResult(id: .textDavinci_003, object: "model", ownedBy: "openai")
+        let expectedValue = ModelResult(id: .gpt3_5Turbo, object: "model", ownedBy: "openai")
         try decode(data, expectedValue)
     }
     

@@ -22,27 +22,7 @@ class OpenAITests: XCTestCase {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         self.openAI = OpenAI(configuration: configuration, session: self.urlSession)
     }
-    
-    func testCompletions() async throws {
-        let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
-        let expectedResult = CompletionsResult(id: "foo", object: "bar", created: 100500, model: .babbage, choices: [
-            .init(text: "42 is the answer to everything", index: 0, finishReason: nil)
-        ], usage: .init(promptTokens: 10, completionTokens: 10, totalTokens: 20))
-        try self.stub(result: expectedResult)
-        
-        let result = try await openAI.completions(query: query)
-        XCTAssertEqual(result, expectedResult)
-    }
-    
-    func testCompletionsAPIError() async throws {
-        let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
-        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
-        self.stub(error: inError)
-        
-        let apiError: APIError = try await XCTExpectError { try await openAI.completions(query: query) }
-        XCTAssertEqual(inError, apiError)
-    }
-    
+
     func testImages() async throws {
         let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", model: .dall_e_2, n: 1, size: "1024x1024")
         let imagesResult = ImagesResult(created: 100, data: [
@@ -323,8 +303,8 @@ class OpenAITests: XCTestCase {
     
     func testJSONRequestCreation() throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        let completionQuery = CompletionsQuery(model: .whisper_1, prompt: "how are you?")
-        let jsonRequest = JSONRequest<CompletionsResult>(body: completionQuery, url: URL(string: "http://google.com")!)
+        let completionQuery = ChatQuery(model: .whisper_1, messages: [Chat(role: Chat.Role.user, content: "how are you?")])
+        let jsonRequest = JSONRequest<ChatResult>(body: completionQuery, url: URL(string: "http://google.com")!)
         let urlRequest = try jsonRequest.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
         
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")
@@ -336,7 +316,7 @@ class OpenAITests: XCTestCase {
     func testMultipartRequestCreation() throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         let completionQuery = AudioTranslationQuery(file: Data(), fileName: "foo", model: .whisper_1)
-        let jsonRequest = MultipartFormDataRequest<CompletionsResult>(body: completionQuery, url: URL(string: "http://google.com")!)
+        let jsonRequest = MultipartFormDataRequest<ChatResult>(body: completionQuery, url: URL(string: "http://google.com")!)
         let urlRequest = try jsonRequest.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
         
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")
@@ -347,15 +327,15 @@ class OpenAITests: XCTestCase {
     func testDefaultHostURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         let openAI = OpenAI(configuration: configuration, session: self.urlSession)
-        let completionsURL = openAI.buildURL(path: .completions)
-        XCTAssertEqual(completionsURL, URL(string: "https://api.openai.com/v1/completions"))
+        let chatsURL = openAI.buildURL(path: .chats)
+        XCTAssertEqual(chatsURL, URL(string: "https://api.openai.com/v1/chat/completions"))
     }
     
     func testCustomURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", timeoutInterval: 14)
         let openAI = OpenAI(configuration: configuration, session: self.urlSession)
-        let completionsURL = openAI.buildURL(path: .completions)
-        XCTAssertEqual(completionsURL, URL(string: "https://my.host.com/v1/completions"))
+        let chatsURL = openAI.buildURL(path: .chats)
+        XCTAssertEqual(chatsURL, URL(string: "https://my.host.com/v1/chat/completions"))
     }
 }
 

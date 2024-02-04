@@ -56,14 +56,6 @@ final public class OpenAI: OpenAIProtocol {
         self.init(configuration: configuration, session: session as URLSessionProtocol)
     }
     
-    public func completions(query: CompletionsQuery, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<CompletionsResult>(body: query, url: buildURL(path: .completions)), completion: completion)
-    }
-    
-    public func completionsStream(query: CompletionsQuery, onResult: @escaping (Result<CompletionsResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        performSteamingRequest(request: JSONRequest<CompletionsResult>(body: query.makeStreamable(), url: buildURL(path: .completions)), onResult: onResult, completion: completion)
-    }
-    
     public func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
         performRequest(request: JSONRequest<ImagesResult>(body: query, url: buildURL(path: .images)), completion: completion)
     }
@@ -205,7 +197,6 @@ extension OpenAI {
 typealias APIPath = String
 extension APIPath {
     
-    static let completions = "/v1/completions"
     static let embeddings = "/v1/embeddings"
     static let chats = "/v1/chat/completions"
     static let edits = "/v1/edits"
