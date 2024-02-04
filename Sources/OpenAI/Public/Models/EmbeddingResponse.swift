@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct EmbeddingResponse: Codable, Equatable {
+public struct EmbeddingResponse: Codable, Hashable {
 
     public let data: [Self.Embedding]
     public let model: String
@@ -15,7 +15,7 @@ public struct EmbeddingResponse: Codable, Equatable {
     public let object: String
     public let usage: Usage
 
-    public struct Embedding: Codable, Equatable {
+    public struct Embedding: Codable, Hashable {
         /// The embedding vector, which is a list of floats. The length of vector depends on the model as listed in the embedding guide.
         /// https://platform.openai.com/docs/guides/embeddings
         public let embedding: [Float] // Double or String
@@ -25,7 +25,7 @@ public struct EmbeddingResponse: Codable, Equatable {
         public let object: String
     }
 
-    public struct Usage: Codable, Equatable {
+    public struct Usage: Codable, Hashable {
 
         public let prompt_tokens: Int
         public let total_tokens: Int

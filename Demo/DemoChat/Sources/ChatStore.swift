@@ -56,7 +56,7 @@ public final class ChatStore: ObservableObject {
     func sendMessage(
         _ message: Message,
         conversationId: Conversation.ID,
-        model: Model
+        model: ChatModel
     ) async {
         guard let conversationIndex = conversations.firstIndex(where: { $0.id == conversationId }) else {
             return
@@ -72,7 +72,7 @@ public final class ChatStore: ObservableObject {
     @MainActor
     func completeChat(
         conversationId: Conversation.ID,
-        model: Model
+        model: ChatModel
     ) async {
         guard let conversation = conversations.first(where: { $0.id == conversationId }) else {
             return
@@ -85,7 +85,7 @@ public final class ChatStore: ObservableObject {
                 return
             }
 
-            let weatherFunction = ChatFunctionDeclaration(
+            let weatherFunction = ChatCompletionCreateParams.ChatCompletionToolParam.FunctionDefinition(
                 name: "getWeatherData",
                 description: "Get the current weather in a given location",
                 parameters: .init(
@@ -97,36 +97,36 @@ public final class ChatStore: ObservableObject {
                 )
             )
 
-            let functions = [weatherFunction]
+            let tools = [ChatCompletionCreateParams.ChatCompletionToolParam(function: weatherFunction)]
 
             let chatsStream: AsyncThrowingStream<ChatCompletionChunk, Error> = openAIClient.chatsStream(
-                query: ChatQuery(
-                    model: model,
-                    messages: conversation.messages.map { message in
-                        Chat(role: message.role, content: message.content)
+                query: ChatCompletionCreateParams(
+                    messages: conversation.messages.compactMap { message in
+                        ChatCompletionCreateParams.ChatCompletionMessageParam(role: message.role, content: message.content)
                     },
-                    functions: functions
+                    model: model,
+                    tools: tools
                 )
             )
 
-            var functionCallName = ""
-            var functionCallArguments = ""
+            var functionCallNames = [String]()
+            var functionCallArguments = [String]()
             for try await partialChatCompletion in chatsStream {
                 for choice in partialChatCompletion.choices {
                     let existingMessages = conversations[conversationIndex].messages
                     // Function calls are also streamed, so we need to accumulate.
-                    if let functionCallDelta = choice.delta.functionCall {
-                        if let nameDelta = functionCallDelta.name {
-                          functionCallName += nameDelta
-                        }
-                        if let argumentsDelta = functionCallDelta.arguments {
-                          functionCallArguments += argumentsDelta
+                    choice.delta.tool_calls?.forEach { toolCallDelta in
+                        if let function = toolCallDelta.function {
+                            if let name = function.name, let arguments = function.arguments {
+                                functionCallNames.append(name)
+                                functionCallArguments.append(arguments)
+                            }
                         }
                     }
                     var messageText = choice.delta.content ?? ""
-                    if let finishReason = choice.finishReason,
+                    if let finishReason = choice.finish_reason,
                        finishReason == "function_call" {
-                        messageText += "Function call: name=\(functionCallName) arguments=\(functionCallArguments)"
+                        messageText += "Function call: name=\(functionCallNames) arguments=\(functionCallArguments)"
                     }
                     let message = Message(
                         id: partialChatCompletion.id,

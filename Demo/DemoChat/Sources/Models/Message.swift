@@ -10,7 +10,7 @@ import OpenAI
 
 struct Message {
     var id: String
-    var role: Chat.Role
+    var role: ChatCompletionCreateParams.ChatCompletionMessageParam.Role
     var content: String
     var createdAt: Date
 }

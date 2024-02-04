@@ -45,7 +45,7 @@ public struct TranscriptionCreateParams: Codable {
         self.temperature = temperature
     }
 
-    public enum FileType: String, Codable, Equatable {
+    public enum FileType: String, Codable, Hashable, CaseIterable {
         case flac
         case mp3, mpga
         case mp4, m4a
@@ -83,7 +83,7 @@ public struct TranscriptionCreateParams: Codable {
         }}
     }
 
-    public enum ResponseFormat: String, Codable, Equatable {
+    public enum ResponseFormat: String, Codable, Hashable, CaseIterable {
         case json
         case text
         case srt

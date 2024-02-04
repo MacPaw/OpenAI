@@ -7,13 +7,13 @@
 
 import Foundation
 
-public struct ModerationCreateResponse: Codable, Equatable {
+public struct ModerationCreateResponse: Codable, Hashable {
 
     public let id: String
     public let model: String
     public let results: [Self.Moderation]
 
-    public struct Moderation: Codable, Equatable {
+    public struct Moderation: Codable, Hashable {
 
         /// Collection of per-category binary usage policies violation flags. For each category, the value is true if the model flags the corresponding category as violated, false otherwise.
         public let categories: Self.Categories
@@ -22,7 +22,7 @@ public struct ModerationCreateResponse: Codable, Equatable {
         /// True if the model classifies the content as violating OpenAI's usage policies, false otherwise.
         public let flagged: Bool
 
-        public struct Categories: Codable, Equatable {
+        public struct Categories: Codable, Hashable {
 
             /// Content that expresses, incites, or promotes harassing language towards any target.
             public let harassment: Bool
@@ -47,7 +47,7 @@ public struct ModerationCreateResponse: Codable, Equatable {
             /// Violent content that depicts death, violence, or serious physical injury in extreme graphic detail.
             public let violence_graphic: Bool
 
-            enum CodingKeys: String, CodingKey {
+            enum CodingKeys: String, CodingKey, CaseIterable {
                 case harassment
                 case harassment_threatening = "harassment/threatening"
                 case hate
@@ -62,7 +62,7 @@ public struct ModerationCreateResponse: Codable, Equatable {
             }
         }
 
-        public struct CategoryScores: Codable, Equatable {
+        public struct CategoryScores: Codable, Hashable {
 
             /// Content that expresses, incites, or promotes harassing language towards any target.
             public let harassment: Double
@@ -87,7 +87,7 @@ public struct ModerationCreateResponse: Codable, Equatable {
             /// Violent content that depicts death, violence, or serious physical injury in extreme graphic detail.
             public let violence_graphic: Double
 
-            enum CodingKeys: String, CodingKey {
+            enum CodingKeys: String, CodingKey, CaseIterable {
                 case harassment
                 case harassment_threatening = "harassment/threatening"
                 case hate

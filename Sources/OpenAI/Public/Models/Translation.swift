@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Translation: Codable, Equatable {
+public struct Translation: Codable, Hashable {
 
     /// The translated text.
     public let text: String

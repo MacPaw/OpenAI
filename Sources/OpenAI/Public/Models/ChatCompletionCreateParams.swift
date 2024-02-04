@@ -9,7 +9,7 @@ import Foundation
 
 /// Creates a model response for the given chat conversation
 /// https://platform.openai.com/docs/guides/text-generation
-public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
+public struct ChatCompletionCreateParams: Hashable, Codable, Streamable {
     public typealias Model = ChatModel
 
     /// A list of messages comprising the conversation so far
@@ -109,7 +109,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
         self.stream = stream
     }
 
-    public enum ChatCompletionMessageParam: Codable, Equatable {
+    public enum ChatCompletionMessageParam: Codable, Hashable {
 
         case system(Self.ChatCompletionSystemMessageParam)
         case user(Self.ChatCompletionUserMessageParam)
@@ -176,6 +176,89 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
             }
         }}
 
+        public init?(
+            role: Role,
+            content: String? = nil,
+            image_url: URL? = nil,
+            name: String? = nil,
+            tool_calls: [Self.ChatCompletionAssistantMessageParam.ChatCompletionMessageToolCallParam]? = nil,
+            tool_call_id: String? = nil
+        ) {
+            switch role {
+            case .system:
+                if let content {
+                    self = .system(.init(content: content, name: name))
+                } else {
+                    return nil
+                }
+            case .user:
+                if let content {
+                    self = .user(.init(content: .init(string: content), name: name))
+                } else if let image_url {
+                    self = .user(.init(content: .init(chatCompletionContentPartImageParam: .init(image_url: .init(url: image_url.absoluteString, detail: .auto))), name: name))
+                } else {
+                    return nil
+                }
+            case .assistant:
+                self = .assistant(.init(content: content, name: name, tool_calls: tool_calls))
+            case .tool:
+                if let content, let tool_call_id {
+                    self = .tool(.init(content: content, tool_call_id: tool_call_id))
+                } else {
+                    return nil
+                }
+            }
+        }
+
+        private init?(
+            content: String,
+            role: Role,
+            name: String? = nil
+        ) {
+            if role == .system {
+                self = .system(.init(content: content, name: name))
+            } else {
+                return nil
+            }
+        }
+
+        private init?(
+            content: Self.ChatCompletionUserMessageParam.Content,
+            role: Role,
+            name: String? = nil
+        ) {
+            if role == .user {
+                self = .user(.init(content: content, name: name))
+            } else {
+                return nil
+            }
+        }
+
+        private init?(
+            role: Role,
+            content: String? = nil,
+            name: String? = nil,
+            tool_calls: [Self.ChatCompletionAssistantMessageParam.ChatCompletionMessageToolCallParam]? = nil
+        ) {
+            if role == .assistant {
+                self = .assistant(.init(content: content, name: name, tool_calls: tool_calls))
+            } else {
+                return nil
+            }
+        }
+
+        private init?(
+            content: String,
+            role: Role,
+            tool_call_id: String
+        ) {
+            if role == .tool {
+                self = .tool(.init(content: content, tool_call_id: tool_call_id))
+            } else {
+                return nil
+            }
+        }
+
         public func encode(to encoder: Encoder) throws {
             var container = encoder.singleValueContainer()
             switch self {
@@ -197,7 +280,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
             case tool
         }
 
-        public struct ChatCompletionSystemMessageParam: Codable, Equatable {
+        public struct ChatCompletionSystemMessageParam: Codable, Hashable {
             public typealias Role = ChatCompletionCreateParams.ChatCompletionMessageParam.Role
 
             /// The contents of the system message.
@@ -222,7 +305,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
             }
         }
 
-        public struct ChatCompletionUserMessageParam: Codable, Equatable {
+        public struct ChatCompletionUserMessageParam: Codable, Hashable {
             public typealias Role = ChatCompletionCreateParams.ChatCompletionMessageParam.Role
 
             /// The contents of the user message.
@@ -246,7 +329,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
                 case name
             }
 
-            public enum Content: Codable, Equatable {
+            public enum Content: Codable, Hashable {
                 case string(String)
                 case chatCompletionContentPartTextParam(ChatCompletionContentPartTextParam)
                 case chatCompletionContentPartImageParam(ChatCompletionContentPartImageParam)
@@ -308,7 +391,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
                     case chatCompletionContentPartImageParam
                 }
 
-                public struct ChatCompletionContentPartTextParam: Codable, Equatable {
+                public struct ChatCompletionContentPartTextParam: Codable, Hashable {
                     /// The text content.
                     public let text: String
                     /// The type of the content part.
@@ -320,7 +403,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
                     }
                 }
 
-                public struct ChatCompletionContentPartImageParam: Codable, Equatable {
+                public struct ChatCompletionContentPartImageParam: Codable, Hashable {
                     public let image_url: ImageURL
                     /// The type of the content part.
                     public let type: String
@@ -330,14 +413,19 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
                         self.type = "image_url"
                     }
 
-                    public struct ImageURL: Codable, Equatable {
+                    public struct ImageURL: Codable, Hashable {
                         /// Either a URL of the image or the base64 encoded image data.
                         public let url: String
                         /// Specifies the detail level of the image. Learn more in the
                         /// Vision guide https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding
                         public let detail: Detail
 
-                        public enum Detail: String, Codable, Equatable {
+                        public init(url: String, detail: Detail) {
+                            self.url = url
+                            self.detail = detail
+                        }
+
+                        public enum Detail: String, Codable, Hashable, CaseIterable {
                             case auto
                             case low
                             case high
@@ -347,7 +435,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
             }
         }
 
-        internal struct ChatCompletionMessageParam: Codable, Equatable {
+        internal struct ChatCompletionMessageParam: Codable, Hashable {
             typealias Role = ChatCompletionCreateParams.ChatCompletionMessageParam.Role
 
             let role: Self.Role
@@ -357,7 +445,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
             }
         }
 
-        public struct ChatCompletionAssistantMessageParam: Codable, Equatable {
+        public struct ChatCompletionAssistantMessageParam: Codable, Hashable {
             public typealias Role = ChatCompletionCreateParams.ChatCompletionMessageParam.Role
 
             //// The role of the messages author, in this case assistant.
@@ -386,7 +474,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
                 case tool_calls
             }
 
-            public struct ChatCompletionMessageToolCallParam: Codable, Equatable {
+            public struct ChatCompletionMessageToolCallParam: Codable, Hashable {
                 public typealias ToolsType = ChatCompletionCreateParams.ChatCompletionToolParam.ToolsType
 
                 /// The ID of the tool call.
@@ -405,7 +493,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
                     self.type = .function
                 }
 
-                public struct FunctionCall: Codable, Equatable {
+                public struct FunctionCall: Codable, Hashable {
                     /// The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.
                     public let arguments: String
                     /// The name of the function to call.
@@ -414,7 +502,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
             }
         }
 
-        public struct ChatCompletionToolMessageParam: Codable, Equatable {
+        public struct ChatCompletionToolMessageParam: Codable, Hashable {
             public typealias Role = ChatCompletionCreateParams.ChatCompletionMessageParam.Role
 
             /// The contents of the tool message.
@@ -439,7 +527,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
             }
         }
 
-        public enum Role: String, Codable, Equatable {
+        public enum Role: String, Codable, Hashable, CaseIterable {
             case system
             case user
             case assistant
@@ -447,7 +535,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
         }
     }
 
-    public enum Stop: Codable, Equatable {
+    public enum Stop: Codable, Hashable {
         case string(String)
         case stringList([String])
 
@@ -471,7 +559,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
     }
 
     // See more https://platform.openai.com/docs/guides/text-generation/json-mode
-    public enum ResponseFormat: String, Codable, Equatable {
+    public enum ResponseFormat: String, Codable, Hashable {
         case json_object
         case text
 
@@ -481,7 +569,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
         }
     }
 
-    public enum ChatCompletionFunctionCallOptionParam: Codable, Equatable {
+    public enum ChatCompletionFunctionCallOptionParam: Codable, Hashable {
         case none
         case auto
         case function(String)
@@ -511,7 +599,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
             case function = "name"
         }
 
-        private enum ChatCompletionFunctionCallNameParam: Codable, Equatable {
+        private enum ChatCompletionFunctionCallNameParam: Codable, Hashable {
             case type
             case function
 
@@ -522,7 +610,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
         }
     }
 
-    public struct ChatCompletionToolParam: Codable, Equatable {
+    public struct ChatCompletionToolParam: Codable, Hashable {
 
         public let function: Self.FunctionDefinition
         public let type: Self.ToolsType
@@ -534,7 +622,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
             self.type = .function
         }
 
-        public struct FunctionDefinition: Codable, Equatable {
+        public struct FunctionDefinition: Codable, Hashable {
             /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
             public let name: String
 
@@ -558,7 +646,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
             }
 
             /// See the [guide](/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
-            public struct FunctionParameters: Codable, Equatable {
+            public struct FunctionParameters: Codable, Hashable {
 
                 public let type: Self.JSONType
                 public let properties: [String: Property]?
@@ -592,7 +680,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
                     self.maximum = maximum
                 }
 
-                public struct Property: Codable, Equatable {
+                public struct Property: Codable, Hashable {
                     public typealias JSONType = ChatCompletionCreateParams.ChatCompletionToolParam.FunctionDefinition.FunctionParameters.JSONType
 
                     public let type: Self.JSONType
@@ -642,7 +730,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
                         self.uniqueItems = uniqueItems
                     }
 
-                    public struct Items: Codable, Equatable {
+                    public struct Items: Codable, Hashable {
                         public typealias JSONType = ChatCompletionCreateParams.ChatCompletionToolParam.FunctionDefinition.FunctionParameters.JSONType
 
                         public let type: Self.JSONType
@@ -698,7 +786,7 @@ public struct ChatCompletionCreateParams: Equatable, Codable, Streamable {
             }
         }
 
-        public enum ToolsType: String, Codable, Equatable {
+        public enum ToolsType: String, Codable, Hashable {
             case function
         }
     }

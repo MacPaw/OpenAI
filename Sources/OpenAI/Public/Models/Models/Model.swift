@@ -8,7 +8,7 @@
 import Foundation
 
 /// The model object matching the specified ID.
-public struct Model: Codable, Equatable {
+public struct Model: Codable, Hashable {
 
     /// The model identifier, which can be referenced in the API endpoints.
     public let id: String

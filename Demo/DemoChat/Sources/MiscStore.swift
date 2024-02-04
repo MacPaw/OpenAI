@@ -11,7 +11,7 @@ import OpenAI
 public final class MiscStore: ObservableObject {
     public var openAIClient: OpenAIProtocol
 
-    @Published var availableModels: [ModelResult] = []
+    @Published var availableModels: [Model] = []
 
     public init(
         openAIClient: OpenAIProtocol
@@ -51,7 +51,7 @@ public final class MiscStore: ObservableObject {
         do {
             let response = try await openAIClient.moderations(
                 query: ModerationCreateParams(
-                    input: message.content,
+                    input: .string(message.content),
                     model: .textModerationLatest
                 )
             )
@@ -65,20 +65,16 @@ public final class MiscStore: ObservableObject {
             }
 
             for result in categoryResults {
-                let content = """
-                \(circleEmoji(for: result.categories.hate)) Hate
-                \(circleEmoji(for: result.categories.hateThreatening)) Hate/Threatening
-                \(circleEmoji(for: result.categories.selfHarm)) Self-harm
-                \(circleEmoji(for: result.categories.sexual)) Sexual
-                \(circleEmoji(for: result.categories.sexualMinors)) Sexual/Minors
-                \(circleEmoji(for: result.categories.violence)) Violence
-                \(circleEmoji(for: result.categories.violenceGraphic)) Violence/Graphic
-                """
+                var content = Mirror(reflecting: result.categories).children.map { (label, value) in
+                    "\(circleEmoji(for: value as! Bool)) \(label!.replacingOccurrences(of: "_", with: " ").capitalized)"
+                }
+                content.append("")
+                content.insert("", at: 0)
 
                 let message = Message(
                     id: response.id,
                     role: .assistant,
-                    content: content,
+                    content: content.joined(separator: "\n"),
                     createdAt: message.createdAt)
 
                 if existingMessages.contains(message) {

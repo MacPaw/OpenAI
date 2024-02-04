@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Transcription: Codable, Equatable {
+public struct Transcription: Codable, Hashable {
 
     /// The transcribed text.
     public let text: String

@@ -130,14 +130,14 @@ Using the OpenAI Chat API, you can build your own applications with `gpt-3.5-tur
 **Response**
 
 ```swift
-struct ChatCompletion: Codable, Equatable {
-    public struct Choice: Codable, Equatable {
+struct ChatCompletion: Codable, Hashable {
+    public struct Choice: Codable, Hashable {
         public let index: Int
         public let message: Chat
         public let finishReason: String
     }
     
-    public struct Usage: Codable, Equatable {
+    public struct Usage: Codable, Hashable {
         public let prompt_tokens: Int
         public let completion_tokens: Int
         public let total_tokens: Int
@@ -297,8 +297,8 @@ struct ImageGenerateParams: Codable {
 **Response**
 
 ```swift
-struct ImagesResponse: Codable, Equatable {
-    public struct URLResult: Codable, Equatable {
+struct ImagesResponse: Codable, Hashable {
+    public struct URLResult: Codable, Hashable {
         public let url: String
     }
     public let created: TimeInterval
@@ -423,7 +423,7 @@ This function sends an `AudioSpeechQuery` to the OpenAI API to create audio spee
 **Request:**  
 
 ```swift
-public struct AudioSpeechQuery: Codable, Equatable {
+public struct AudioSpeechQuery: Codable, Hashable {
     //...
     public let model: Model // tts-1 or tts-1-hd  
     public let input: String
@@ -462,7 +462,7 @@ Transcribes audio into the input language.
 **Request**
 
 ```swift
-public struct TranscriptionCreateParams: Codable, Equatable {
+public struct TranscriptionCreateParams: Codable, Hashable {
     
     public let file: Data
     public let fileName: String
@@ -477,7 +477,7 @@ public struct TranscriptionCreateParams: Codable, Equatable {
 **Response**
 
 ```swift
-public struct Transcription: Codable, Equatable {
+public struct Transcription: Codable, Hashable {
     
     public let text: String
 }
@@ -503,7 +503,7 @@ Translates audio into into English.
 **Request**
 
 ```swift
-public struct TranslationCreateParams: Codable, Equatable {
+public struct TranslationCreateParams: Codable, Hashable {
     
     public let file: Data
     public let fileName: String
@@ -517,7 +517,7 @@ public struct TranslationCreateParams: Codable, Equatable {
 **Response**
 
 ```swift
-public struct Translation: Codable, Equatable {
+public struct Translation: Codable, Hashable {
     
     public let text: String
 }
@@ -556,9 +556,9 @@ struct EmbeddingCreateParams: Codable {
 **Response**
 
 ```swift
-struct Embedding: Codable, Equatable {
+struct Embedding: Codable, Hashable {
 
-    public struct Embedding: Codable, Equatable {
+    public struct Embedding: Codable, Hashable {
 
         public let object: String
         public let embedding: [Double]
@@ -672,7 +672,7 @@ Lists the currently available models.
 **Response**
 
 ```swift
-public struct ModelsResult: Codable, Equatable {
+public struct ModelsResult: Codable, Hashable {
     
     public let data: [ModelResult]
     public let object: String
@@ -696,7 +696,7 @@ Retrieves a model instance, providing ownership information.
 **Request**
 
 ```swift
-public struct ModelQuery: Codable, Equatable {
+public struct ModelQuery: Codable, Hashable {
     
     public let model: Model
 }    
@@ -705,7 +705,7 @@ public struct ModelQuery: Codable, Equatable {
 **Response**
 
 ```swift
-public struct ModelResult: Codable, Equatable {
+public struct ModelResult: Codable, Hashable {
 
     public let id: Model
     public let object: String
@@ -743,7 +743,7 @@ public struct ModerationCreateParams: Codable {
 **Response**
 
 ```swift
-public struct ModerationCreateResponse: Codable, Equatable {
+public struct ModerationCreateResponse: Codable, Hashable {
 
     public let id: String
     public let model: Model

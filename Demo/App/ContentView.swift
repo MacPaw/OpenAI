@@ -6,7 +6,6 @@
 //
 
 import DemoChat
-import OpenAI
 import SwiftUI
 
 struct ContentView: View {

@@ -14,9 +14,13 @@ public struct TextToSpeechView: View {
     @ObservedObject var store: SpeechStore
 
     @State private var prompt: String = ""
-    @State private var voice: AudioSpeechQuery.AudioSpeechVoice = .alloy
+    @State private var voice: SpeechCreateParams.Voice = .alloy
     @State private var speed: Double = 1
-    @State private var responseFormat: AudioSpeechQuery.AudioSpeechResponseFormat = .mp3
+    @State private var responseFormat: SpeechCreateParams.ResponseFormat = .mp3
+    @State private var showsModelSelectionSheet = false
+    @State private var selectedSpeechModel: String = SpeechModel.tts_1.rawValue
+
+    private static let availableSpeechModels: [String] = SpeechModel.allCases.map { $0.rawValue }
 
     public init(store: SpeechStore) {
         self.store = store
@@ -47,7 +51,7 @@ public struct TextToSpeechView: View {
                 }
                 HStack {
                     Picker("Voice", selection: $voice) {
-                        let allVoices = AudioSpeechQuery.AudioSpeechVoice.allCases
+                        let allVoices = SpeechCreateParams.Voice.allCases
                         ForEach(allVoices, id: \.self) { voice in
                             Text("\(voice.rawValue.capitalized)")
                         }
@@ -56,7 +60,7 @@ public struct TextToSpeechView: View {
                 HStack {
                     Text("Speed: ")
                     Spacer()
-                    Stepper(value: $speed, in: 0.25...4, step: 0.25) {
+                    Stepper(value: $speed, in: SpeechCreateParams.Speed.min.rawValue...SpeechCreateParams.Speed.max.rawValue, step: 0.25) {
                         HStack {
                             Spacer()
                             Text("**\(String(format: "%.2f", speed))**")
@@ -65,7 +69,7 @@ public struct TextToSpeechView: View {
                 }
                 HStack {
                     Picker("Format", selection: $responseFormat) {
-                        let allFormats = AudioSpeechQuery.AudioSpeechResponseFormat.allCases
+                        let allFormats = SpeechCreateParams.ResponseFormat.allCases
                         ForEach(allFormats, id: \.self) { format in
                             Text(".\(format.rawValue)")
                         }
@@ -79,10 +83,10 @@ public struct TextToSpeechView: View {
             Section {
                 HStack {
                     Button("Create Speech") {
-                        let query = AudioSpeechQuery(model: .tts_1,
-                                                     input: prompt,
+                        let query = SpeechCreateParams(input: prompt,
+                                                       model: SpeechCreateParams.Model(rawValue: selectedSpeechModel)!,
                                                      voice: voice,
-                                                     responseFormat: responseFormat,
+                                                     response_format: responseFormat,
                                                      speed: speed)
                         Task {
                             await store.createSpeech(query)
@@ -93,16 +97,17 @@ public struct TextToSpeechView: View {
                     .disabled(prompt.replacingOccurrences(of: " ", with: "").isEmpty)
                     Spacer()
                 }
+                .modelSelect(selectedModel: $selectedSpeechModel, models: Self.availableSpeechModels, showsModelSelectionSheet: $showsModelSelectionSheet, help: "https://platform.openai.com/docs/models/tts")
             }
             if !$store.audioObjects.wrappedValue.isEmpty {
                 Section("Click to play, swipe to save:") {
-                    ForEach(store.audioObjects) { object in
+                    ForEach(store.audioObjects, id: \.self) { object in
                         HStack {
                             Text(object.prompt.capitalized)
                             Spacer()
                             Button(action: {
                                 guard let player = object.audioPlayer,
-                                        object.format != AudioSpeechQuery.AudioSpeechResponseFormat.opus.rawValue else { return }
+                                        object.format != SpeechCreateParams.ResponseFormat.opus.rawValue else { return }
 
                                 if player.isPlaying {
                                     player.stop()
@@ -112,12 +117,12 @@ public struct TextToSpeechView: View {
                                     player.play()
                                 }
                             }, label: {
-                                Image(systemName: "play.fill").foregroundStyle(object.format == AudioSpeechQuery.AudioSpeechResponseFormat.opus.rawValue ? Color.secondary : Color.accentColor)
+                                Image(systemName: "play.fill").foregroundStyle(object.format == SpeechCreateParams.ResponseFormat.opus.rawValue ? Color.secondary : Color.accentColor)
                             })
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button {
-                                presentUserDirectoryDocumentPicker(for: object.originResponse.audioData, filename: "GeneratedAudio.\(object.format)")
+                                presentUserDirectoryDocumentPicker(for: object.originResponse.audio, filename: "GeneratedAudio.\(object.format)")
                             } label: {
                                 Image(systemName: "square.and.arrow.down")
                             }
@@ -129,7 +134,7 @@ public struct TextToSpeechView: View {
         }
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
-        .navigationTitle("Create Speech")
+        .navigationTitle("Create Speech", selectedModel: $selectedSpeechModel)
     }
 }
 

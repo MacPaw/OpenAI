@@ -17,13 +17,13 @@ struct DetailView: View {
     @State var inputText: String = ""
     @FocusState private var isFocused: Bool
     @State private var showsModelSelectionSheet = false
-    @State private var selectedChatModel: Model = .gpt4_0613
+    @State private var selectedChatModel: String = ChatModel.gpt_3_5_turbo_1106.rawValue
 
-    private let availableChatModels: [Model] = [.gpt3_5Turbo0613, .gpt4_0613]
+    private static let availableChatModels: [String] = ChatModel.allCases.map { $0.rawValue }
 
     let conversation: Conversation
     let error: Error?
-    let sendMessage: (String, Model) -> Void
+    let sendMessage: (String, ChatModel) -> Void
 
     private var fillColor: Color {
         #if os(iOS)
@@ -53,11 +53,11 @@ struct DetailView: View {
                     }
                     .listStyle(.plain)
                     .animation(.default, value: conversation.messages)
-//                    .onChange(of: conversation) { newValue in
-//                        if let lastMessage = newValue.messages.last {
-//                            scrollViewProxy.scrollTo(lastMessage.id, anchor: .bottom)
-//                        }
-//                    }
+                    .onChange(of: conversation) { newValue in
+                        if let lastMessage = newValue.messages.last {
+                            scrollViewProxy.scrollTo(lastMessage.id, anchor: .bottom)
+                        }
+                    }
 
                     if let error = error {
                         errorMessage(error: error)
@@ -65,52 +65,8 @@ struct DetailView: View {
 
                     inputBar(scrollViewProxy: scrollViewProxy)
                 }
-                .navigationTitle("Chat")
-                .safeAreaInset(edge: .top) {
-                    HStack {
-                        Text(
-                            "Model: \(selectedChatModel)"
-                        )
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        Spacer()
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                }
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: {
-                            showsModelSelectionSheet.toggle()
-                        }) {
-                            Image(systemName: "cpu")
-                        }
-                    }
-                }
-                .confirmationDialog(
-                    "Select model",
-                    isPresented: $showsModelSelectionSheet,
-                    titleVisibility: .visible,
-                    actions: {
-                        ForEach(availableChatModels, id: \.self) { model in
-                            Button {
-                                selectedChatModel = model
-                            } label: {
-                                Text(model)
-                            }
-                        }
-
-                        Button("Cancel", role: .cancel) {
-                            showsModelSelectionSheet = false
-                        }
-                    },
-                    message: {
-                        Text(
-                            "View https://platform.openai.com/docs/models/overview for details"
-                        )
-                        .font(.caption)
-                    }
-                )
+                .navigationTitle("Chat", selectedModel: $selectedChatModel)
+                .modelSelect(selectedModel: $selectedChatModel, models: Self.availableChatModels, showsModelSelectionSheet: $showsModelSelectionSheet, help: "https://platform.openai.com/docs/models/overview")
             }
         }
     }
@@ -189,12 +145,8 @@ struct DetailView: View {
             return
         }
 
-        sendMessage(message, selectedChatModel)
+        sendMessage(message, ChatModel.init(rawValue: selectedChatModel)!)
         inputText = ""
-
-//        if let lastMessage = conversation.messages.last {
-//            scrollViewProxy.scrollTo(lastMessage.id, anchor: .bottom)
-//        }
     }
 }
 
@@ -243,7 +195,7 @@ struct ChatBubble: View {
                     .foregroundColor(userForegroundColor)
                     .background(userBackgroundColor)
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            case .function:
+            case .tool:
               Text(message.content)
                   .font(.footnote.monospaced())
                   .padding(.horizontal, 16)
@@ -267,7 +219,7 @@ struct DetailView_Previews: PreviewProvider {
                     Message(id: "1", role: .assistant, content: "Hello, how can I help you today?", createdAt: Date(timeIntervalSinceReferenceDate: 0)),
                     Message(id: "2", role: .user, content: "I need help with my subscription.", createdAt: Date(timeIntervalSinceReferenceDate: 100)),
                     Message(id: "3", role: .assistant, content: "Sure, what seems to be the problem with your subscription?", createdAt: Date(timeIntervalSinceReferenceDate: 200)),
-                    Message(id: "4", role: .function, content:
+                    Message(id: "4", role: .tool, content:
                               """
                               get_current_weather({
                                 "location": "Glasgow, Scotland",

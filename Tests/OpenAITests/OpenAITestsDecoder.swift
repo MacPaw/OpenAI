@@ -17,7 +17,7 @@ class OpenAITestsDecoder: XCTestCase {
         super.setUp()
     }
 
-    private func decode<T: Decodable & Equatable>(_ jsonString: String, _ expectedValue: T) throws {
+    private func decode<T: Decodable & Hashable>(_ jsonString: String, _ expectedValue: T) throws {
         let data = jsonString.data(using: .utf8)!
         let decoded = try JSONDecoder().decode(T.self, from: data)
         XCTAssertEqual(decoded, expectedValue)

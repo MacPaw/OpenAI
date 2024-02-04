@@ -12,7 +12,7 @@ import AVFAudio
 public final class SpeechStore: ObservableObject {
     public var openAIClient: OpenAIProtocol
 
-    @Published var audioObjects: [AudioObject] = []
+    @State var audioObjects: [AudioObject] = []
 
     public init(
         openAIClient: OpenAIProtocol
@@ -20,25 +20,26 @@ public final class SpeechStore: ObservableObject {
         self.openAIClient = openAIClient
     }
 
-    struct AudioObject: Identifiable {
+    struct AudioObject: Identifiable, Hashable {
         let id = UUID()
         let prompt: String
         let audioPlayer: AVAudioPlayer?
-        let originResponse: AudioSpeechResult
+        let originResponse: Speech
         let format: String
     }
 
     @MainActor
-    func createSpeech(_ query: AudioSpeechQuery) async {
-        guard let input = query.input, !input.isEmpty else { return }
+    func createSpeech(_ query: SpeechCreateParams) async {
+        let input = query.input
+        guard !input.isEmpty else { return }
         do {
             let response = try await openAIClient.audioCreateSpeech(query: query)
-            guard let data = response.audioData else { return }
+            let data = response.audio
             let player = try? AVAudioPlayer(data: data)
             let audioObject = AudioObject(prompt: input,
                                           audioPlayer: player,
                                           originResponse: response,
-                                          format: query.responseFormat.rawValue)
+                                          format: query.response_format?.rawValue ?? SpeechCreateParams.ResponseFormat.mp3.rawValue)
             audioObjects.append(audioObject)
         } catch {
             print(error.localizedDescription)

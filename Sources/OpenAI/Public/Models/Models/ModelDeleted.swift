@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ModelDeleted: Codable, Equatable {
+public struct ModelDeleted: Codable, Hashable {
 
     public let id: String
     public let deleted: Bool

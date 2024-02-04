@@ -56,22 +56,22 @@ public struct ImageGenerateParams: Codable {
         self.user = user
     }
 
-    public enum Style: String, Codable {
+    public enum Style: String, Codable, CaseIterable {
         case natural
         case vivid
     }
 
-    public enum Quality: String, Codable {
+    public enum Quality: String, Codable, CaseIterable {
         case standard
         case hd
     }
 
-    public enum ResponseFormat: String, Codable, Equatable {
+    public enum ResponseFormat: String, Codable, Hashable {
         case url
         case b64_json
     }
 
-    public enum Size: String, Codable {
+    public enum Size: String, Codable, CaseIterable {
         case _256 = "256x256"
         case _512 = "512x512"
         case _1024 = "1024x1024"

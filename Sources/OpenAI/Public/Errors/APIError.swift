@@ -11,7 +11,7 @@ public enum OpenAIError: Error {
     case emptyData
 }
 
-public struct APIError: Error, Decodable, Equatable {
+public struct APIError: Error, Decodable, Hashable {
     public let message: String
     public let type: String
     public let param: String?
@@ -58,7 +58,7 @@ extension APIError: LocalizedError {
     }
 }
 
-public struct APIErrorResponse: Error, Decodable, Equatable {
+public struct APIErrorResponse: Error, Decodable, Hashable {
     public let error: APIError
 }
 

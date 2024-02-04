@@ -35,7 +35,7 @@ public struct EmbeddingCreateParams: Codable {
         self.user = user
     }
 
-    public enum Input: Codable, Equatable {
+    public enum Input: Codable, Hashable {
         case string(String)
         case stringList([String])
         case intList([Int])

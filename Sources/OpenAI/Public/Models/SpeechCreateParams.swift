@@ -68,20 +68,20 @@ public struct SpeechCreateParams: Codable {
     }
 }
 
-private extension SpeechCreateParams {
+public extension SpeechCreateParams {
 
-    private enum Speed {
-        static let normal = 1.0
-        static let max = 4.0
-        static let min = 0.25
+    enum Speed: Double {
+        case normal = 1.0
+        case max = 4.0
+        case min = 0.25
     }
 
     static func normalizeSpeechSpeed(_ inputSpeed: Double?) -> Double {
-        guard let inputSpeed else { return Self.Speed.normal }
-        let isSpeedOutOfBounds = inputSpeed <= Self.Speed.min || Self.Speed.max <= inputSpeed
+        guard let inputSpeed else { return Self.Speed.normal.rawValue }
+        let isSpeedOutOfBounds = inputSpeed <= Self.Speed.min.rawValue || Self.Speed.max.rawValue <= inputSpeed
         guard !isSpeedOutOfBounds else {
             print("[AudioSpeech] Speed value must be between 0.25 and 4.0. Setting value to closest valid.")
-            return inputSpeed < Self.Speed.min ? Self.Speed.min : Self.Speed.max
+            return inputSpeed < Self.Speed.min.rawValue ? Self.Speed.min.rawValue : Self.Speed.max.rawValue
         }
         return inputSpeed
     }
