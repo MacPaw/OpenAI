@@ -57,7 +57,7 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     public func completions(query: CompletionsQuery, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<CompletionsResult>(body: query, url: buildURL(path: .completions)), completion: completion)
+        performRequest(request: JSONRequest<CompletionsResult>(body: query.makeNonStreamable(), url: buildURL(path: .completions)), completion: completion)
     }
     
     public func completionsStream(query: CompletionsQuery, onResult: @escaping (Result<CompletionsResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
@@ -81,7 +81,7 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     public func chats(query: ChatQuery, completion: @escaping (Result<ChatResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: .chats)), completion: completion)
+        performRequest(request: JSONRequest<ChatResult>(body: query.makeNonStreamable(), url: buildURL(path: .chats)), completion: completion)
     }
     
     public func chatsStream(query: ChatQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
