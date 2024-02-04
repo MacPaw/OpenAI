@@ -243,31 +243,6 @@ class OpenAITestsDecoder: XCTestCase {
             usage: .init(promptTokens: 82, completionTokens: 18, totalTokens: 100))
         try decode(data, expectedValue)
     }
-
-    func testEdits() async throws {
-        let data = """
-        {
-          "object": "edit",
-          "created": 1589478378,
-          "choices": [
-            {
-              "text": "What day of the week is it?",
-              "index": 0,
-            }
-          ],
-          "usage": {
-            "prompt_tokens": 25,
-            "completion_tokens": 32,
-            "total_tokens": 57
-          }
-        }
-        """
-        
-        let expectedValue = EditsResult(object: "edit", created: 1589478378, choices: [
-            .init(text: "What day of the week is it?", index: 0)
-        ], usage: .init(promptTokens: 25, completionTokens: 32, totalTokens: 57))
-        try decode(data, expectedValue)
-    }
     
     func testEmbeddings() async throws {
         let data = """
@@ -313,7 +288,7 @@ class OpenAITestsDecoder: XCTestCase {
               "owned_by": "organization-owner"
             },
             {
-              "id": "text-davinci-001",
+              "id": "text-davinci-003",
               "object": "model",
               "owned_by": "openai"
             }
@@ -325,7 +300,7 @@ class OpenAITestsDecoder: XCTestCase {
         let expectedValue = ModelsResult(data: [
             .init(id: .gpt3_5Turbo, object: "model", ownedBy: "organization-owner"),
             .init(id: .gpt4, object: "model", ownedBy: "organization-owner"),
-            .init(id: .textDavinci_001, object: "model", ownedBy: "openai")
+            .init(id: .textDavinci_003, object: "model", ownedBy: "openai")
         ], object: "list")
         try decode(data, expectedValue)
     }

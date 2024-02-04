@@ -51,16 +51,6 @@ final class OpenAITestsCombine: XCTestCase {
        XCTAssertEqual(result, chatResult)
     }
     
-    func testEdits() throws {
-        let query = EditsQuery(model: .gpt4, input: "What day of the wek is it?", instruction: "Fix the spelling mistakes")
-        let editsResult = EditsResult(object: "edit", created: 1589478378, choices: [
-            .init(text: "What day of the week is it?", index: 0)
-        ], usage: .init(promptTokens: 25, completionTokens: 32, totalTokens: 57))
-        try self.stub(result: editsResult)
-        let result = try awaitPublisher(openAI.edits(query: query))
-        XCTAssertEqual(result, editsResult)
-    }
-    
     func testEmbeddings() throws {
         let query = EmbeddingsQuery(model: .textSearchBabbageDoc, input: "The food was delicious and the waiter...")
         let embeddingsResult = EmbeddingsResult(data: [
