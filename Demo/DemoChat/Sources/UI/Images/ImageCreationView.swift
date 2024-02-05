@@ -13,9 +13,9 @@ public struct ImageCreationView: View {
     
     @State private var prompt: String = ""
     @State private var n: Int = 1
-    @State private var size: String
-    
-    private var sizes = ["256x256", "512x512", "1024x1024"]
+    @State private var size: ImagesQuery.Size
+
+    private var sizes = ImagesQuery.Size.allCases
     
     public init(store: ImageStore) {
         self.store = store
@@ -37,7 +37,7 @@ public struct ImageCreationView: View {
                 HStack {
                     Picker("Size", selection: $size) {
                         ForEach(sizes, id: \.self) {
-                            Text($0)
+                            Text($0.rawValue)
                         }
                     }
                 }

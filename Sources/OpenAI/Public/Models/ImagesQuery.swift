@@ -26,7 +26,7 @@ public struct ImagesQuery: Codable {
     /// The number of images to generate. Must be between 1 and 10.
     public let n: Int?
     /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
-    public let size: String?
+    public let size: Self.Size?
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
     public let user: String?
     /// The style of the generated images. Must be one of vivid or natural. Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images. This param is only supported for dall-e-3.
@@ -34,7 +34,7 @@ public struct ImagesQuery: Codable {
     /// The quality of the image that will be generated. hd creates images with finer details and greater consistency across the image. This param is only supported for dall-e-3.
     public let quality: String?
     
-    public init(prompt: String, model: Model?=nil, responseFormat: Self.ResponseFormat?=nil, n: Int?, size: String?, style: String?=nil, user:String?=nil, quality:String?=nil) {
+    public init(prompt: String, model: Model?=nil, responseFormat: Self.ResponseFormat?=nil, n: Int?, size: Self.Size?, style: String?=nil, user:String?=nil, quality:String?=nil) {
         self.style = style
         self.prompt = prompt
         self.n = n
@@ -54,5 +54,14 @@ public struct ImagesQuery: Codable {
         case style
         case responseFormat = "response_format"
         case quality
+    }
+
+    public enum Size: String, Codable, CaseIterable {
+        case _256 = "256x256"
+        case _512 = "512x512"
+        case _1024 = "1024x1024"
+        //case _1792_1024 = "1792x1024" // for dall-e-3 models
+        //case _1024_1792 = "1024x1792" // for dall-e-3 models
+
     }
 }
