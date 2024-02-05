@@ -82,7 +82,7 @@ public struct TextToSpeechView: View {
                         let query = AudioSpeechQuery(model: .tts_1,
                                                      input: prompt,
                                                      voice: voice,
-                                                     responseFormat: responseFormat,
+                                                     response_format: responseFormat,
                                                      speed: speed)
                         Task {
                             await store.createSpeech(query)
@@ -117,7 +117,7 @@ public struct TextToSpeechView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button {
-                                presentUserDirectoryDocumentPicker(for: object.originResponse.audioData, filename: "GeneratedAudio.\(object.format)")
+                                presentUserDirectoryDocumentPicker(for: object.originResponse.audio_data, filename: "GeneratedAudio.\(object.format)")
                             } label: {
                                 Image(systemName: "square.and.arrow.down")
                             }

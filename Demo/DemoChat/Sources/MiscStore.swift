@@ -67,12 +67,12 @@ public final class MiscStore: ObservableObject {
             for result in categoryResults {
                 let content = """
                 \(circleEmoji(for: result.categories.hate)) Hate
-                \(circleEmoji(for: result.categories.hateThreatening)) Hate/Threatening
-                \(circleEmoji(for: result.categories.selfHarm)) Self-harm
+                \(circleEmoji(for: result.categories.hate_threatening)) Hate/Threatening
+                \(circleEmoji(for: result.categories.self_harm)) Self-harm
                 \(circleEmoji(for: result.categories.sexual)) Sexual
-                \(circleEmoji(for: result.categories.sexualMinors)) Sexual/Minors
+                \(circleEmoji(for: result.categories.sexual_minors)) Sexual/Minors
                 \(circleEmoji(for: result.categories.violence)) Violence
-                \(circleEmoji(for: result.categories.violenceGraphic)) Violence/Graphic
+                \(circleEmoji(for: result.categories.violence_graphic)) Violence/Graphic
                 """
                 
                 let message = Message(

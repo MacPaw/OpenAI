@@ -15,25 +15,12 @@ public struct ChatStreamResult: Codable, Equatable {
             public let role: Chat.Role?
             /// The name of the author of this message. `name` is required if role is `function`, and it should be the name of the function whose response is in the `content`. May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
             public let name: String?
-            public let functionCall: ChatFunctionCall?
-
-            enum CodingKeys: String, CodingKey {
-                case role
-                case content
-                case name
-                case functionCall = "function_call"
-            }
+            public let function_call: ChatFunctionCall?
         }
         
         public let index: Int
         public let delta: Delta
-        public let finishReason: String?
-        
-        enum CodingKeys: String, CodingKey {
-            case index
-            case delta
-            case finishReason = "finish_reason"
-        }
+        public let finish_reason: String?
     }
     
     public let id: String
@@ -41,14 +28,6 @@ public struct ChatStreamResult: Codable, Equatable {
     public let created: TimeInterval
     public let model: Model
     public let choices: [Choice]
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case object
-        case created
-        case model
-        case choices
-    }
     
     init(id: String, object: String, created: TimeInterval, model: Model, choices: [Choice]) {
         self.id = id

@@ -43,17 +43,9 @@ public struct AudioSpeechQuery: Codable, Equatable {
     /// The voice to use when generating the audio. Supported voices are alloy, echo, fable, onyx, nova, and shimmer.
     public let voice: AudioSpeechVoice
     /// The format to audio in. Supported formats are mp3, opus, aac, and flac.
-    public let responseFormat: AudioSpeechResponseFormat
+    public let response_format: AudioSpeechResponseFormat
     /// The speed of the generated audio. Enter a value between **0.25** and **4.0**. Default: **1.0**
     public let speed: String?
-    
-    public enum CodingKeys: String, CodingKey {
-        case model
-        case input
-        case voice
-        case responseFormat = "response_format"
-        case speed
-    }
     
     private enum Constants {
         static let normalSpeed = 1.0
@@ -61,12 +53,12 @@ public struct AudioSpeechQuery: Codable, Equatable {
         static let minSpeed = 0.25
     }
     
-    public init(model: Model, input: String, voice: AudioSpeechVoice, responseFormat: AudioSpeechResponseFormat = .mp3, speed: Double?) {
+    public init(model: Model, input: String, voice: AudioSpeechVoice, response_format: AudioSpeechResponseFormat = .mp3, speed: Double?) {
         self.model = AudioSpeechQuery.validateSpeechModel(model)
         self.speed = AudioSpeechQuery.normalizeSpeechSpeed(speed)
         self.input = input
         self.voice = voice
-        self.responseFormat = responseFormat
+        self.response_format = response_format
     }
 }
 

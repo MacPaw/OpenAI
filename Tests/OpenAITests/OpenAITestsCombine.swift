@@ -26,10 +26,10 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testCompletions() throws {
-        let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
+        let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, max_tokens: 100, top_p: 1, frequency_penalty: 0, presence_penalty: 0, stop: ["\\n"])
         let expectedResult = CompletionsResult(id: "foo", object: "bar", created: 100500, model: .babbage, choices: [
-            .init(text: "42 is the answer to everything", index: 0, finishReason: nil)
-        ], usage: .init(promptTokens: 10, completionTokens: 10, totalTokens: 20))
+            .init(text: "42 is the answer to everything", index: 0, finish_reason: nil)
+        ], usage: .init(prompt_tokens: 10, completion_tokens: 10, total_tokens: 20))
         try self.stub(result: expectedResult)
         
         let result = try awaitPublisher(self.openAI.completions(query: query))
@@ -42,10 +42,10 @@ final class OpenAITestsCombine: XCTestCase {
            .init(role: .user, content: "Who wrote Harry Potter?")
        ])
        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-        .init(index: 0, message: .init(role: .system, content: "bar"), finishReason: "baz"),
-        .init(index: 0, message: .init(role: .user, content: "bar1"), finishReason: "baz1"),
-        .init(index: 0, message: .init(role: .assistant, content: "bar2"), finishReason: "baz2")
-        ], usage: .init(promptTokens: 100, completionTokens: 200, totalTokens: 300))
+        .init(index: 0, message: .init(role: .system, content: "bar"), finish_reason: "baz"),
+        .init(index: 0, message: .init(role: .user, content: "bar1"), finish_reason: "baz1"),
+        .init(index: 0, message: .init(role: .assistant, content: "bar2"), finish_reason: "baz2")
+        ], usage: .init(prompt_tokens: 100, completion_tokens: 200, total_tokens: 300))
        try self.stub(result: chatResult)
        let result = try awaitPublisher(openAI.chats(query: query))
        XCTAssertEqual(result, chatResult)
@@ -55,7 +55,7 @@ final class OpenAITestsCombine: XCTestCase {
         let query = EditsQuery(model: .gpt4, input: "What day of the wek is it?", instruction: "Fix the spelling mistakes")
         let editsResult = EditsResult(object: "edit", created: 1589478378, choices: [
             .init(text: "What day of the week is it?", index: 0)
-        ], usage: .init(promptTokens: 25, completionTokens: 32, totalTokens: 57))
+        ], usage: .init(prompt_tokens: 25, completion_tokens: 32, total_tokens: 57))
         try self.stub(result: editsResult)
         let result = try awaitPublisher(openAI.edits(query: query))
         XCTAssertEqual(result, editsResult)
@@ -67,7 +67,7 @@ final class OpenAITestsCombine: XCTestCase {
             .init(object: "id-sdasd", embedding: [0.1, 0.2, 0.3, 0.4], index: 0),
             .init(object: "id-sdasd1", embedding: [0.4, 0.1, 0.7, 0.1], index: 1),
             .init(object: "id-sdasd2", embedding: [0.8, 0.1, 0.2, 0.8], index: 2)
-        ], model: .textSearchBabbageDoc, usage: .init(promptTokens: 10, totalTokens: 10))
+        ], model: .textSearchBabbageDoc, usage: .init(prompt_tokens: 10, total_tokens: 10))
         try self.stub(result: embeddingsResult)
         
         let result = try awaitPublisher(openAI.embeddings(query: query))
@@ -76,7 +76,7 @@ final class OpenAITestsCombine: XCTestCase {
     
     func testRetrieveModel() throws {
         let query = ModelQuery(model: .gpt4)
-        let modelResult = ModelResult(id: .gpt4, object: "model", ownedBy: "organization-owner")
+        let modelResult = ModelResult(id: .gpt4, object: "model", owned_by: "organization-owner")
         try self.stub(result: modelResult)
         
         let result = try awaitPublisher(openAI.model(query: query))
@@ -94,8 +94,8 @@ final class OpenAITestsCombine: XCTestCase {
     func testModerations() throws {
         let query = ModerationsQuery(input: "Hello, world!")
         let moderationsResult = ModerationsResult(id: "foo", model: .moderation, results: [
-            .init(categories: .init(hate: false, hateThreatening: false, selfHarm: false, sexual: false, sexualMinors: false, violence: false, violenceGraphic: false),
-                  categoryScores: .init(hate: 0.1, hateThreatening: 0.1, selfHarm: 0.1, sexual: 0.1, sexualMinors: 0.1, violence: 0.1, violenceGraphic: 0.1),
+            .init(categories: .init(hate: false, hate_threatening: false, self_harm: false, sexual: false, sexual_minors: false, violence: false, violence_graphic: false),
+                  category_scores: .init(hate: 0.1, hate_threatening: 0.1, self_harm: 0.1, sexual: 0.1, sexual_minors: 0.1, violence: 0.1, violence_graphic: 0.1),
                   flagged: false)
         ])
         try self.stub(result: moderationsResult)
@@ -106,7 +106,7 @@ final class OpenAITestsCombine: XCTestCase {
     
     func testAudioTranscriptions() throws {
         let data = Data()
-        let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
+        let query = AudioTranscriptionQuery(file: data, file_name: "audio.m4a", model: .whisper_1)
         let transcriptionResult = AudioTranscriptionResult(text: "Hello, world!")
         try self.stub(result: transcriptionResult)
         
@@ -116,7 +116,7 @@ final class OpenAITestsCombine: XCTestCase {
     
     func testAudioTranslations() throws {
         let data = Data()
-        let query = AudioTranslationQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
+        let query = AudioTranslationQuery(file: data, file_name: "audio.m4a", model: .whisper_1)
         let transcriptionResult = AudioTranslationResult(text: "Hello, world!")
         try self.stub(result: transcriptionResult)
         

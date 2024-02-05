@@ -182,7 +182,7 @@ extension OpenAI {
                     return completion(.failure(OpenAIError.emptyData))
                 }
                 
-                completion(.success(AudioSpeechResult(audioData: data)))
+                completion(.success(AudioSpeechResult(audio_data: data)))
             }
             task.resume()
         } catch {

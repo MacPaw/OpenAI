@@ -115,7 +115,7 @@ public final class ChatStore: ObservableObject {
                 for choice in partialChatResult.choices {
                     let existingMessages = conversations[conversationIndex].messages
                     // Function calls are also streamed, so we need to accumulate.
-                    if let functionCallDelta = choice.delta.functionCall {
+                    if let functionCallDelta = choice.delta.function_call {
                         if let nameDelta = functionCallDelta.name {
                           functionCallName += nameDelta
                         }
@@ -124,7 +124,7 @@ public final class ChatStore: ObservableObject {
                         }
                     }
                     var messageText = choice.delta.content ?? ""
-                    if let finishReason = choice.finishReason,
+                    if let finishReason = choice.finish_reason,
                        finishReason == "function_call" {
                         messageText += "Function call: name=\(functionCallName) arguments=\(functionCallArguments)"
                     }

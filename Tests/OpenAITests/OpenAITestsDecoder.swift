@@ -51,8 +51,8 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = CompletionsResult(id: "foo", object: "text_completion", created: 1589478378, model: .textDavinci_003, choices: [
-            .init(text: "Hello, world!", index: 0, finishReason: "length")
-        ], usage: .init(promptTokens: 5, completionTokens: 7, totalTokens: 12))
+            .init(text: "Hello, world!", index: 0, finish_reason: "length")
+        ], usage: .init(prompt_tokens: 5, completion_tokens: 7, total_tokens: 12))
         try decode(data, expectedValue)
     }
     
@@ -106,8 +106,8 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, choices: [
-            .init(index: 0, message: Chat(role: .assistant, content: "Hello, world!"), finishReason: "stop")
-        ], usage: .init(promptTokens: 9, completionTokens: 12, totalTokens: 21))
+            .init(index: 0, message: Chat(role: .assistant, content: "Hello, world!"), finish_reason: "stop")
+        ], usage: .init(prompt_tokens: 9, completion_tokens: 12, total_tokens: 21))
         try decode(data, expectedValue)
     }
     
@@ -115,7 +115,7 @@ class OpenAITestsDecoder: XCTestCase {
         let imageQuery = ImagesQuery(
             prompt: "test",
             model: .dall_e_2,
-            responseFormat: .b64_json,
+            response_format: .b64_json,
             n: 1,
             size: "10",
             style: "vivid",
@@ -147,7 +147,7 @@ class OpenAITestsDecoder: XCTestCase {
             messages: [
                 Chat(role: .user, content: "What's the weather like in Boston?")
             ],
-            responseFormat: .init(type: .jsonObject),
+            response_format: .init(type: .jsonObject),
             functions: [
                 ChatFunctionDeclaration(
                     name: "get_current_weather",
@@ -157,7 +157,7 @@ class OpenAITestsDecoder: XCTestCase {
                         type: .object,
                         properties: [
                           "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
-                          "unit": .init(type: .string, enumValues: ["celsius", "fahrenheit"])
+                          "unit": .init(type: .string, enum: ["celsius", "fahrenheit"])
                         ],
                         required: ["location"]
                       )
@@ -237,10 +237,10 @@ class OpenAITestsDecoder: XCTestCase {
             choices: [
                 .init(index: 0, message:
                         Chat(role: .assistant,
-                             functionCall: ChatFunctionCall(name: "get_current_weather", arguments: nil)),
-                      finishReason: "function_call")
+                             function_call: ChatFunctionCall(name: "get_current_weather", arguments: nil)),
+                      finish_reason: "function_call")
             ],
-            usage: .init(promptTokens: 82, completionTokens: 18, totalTokens: 100))
+            usage: .init(prompt_tokens: 82, completion_tokens: 18, total_tokens: 100))
         try decode(data, expectedValue)
     }
 
@@ -265,7 +265,7 @@ class OpenAITestsDecoder: XCTestCase {
         
         let expectedValue = EditsResult(object: "edit", created: 1589478378, choices: [
             .init(text: "What day of the week is it?", index: 0)
-        ], usage: .init(promptTokens: 25, completionTokens: 32, totalTokens: 57))
+        ], usage: .init(prompt_tokens: 25, completion_tokens: 32, total_tokens: 57))
         try decode(data, expectedValue)
     }
     
@@ -294,7 +294,7 @@ class OpenAITestsDecoder: XCTestCase {
         
         let expectedValue = EmbeddingsResult(data: [
             .init(object: "embedding", embedding: [0.0023064255, -0.009327292, -0.0028842222], index: 0)
-        ], model: .textEmbeddingAda, usage: .init(promptTokens: 8, totalTokens: 8))
+        ], model: .textEmbeddingAda, usage: .init(prompt_tokens: 8, total_tokens: 8))
         try decode(data, expectedValue)
     }
     
@@ -323,9 +323,9 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = ModelsResult(data: [
-            .init(id: .gpt3_5Turbo, object: "model", ownedBy: "organization-owner"),
-            .init(id: .gpt4, object: "model", ownedBy: "organization-owner"),
-            .init(id: .textDavinci_001, object: "model", ownedBy: "openai")
+            .init(id: .gpt3_5Turbo, object: "model", owned_by: "organization-owner"),
+            .init(id: .gpt4, object: "model", owned_by: "organization-owner"),
+            .init(id: .textDavinci_001, object: "model", owned_by: "openai")
         ], object: "list")
         try decode(data, expectedValue)
     }
@@ -339,7 +339,7 @@ class OpenAITestsDecoder: XCTestCase {
         }
         """
         
-        let expectedValue = ModelResult(id: .textDavinci_003, object: "model", ownedBy: "openai")
+        let expectedValue = ModelResult(id: .textDavinci_003, object: "model", owned_by: "openai")
         try decode(data, expectedValue)
     }
     
@@ -375,8 +375,8 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = ModerationsResult(id: "modr-5MWoLO", model: .moderation, results: [
-            .init(categories: .init(hate: false, hateThreatening: true, selfHarm: false, sexual: false, sexualMinors: false, violence: true, violenceGraphic: false),
-                  categoryScores: .init(hate: 0.22714105248451233, hateThreatening: 0.4132447838783264, selfHarm: 0.00523239187896251, sexual: 0.01407341007143259, sexualMinors: 0.0038522258400917053, violence: 0.9223177433013916, violenceGraphic: 0.036865197122097015),
+            .init(categories: .init(hate: false, hate_threatening: true, self_harm: false, sexual: false, sexual_minors: false, violence: true, violence_graphic: false),
+                  category_scores: .init(hate: 0.22714105248451233, hate_threatening: 0.4132447838783264, self_harm: 0.00523239187896251, sexual: 0.01407341007143259, sexual_minors: 0.0038522258400917053, violence: 0.9223177433013916, violence_graphic: 0.036865197122097015),
                   flagged: true)
         ])
         try decode(data, expectedValue)

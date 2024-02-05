@@ -11,20 +11,20 @@ public struct AudioTranslationQuery: Codable, Equatable {
     public typealias ResponseFormat = AudioResponseFormat
     
     public let file: Data
-    public let fileName: String
+    public let file_name: String
     public let model: Model
     
-    public let responseFormat: Self.ResponseFormat?
+    public let response_format: Self.ResponseFormat?
     public let prompt: String?
     public let temperature: Double?
     
-    public init(file: Data, fileName: String, model: Model, prompt: String? = nil, temperature: Double? = nil, responseFormat: Self.ResponseFormat? = nil) {
+    public init(file: Data, file_name: String, model: Model, prompt: String? = nil, temperature: Double? = nil, response_format: Self.ResponseFormat? = nil) {
         self.file = file
-        self.fileName = fileName
+        self.file_name = file_name
         self.model = model
         self.prompt = prompt
         self.temperature = temperature
-        self.responseFormat = responseFormat
+        self.response_format = response_format
     }
 }
 
@@ -32,10 +32,10 @@ extension AudioTranslationQuery: MultipartFormDataBodyEncodable {
     
     func encode(boundary: String) -> Data {
         let bodyBuilder = MultipartFormDataBodyBuilder(boundary: boundary, entries: [
-            .file(paramName: "file", fileName: fileName, fileData: file, contentType: "audio/mpeg"),
+            .file(paramName: "file", file_name: file_name, fileData: file, contentType: "audio/mpeg"),
             .string(paramName: "model", value: model),
             .string(paramName: "prompt", value: prompt),
-            .string(paramName: "response_format", value: responseFormat),
+            .string(paramName: "response_format", value: response_format),
             .string(paramName: "temperature", value: temperature)
         ])
         return bodyBuilder.build()

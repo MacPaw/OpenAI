@@ -22,7 +22,7 @@ public struct ImagesQuery: Codable {
     /// ID of the model to use.
     public let model: Model?
     /// The format in which the generated images are returned
-    public let responseFormat: Self.ResponseFormat?
+    public let response_format: Self.ResponseFormat?
     /// The number of images to generate. Must be between 1 and 10.
     public let n: Int?
     /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
@@ -34,25 +34,14 @@ public struct ImagesQuery: Codable {
     /// The quality of the image that will be generated. hd creates images with finer details and greater consistency across the image. This param is only supported for dall-e-3.
     public let quality: String?
     
-    public init(prompt: String, model: Model?=nil, responseFormat: Self.ResponseFormat?=nil, n: Int?, size: String?, style: String?=nil, user:String?=nil, quality:String?=nil) {
+    public init(prompt: String, model: Model?=nil, response_format: Self.ResponseFormat?=nil, n: Int?, size: String?, style: String?=nil, user:String?=nil, quality:String?=nil) {
         self.style = style
         self.prompt = prompt
         self.n = n
         self.size = size
         self.model = model
-        self.responseFormat = responseFormat
+        self.response_format = response_format
         self.user = user
         self.quality = quality
-    }
-    
-    public enum CodingKeys: String, CodingKey {
-        case model
-        case prompt
-        case n
-        case size
-        case user
-        case style
-        case responseFormat = "response_format"
-        case quality
     }
 }

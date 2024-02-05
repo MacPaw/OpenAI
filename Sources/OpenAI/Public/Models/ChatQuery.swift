@@ -26,7 +26,7 @@ public struct Chat: Codable, Equatable {
     public let content: String?
     /// The name of the author of this message. `name` is required if role is `function`, and it should be the name of the function whose response is in the `content`. May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
     public let name: String?
-    public let functionCall: ChatFunctionCall?
+    public let function_call: ChatFunctionCall?
     
     public enum Role: String, Codable, Equatable {
         case system
@@ -34,19 +34,12 @@ public struct Chat: Codable, Equatable {
         case user
         case function
     }
-    
-    enum CodingKeys: String, CodingKey {
-        case role
-        case content
-        case name
-        case functionCall = "function_call"
-    }
-    
-    public init(role: Role, content: String? = nil, name: String? = nil, functionCall: ChatFunctionCall? = nil) {
+
+    public init(role: Role, content: String? = nil, name: String? = nil, function_call: ChatFunctionCall? = nil) {
         self.role = role
         self.content = content
         self.name = name
-        self.functionCall = functionCall
+        self.function_call = function_call
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -57,13 +50,13 @@ public struct Chat: Codable, Equatable {
             try container.encode(name, forKey: .name)
         }
 
-        if let functionCall = functionCall {
-            try container.encode(functionCall, forKey: .functionCall)
+        if let function_call = function_call {
+            try container.encode(function_call, forKey: .function_call)
         }
 
         // Should add 'nil' to 'content' property for function calling response
         // See https://openai.com/blog/function-calling-and-other-api-updates
-        if content != nil || (role == .assistant && functionCall != nil) {
+        if content != nil || (role == .assistant && function_call != nil) {
             try container.encode(content, forKey: .content)
         }
     }
@@ -89,16 +82,10 @@ public struct JSONSchema: Codable, Equatable {
     public let required: [String]?
     public let pattern: String?
     public let const: String?
-    public let enumValues: [String]?
-    public let multipleOf: Int?
+    public let `enum`: [String]?
+    public let multiple_of: Int?
     public let minimum: Int?
     public let maximum: Int?
-    
-    private enum CodingKeys: String, CodingKey {
-        case type, properties, required, pattern, const
-        case enumValues = "enum"
-        case multipleOf, minimum, maximum
-    }
     
     public struct Property: Codable, Equatable {
         public let type: JSONType
@@ -108,22 +95,15 @@ public struct JSONSchema: Codable, Equatable {
         public let required: [String]?
         public let pattern: String?
         public let const: String?
-        public let enumValues: [String]?
-        public let multipleOf: Int?
+        public let `enum`: [String]?
+        public let multiple_of: Int?
         public let minimum: Double?
         public let maximum: Double?
-        public let minItems: Int?
-        public let maxItems: Int?
-        public let uniqueItems: Bool?
+        public let min_items: Int?
+        public let max_items: Int?
+        public let unique_items: Bool?
 
-        private enum CodingKeys: String, CodingKey {
-            case type, description, format, items, required, pattern, const
-            case enumValues = "enum"
-            case multipleOf, minimum, maximum
-            case minItems, maxItems, uniqueItems
-        }
-        
-        public init(type: JSONType, description: String? = nil, format: String? = nil, items: Items? = nil, required: [String]? = nil, pattern: String? = nil, const: String? = nil, enumValues: [String]? = nil, multipleOf: Int? = nil, minimum: Double? = nil, maximum: Double? = nil, minItems: Int? = nil, maxItems: Int? = nil, uniqueItems: Bool? = nil) {
+        public init(type: JSONType, description: String? = nil, format: String? = nil, items: Items? = nil, required: [String]? = nil, pattern: String? = nil, const: String? = nil, `enum`: [String]? = nil, multiple_of: Int? = nil, minimum: Double? = nil, maximum: Double? = nil, min_items: Int? = nil, max_items: Int? = nil, unique_items: Bool? = nil) {
             self.type = type
             self.description = description
             self.format = format
@@ -131,24 +111,24 @@ public struct JSONSchema: Codable, Equatable {
             self.required = required
             self.pattern = pattern
             self.const = const
-            self.enumValues = enumValues
-            self.multipleOf = multipleOf
+            self.`enum` = `enum`
+            self.multiple_of = multiple_of
             self.minimum = minimum
             self.maximum = maximum
-            self.minItems = minItems
-            self.maxItems = maxItems
-            self.uniqueItems = uniqueItems
+            self.min_items = min_items
+            self.max_items = max_items
+            self.unique_items = unique_items
         }
     }
 
     public enum JSONType: String, Codable {
-        case integer = "integer"
-        case string = "string"
-        case boolean = "boolean"
-        case array = "array"
-        case object = "object"
-        case number = "number"
-        case `null` = "null"
+        case integer
+        case string
+        case boolean
+        case array
+        case object
+        case number
+        case null
     }
 
     public struct Items: Codable, Equatable {
@@ -156,43 +136,37 @@ public struct JSONSchema: Codable, Equatable {
         public let properties: [String: Property]?
         public let pattern: String?
         public let const: String?
-        public let enumValues: [String]?
-        public let multipleOf: Int?
+        public let `enum`: [String]?
+        public let multiple_of: Int?
         public let minimum: Double?
         public let maximum: Double?
-        public let minItems: Int?
-        public let maxItems: Int?
-        public let uniqueItems: Bool?
+        public let min_items: Int?
+        public let max_items: Int?
+        public let unique_items: Bool?
 
-        private enum CodingKeys: String, CodingKey {
-            case type, properties, pattern, const
-            case enumValues = "enum"
-            case multipleOf, minimum, maximum, minItems, maxItems, uniqueItems
-        }
-        
-        public init(type: JSONType, properties: [String : Property]? = nil, pattern: String? = nil, const: String? = nil, enumValues: [String]? = nil, multipleOf: Int? = nil, minimum: Double? = nil, maximum: Double? = nil, minItems: Int? = nil, maxItems: Int? = nil, uniqueItems: Bool? = nil) {
+        public init(type: JSONType, properties: [String : Property]? = nil, pattern: String? = nil, const: String? = nil, `enum`: [String]? = nil, multiple_of: Int? = nil, minimum: Double? = nil, maximum: Double? = nil, min_items: Int? = nil, max_items: Int? = nil, unique_items: Bool? = nil) {
             self.type = type
             self.properties = properties
             self.pattern = pattern
             self.const = const
-            self.enumValues = enumValues
-            self.multipleOf = multipleOf
+            self.`enum` = `enum`
+            self.multiple_of = multiple_of
             self.minimum = minimum
             self.maximum = maximum
-            self.minItems = minItems
-            self.maxItems = maxItems
-            self.uniqueItems = uniqueItems
+            self.min_items = min_items
+            self.max_items = max_items
+            self.unique_items = unique_items
         }
     }
     
-    public init(type: JSONType, properties: [String : Property]? = nil, required: [String]? = nil, pattern: String? = nil, const: String? = nil, enumValues: [String]? = nil, multipleOf: Int? = nil, minimum: Int? = nil, maximum: Int? = nil) {
+    public init(type: JSONType, properties: [String : Property]? = nil, required: [String]? = nil, pattern: String? = nil, const: String? = nil, `enum`: [String]? = nil, multiple_of: Int? = nil, minimum: Int? = nil, maximum: Int? = nil) {
         self.type = type
         self.properties = properties
         self.required = required
         self.pattern = pattern
         self.const = const
-        self.enumValues = enumValues
-        self.multipleOf = multipleOf
+        self.`enum` = `enum`
+        self.multiple_of = multiple_of
         self.minimum = minimum
         self.maximum = maximum
     }
@@ -226,29 +200,29 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     /// ID of the model to use. Currently, only gpt-3.5-turbo and gpt-3.5-turbo-0301 are supported.
     public let model: Model
     /// An object specifying the format that the model must output.
-    public let responseFormat: ResponseFormat?
+    public let response_format: ResponseFormat?
     /// The messages to generate chat completions for
     public let messages: [Chat]
     /// A list of functions the model may generate JSON inputs for.
     public let functions: [ChatFunctionDeclaration]?
     /// Controls how the model responds to function calls. "none" means the model does not call a function, and responds to the end-user. "auto" means the model can pick between and end-user or calling a function. Specifying a particular function via `{"name": "my_function"}` forces the model to call that function. "none" is the default when no functions are present. "auto" is the default if functions are present.
-    public let functionCall: FunctionCall?
+    public let function_call: FunctionCall?
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and  We generally recommend altering this or top_p but not both.
     public let temperature: Double?
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    public let topP: Double?
+    public let top_p: Double?
     /// How many chat completion choices to generate for each input message.
     public let n: Int?
     /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
     public let stop: [String]?
     /// The maximum number of tokens to generate in the completion.
-    public let maxTokens: Int?
+    public let max_tokens: Int?
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-    public let presencePenalty: Double?
+    public let presence_penalty: Double?
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-    public let frequencyPenalty: Double?
+    public let frequency_penalty: Double?
     /// Modify the likelihood of specified tokens appearing in the completion.
-    public let logitBias: [String:Int]?
+    public let logit_bias: [String:Int]?
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
     public let user: String?
     
@@ -279,39 +253,21 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }
     }
-    
-    enum CodingKeys: String, CodingKey {
-        case model
-        case messages
-        case functions
-        case functionCall = "function_call"
-        case temperature
-        case topP = "top_p"
-        case n
-        case stream
-        case stop
-        case maxTokens = "max_tokens"
-        case presencePenalty = "presence_penalty"
-        case frequencyPenalty = "frequency_penalty"
-        case logitBias = "logit_bias"
-        case user
-        case responseFormat = "response_format"
-    }
-    
-    public init(model: Model, messages: [Chat], responseFormat: ResponseFormat? = nil, functions: [ChatFunctionDeclaration]? = nil, functionCall: FunctionCall? = nil, temperature: Double? = nil, topP: Double? = nil, n: Int? = nil, stop: [String]? = nil, maxTokens: Int? = nil, presencePenalty: Double? = nil, frequencyPenalty: Double? = nil, logitBias: [String : Int]? = nil, user: String? = nil, stream: Bool = false) {
+
+    public init(model: Model, messages: [Chat], response_format: ResponseFormat? = nil, functions: [ChatFunctionDeclaration]? = nil, function_call: FunctionCall? = nil, temperature: Double? = nil, top_p: Double? = nil, n: Int? = nil, stop: [String]? = nil, max_tokens: Int? = nil, presence_penalty: Double? = nil, frequency_penalty: Double? = nil, logit_bias: [String : Int]? = nil, user: String? = nil, stream: Bool = false) {
         self.model = model
         self.messages = messages
         self.functions = functions
-        self.functionCall = functionCall
+        self.function_call = function_call
         self.temperature = temperature
-        self.topP = topP
+        self.top_p = top_p
         self.n = n
-        self.responseFormat = responseFormat
+        self.response_format = response_format
         self.stop = stop
-        self.maxTokens = maxTokens
-        self.presencePenalty = presencePenalty
-        self.frequencyPenalty = frequencyPenalty
-        self.logitBias = logitBias
+        self.max_tokens = max_tokens
+        self.presence_penalty = presence_penalty
+        self.frequency_penalty = frequency_penalty
+        self.logit_bias = logit_bias
         self.user = user
         self.stream = stream
     }

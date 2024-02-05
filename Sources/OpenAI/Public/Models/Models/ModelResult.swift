@@ -11,13 +11,7 @@ public struct ModelResult: Codable, Equatable {
 
     public let id: Model
     public let object: String
-    public let ownedBy: String
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case object
-        case ownedBy = "owned_by"
-    }
+    public let owned_by: String
 }
 
 extension ModelResult: Identifiable {}

@@ -100,13 +100,13 @@ struct CompletionsQuery: Codable {
     /// What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
     public let temperature: Double?
     /// The maximum number of tokens to generate in the completion.
-    public let maxTokens: Int?
+    public let max_tokens: Int?
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    public let topP: Double?
+    public let top_p: Double?
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-    public let frequencyPenalty: Double?
+    public let frequency_penalty: Double?
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-    public let presencePenalty: Double?
+    public let presence_penalty: Double?
     /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
     public let stop: [String]?
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
@@ -134,7 +134,7 @@ struct CompletionsResult: Codable, Equatable {
 **Example**
 
 ```swift
-let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
+let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, max_tokens: 100, top_p: 1, frequency_penalty: 0, presence_penalty: 0, stop: ["\\n"])
 openAI.completions(query: query) { result in
   //Handle result here
 }
@@ -220,19 +220,19 @@ Using the OpenAI Chat API, you can build your own applications with `gpt-3.5-tur
      /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and  We generally recommend altering this or top_p but not both.
      public let temperature: Double?
      /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-     public let topP: Double?
+     public let top_p: Double?
      /// How many chat completion choices to generate for each input message.
      public let n: Int?
      /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
      public let stop: [String]?
      /// The maximum number of tokens to generate in the completion.
-     public let maxTokens: Int?
+     public let max_tokens: Int?
      /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-     public let presencePenalty: Double?
+     public let presence_penalty: Double?
      /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-     public let frequencyPenalty: Double?
+     public let frequency_penalty: Double?
      ///Modify the likelihood of specified tokens appearing in the completion.
-     public let logitBias: [String:Int]?
+     public let logit_bias: [string:int]?
      /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
      public let user: String?
 }
@@ -245,13 +245,13 @@ struct ChatResult: Codable, Equatable {
     public struct Choice: Codable, Equatable {
         public let index: Int
         public let message: Chat
-        public let finishReason: String
+        public let finish_reason: String
     }
     
     public struct Usage: Codable, Equatable {
-        public let promptTokens: Int
-        public let completionTokens: Int
-        public let totalTokens: Int
+        public let prompt_tokens: Int
+        public let completion_tokens: Int
+        public let total_tokens: Int
     }
     
     public let id: String
@@ -451,10 +451,10 @@ Creates an edited or extended image given an original image and a prompt.
 public struct ImageEditsQuery: Codable {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
     public let image: Data
-    public let fileName: String
+    public let file_name: String
     /// An additional image whose fully transparent areas (e.g. where alpha is zero) indicate where image should be edited. Must be a valid PNG file, less than 4MB, and have the same dimensions as image.
     public let mask: Data?
-    public let maskFileName: String?
+    public let mask_file_name: String?
     /// A text description of the desired image(s). The maximum length is 1000 characters.
     public let prompt: String
     /// The number of images to generate. Must be between 1 and 10.
@@ -472,7 +472,7 @@ Uses the ImagesResult response similarly to ImagesQuery.
 
 ```swift
 let data = image.pngData()
-let query = ImageEditQuery(image: data, fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+let query = ImageEditQuery(image: Data, file_name: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
 openAI.imageEdits(query: query) { result in
   //Handle result here
 }
@@ -490,7 +490,7 @@ Creates a variation of a given image.
 public struct ImageVariationsQuery: Codable {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
     public let image: Data
-    public let fileName: String
+    public let file_name: String
     /// The number of images to generate. Must be between 1 and 10.
     public let n: Int?
     /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
@@ -506,7 +506,7 @@ Uses the ImagesResult response similarly to ImagesQuery.
 
 ```swift
 let data = image.pngData()
-let query = ImageVariationQuery(image: data, fileName: "whitecat.png", n: 1, size: "1024x1024")
+let query = ImageVariationQuery(image: Data, file_name: "whitecat.png", n: 1, size: "1024x1024")
 openAI.imageVariations(query: query) { result in
   //Handle result here
 }
@@ -539,7 +539,7 @@ public struct AudioSpeechQuery: Codable, Equatable {
     public let model: Model // tts-1 or tts-1-hd  
     public let input: String
     public let voice: AudioSpeechVoice
-    public let responseFormat: AudioSpeechResponseFormat
+    public let response_format: AudioSpeechResponseFormat
     public let speed: String? // Initializes with Double?
     //...
 }
@@ -549,13 +549,13 @@ public struct AudioSpeechQuery: Codable, Equatable {
 
 ```swift
 /// Audio data for one of the following formats :`mp3`, `opus`, `aac`, `flac`
-public let audioData: Data?
+public let audio_data: Data?
 ```
 
 **Example:**   
 
 ```swift
-let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 1.0)
+let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, response_format: .mp3, speed: 1.0)
 
 openAI.audioCreateSpeech(query: query) { result in
     // Handle response here
@@ -576,7 +576,7 @@ Transcribes audio into the input language.
 public struct AudioTranscriptionQuery: Codable, Equatable {
     
     public let file: Data
-    public let fileName: String
+    public let file_name: String
     public let model: Model
     
     public let prompt: String?
@@ -598,7 +598,7 @@ public struct AudioTranscriptionResult: Codable, Equatable {
 
 ```swift
 let data = Data(contentsOfURL:...)
-let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)        
+let query = AudioTranscriptionQuery(file: Data, file_name: "audio.m4a", model: .whisper_1)
 
 openAI.audioTranscriptions(query: query) { result in
     //Handle result here
@@ -617,7 +617,7 @@ Translates audio into into English.
 public struct AudioTranslationQuery: Codable, Equatable {
     
     public let file: Data
-    public let fileName: String
+    public let file_name: String
     public let model: Model
     
     public let prompt: String?
@@ -638,7 +638,7 @@ public struct AudioTranslationResult: Codable, Equatable {
 
 ```swift
 let data = Data(contentsOfURL:...)
-let query = AudioTranslationQuery(file: data, fileName: "audio.m4a", model: .whisper_1)  
+let query = AudioTranslationQuery(file: Data, file_name: "audio.m4a", model: .whisper_1)
 
 openAI.audioTranslations(query: query) { result in
     //Handle result here
@@ -668,7 +668,7 @@ struct EditsQuery: Codable {
     /// What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
     public let temperature: Double?
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    public let topP: Double?
+    public let top_p: Double?
 }
 ```
 
@@ -683,16 +683,9 @@ struct EditsResult: Codable, Equatable {
     }
 
     public struct Usage: Codable, Equatable {
-        public let promptTokens: Int
-        public let completionTokens: Int
-        public let totalTokens: Int
-        
-        enum CodingKeys: String, CodingKey {
-            case promptTokens = "prompt_tokens"
-            case completionTokens = "completion_tokens"
-            case totalTokens = "total_tokens"
-        }
-    }
+        public let prompt_tokens: Int
+        public let completion_tokens: Int
+        public let total_tokens: Int
     
     public let object: String
     public let created: TimeInterval
@@ -898,7 +891,7 @@ public struct ModelResult: Codable, Equatable {
 
     public let id: Model
     public let object: String
-    public let ownedBy: String
+    public let owned_by: String
 }
 ```
 
