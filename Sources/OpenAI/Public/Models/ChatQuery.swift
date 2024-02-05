@@ -9,13 +9,13 @@ import Foundation
 
 // See more https://platform.openai.com/docs/guides/text-generation/json-mode
 public struct ResponseFormat: Codable, Equatable {
-    public static let jsonObject = ResponseFormat(type: .jsonObject)
+    public static let json_object = ResponseFormat(type: .json_object)
     public static let text = ResponseFormat(type: .text)
     
     public let type: Self.ResponseFormatType
     
     public enum ResponseFormatType: String, Codable, Equatable {
-        case jsonObject = "json_object"
+        case json_object
         case text
     }
 }

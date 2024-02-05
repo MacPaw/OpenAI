@@ -32,7 +32,7 @@ extension AudioTranslationQuery: MultipartFormDataBodyEncodable {
     
     func encode(boundary: String) -> Data {
         let bodyBuilder = MultipartFormDataBodyBuilder(boundary: boundary, entries: [
-            .file(paramName: "file", file_name: file_name, fileData: file, contentType: "audio/mpeg"),
+            .file(paramName: "file", fileName: file_name, fileData: file, contentType: "audio/mpeg"),
             .string(paramName: "model", value: model),
             .string(paramName: "prompt", value: prompt),
             .string(paramName: "response_format", value: response_format),

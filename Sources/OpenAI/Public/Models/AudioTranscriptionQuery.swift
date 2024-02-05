@@ -10,7 +10,7 @@ import Foundation
 public enum AudioResponseFormat: String, Codable, Equatable {
     case json
     case text
-    case verboseJson = "verbose_json"
+    case verbose_json
     case srt
     case vtt
 }
@@ -42,7 +42,7 @@ extension AudioTranscriptionQuery: MultipartFormDataBodyEncodable {
     
     func encode(boundary: String) -> Data {
         let bodyBuilder = MultipartFormDataBodyBuilder(boundary: boundary, entries: [
-            .file(paramName: "file", file_name: file_name, fileData: file, contentType: "audio/mpeg"),
+            .file(paramName: "file", fileName: file_name, fileData: file, contentType: "audio/mpeg"),
             .string(paramName: "model", value: model),
             .string(paramName: "prompt", value: prompt),
             .string(paramName: "temperature", value: temperature),

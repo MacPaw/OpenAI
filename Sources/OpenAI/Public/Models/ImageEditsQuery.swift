@@ -35,8 +35,8 @@ public struct ImageEditsQuery: Codable {
 extension ImageEditsQuery: MultipartFormDataBodyEncodable {
     func encode(boundary: String) -> Data {
         let bodyBuilder = MultipartFormDataBodyBuilder(boundary: boundary, entries: [
-            .file(paramName: "image", file_name: file_name, fileData: image, contentType: "image/png"),
-            .file(paramName: "mask", file_name: mask_file_name, fileData: mask, contentType: "image/png"),
+            .file(paramName: "image", fileName: file_name, fileData: image, contentType: "image/png"),
+            .file(paramName: "mask", fileName: mask_file_name, fileData: mask, contentType: "image/png"),
             .string(paramName: "prompt", value: prompt),
             .string(paramName: "n", value: n),
             .string(paramName: "size", value: size)

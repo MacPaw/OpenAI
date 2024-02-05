@@ -27,7 +27,7 @@ public struct ImageVariationsQuery: Codable {
 extension ImageVariationsQuery: MultipartFormDataBodyEncodable {
     func encode(boundary: String) -> Data {
         let bodyBuilder = MultipartFormDataBodyBuilder(boundary: boundary, entries: [
-            .file(paramName: "image", file_name: file_name, fileData: image, contentType: "image/png"),
+            .file(paramName: "image", fileName: file_name, fileData: image, contentType: "image/png"),
             .string(paramName: "n", value: n),
             .string(paramName: "size", value: size)
         ])
