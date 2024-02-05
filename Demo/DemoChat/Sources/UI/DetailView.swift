@@ -19,7 +19,7 @@ struct DetailView: View {
     @State private var showsModelSelectionSheet = false
     @State private var selectedChatModel: Model = .gpt4_0613
 
-    private let availableChatModels: [Model] = [.gpt3_5Turbo, .gpt4]
+    private static let availableChatModels: [Model] = [.gpt3_5Turbo, .gpt4]
 
     let conversation: Conversation
     let error: Error?
@@ -65,52 +65,8 @@ struct DetailView: View {
 
                     inputBar(scrollViewProxy: scrollViewProxy)
                 }
-                .navigationTitle("Chat")
-                .safeAreaInset(edge: .top) {
-                    HStack {
-                        Text(
-                            "Model: \(selectedChatModel)"
-                        )
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        Spacer()
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                }
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: {
-                            showsModelSelectionSheet.toggle()
-                        }) {
-                            Image(systemName: "cpu")
-                        }
-                    }
-                }
-                .confirmationDialog(
-                    "Select model",
-                    isPresented: $showsModelSelectionSheet,
-                    titleVisibility: .visible,
-                    actions: {
-                        ForEach(availableChatModels, id: \.self) { model in
-                            Button {
-                                selectedChatModel = model
-                            } label: {
-                                Text(model)
-                            }
-                        }
-
-                        Button("Cancel", role: .cancel) {
-                            showsModelSelectionSheet = false
-                        }
-                    },
-                    message: {
-                        Text(
-                            "View https://platform.openai.com/docs/models/overview for details"
-                        )
-                        .font(.caption)
-                    }
-                )
+                .navigationTitle("Chat", selectedModel: $selectedChatModel)
+                .modelSelect(selectedModel: $selectedChatModel, models: Self.availableChatModels, showsModelSelectionSheet: $showsModelSelectionSheet, help: "https://platform.openai.com/docs/models/overview")
             }
         }
     }
