@@ -49,7 +49,7 @@ public protocol OpenAIProtocol {
 
      Example:
      ```
-     let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: "1024x1024")
+     let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: ImagesQuery.Size._1024)
      openAI.images(query: query) { result in
        //Handle result here
      }
@@ -66,7 +66,7 @@ public protocol OpenAIProtocol {
 
      Example:
      ```
-     let query = ImagesEditQuery(image: "@whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+     let query = ImagesEditQuery(image: "@whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: ImagesQuery.Size._1024)
      openAI.imageEdits(query: query) { result in
        //Handle result here
      }
@@ -83,7 +83,7 @@ public protocol OpenAIProtocol {
 
      Example:
      ```
-     let query = ImagesVariationQuery(image: "@whitecat.png", n: 1, size: "1024x1024")
+     let query = ImagesVariationQuery(image: "@whitecat.png", n: 1, size: ImagesQuery.Size._1024)
      openAI.imageVariations(query: query) { result in
        //Handle result here
      }
