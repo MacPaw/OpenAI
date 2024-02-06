@@ -17,13 +17,13 @@ struct DetailView: View {
     @State var inputText: String = ""
     @FocusState private var isFocused: Bool
     @State private var showsModelSelectionSheet = false
-    @State private var selectedChatModel: Model = .gpt4_0613
+    @State private var selectedChatModel: ChatModel = ChatModel.allCases.first!
 
-    private let availableChatModels: [Model] = [.gpt3_5Turbo, .gpt4_0613]
+    private let availableChatModels: [ChatModel] = ChatModel.allCases
 
     let conversation: Conversation
     let error: Error?
-    let sendMessage: (String, Model) -> Void
+    let sendMessage: (String, ChatModel) -> Void
 
     private var fillColor: Color {
         #if os(iOS)
@@ -69,7 +69,7 @@ struct DetailView: View {
                 .safeAreaInset(edge: .top) {
                     HStack {
                         Text(
-                            "Model: \(selectedChatModel)"
+                            "Model: \(selectedChatModel.rawValue)"
                         )
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -96,7 +96,7 @@ struct DetailView: View {
                             Button {
                                 selectedChatModel = model
                             } label: {
-                                Text(model)
+                                Text(model.rawValue)
                             }
                         }
 

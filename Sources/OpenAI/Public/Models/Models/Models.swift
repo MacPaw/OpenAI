@@ -1,134 +1,81 @@
 //
 //  Models.swift
-//  
+//
 //
 //  Created by Sergii Kryvoblotskyi on 12/19/22.
 //
 
-/// Defines all available OpenAI models supported by the library.
-public typealias Model = String
+import Foundation
 
-public extension Model {
-    // Chat Completion
-    // GPT-4
+public enum ChatModel: String, Codable, CaseIterable {
+    public static var allCases: [ChatModel] = [.gpt_3_5_turbo_0125, .gpt_3_5_turbo_1106, .gpt_3_5_turbo, .gpt_4, .gpt_4_32k, .gpt_4_0613, .gpt_4_32k_0613, .gpt_4_1106_preview, .gpt_4_vision_preview]
 
-    /// `gpt-4-turbo`, the latest gpt-4 model with improved instruction following, JSON mode, reproducible outputs, parallel function calling and more. Maximum of 4096 output tokens
-    static let gpt4_turbo_preview = "gpt-4-turbo-preview"
+    /// The latest GPT-3.5 Turbo model with higher accuracy at responding in requested formats and a fix for a bug which caused a text encoding issue for non-English language function calls. Returns a maximum of 4,096 output tokens.
+    case gpt_3_5_turbo_0125 = "gpt-3.5-turbo-0125" // system
+    /// GPT-3.5 Turbo model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens.
+    case gpt_3_5_turbo_1106 = "gpt-3.5-turbo-1106" // system
+    /// Currently points to gpt-3.5-turbo-0613. The gpt-3.5-turbo model alias will be automatically upgraded from gpt-3.5-turbo-0613 to gpt-3.5-turbo-0125 on February 16th.
+    case gpt_3_5_turbo = "gpt-3.5-turbo" // openai
+    /// Currently points to gpt-3.5-turbo-0613.
+    @available(*, deprecated, message: "Please upgrade to the newer model")
+    case gpt_3_5_turbo_16k = "gpt-3.5-turbo-16k" // openai-internal
+    /// Snapshot of gpt-3.5-turbo from June 13th 2023. Will be deprecated on June 13, 2024.
+    @available(*, deprecated, message: "Please upgrade to the newer model. Will be deprecated on June 13, 2024.")
+    case gpt_3_5_turbo_0613 = "gpt-3.5-turbo-0613" // openai
+    /// Snapshot of gpt-3.5-16k-turbo from June 13th 2023. Will be deprecated on June 13, 2024.
+    @available(*, deprecated, message: "Please upgrade to the newer model. Will be deprecated on June 13, 2024.")
+    case gpt_3_5_turbo_16k_0613 = "gpt-3.5-turbo-16k-0613" // openai
 
-    /// `gpt-4-vision-preview`, able to understand images, in addition to all other GPT-4 Turbo capabilities.
-    static let gpt4_vision_preview = "gpt-4-vision-preview"
-    
-    /// Snapshot of `gpt-4-turbo-preview` from January 25th 2024. This model reduces cases of “laziness” where the model doesn’t complete a task. Also fixes the bug impacting non-English UTF-8 generations. Maximum of 4096 output tokens
-    static let gpt4_0125_preview = "gpt-4-0125-preview"
-    
-    /// Snapshot of `gpt-4-turbo-preview` from November 6th 2023. Improved instruction following, JSON mode, reproducible outputs, parallel function calling and more. Maximum of 4096 output tokens
-    @available(*, deprecated, message: "Please upgrade to the newer model")
-    static let gpt4_1106_preview = "gpt-4-1106-preview"
-    
-    /// Most capable `gpt-4` model, outperforms any GPT-3.5 model, able to do more complex tasks, and optimized for chat.
-    static let gpt4 = "gpt-4"
-    
-    /// Snapshot of `gpt-4` from June 13th 2023 with function calling data. Unlike `gpt-4`, this model will not receive updates, and will be deprecated 3 months after a new version is released.
-    static let gpt4_0613 = "gpt-4-0613"
-    
-    /// Snapshot of `gpt-4` from March 14th 2023. Unlike gpt-4, this model will not receive updates, and will only be supported for a three month period ending on June 14th 2023.
-    @available(*, deprecated, message: "Please upgrade to the newer model")
-    static let gpt4_0314 = "gpt-4-0314"
-    
-    /// Same capabilities as the base `gpt-4` model but with 4x the context length. Will be updated with our latest model iteration.
-    static let gpt4_32k = "gpt-4-32k"
-    
-    /// Snapshot of `gpt-4-32k` from June 13th 2023. Unlike `gpt-4-32k`, this model will not receive updates, and will be deprecated 3 months after a new version is released.
-    static let gpt4_32k_0613 = "gpt-4-32k-0613"
-    
-    /// Snapshot of `gpt-4-32k` from March 14th 2023. Unlike `gpt-4-32k`, this model will not receive updates, and will only be supported for a three month period ending on June 14th 2023.
-    @available(*, deprecated, message: "Please upgrade to the newer model")
-    static let gpt4_32k_0314 = "gpt-4-32k-0314"
+    /// The latest GPT-4 model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens. This preview model is not yet suited for production traffic.
+    case gpt_4_1106_preview = "gpt-4-1106-preview" // -- "ChatGPT Plus" SUBSCRIPTION ONLY
+    /// Ability to understand images, in addition to all other GPT-4 Turbo capabilties. Returns a maximum of 4,096 output tokens. This is a preview model version and not suited yet for production traffic.
+    case gpt_4_vision_preview = "gpt-4-vision-preview" // -- "ChatGPT Plus" SUBSCRIPTION ONLY
+    /// Currently points to gpt-4-0613.
+    case gpt_4 = "gpt-4"
+    /// Currently points to gpt-4-32k-0613.
+    case gpt_4_32k = "gpt-4-32k" // -- "ChatGPT Plus" SUBSCRIPTION ONLY
+    /// Snapshot of gpt-4 from June 13th 2023 with improved function calling support.
+    case gpt_4_0613 = "gpt-4-0613" // -- "ChatGPT Plus" SUBSCRIPTION ONLY
+    /// Snapshot of gpt-4-32k from June 13th 2023 with improved function calling support.
+    case gpt_4_32k_0613 = "gpt-4-32k-0613" // -- "ChatGPT Plus" SUBSCRIPTION ONLY
+}
 
-    // GPT-3.5
-    
-    /// Most capable `gpt-3.5-turbo` model and optimized for chat. Will be updated with our latest model iteration.
-    static let gpt3_5Turbo = "gpt-3.5-turbo"
-    
-    /// Snapshot of `gpt-3.5-turbo` from January 25th 2024. Decreased prices by 50%. Various improvements including higher accuracy at responding in requested formats and a fix for a bug which caused a text encoding issue for non-English language function calls.
-    static let gpt3_5Turbo_0125 = "gpt-3.5-turbo-0125"
-    
-    /// Snapshot of `gpt-3.5-turbo` from November 6th 2023. The latest `gpt-3.5-turbo` model with improved instruction following, JSON mode, reproducible outputs, parallel function calling and more.
-    @available(*, deprecated, message: "Please upgrade to the newer model")
-    static let gpt3_5Turbo_1106 = "gpt-3.5-turbo-1106"
-    
-    /// Snapshot of `gpt-3.5-turbo` from June 13th 2023 with function calling data. Unlike `gpt-3.5-turbo`, this model will not receive updates, and will be deprecated 3 months after a new version is released.
-    @available(*, deprecated, message: "Please upgrade to the newer model")
-    static let gpt3_5Turbo_0613 = "gpt-3.5-turbo-0613"
-    
-    /// Snapshot of `gpt-3.5-turbo` from March 1st 2023. Unlike `gpt-3.5-turbo`, this model will not receive updates, and will only be supported for a three month period ending on June 1st 2023.
-    @available(*, deprecated, message: "Please upgrade to the newer model")
-    static let gpt3_5Turbo_0301 = "gpt-3.5-turbo-0301"
-    
-    /// Same capabilities as the standard `gpt-3.5-turbo` model but with 4 times the context.
-    static let gpt3_5Turbo_16k = "gpt-3.5-turbo-16k"
-    
-    /// Snapshot of `gpt-3.5-turbo-16k` from June 13th 2023. Unlike `gpt-3.5-turbo-16k`, this model will not receive updates, and will be deprecated 3 months after a new version is released.
-    static let gpt3_5Turbo_16k_0613 = "gpt-3.5-turbo-16k-0613"
+public enum ImageModel: String, Codable, CaseIterable {
+    /// The previous DALL·E model released in Nov 2022. The 2nd iteration of DALL·E with more realistic, accurate, and 4x greater resolution images than the original model.
+    case dall_e_2 = "dall-e-2" // system
+//    /// The latest DALL·E model released in Nov 2023.
+    case dall_e_3 = "dall-e-3" // system -- "ChatGPT Plus" SUBSCRIPTION ONLY, ImageGenerateParams only
+}
 
-    // Completions
-    
-    /// Can do any language task with better quality, longer output, and consistent instruction-following than the curie, babbage, or ada models. Also supports inserting completions within text.
-    static let textDavinci_003 = "text-davinci-003"
-    /// Similar capabilities to text-davinci-003 but trained with supervised fine-tuning instead of reinforcement learning.
-    static let textDavinci_002 = "text-davinci-002"
-    /// Very capable, faster and lower cost than Davinci.
-    static let textCurie = "text-curie-001"
-    /// Capable of straightforward tasks, very fast, and lower cost.
-    static let textBabbage = "text-babbage-001"
-    /// Capable of very simple tasks, usually the fastest model in the GPT-3 series, and lowest cost.
-    static let textAda = "text-ada-001"
-    
-    // Edits
-    
-    static let textDavinci_001 = "text-davinci-001"
-    static let codeDavinciEdit_001 = "code-davinci-edit-001"
-    
-    // Speech
-    
+public enum SpeechModel: String, Codable, CaseIterable {
     /// The latest text to speech model, optimized for speed.
-    static let tts_1 = "tts-1"
+    case tts_1 = "tts-1" // openai-internal
     /// The latest text to speech model, optimized for quality.
-    static let tts_1_hd = "tts-1-hd"
-    
-    // Transcriptions / Translations
-    
-    static let whisper_1 = "whisper-1"
+    case tts_1_hd = "tts-1-hd" // system
+}
 
-    // Image Generation
-    static let dall_e_2 = "dall-e-2"
-    static let dall_e_3 = "dall-e-3"
-    
-    // Fine Tunes
-    
-    /// Most capable GPT-3 model. Can do any task the other models can do, often with higher quality.
-    static let davinci = "davinci"
-    /// Very capable, but faster and lower cost than Davinci.
-    static let curie = "curie"
-    /// Capable of straightforward tasks, very fast, and lower cost.
-    static let babbage = "babbage"
-    /// Capable of very simple tasks, usually the fastest model in the GPT-3 series, and lowest cost.
-    static let ada = "ada"
-    
-    // Embeddings
-    
-    static let textEmbeddingAda = "text-embedding-ada-002"
-    static let textSearchAda = "text-search-ada-doc-001"
-    static let textSearchBabbageDoc = "text-search-babbage-doc-001"
-    static let textSearchBabbageQuery001 = "text-search-babbage-query-001"
-    static let textEmbedding3 = "text-embedding-3-small"
-    static let textEmbedding3Large = "text-embedding-3-large"
-    
-    // Moderations
-    
-    /// Almost as capable as the latest model, but slightly older.
-    static let textModerationStable = "text-moderation-stable"
-    /// Most capable moderation model. Accuracy will be slightly higher than the stable model.
-    static let textModerationLatest = "text-moderation-latest"
-    static let moderation = "text-moderation-007"
+public enum AudioTranslationModel: String, Codable, CaseIterable {
+    case whisper_1 = "whisper-1" // openai-internal
+}
+public enum AudioTranscriptionModel: String, Codable, CaseIterable {
+    case whisper_1 = "whisper-1" // openai-internal
+}
+
+public enum EmbeddingsModel: String, Codable, CaseIterable {
+    case text_embedding_3_small = "text-embedding-3-small"
+    case text_embedding_3_large = "text-embedding-3-large"
+    case text_embedding_ada_002 = "text-embedding-ada-002" // openai-internal
+//    case text_embedding_ada_002_v2 = "text-embedding-ada-002-v2" // UNLISTED AT MODEL ENDPOINT; RETURNED WHEN .text_embedding_ada_002 IS SENT, BUT CANNOT BE SPECIFIED -- EXAMPLE OF WHY Result MUST RETURN String, NOT ...Model
+}
+
+public enum ModerationsModel: String, Codable, CaseIterable {
+    case textModerationStable = "text-moderation-stable" // UNLISTED AT MODEL ENDPOINT -- text-moderation-005 RETURNED BY ENDPOINT
+    case textModerationLatest = "text-moderation-latest" // UNLISTED AT MODEL ENDPOINT -- text-moderation-006 RETURNED BY ENDPOINT
+}
+
+@available(*, deprecated, message: "Please upgrade to the chatCompletions endpoint")
+public enum CompletionsModel: String, Codable, CaseIterable {
+    case gpt_3_5_turbo_instruct = "gpt-3.5-turbo-instruct"
+    case babbage_002 = "babbage-002"
+    case davinci_002 = "davinci-002"
 }

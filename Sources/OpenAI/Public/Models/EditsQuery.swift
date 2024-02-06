@@ -8,6 +8,8 @@
 import Foundation
 
 public struct EditsQuery: Codable {
+    public typealias Model = String // endpoint obsolete
+
     /// ID of the model to use.
     public let model: Model
     /// Input text to get embeddings for.

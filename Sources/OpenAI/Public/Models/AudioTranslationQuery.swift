@@ -8,6 +8,7 @@
 import Foundation
 
 public struct AudioTranslationQuery: Codable, Equatable {
+    public typealias Model = AudioTranslationModel
     public typealias ResponseFormat = AudioResponseFormat
     
     public let file: Data

@@ -16,6 +16,7 @@ public enum AudioResponseFormat: String, Codable, Equatable {
 }
 
 public struct AudioTranscriptionQuery: Codable, Equatable {
+    public typealias Model = AudioTranscriptionModel
     public typealias ResponseFormat = AudioResponseFormat
     
     public let file: Data

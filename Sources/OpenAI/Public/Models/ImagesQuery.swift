@@ -14,8 +14,9 @@ public enum ImageResponseFormat: String, Codable, Equatable {
 }
 
 public struct ImagesQuery: Codable {
+    public typealias Model = ImageModel
     public typealias ResponseFormat = ImageResponseFormat
-    
+
     /// A text description of the desired image(s). The maximum length is 1000 characters.
     public let prompt: String
     

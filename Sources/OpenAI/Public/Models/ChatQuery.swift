@@ -223,6 +223,8 @@ public struct ChatQueryFunctionCall: Codable, Equatable {
 }
 
 public struct ChatQuery: Equatable, Codable, Streamable {
+    public typealias Model = ChatModel
+
     /// ID of the model to use. Currently, only gpt-3.5-turbo and gpt-3.5-turbo-0301 are supported.
     public let model: Model
     /// An object specifying the format that the model must output.

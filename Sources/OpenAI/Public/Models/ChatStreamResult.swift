@@ -39,7 +39,7 @@ public struct ChatStreamResult: Codable, Equatable {
     public let id: String
     public let object: String
     public let created: TimeInterval
-    public let model: Model
+    public let model: String
     public let choices: [Choice]
     
     enum CodingKeys: String, CodingKey {
@@ -48,13 +48,5 @@ public struct ChatStreamResult: Codable, Equatable {
         case created
         case model
         case choices
-    }
-    
-    init(id: String, object: String, created: TimeInterval, model: Model, choices: [Choice]) {
-        self.id = id
-        self.object = object
-        self.created = created
-        self.model = model
-        self.choices = choices
     }
 }

@@ -9,7 +9,8 @@ import Foundation
 
 /// Learn more: [OpenAI Speech – Documentation](https://platform.openai.com/docs/api-reference/audio/createSpeech)
 public struct AudioSpeechQuery: Codable, Equatable {
-    
+    public typealias Model = SpeechModel
+
     /// Encapsulates the voices available for audio generation.
     ///
     /// To get aquinted with each of the voices and listen to the samples visit:

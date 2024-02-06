@@ -8,6 +8,8 @@
 import Foundation
 
 public struct ImageVariationsQuery: Codable {
+//    public typealias Model = ImageModel // only dall-e-2 is supported at this time
+
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square.
     public let image: Data
     public let fileName: String
