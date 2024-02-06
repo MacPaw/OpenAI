@@ -44,7 +44,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testImages() async throws {
-        let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", model: .dall_e_2, n: 1, size: "1024x1024")
+        let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", model: .dall_e_2, n: 1, size: ._1024)
         let imagesResult = ImagesResult(created: 100, data: [
             .init(url: "http://foo.bar", b64_json: nil)
         ])
@@ -54,7 +54,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testImagesError() async throws {
-        let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: "1024x1024")
+        let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: ._1024)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         

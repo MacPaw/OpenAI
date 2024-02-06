@@ -117,7 +117,7 @@ class OpenAITestsDecoder: XCTestCase {
             model: .dall_e_2,
             responseFormat: .b64_json,
             n: 1,
-            size: "10",
+            size: ._512,
             style: "vivid",
             user: "user"
         )
@@ -127,7 +127,7 @@ class OpenAITestsDecoder: XCTestCase {
             "model": "dall-e-2",
             "prompt": "test",
             "n": 1,
-            "size": "10",
+            "size": "512x512",
             "style": "vivid",
             "user": "user",
             "response_format": "b64_json"
