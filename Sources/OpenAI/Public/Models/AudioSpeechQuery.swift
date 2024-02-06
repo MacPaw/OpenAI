@@ -63,7 +63,7 @@ public struct AudioSpeechQuery: Codable, Equatable {
     }
     
     public init(model: Model, input: String, voice: AudioSpeechVoice, responseFormat: AudioSpeechResponseFormat = .mp3, speed: Double?) {
-        self.model = AudioSpeechQuery.validateSpeechModel(model)
+        self.model = model
         self.speed = AudioSpeechQuery.normalizeSpeechSpeed(speed)
         self.input = input
         self.voice = voice
@@ -72,15 +72,6 @@ public struct AudioSpeechQuery: Codable, Equatable {
 }
 
 private extension AudioSpeechQuery {
-    
-    static func validateSpeechModel(_ inputModel: Model) -> Model {
-        let isModelOfIncorrentFormat = inputModel != .tts_1 && inputModel != .tts_1_hd
-        guard !isModelOfIncorrentFormat else {
-            print("[AudioSpeech] 'AudioSpeechQuery' must have a valid Text-To-Speech model, 'tts-1' or 'tts-1-hd'. Setting model to 'tts-1'.")
-            return .tts_1
-        }
-        return inputModel
-    }
     
     static func normalizeSpeechSpeed(_ inputSpeed: Double?) -> String {
         guard let inputSpeed else { return "\(Constants.normalSpeed)" }
