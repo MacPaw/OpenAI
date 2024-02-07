@@ -264,6 +264,30 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(inError, apiError)
     }
     
+    func testAudioSpeechDoesNotNormalize() async throws {
+        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 2.0)
+
+        XCTAssertEqual(query.speed, "\(2.0)")
+    }
+
+    func testAudioSpeechNormalizeNil() async throws {
+        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: nil)
+
+        XCTAssertEqual(query.speed, "\(1.0)")
+    }
+
+    func testAudioSpeechNormalizeLow() async throws {
+        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 0.0)
+
+        XCTAssertEqual(query.speed, "\(0.25)")
+    }
+
+    func testAudioSpeechNormalizeHigh() async throws {
+        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 10.0)
+
+        XCTAssertEqual(query.speed, "\(4.0)")
+    }
+
     func testAudioSpeechError() async throws {
         let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 1.0)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
