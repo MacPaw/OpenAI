@@ -15,7 +15,7 @@ public struct TextToSpeechView: View {
     
     @State private var prompt: String = ""
     @State private var voice: AudioSpeechQuery.AudioSpeechVoice = .alloy
-    @State private var speed: Double = 1
+    @State private var speed: Double = AudioSpeechQuery.Speed.normal.rawValue
     @State private var responseFormat: AudioSpeechQuery.AudioSpeechResponseFormat = .mp3
     @State private var showsModelSelectionSheet = false
     @State private var selectedSpeechModel: String = Model.tts_1
@@ -60,7 +60,7 @@ public struct TextToSpeechView: View {
                 HStack {
                     Text("Speed: ")
                     Spacer()
-                    Stepper(value: $speed, in: 0.25...4, step: 0.25) {
+                    Stepper(value: $speed, in: AudioSpeechQuery.Speed.min.rawValue...AudioSpeechQuery.Speed.max.rawValue, step: 0.25) {
                         HStack {
                             Spacer()
                             Text("**\(String(format: "%.2f", speed))**")
