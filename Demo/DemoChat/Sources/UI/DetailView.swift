@@ -243,7 +243,7 @@ struct ChatBubble: View {
                     .foregroundColor(userForegroundColor)
                     .background(userBackgroundColor)
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            case .function:
+            case .tool:
               Text(message.content)
                   .font(.footnote.monospaced())
                   .padding(.horizontal, 16)
@@ -267,7 +267,7 @@ struct DetailView_Previews: PreviewProvider {
                     Message(id: "1", role: .assistant, content: "Hello, how can I help you today?", createdAt: Date(timeIntervalSinceReferenceDate: 0)),
                     Message(id: "2", role: .user, content: "I need help with my subscription.", createdAt: Date(timeIntervalSinceReferenceDate: 100)),
                     Message(id: "3", role: .assistant, content: "Sure, what seems to be the problem with your subscription?", createdAt: Date(timeIntervalSinceReferenceDate: 200)),
-                    Message(id: "4", role: .function, content:
+                    Message(id: "4", role: .tool, content:
                               """
                               get_current_weather({
                                 "location": "Glasgow, Scotland",

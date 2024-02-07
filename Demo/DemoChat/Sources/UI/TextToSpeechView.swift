@@ -47,7 +47,7 @@ public struct TextToSpeechView: View {
                 }
                 HStack {
                     Picker("Voice", selection: $voice) {
-                        let allVoices = AudioSpeechQuery.AudioSpeechVoice.allCases
+                        let allVoices = AudioSpeechQuery.Voice.allCases
                         ForEach(allVoices, id: \.self) { voice in
                             Text("\(voice.rawValue.capitalized)")
                         }
@@ -65,7 +65,7 @@ public struct TextToSpeechView: View {
                 }
                 HStack {
                     Picker("Format", selection: $responseFormat) {
-                        let allFormats = AudioSpeechQuery.AudioSpeechResponseFormat.allCases
+                        let allFormats = AudioSpeechQuery.ResponseFormat.allCases
                         ForEach(allFormats, id: \.self) { format in
                             Text(".\(format.rawValue)")
                         }

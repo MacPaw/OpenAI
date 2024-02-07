@@ -7,8 +7,9 @@
 
 import Foundation
 
+/// Generates audio from the input text.
 /// Learn more: [OpenAI Speech – Documentation](https://platform.openai.com/docs/api-reference/audio/createSpeech)
-public struct AudioSpeechQuery: Codable, Equatable {
+public struct AudioSpeechQuery: Codable {
     
     /// Encapsulates the voices available for audio generation.
     ///
@@ -36,15 +37,19 @@ public struct AudioSpeechQuery: Codable, Equatable {
         case aac
         case flac
     }
+
+    /// The text to generate audio for. The maximum length is 4096 characters.
+    public let input: String
     /// One of the available TTS models: tts-1 or tts-1-hd
     public let model: Model
-    /// The text to generate audio for. The maximum length is 4096 characters.
-    public let input: String?
-    /// The voice to use when generating the audio. Supported voices are alloy, echo, fable, onyx, nova, and shimmer.
+    /// The voice to use when generating the audio. Supported voices are alloy, echo, fable, onyx, nova, and shimmer. Previews of the voices are available in the Text to speech guide.
+    /// https://platform.openai.com/docs/guides/text-to-speech/voice-options
     public let voice: AudioSpeechVoice
     /// The format to audio in. Supported formats are mp3, opus, aac, and flac.
-    public let responseFormat: AudioSpeechResponseFormat
-    /// The speed of the generated audio. Enter a value between **0.25** and **4.0**. Default: **1.0**
+    /// Defaults to mp3
+    public let responseFormat: AudioSpeechResponseFormat?
+    /// The speed of the generated audio. Select a value from **0.25** to **4.0**. **1.0** is the default.
+    /// Defaults to 1
     public let speed: String?
     
     public enum CodingKeys: String, CodingKey {
