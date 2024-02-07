@@ -51,7 +51,7 @@ public struct TextToSpeechView: View {
                 }
                 HStack {
                     Picker("Voice", selection: $voice) {
-                        let allVoices = AudioSpeechQuery.Voice.allCases
+                        let allVoices = AudioSpeechQuery.AudioSpeechVoice.allCases
                         ForEach(allVoices, id: \.self) { voice in
                             Text("\(voice.rawValue.capitalized)")
                         }
@@ -69,7 +69,7 @@ public struct TextToSpeechView: View {
                 }
                 HStack {
                     Picker("Format", selection: $responseFormat) {
-                        let allFormats = AudioSpeechQuery.ResponseFormat.allCases
+                        let allFormats = AudioSpeechQuery.AudioSpeechResponseFormat.allCases
                         ForEach(allFormats, id: \.self) { format in
                             Text(".\(format.rawValue)")
                         }
@@ -101,7 +101,7 @@ public struct TextToSpeechView: View {
             }
             if !$store.audioObjects.wrappedValue.isEmpty {
                 Section("Click to play, swipe to save:") {
-                    ForEach(store.audioObjects) { object in
+                    ForEach(store.audioObjects, id: \.id) { object in
                         HStack {
                             Text(object.prompt.capitalized)
                             Spacer()
@@ -122,7 +122,7 @@ public struct TextToSpeechView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button {
-                                presentUserDirectoryDocumentPicker(for: object.originResponse.audioData, filename: "GeneratedAudio.\(object.format)")
+                                presentUserDirectoryDocumentPicker(for: object.originResponse.audio, filename: "GeneratedAudio.\(object.format)")
                             } label: {
                                 Image(systemName: "square.and.arrow.down")
                             }
