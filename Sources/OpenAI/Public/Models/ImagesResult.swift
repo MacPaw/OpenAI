@@ -7,9 +7,9 @@
 
 import Foundation
 
-public struct ImagesResult: Codable, Equatable {
+public struct ImagesResult: Decodable, Equatable {
     
-    public struct URLResult: Codable, Equatable {
+    public struct URLResult: Decodable, Equatable {
         public let url: String?
         public let b64_json: String?
     }

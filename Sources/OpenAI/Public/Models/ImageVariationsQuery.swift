@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ImageVariationsQuery: Codable {
+public struct ImageVariationsQuery: Encodable {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square.
     public let image: Data
     public let fileName: String

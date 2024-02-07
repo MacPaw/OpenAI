@@ -8,13 +8,13 @@
 import Foundation
 
 /// Learn more: [OpenAI Speech – Documentation](https://platform.openai.com/docs/api-reference/audio/createSpeech)
-public struct AudioSpeechQuery: Codable, Equatable {
+public struct AudioSpeechQuery: Encodable, Equatable {
     
     /// Encapsulates the voices available for audio generation.
     ///
     /// To get aquinted with each of the voices and listen to the samples visit:
     /// [OpenAI Text-to-Speech – Voice Options](https://platform.openai.com/docs/guides/text-to-speech/voice-options)
-    public enum AudioSpeechVoice: String, Codable, CaseIterable {
+    public enum AudioSpeechVoice: String, Encodable, CaseIterable {
         case alloy
         case echo
         case fable
@@ -30,7 +30,7 @@ public struct AudioSpeechQuery: Codable, Equatable {
     /// -  opus
     /// -  aac
     /// -  flac
-    public enum AudioSpeechResponseFormat: String, Codable, CaseIterable {
+    public enum AudioSpeechResponseFormat: String, Encodable, CaseIterable {
         case mp3
         case opus
         case aac

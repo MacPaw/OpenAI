@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ImageEditsQuery: Codable {
+public struct ImageEditsQuery: Encodable {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
     public let image: Data
     public let fileName: String

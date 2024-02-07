@@ -7,15 +7,15 @@
 
 import Foundation
 
-public struct EmbeddingsResult: Codable, Equatable {
+public struct EmbeddingsResult: Decodable, Equatable {
 
-    public struct Embedding: Codable, Equatable {
+    public struct Embedding: Decodable, Equatable {
         public let object: String
         public let embedding: [Double]
         public let index: Int
     }
     
-    public struct Usage: Codable, Equatable {
+    public struct Usage: Decodable, Equatable {
         public let promptTokens: Int
         public let totalTokens: Int
         

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum AudioResponseFormat: String, Codable, Equatable {
+public enum AudioResponseFormat: String, Encodable, Equatable {
     case json
     case text
     case verboseJson = "verbose_json"
@@ -15,7 +15,7 @@ public enum AudioResponseFormat: String, Codable, Equatable {
     case vtt
 }
 
-public struct AudioTranscriptionQuery: Codable, Equatable {
+public struct AudioTranscriptionQuery: Encodable, Equatable {
     public typealias ResponseFormat = AudioResponseFormat
     
     public let file: Data

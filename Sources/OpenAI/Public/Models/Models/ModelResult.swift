@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ModelResult: Codable, Equatable {
+public struct ModelResult: Decodable, Equatable {
 
     public let id: Model
     public let object: String

@@ -7,10 +7,10 @@
 
 import Foundation
 
-public struct ChatStreamResult: Codable, Equatable {
+public struct ChatStreamResult: Decodable, Equatable {
     
-    public struct Choice: Codable, Equatable {
-        public struct Delta: Codable, Equatable {
+    public struct Choice: Decodable, Equatable {
+        public struct Delta: Decodable, Equatable {
             public let content: String?
             public let role: Chat.Role?
             /// The name of the author of this message. `name` is required if role is `function`, and it should be the name of the function whose response is in the `content`. May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.

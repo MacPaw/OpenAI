@@ -7,14 +7,14 @@
 
 import Foundation
 
-public struct EditsResult: Codable, Equatable {
+public struct EditsResult: Decodable, Equatable {
     
-    public struct Choice: Codable, Equatable {
+    public struct Choice: Decodable, Equatable {
         public let text: String
         public let index: Int
     }
 
-    public struct Usage: Codable, Equatable {
+    public struct Usage: Decodable, Equatable {
         public let promptTokens: Int
         public let completionTokens: Int
         public let totalTokens: Int

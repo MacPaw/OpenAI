@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AudioTranslationQuery: Codable, Equatable {
+public struct AudioTranslationQuery: Encodable, Equatable {
     public typealias ResponseFormat = AudioResponseFormat
     
     public let file: Data

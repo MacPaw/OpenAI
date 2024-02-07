@@ -8,12 +8,12 @@
 import Foundation
 
 
-public enum ImageResponseFormat: String, Codable, Equatable {
+public enum ImageResponseFormat: String, Encodable, Equatable {
     case url
     case b64_json
 }
 
-public struct ImagesQuery: Codable {
+public struct ImagesQuery: Encodable {
     public typealias ResponseFormat = ImageResponseFormat
     
     /// A text description of the desired image(s). The maximum length is 1000 characters.

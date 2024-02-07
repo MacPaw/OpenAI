@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AudioTranscriptionResult: Codable, Equatable {
+public struct AudioTranscriptionResult: Decodable, Equatable {
     
     public let text: String
 }

@@ -136,7 +136,7 @@ extension OpenAITestsCombine {
         self.urlSession.dataTask = task
     }
     
-    func stub(result: Codable) throws {
+    func stub(result: Decodable) throws {
         let encoder = JSONEncoder()
         let data = try encoder.encode(result)
         let task = DataTaskMock.successful(with: data)

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ModelQuery: Codable, Equatable {
+public struct ModelQuery: Encodable, Equatable {
     /// The ID of the model to use for this request.
     public let model: Model
 
