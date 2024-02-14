@@ -112,8 +112,8 @@ final public class OpenAI: OpenAIProtocol {
         performRequest(request: MultipartFormDataRequest<AudioTranslationResult>(body: query, url: buildURL(path: .audioTranslations)), completion: completion)
     }
     
-    public func audioCreateSpeech(query: AudioSpeechQuery, completion: @escaping (Result<AudioSpeechResult, Error>) -> Void) {
-        performSpeechRequest(request: JSONRequest<AudioSpeechResult>(body: query, url: buildURL(path: .audioSpeech)), completion: completion)
+    public func audioCreateSpeech(query: AudioSpeechQuery, completion: @escaping (Result<Data, Error>) -> Void) {
+        performRequest(request: JSONRequest<Data>(body: query, url: buildURL(path: .audioSpeech)), completion: completion)
     }
     
 }
@@ -136,7 +136,11 @@ extension OpenAI {
                 do {
                     completion(.success(try decoder.decode(ResultType.self, from: data)))
                 } catch {
-                    completion(.failure((try? decoder.decode(APIErrorResponse.self, from: data)) ?? error))
+                    if ResultType.self == Data.self {
+                        completion(.success(data as! ResultType))
+                    } else {
+                        completion(.failure((try? decoder.decode(APIErrorResponse.self, from: data)) ?? error))
+                    }
                 }
             }
             task.resume()
@@ -165,28 +169,6 @@ extension OpenAI {
             streamingSessions.append(session)
         } catch {
             completion?(error)
-        }
-    }
-    
-    func performSpeechRequest(request: any URLRequestBuildable, completion: @escaping (Result<AudioSpeechResult, Error>) -> Void) {
-        do {
-            let request = try request.build(token: configuration.token, 
-                                            organizationIdentifier: configuration.organizationIdentifier,
-                                            timeoutInterval: configuration.timeoutInterval)
-            
-            let task = session.dataTask(with: request) { data, _, error in
-                if let error = error {
-                    return completion(.failure(error))
-                }
-                guard let data = data else {
-                    return completion(.failure(OpenAIError.emptyData))
-                }
-                
-                completion(.success(AudioSpeechResult(audioData: data)))
-            }
-            task.resume()
-        } catch {
-            completion(.failure(error))
         }
     }
 }
