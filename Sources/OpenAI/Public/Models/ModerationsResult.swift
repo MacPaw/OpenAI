@@ -51,7 +51,6 @@ public struct ModerationsResult: Codable, Equatable {
             }
 
             public func makeIterator() -> IndexingIterator<[(String, Bool)]> {
-                var int = -1
                 return Mirror(reflecting: self).children.enumerated().map { (index, element) in
 #if DEBUG
                     if #available(iOS 16.0, *) {
@@ -103,7 +102,6 @@ public struct ModerationsResult: Codable, Equatable {
             }
 
             public func makeIterator() -> IndexingIterator<[(String, Bool)]> {
-                var int = -1
                 return Mirror(reflecting: self).children.enumerated().map { (index, element) in
 #if DEBUG
                     if #available(iOS 16.0, *) {
