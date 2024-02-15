@@ -17,7 +17,7 @@ public struct EmbeddingsQuery: Codable {
     public let model: Model
     /// The format to return the embeddings in. Can be either float or base64.
     /// https://pypi.org/project/pybase64/
-    public let encoding_format: Self.EncodingFormat?
+    public let encodingFormat: Self.EncodingFormat?
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
     /// https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids
     public let user: String?
@@ -25,12 +25,12 @@ public struct EmbeddingsQuery: Codable {
     public init(
         input: Self.Input,
         model: Model,
-        encoding_format: Self.EncodingFormat? = nil,
+        encodingFormat: Self.EncodingFormat? = nil,
         user: String? = nil
     ) {
         self.input = input
         self.model = model
-        self.encoding_format = encoding_format
+        self.encodingFormat = encodingFormat
         self.user = user
     }
 
@@ -74,5 +74,12 @@ public struct EmbeddingsQuery: Codable {
     public enum EncodingFormat: String, Codable {
         case float
         case base64
+    }
+
+    public enum CodingKeys: String, CodingKey {
+        case input
+        case model
+        case encodingFormat = "encoding_format"
+        case user
     }
 }

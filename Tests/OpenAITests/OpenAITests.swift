@@ -46,7 +46,7 @@ class OpenAITests: XCTestCase {
     func testImages() async throws {
         let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", model: .dall_e_2, n: 1, size: ._1024)
         let imagesResult = ImagesResult(created: 100, data: [
-            .init(b64_json: nil, revised_prompt: nil, url: "http://foo.bar")
+            .init(b64Json: nil, revisedPrompt: nil, url: "http://foo.bar")
         ])
         try self.stub(result: imagesResult)
         let result = try await openAI.images(query: query)
@@ -65,7 +65,7 @@ class OpenAITests: XCTestCase {
     func testImageEdit() async throws {
         let query = ImageEditsQuery(image: Data(), prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", mask: Data(), n: 1, size: ._1024)
         let imagesResult = ImagesResult(created: 100, data: [
-            .init(b64_json: nil, revised_prompt: nil, url: "http://foo.bar")
+            .init(b64Json: nil, revisedPrompt: nil, url: "http://foo.bar")
         ])
         try self.stub(result: imagesResult)
         let result = try await openAI.imageEdits(query: query)
@@ -84,7 +84,7 @@ class OpenAITests: XCTestCase {
     func testImageVariation() async throws {
         let query = ImageVariationsQuery(image: Data(), n: 1, size: "1024x1024")
         let imagesResult = ImagesResult(created: 100, data: [
-            .init(b64_json: nil, revised_prompt: nil, url: "http://foo.bar")
+            .init(b64Json: nil, revisedPrompt: nil, url: "http://foo.bar")
         ])
         try self.stub(result: imagesResult)
         let result = try await openAI.imageVariations(query: query)
@@ -106,10 +106,10 @@ class OpenAITests: XCTestCase {
            .user(.init(content: .string("Who wrote Harry Potter?")))
        ], model: .gpt3_5Turbo)
         let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-            .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finish_reason: "baz"),
-            .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finish_reason: "baz1"),
-            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finish_reason: "baz2")
-        ], usage: .init(completion_tokens: 200, prompt_tokens: 100, total_tokens: 300), system_fingerprint: nil)
+            .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
+            .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
+            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
+        ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
        try self.stub(result: chatResult)
         
        let result = try await openAI.chats(query: query)
@@ -120,7 +120,7 @@ class OpenAITests: XCTestCase {
         let query = ChatQuery(messages: [
             .system(.init(content: "You are Weather-GPT. You know everything about the weather.")),
             .user(.init(content: .string("What's the weather like in Boston?"))),
-        ], model: .gpt3_5Turbo, tool_choice: .auto, tools: [
+        ], model: .gpt3_5Turbo, toolChoice: .auto, tools: [
             .init(function: .init(name: "get_current_weather", description: "Get the current weather in a given location", parameters: .init(type: .object, properties: [
                 "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
                 "unit": .init(type: .string, enum: ["celsius", "fahrenheit"])
@@ -128,10 +128,10 @@ class OpenAITests: XCTestCase {
         ])
 
         let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-         .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finish_reason: "baz"),
-         .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finish_reason: "baz1"),
-         .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finish_reason: "baz2")
-         ], usage: .init(completion_tokens: 200, prompt_tokens: 100, total_tokens: 300), system_fingerprint: nil)
+         .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
+         .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
+         .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
+         ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
         try self.stub(result: chatResult)
         
         let result = try await openAI.chats(query: query)
@@ -206,7 +206,7 @@ class OpenAITests: XCTestCase {
     
     func testRetrieveModel() async throws {
         let query = ModelQuery(model: .gpt3_5Turbo)
-        let modelResult = ModelResult(id: .gpt3_5Turbo, created: 999, object: "model", owned_by: "openai")
+        let modelResult = ModelResult(id: .gpt3_5Turbo, created: 999, object: "model", ownedBy: "openai")
         try self.stub(result: modelResult)
         
         let result = try await openAI.model(query: query)
@@ -224,9 +224,9 @@ class OpenAITests: XCTestCase {
     
     func testListModels() async throws {
         let listModelsResult = ModelsResult(data: [
-            .init(id: "model-id-0", created: 7777, object: "model", owned_by: "organization-owner"),
-            .init(id: "model-id-1", created: 7777, object: "model", owned_by: "organization-owner"),
-            .init(id: "model-id-2", created: 7777, object: "model", owned_by: "openai")
+            .init(id: "model-id-0", created: 7777, object: "model", ownedBy: "organization-owner"),
+            .init(id: "model-id-1", created: 7777, object: "model", ownedBy: "organization-owner"),
+            .init(id: "model-id-2", created: 7777, object: "model", ownedBy: "openai")
         ], object: "list")
         try self.stub(result: listModelsResult)
         

@@ -24,7 +24,7 @@ public struct ImageEditsQuery: Codable {
     public let n: Int?
     /// The format in which the generated images are returned. Must be one of url or b64_json.
     /// Defaults to url
-    public let response_format: Self.ResponseFormat?
+    public let responseFormat: Self.ResponseFormat?
     /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
     public let size: Size?
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
@@ -37,7 +37,7 @@ public struct ImageEditsQuery: Codable {
         mask: Data? = nil,
         model: Model? = nil,
         n: Int? = nil,
-        response_format: Self.ResponseFormat? = nil,
+        responseFormat: Self.ResponseFormat? = nil,
         size: Self.Size? = nil,
         user: String? = nil
     ) {
@@ -46,9 +46,20 @@ public struct ImageEditsQuery: Codable {
         self.prompt = prompt
         self.model = model
         self.n = n
-        self.response_format = response_format
+        self.responseFormat = responseFormat
         self.size = size
         self.user = user
+    }
+
+    public enum CodingKeys: String, CodingKey {
+        case image
+        case mask
+        case prompt
+        case model
+        case n
+        case responseFormat = "response_format"
+        case size
+        case user
     }
 }
 
@@ -58,7 +69,7 @@ extension ImageEditsQuery: MultipartFormDataBodyEncodable {
             .file(paramName: "image", fileName: "image.png", fileData: image, contentType: "image/png"),
             .file(paramName: "mask", fileName: "mask.png", fileData: mask, contentType: "image/png"),
             .string(paramName: "model", value: model),
-            .string(paramName: "response_format", value: response_format),
+            .string(paramName: "response_format", value: responseFormat),
             .string(paramName: "user", value: user),
             .string(paramName: "prompt", value: prompt),
             .string(paramName: "n", value: n),

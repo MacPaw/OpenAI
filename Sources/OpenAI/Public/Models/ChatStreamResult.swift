@@ -19,7 +19,7 @@ public struct ChatStreamResult: Codable, Equatable {
             public let content: String?
             /// The role of the author of this message.
             public let role: Self.Role?
-            public let tool_calls: [Self.ChoiceDeltaToolCall]?
+            public let toolCalls: [Self.ChoiceDeltaToolCall]?
 
             public struct ChoiceDeltaToolCall: Codable, Equatable {
 
@@ -58,6 +58,12 @@ public struct ChatStreamResult: Codable, Equatable {
                     }
                 }
             }
+
+            public enum CodingKeys: String, CodingKey {
+                case content
+                case role
+                case toolCalls = "tool_calls"
+            }
         }
 
         /// The index of the choice in the list of choices.
@@ -66,7 +72,7 @@ public struct ChatStreamResult: Codable, Equatable {
         public let delta: Self.ChoiceDelta
         /// The reason the model stopped generating tokens.
         /// This will be `stop` if the model hit a natural stop point or a provided stop sequence, `length` if the maximum number of tokens specified in the request was reached, `content_filter` if content was omitted due to a flag from our content filters, `tool_calls` if the model called a tool, or `function_call` (deprecated) if the model called a function.
-        public let finish_reason: FinishReason?
+        public let finishReason: FinishReason?
         /// Log probability information for the choice.
         public let logprobs: Self.ChoiceLogprobs?
 
@@ -82,7 +88,7 @@ public struct ChatStreamResult: Codable, Equatable {
                 /// The log probability of this token.
                 public let logprob: Double
                 /// List of the most likely tokens and their log probability, at this token position. In rare cases, there may be fewer than the number of requested top_logprobs returned.
-                public let top_logprobs: [Self.TopLogprob]?
+                public let topLogprobs: [Self.TopLogprob]?
 
                 public struct TopLogprob: Codable, Equatable {
                     /// The token.
@@ -92,7 +98,21 @@ public struct ChatStreamResult: Codable, Equatable {
                     /// The log probability of this token.
                     public let logprob: Double
                 }
+
+                public enum CodingKeys: String, CodingKey {
+                    case token
+                    case bytes
+                    case logprob
+                    case topLogprobs = "top_logprobs"
+                }
             }
+        }
+
+        public enum CodingKeys: String, CodingKey {
+            case index
+            case delta
+            case finishReason = "finish_reason"
+            case logprobs
         }
     }
 
@@ -109,6 +129,14 @@ public struct ChatStreamResult: Codable, Equatable {
     /// Can be more than one if `n` is greater than 1.
     public let choices: [Choice]
     /// This fingerprint represents the backend configuration that the model runs with. Can be used in conjunction with the `seed` request parameter to understand when backend changes have been made that might impact determinism.
-    public let system_fingerprint: String?
+    public let systemFingerprint: String?
 
+    public enum CodingKeys: String, CodingKey {
+        case id
+        case object
+        case created
+        case model
+        case choices
+        case systemFingerprint = "system_fingerprint"
+    }
 }

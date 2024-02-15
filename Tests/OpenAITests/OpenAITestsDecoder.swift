@@ -75,9 +75,9 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = ImagesResult(created: 1589478378, data: [
-            .init(b64_json: nil, revised_prompt: nil, url: "https://foo.bar"),
-            .init(b64_json: nil, revised_prompt: nil, url: "https://bar.foo"),
-            .init(b64_json: "test", revised_prompt: nil, url: nil)
+            .init(b64Json: nil, revisedPrompt: nil, url: "https://foo.bar"),
+            .init(b64Json: nil, revisedPrompt: nil, url: "https://bar.foo"),
+            .init(b64Json: "test", revisedPrompt: nil, url: nil)
         ])
         try decode(data, expectedValue)
     }
@@ -106,8 +106,8 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, choices: [
-            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "Hello, world!")), finish_reason: "stop")
-        ], usage: .init(completion_tokens: 12, prompt_tokens: 9, total_tokens: 21), system_fingerprint: nil)
+            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "Hello, world!")), finishReason: "stop")
+        ], usage: .init(completionTokens: 12, promptTokens: 9, totalTokens: 21), systemFingerprint: nil)
         try decode(data, expectedValue)
     }
     
@@ -147,7 +147,7 @@ class OpenAITestsDecoder: XCTestCase {
                 .user(.init(content: .string("What's the weather like in Boston?")))
             ],
             model: .gpt3_5Turbo,
-            response_format: ChatQuery.ResponseFormat.json_object,
+            responseFormat: ChatQuery.ResponseFormat.jsonObject,
             tools: [
                 .init(function: .init(
                     name: "get_current_weather",
@@ -246,10 +246,10 @@ class OpenAITestsDecoder: XCTestCase {
             choices: [
                 .init(index: 0,
                       logprobs: nil, message:
-                        .assistant(.init(tool_calls: [.init(id: "chatcmpl-1234", function: .init(arguments: "", name: "get_current_weather"))])), finish_reason: "tool_calls")
+                        .assistant(.init(toolCalls: [.init(id: "chatcmpl-1234", function: .init(arguments: "", name: "get_current_weather"))])), finishReason: "tool_calls")
             ],
-            usage: .init(completion_tokens: 18, prompt_tokens: 82, total_tokens: 100),
-            system_fingerprint: nil)
+            usage: .init(completionTokens: 18, promptTokens: 82, totalTokens: 100),
+            systemFingerprint: nil)
         try decode(data, expectedValue)
     }
 
@@ -335,9 +335,9 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = ModelsResult(data: [
-            .init(id: .gpt3_5Turbo, created: 222, object: "model", owned_by: "organization-owner"),
-            .init(id: .dall_e_2, created: 111, object: "model", owned_by: "organization-owner"),
-            .init(id: .whisper_1, created: 333, object: "model", owned_by: "openai")
+            .init(id: .gpt3_5Turbo, created: 222, object: "model", ownedBy: "organization-owner"),
+            .init(id: .dall_e_2, created: 111, object: "model", ownedBy: "organization-owner"),
+            .init(id: .whisper_1, created: 333, object: "model", ownedBy: "openai")
         ], object: "list")
         try decode(data, expectedValue)
     }
@@ -352,7 +352,7 @@ class OpenAITestsDecoder: XCTestCase {
         }
         """
         
-        let expectedValue = ModelResult(id: .whisper_1, created: 555, object: "model", owned_by: "openai")
+        let expectedValue = ModelResult(id: .whisper_1, created: 555, object: "model", ownedBy: "openai")
         try decode(data, expectedValue)
     }
     

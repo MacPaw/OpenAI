@@ -17,5 +17,12 @@ public struct ModelResult: Codable, Equatable {
     /// The object type, which is always "model".
     public let object: String
     /// The organization that owns the model.
-    public let owned_by: String
+    public let ownedBy: String
+
+    public enum CodingKeys: String, CodingKey {
+        case id
+        case created
+        case object
+        case ownedBy = "owned_by"
+    }
 }

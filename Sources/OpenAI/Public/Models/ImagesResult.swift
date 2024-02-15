@@ -17,10 +17,16 @@ public struct ImagesResult: Codable, Equatable {
     public struct Image: Codable, Equatable {
 
         /// The base64-encoded JSON of the generated image, if response_format is b64_json
-        public let b64_json: String?
+        public let b64Json: String?
         /// The prompt that was used to generate the image, if there was any revision to the prompt.
-        public let revised_prompt: String?
+        public let revisedPrompt: String?
         /// The URL of the generated image, if response_format is url (default).
         public let url: String?
+
+        public enum CodingKeys: String, CodingKey {
+            case b64Json = "b64_json"
+            case revisedPrompt = "revised_prompt"
+            case url
+        }
     }
 }

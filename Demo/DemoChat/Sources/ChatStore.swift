@@ -113,7 +113,7 @@ public final class ChatStore: ObservableObject {
                 for choice in partialChatResult.choices {
                     let existingMessages = conversations[conversationIndex].messages
                     // Function calls are also streamed, so we need to accumulate.
-                    choice.delta.tool_calls?.forEach { toolCallDelta in
+                    choice.delta.toolCalls?.forEach { toolCallDelta in
                         if let functionCallDelta = toolCallDelta.function {
                             if let nameDelta = functionCallDelta.name {
                                 functionCalls.append((nameDelta, functionCallDelta.arguments))
@@ -121,8 +121,8 @@ public final class ChatStore: ObservableObject {
                         }
                     }
                     var messageText = choice.delta.content ?? ""
-                    if let finishReason = choice.finish_reason,
-                       finishReason == .tool_calls
+                    if let finishReason = choice.finishReason,
+                       finishReason == .toolCalls
                     {
                         functionCalls.forEach { (name: String, argument: String?) in
                             messageText += "Function call: name=\(name) arguments=\(argument ?? "")\n"

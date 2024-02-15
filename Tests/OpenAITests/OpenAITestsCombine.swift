@@ -42,10 +42,10 @@ final class OpenAITestsCombine: XCTestCase {
             .user(.init(content: .string("Who wrote Harry Potter?")))
        ], model: .gpt3_5Turbo)
         let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-            .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finish_reason: "baz"),
-            .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finish_reason: "baz1"),
-            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finish_reason: "baz2")
-        ], usage: .init(completion_tokens: 200, prompt_tokens: 100, total_tokens: 300), system_fingerprint: nil)
+            .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
+            .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
+            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
+        ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
        try self.stub(result: chatResult)
        let result = try awaitPublisher(openAI.chats(query: query))
        XCTAssertEqual(result, chatResult)
@@ -76,7 +76,7 @@ final class OpenAITestsCombine: XCTestCase {
     
     func testRetrieveModel() throws {
         let query = ModelQuery(model: .gpt3_5Turbo_0125)
-        let modelResult = ModelResult(id: .gpt3_5Turbo_0125, created: 200000000, object: "model", owned_by: "organization-owner")
+        let modelResult = ModelResult(id: .gpt3_5Turbo_0125, created: 200000000, object: "model", ownedBy: "organization-owner")
         try self.stub(result: modelResult)
         
         let result = try awaitPublisher(openAI.model(query: query))

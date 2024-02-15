@@ -20,7 +20,7 @@ public struct ImageVariationsQuery: Codable {
     public let n: Int?
     /// The format in which the generated images are returned. Must be one of url or b64_json.
     /// Defaults to url
-    public let response_format: Self.ResponseFormat?
+    public let responseFormat: Self.ResponseFormat?
     /// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
     /// Defaults to 1024x1024
     public let size: String?
@@ -32,16 +32,25 @@ public struct ImageVariationsQuery: Codable {
         image: Data,
         model: Model? = nil,
         n: Int? = nil,
-        response_format: Self.ResponseFormat? = nil,
+        responseFormat: Self.ResponseFormat? = nil,
         size: String? = nil,
         user: String? = nil
     ) {
         self.image = image
         self.model = model
         self.n = n
-        self.response_format = response_format
+        self.responseFormat = responseFormat
         self.size = size
         self.user = user
+    }
+
+    public enum CodingKeys: String, CodingKey {
+        case image
+        case model
+        case n
+        case responseFormat = "response_format"
+        case size
+        case user
     }
 }
 
@@ -50,7 +59,7 @@ extension ImageVariationsQuery: MultipartFormDataBodyEncodable {
         let bodyBuilder = MultipartFormDataBodyBuilder(boundary: boundary, entries: [
             .file(paramName: "image", fileName: "image.png", fileData: image, contentType: "image/png"),
             .string(paramName: "model", value: model),
-            .string(paramName: "response_format", value: response_format),
+            .string(paramName: "responseFormat", value: responseFormat),
             .string(paramName: "user", value: user),
             .string(paramName: "n", value: n),
             .string(paramName: "size", value: size)
