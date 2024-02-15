@@ -7,6 +7,7 @@
 
 import Foundation
 
+@available(iOS 13.0, *)
 public struct ModerationsResult: Codable, Equatable {
     
     public struct Moderation: Codable, Equatable {
@@ -52,11 +53,6 @@ public struct ModerationsResult: Codable, Equatable {
 
             public func makeIterator() -> IndexingIterator<[(String, Bool)]> {
                 return Mirror(reflecting: self).children.enumerated().map { (index, element) in
-#if DEBUG
-                    if #available(iOS 16.0, *) {
-                        assert(element.label!.lowercased() == CodingKeys.allCases[index].stringValue.replacing(try! Regex("[/-]"), with: { _ in "" }))
-                    }
-#endif
                     return (CodingKeys.allCases[index].stringValue, element.value) as! (String, Bool)
                 }.makeIterator()
             }
@@ -103,11 +99,6 @@ public struct ModerationsResult: Codable, Equatable {
 
             public func makeIterator() -> IndexingIterator<[(String, Bool)]> {
                 return Mirror(reflecting: self).children.enumerated().map { (index, element) in
-#if DEBUG
-                    if #available(iOS 16.0, *) {
-                        assert(element.label!.lowercased() == CodingKeys.allCases[index].stringValue.replacing(try! Regex("[/-]"), with: { _ in "" }))
-                    }
-#endif
                     return (CodingKeys.allCases[index].stringValue, element.value) as! (String, Bool)
                 }.makeIterator()
             }
@@ -132,4 +123,5 @@ public struct ModerationsResult: Codable, Equatable {
     public let results: [Self.Moderation]
 }
 
+@available(iOS 13.0, *)
 extension ModerationsResult: Identifiable {}

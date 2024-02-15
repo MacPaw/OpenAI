@@ -211,6 +211,7 @@ public protocol OpenAIProtocol {
        - query: A `ModerationsQuery` object containing the input parameters for the API request. This includes the input text and optionally the model to be used.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ModerationsResult, Error>`, will contain either the `ModerationsResult` object with the list of category results, or an error if the request failed.
     **/
+    @available(iOS 13.0, *)
     func moderations(query: ModerationsQuery, completion: @escaping (Result<ModerationsResult, Error>) -> Void)
     
     /**
