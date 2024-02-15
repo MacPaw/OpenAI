@@ -13,7 +13,7 @@ public struct ImageCreationView: View {
     
     @State private var prompt: String = ""
     @State private var n: Int = 1
-    @State private var size: ImagesQuery.Size._1024
+    @State private var size = ImagesQuery.Size._1024
 
     private var sizes = ImagesQuery.Size.allCases
     
