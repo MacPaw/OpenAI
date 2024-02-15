@@ -383,8 +383,8 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = ModerationsResult(id: "modr-5MWoLO", model: .moderation, results: [
-            .init(categories: .init(harassment: false, harassment_threatening: false, hate: false, hate_threatening: true, self_harm: false, self_harm_intent: false, self_harm_instructions: false, sexual: false, sexual_minors: false, violence: true, violence_graphic: false),
-                  category_scores: .init(harassment: 0.0431830403405153, harassment_threatening: 0.1229622494034651, hate: 0.22714105248451233, hate_threatening: 0.4132447838783264, self_harm: 0.00523239187896251, self_harm_intent: 0.307237106114835, self_harm_instructions: 0.42189350703096, sexual: 0.01407341007143259, sexual_minors: 0.0038522258400917053, violence: 0.9223177433013916, violence_graphic: 0.036865197122097015),
+            .init(categories: .init(harassment: false, harassmentThreatening: false, hate: false, hateThreatening: true, selfHarm: false, selfHarmIntent: false, selfHarmInstructions: false, sexual: false, sexualMinors: false, violence: true, violenceGraphic: false),
+                  categoryScores: .init(harassment: 0.0431830403405153, harassmentThreatening: 0.1229622494034651, hate: 0.22714105248451233, hateThreatening: 0.4132447838783264, selfHarm: 0.00523239187896251, selfHarmIntent: 0.307237106114835, selfHarmInstructions: 0.42189350703096, sexual: 0.01407341007143259, sexualMinors: 0.0038522258400917053, violence: 0.9223177433013916, violenceGraphic: 0.036865197122097015),
                   flagged: true)
         ])
         try decode(data, expectedValue)
