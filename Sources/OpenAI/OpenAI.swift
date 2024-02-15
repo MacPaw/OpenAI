@@ -35,7 +35,7 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     private let session: URLSessionProtocol
-    private var streamingSessions: [NSObject] = []
+    private var streamingSessions = ArrayWithThreadSafety<NSObject>()
     
     public let configuration: Configuration
 
@@ -61,7 +61,7 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     public func completionsStream(query: CompletionsQuery, onResult: @escaping (Result<CompletionsResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        performSteamingRequest(request: JSONRequest<CompletionsResult>(body: query.makeStreamable(), url: buildURL(path: .completions)), onResult: onResult, completion: completion)
+        performStreamingRequest(request: JSONRequest<CompletionsResult>(body: query.makeStreamable(), url: buildURL(path: .completions)), onResult: onResult, completion: completion)
     }
     
     public func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
@@ -85,7 +85,7 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     public func chatsStream(query: ChatQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        performSteamingRequest(request: JSONRequest<ChatResult>(body: query.makeStreamable(), url: buildURL(path: .chats)), onResult: onResult, completion: completion)
+        performStreamingRequest(request: JSONRequest<ChatStreamResult>(body: query.makeStreamable(), url: buildURL(path: .chats)), onResult: onResult, completion: completion)
     }
     
     public func edits(query: EditsQuery, completion: @escaping (Result<EditsResult, Error>) -> Void) {
@@ -145,7 +145,7 @@ extension OpenAI {
         }
     }
     
-    func performSteamingRequest<ResultType: Codable>(request: any URLRequestBuildable, onResult: @escaping (Result<ResultType, Error>) -> Void, completion: ((Error?) -> Void)?) {
+    func performStreamingRequest<ResultType: Codable>(request: any URLRequestBuildable, onResult: @escaping (Result<ResultType, Error>) -> Void, completion: ((Error?) -> Void)?) {
         do {
             let request = try request.build(token: configuration.token, 
                                             organizationIdentifier: configuration.organizationIdentifier,
@@ -182,7 +182,7 @@ extension OpenAI {
                     return completion(.failure(OpenAIError.emptyData))
                 }
                 
-                completion(.success(AudioSpeechResult(audioData: data)))
+                completion(.success(AudioSpeechResult(audio: data)))
             }
             task.resume()
         } catch {

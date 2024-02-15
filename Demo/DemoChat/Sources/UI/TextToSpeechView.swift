@@ -15,9 +15,13 @@ public struct TextToSpeechView: View {
     
     @State private var prompt: String = ""
     @State private var voice: AudioSpeechQuery.AudioSpeechVoice = .alloy
-    @State private var speed: Double = 1
+    @State private var speed: Double = AudioSpeechQuery.Speed.normal.rawValue
     @State private var responseFormat: AudioSpeechQuery.AudioSpeechResponseFormat = .mp3
-    
+    @State private var showsModelSelectionSheet = false
+    @State private var selectedSpeechModel: String = Model.tts_1
+
+    private static let availableSpeechModels: [String] = [Model.tts_1, Model.tts_1_hd]
+
     public init(store: SpeechStore) {
         self.store = store
     }
@@ -56,7 +60,7 @@ public struct TextToSpeechView: View {
                 HStack {
                     Text("Speed: ")
                     Spacer()
-                    Stepper(value: $speed, in: 0.25...4, step: 0.25) {
+                    Stepper(value: $speed, in: AudioSpeechQuery.Speed.min.rawValue...AudioSpeechQuery.Speed.max.rawValue, step: 0.25) {
                         HStack {
                             Spacer()
                             Text("**\(String(format: "%.2f", speed))**")
@@ -79,7 +83,7 @@ public struct TextToSpeechView: View {
             Section {
                 HStack {
                     Button("Create Speech") {
-                        let query = AudioSpeechQuery(model: .tts_1,
+                        let query = AudioSpeechQuery(model: selectedSpeechModel,
                                                      input: prompt,
                                                      voice: voice,
                                                      responseFormat: responseFormat,
@@ -93,10 +97,11 @@ public struct TextToSpeechView: View {
                     .disabled(prompt.replacingOccurrences(of: " ", with: "").isEmpty)
                     Spacer()
                 }
+                .modelSelect(selectedModel: $selectedSpeechModel, models: Self.availableSpeechModels, showsModelSelectionSheet: $showsModelSelectionSheet, help: "https://platform.openai.com/docs/models/tts")
             }
             if !$store.audioObjects.wrappedValue.isEmpty {
                 Section("Click to play, swipe to save:") {
-                    ForEach(store.audioObjects) { object in
+                    ForEach(store.audioObjects, id: \.id) { object in
                         HStack {
                             Text(object.prompt.capitalized)
                             Spacer()
@@ -117,7 +122,7 @@ public struct TextToSpeechView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button {
-                                presentUserDirectoryDocumentPicker(for: object.originResponse.audioData, filename: "GeneratedAudio.\(object.format)")
+                                presentUserDirectoryDocumentPicker(for: object.originResponse.audio, filename: "GeneratedAudio.\(object.format)")
                             } label: {
                                 Image(systemName: "square.and.arrow.down")
                             }
@@ -129,7 +134,7 @@ public struct TextToSpeechView: View {
         }
         .listStyle(.insetGrouped)
         .scrollDismissesKeyboard(.interactively)
-        .navigationTitle("Create Speech")
+        .navigationTitle("Create Speech", selectedModel: $selectedSpeechModel)
     }
 }
 
