@@ -12,7 +12,7 @@ public struct ListModelsView: View {
     
     public var body: some View {
         NavigationStack {
-            List($store.availableModels) { row in
+            List($store.availableModels.wrappedValue, id: \.id) { row in
                 Text(row.id)
             }
             .listStyle(.insetGrouped)
