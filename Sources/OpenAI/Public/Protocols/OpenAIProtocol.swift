@@ -201,7 +201,7 @@ public protocol OpenAIProtocol {
      
      Example:
      ```
-     let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, response_format: .mp3, speed: 1.0)
+     let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 1.0)
      openAI.audioCreateSpeech(query: query) { result in
         // Handle response here
      }
