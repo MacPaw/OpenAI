@@ -11,4 +11,9 @@ public struct ModelsResult: Decodable, Equatable {
     
     public let data: [ModelResult]
     public let object: String
+
+    public enum CodingKeys: CodingKey {
+        case data
+        case object
+    }
 }

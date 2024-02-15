@@ -8,25 +8,25 @@
 import Foundation
 
 public struct CompletionsResult: Decodable, Equatable {
-    
+
     public struct Usage: Decodable, Equatable {
         public let promptTokens: Int
         public let completionTokens: Int
         public let totalTokens: Int
-        
-        enum CodingKeys: String, CodingKey {
+
+        public enum CodingKeys: String, CodingKey {
             case promptTokens = "prompt_tokens"
             case completionTokens = "completion_tokens"
             case totalTokens = "total_tokens"
         }
     }
-    
+
     public struct Choice: Decodable, Equatable {
         public let text: String
         public let index: Int
         public let finishReason: String?
-        
-        enum CodingKeys: String, CodingKey {
+
+        public enum CodingKeys: String, CodingKey {
             case text
             case index
             case finishReason = "finish_reason"
@@ -39,4 +39,13 @@ public struct CompletionsResult: Decodable, Equatable {
     public let model: Model
     public let choices: [Choice]
     public let usage: Usage?
+
+    public enum CodingKeys: CodingKey {
+        case id
+        case object
+        case created
+        case model
+        case choices
+        case usage
+    }
 }

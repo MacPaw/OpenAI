@@ -17,7 +17,7 @@ public struct ChatStreamResult: Decodable, Equatable {
             public let name: String?
             public let functionCall: ChatFunctionCall?
 
-            enum CodingKeys: String, CodingKey {
+            public enum CodingKeys: String, CodingKey {
                 case role
                 case content
                 case name
@@ -29,7 +29,7 @@ public struct ChatStreamResult: Decodable, Equatable {
         public let delta: Delta
         public let finishReason: String?
         
-        enum CodingKeys: String, CodingKey {
+        public enum CodingKeys: String, CodingKey {
             case index
             case delta
             case finishReason = "finish_reason"
@@ -42,7 +42,7 @@ public struct ChatStreamResult: Decodable, Equatable {
     public let model: Model
     public let choices: [Choice]
     
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case id
         case object
         case created

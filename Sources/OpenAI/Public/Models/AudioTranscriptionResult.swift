@@ -10,4 +10,8 @@ import Foundation
 public struct AudioTranscriptionResult: Decodable, Equatable {
     
     public let text: String
+
+    public enum CodingKeys: CodingKey {
+        case text
+    }
 }

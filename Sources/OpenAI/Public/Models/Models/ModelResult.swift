@@ -13,7 +13,7 @@ public struct ModelResult: Decodable, Equatable {
     public let object: String
     public let ownedBy: String
     
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case id
         case object
         case ownedBy = "owned_by"

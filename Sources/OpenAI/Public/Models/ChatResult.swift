@@ -17,7 +17,7 @@ public struct ChatResult: Decodable, Equatable {
         /// Exists only if it is a complete message.
         public let finishReason: String?
         
-        enum CodingKeys: String, CodingKey {
+        public enum CodingKeys: String, CodingKey {
             case index
             case message
             case finishReason = "finish_reason"
@@ -29,7 +29,7 @@ public struct ChatResult: Decodable, Equatable {
         public let completionTokens: Int
         public let totalTokens: Int
         
-        enum CodingKeys: String, CodingKey {
+        public enum CodingKeys: String, CodingKey {
             case promptTokens = "prompt_tokens"
             case completionTokens = "completion_tokens"
             case totalTokens = "total_tokens"
@@ -43,7 +43,7 @@ public struct ChatResult: Decodable, Equatable {
     public let choices: [Choice]
     public let usage: Usage?
     
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case id
         case object
         case created

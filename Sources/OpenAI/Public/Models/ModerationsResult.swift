@@ -27,7 +27,7 @@ public struct ModerationsResult: Decodable, Equatable {
             /// Violent content that depicts death, violence, or serious physical injury in extreme graphic detail.
             public let violenceGraphic: Bool
             
-            enum CodingKeys: String, CodingKey {
+            public enum CodingKeys: String, CodingKey {
                 case hate
                 case hateThreatening = "hate/threatening"
                 case selfHarm = "self-harm"
@@ -54,7 +54,7 @@ public struct ModerationsResult: Decodable, Equatable {
             /// Violent content that depicts death, violence, or serious physical injury in extreme graphic detail.
             public let violenceGraphic: Double
             
-            enum CodingKeys: String, CodingKey {
+            public enum CodingKeys: String, CodingKey {
                 case hate
                 case hateThreatening = "hate/threatening"
                 case selfHarm = "self-harm"
@@ -72,7 +72,7 @@ public struct ModerationsResult: Decodable, Equatable {
         /// True if the model classifies the content as violating OpenAI's usage policies, false otherwise.
         public let flagged: Bool
         
-        enum CodingKeys: String, CodingKey {
+        public enum CodingKeys: String, CodingKey {
             case categories
             case categoryScores = "category_scores"
             case flagged
@@ -82,4 +82,10 @@ public struct ModerationsResult: Decodable, Equatable {
     public let id: String
     public let model: Model
     public let results: [CategoryResult]
+
+    public enum CodingKeys: CodingKey {
+        case id
+        case model
+        case results
+    }
 }
