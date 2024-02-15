@@ -7,8 +7,9 @@
 
 import Foundation
 
+/// Generates audio from the input text.
 /// Learn more: [OpenAI Speech – Documentation](https://platform.openai.com/docs/api-reference/audio/createSpeech)
-public struct AudioSpeechQuery: Codable, Equatable {
+public struct AudioSpeechQuery: Codable {
     
     /// Encapsulates the voices available for audio generation.
     ///
@@ -36,15 +37,19 @@ public struct AudioSpeechQuery: Codable, Equatable {
         case aac
         case flac
     }
+
+    /// The text to generate audio for. The maximum length is 4096 characters.
+    public let input: String
     /// One of the available TTS models: tts-1 or tts-1-hd
     public let model: Model
-    /// The text to generate audio for. The maximum length is 4096 characters.
-    public let input: String?
-    /// The voice to use when generating the audio. Supported voices are alloy, echo, fable, onyx, nova, and shimmer.
+    /// The voice to use when generating the audio. Supported voices are alloy, echo, fable, onyx, nova, and shimmer. Previews of the voices are available in the Text to speech guide.
+    /// https://platform.openai.com/docs/guides/text-to-speech/voice-options
     public let voice: AudioSpeechVoice
     /// The format to audio in. Supported formats are mp3, opus, aac, and flac.
-    public let responseFormat: AudioSpeechResponseFormat
-    /// The speed of the generated audio. Enter a value between **0.25** and **4.0**. Default: **1.0**
+    /// Defaults to mp3
+    public let responseFormat: AudioSpeechResponseFormat?
+    /// The speed of the generated audio. Select a value from **0.25** to **4.0**. **1.0** is the default.
+    /// Defaults to 1
     public let speed: String?
     
     public enum CodingKeys: String, CodingKey {
@@ -54,13 +59,7 @@ public struct AudioSpeechQuery: Codable, Equatable {
         case responseFormat = "response_format"
         case speed
     }
-    
-    private enum Constants {
-        static let normalSpeed = 1.0
-        static let maxSpeed = 4.0
-        static let minSpeed = 0.25
-    }
-    
+
     public init(model: Model, input: String, voice: AudioSpeechVoice, responseFormat: AudioSpeechResponseFormat = .mp3, speed: Double?) {
         self.model = AudioSpeechQuery.validateSpeechModel(model)
         self.speed = AudioSpeechQuery.normalizeSpeechSpeed(speed)
@@ -80,13 +79,22 @@ private extension AudioSpeechQuery {
         }
         return inputModel
     }
-    
+}
+
+public extension AudioSpeechQuery {
+
+    enum Speed: Double {
+        case normal = 1.0
+        case max = 4.0
+        case min = 0.25
+    }
+
     static func normalizeSpeechSpeed(_ inputSpeed: Double?) -> String {
-        guard let inputSpeed else { return "\(Constants.normalSpeed)" }
-        let isSpeedOutOfBounds = inputSpeed >= Constants.maxSpeed && inputSpeed <= Constants.minSpeed
+        guard let inputSpeed else { return "\(Self.Speed.normal.rawValue)" }
+        let isSpeedOutOfBounds = inputSpeed <= Self.Speed.min.rawValue || Self.Speed.max.rawValue <= inputSpeed
         guard !isSpeedOutOfBounds else {
             print("[AudioSpeech] Speed value must be between 0.25 and 4.0. Setting value to closest valid.")
-            return inputSpeed < Constants.minSpeed ? "\(Constants.minSpeed)" : "\(Constants.maxSpeed)"
+            return inputSpeed < Self.Speed.min.rawValue ? "\(Self.Speed.min.rawValue)" : "\(Self.Speed.max.rawValue)"
         }
         return "\(inputSpeed)"
     }
