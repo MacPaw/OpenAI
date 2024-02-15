@@ -36,7 +36,7 @@ public struct ModerationsResult: Codable, Equatable {
             /// Violent content that depicts death, violence, or serious physical injury in extreme graphic detail.
             public let violenceGraphic: Bool
 
-            public enum CodingKeys: String, CodingKey {
+            public enum CodingKeys: String, CodingKey, CaseIterable {
                 case harassment
                 case harassmentThreatening = "harassment/threatening"
                 case hate
@@ -50,59 +50,16 @@ public struct ModerationsResult: Codable, Equatable {
                 case violenceGraphic = "violence/graphic"
             }
 
-            public func makeIterator() -> CategoriesIterator {
-                return CategoriesIterator(self)
-            }
-
-            public struct CategoriesIterator: IteratorProtocol {
-                public typealias Element = (String, Bool)
-
-                let categories: Categories
-                var key: Categories.CodingKeys? = .harassment
-
-                init(_ categories: Categories) {
-                    self.categories = categories
-                }
-
-                public mutating func next() -> (String, Bool)? {
-                    switch key {
-                    case .harassment:
-                        key = .harassmentThreatening
-                        return (Categories.CodingKeys.harassment.stringValue, categories.harassment)
-                    case .harassmentThreatening:
-                        key = .hate
-                        return (Categories.CodingKeys.harassmentThreatening.stringValue, categories.harassmentThreatening)
-                    case .hate:
-                        key = .hateThreatening
-                        return (Categories.CodingKeys.hate.stringValue, categories.hate)
-                    case .hateThreatening:
-                        key = .selfHarm
-                        return (Categories.CodingKeys.hateThreatening.stringValue, categories.hateThreatening)
-                    case .selfHarm:
-                        key = .selfHarmIntent
-                        return (Categories.CodingKeys.selfHarm.stringValue, categories.selfHarm)
-                    case .selfHarmIntent:
-                        key = .selfHarmInstructions
-                        return (Categories.CodingKeys.selfHarmIntent.stringValue, categories.selfHarmIntent)
-                    case .selfHarmInstructions:
-                        key = .sexual
-                        return (Categories.CodingKeys.selfHarmInstructions.stringValue, categories.selfHarmInstructions)
-                    case .sexual:
-                        key = .sexualMinors
-                        return (Categories.CodingKeys.sexual.stringValue, categories.sexual)
-                    case .sexualMinors:
-                        key = .violence
-                        return (Categories.CodingKeys.sexualMinors.stringValue, categories.sexualMinors)
-                    case .violence:
-                        key = .violenceGraphic
-                        return (Categories.CodingKeys.violence.stringValue, categories.violence)
-                    case .violenceGraphic:
-                        key = nil
-                        return (Categories.CodingKeys.violenceGraphic.stringValue, categories.violenceGraphic)
-                    case nil:
-                        return nil
+            public func makeIterator() -> IndexingIterator<[(String, Bool)]> {
+                var int = -1
+                return Mirror(reflecting: self).children.enumerated().map { (index, element) in
+#if DEBUG
+                    if #available(iOS 16.0, *) {
+                        assert(element.label!.lowercased() == CodingKeys.allCases[index].stringValue.replacing(try! Regex("[/-]"), with: { _ in "" }))
                     }
-                }
+#endif
+                    return (CodingKeys.allCases[index].stringValue, element.value) as! (String, Bool)
+                }.makeIterator()
             }
         }
 
@@ -131,7 +88,7 @@ public struct ModerationsResult: Codable, Equatable {
             /// Violent content that depicts death, violence, or serious physical injury in extreme graphic detail.
             public let violenceGraphic: Double
 
-            public enum CodingKeys: String, CodingKey {
+            public enum CodingKeys: String, CodingKey, CaseIterable {
                 case harassment
                 case harassmentThreatening = "harassment/threatening"
                 case hate
@@ -145,59 +102,16 @@ public struct ModerationsResult: Codable, Equatable {
                 case violenceGraphic = "violence/graphic"
             }
 
-            public func makeIterator() -> CategoryScoresIterator {
-                return CategoryScoresIterator(self)
-            }
-
-            public struct CategoryScoresIterator: IteratorProtocol {
-                public typealias Element = (String, Double)
-
-                init(_ categoryScores: CategoryScores) {
-                    self.categoryScores = categoryScores
-                }
-
-                let categoryScores: CategoryScores
-                var key: CategoryScores.CodingKeys? = .harassment
-
-                public mutating func next() -> (String, Double)? {
-                    switch key {
-                    case .harassment:
-                        key = .harassmentThreatening
-                        return (CategoryScores.CodingKeys.harassment.stringValue, categoryScores.harassment)
-                    case .harassmentThreatening:
-                        key = .hate
-                        return (CategoryScores.CodingKeys.harassmentThreatening.stringValue,     categoryScores.harassmentThreatening)
-                    case .hate:
-                        key = .hateThreatening
-                        return (CategoryScores.CodingKeys.hate.stringValue, categoryScores.hate)
-                    case .hateThreatening:
-                        key = .selfHarm
-                        return (CategoryScores.CodingKeys.hateThreatening.stringValue, categoryScores.hateThreatening)
-                    case .selfHarm:
-                        key = .selfHarmIntent
-                        return (CategoryScores.CodingKeys.selfHarm.stringValue, categoryScores.selfHarm)
-                    case .selfHarmIntent:
-                        key = .selfHarmInstructions
-                        return (CategoryScores.CodingKeys.selfHarmIntent.stringValue, categoryScores.selfHarmIntent)
-                    case .selfHarmInstructions:
-                        key = .sexual
-                        return (CategoryScores.CodingKeys.selfHarmInstructions.stringValue,      categoryScores.selfHarmInstructions)
-                    case .sexual:
-                        key = .sexualMinors
-                        return (CategoryScores.CodingKeys.sexual.stringValue, categoryScores.sexual)
-                    case .sexualMinors:
-                        key = .violence
-                        return (CategoryScores.CodingKeys.sexualMinors.stringValue, categoryScores.sexualMinors)
-                    case .violence:
-                        key = .violenceGraphic
-                        return (CategoryScores.CodingKeys.violence.stringValue, categoryScores.violence)
-                    case .violenceGraphic:
-                        key = nil
-                        return (CategoryScores.CodingKeys.violenceGraphic.stringValue, categoryScores.violenceGraphic)
-                    case nil:
-                        return nil
+            public func makeIterator() -> IndexingIterator<[(String, Bool)]> {
+                var int = -1
+                return Mirror(reflecting: self).children.enumerated().map { (index, element) in
+#if DEBUG
+                    if #available(iOS 16.0, *) {
+                        assert(element.label!.lowercased() == CodingKeys.allCases[index].stringValue.replacing(try! Regex("[/-]"), with: { _ in "" }))
                     }
-                }
+#endif
+                    return (CodingKeys.allCases[index].stringValue, element.value) as! (String, Bool)
+                }.makeIterator()
             }
         }
 
