@@ -30,15 +30,16 @@ public final class SpeechStore: ObservableObject {
     
     @MainActor
     func createSpeech(_ query: AudioSpeechQuery) async {
-        guard let input = query.input, !input.isEmpty else { return }
+        let input = query.input
+        guard !input.isEmpty else { return }
         do {
             let response = try await openAIClient.audioCreateSpeech(query: query)
-            guard let data = response.audioData else { return }
+            let data = response.audio
             let player = try? AVAudioPlayer(data: data)
             let audioObject = AudioObject(prompt: input,
                                           audioPlayer: player,
                                           originResponse: response,
-                                          format: query.responseFormat.rawValue)
+                                          format: query.responseFormat?.rawValue ?? AudioSpeechQuery.AudioSpeechResponseFormat.mp3.rawValue)
             audioObjects.append(audioObject)
         } catch {
             print(error.localizedDescription)
