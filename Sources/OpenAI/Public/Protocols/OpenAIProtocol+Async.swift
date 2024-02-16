@@ -191,7 +191,7 @@ public extension OpenAIProtocol {
             audioCreateSpeech(query: query) { result in
                 switch result {
                 case let .success(success):
-                    return continuation.resume(returning: AudioSpeechResult(audioData: success))
+                    return continuation.resume(returning: AudioSpeechResult(audio: success))
                 case let .failure(failure):
                     return continuation.resume(throwing: failure)
                 }
