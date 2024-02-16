@@ -10,6 +10,7 @@ import Foundation
 /// Creates a model response for the given chat conversation
 /// https://platform.openai.com/docs/guides/text-generation
 public struct ChatQuery: Equatable, Codable, Streamable {
+    public typealias Model = ChatModel
 
     /// A list of messages comprising the conversation so far
     public let messages: [Self.ChatCompletionMessageParam]

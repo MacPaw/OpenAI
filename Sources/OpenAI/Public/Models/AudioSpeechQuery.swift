@@ -10,6 +10,7 @@ import Foundation
 /// Generates audio from the input text.
 /// Learn more: [OpenAI Speech – Documentation](https://platform.openai.com/docs/api-reference/audio/createSpeech)
 public struct AudioSpeechQuery: Codable {
+    public typealias Model = SpeechModel
     
     /// Encapsulates the voices available for audio generation.
     ///
@@ -61,7 +62,7 @@ public struct AudioSpeechQuery: Codable {
     }
 
     public init(model: Model, input: String, voice: AudioSpeechVoice, responseFormat: AudioSpeechResponseFormat = .mp3, speed: Double?) {
-        self.model = AudioSpeechQuery.validateSpeechModel(model)
+        self.model = model
         self.speed = AudioSpeechQuery.normalizeSpeechSpeed(speed)
         self.input = input
         self.voice = voice

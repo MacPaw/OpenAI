@@ -10,12 +10,12 @@ import Foundation
 /// Given a prompt and/or an input image, the model will generate a new image.
 /// https://platform.openai.com/docs/guides/images
 public struct ImagesQuery: Codable {
+    public typealias Model = ImageModel
 
 public enum ResponseFormat: String, Codable, Equatable {
     case url
     case b64_json
 }
-
     /// A text description of the desired image(s). The maximum length is 1000 characters for dall-e-2 and 4000 characters for dall-e-3.
     public let prompt: String
     /// The model to use for image generation.

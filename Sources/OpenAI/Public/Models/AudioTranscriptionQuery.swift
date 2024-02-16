@@ -8,6 +8,7 @@
 import Foundation
 
 public struct AudioTranscriptionQuery: Codable {
+    public typealias Model = AudioTranscriptionModel
 
 public enum ResponseFormat: String, Codable, Equatable, CaseIterable {
     case json

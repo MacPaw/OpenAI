@@ -8,6 +8,8 @@
 import Foundation
 
 public struct ModerationsQuery: Codable {
+    public typealias Model = ModerationsModel
+
     /// The input text to classify.
     public let input: String
     /// ID of the model to use.

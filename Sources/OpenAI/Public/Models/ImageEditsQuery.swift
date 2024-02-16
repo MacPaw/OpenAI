@@ -8,6 +8,7 @@
 import Foundation
 
 public struct ImageEditsQuery: Codable {
+    public typealias Model = ImageModel // only dall-e-2 is supported at this time
     public typealias ResponseFormat = ImagesQuery.ResponseFormat
     public typealias Size = ImagesQuery.Size
 

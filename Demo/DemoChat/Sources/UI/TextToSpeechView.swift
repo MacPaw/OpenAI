@@ -18,9 +18,9 @@ public struct TextToSpeechView: View {
     @State private var speed: Double = AudioSpeechQuery.Speed.normal.rawValue
     @State private var responseFormat: AudioSpeechQuery.AudioSpeechResponseFormat = .mp3
     @State private var showsModelSelectionSheet = false
-    @State private var selectedSpeechModel: String = Model.tts_1
+    @State private var selectedSpeechModel: String = SpeechModel.tts_1.rawValue
 
-    private static let availableSpeechModels: [String] = [Model.tts_1, Model.tts_1_hd]
+    private static let availableSpeechModels: [String] = SpeechModel.allCases.map { $0.rawValue }
 
     public init(store: SpeechStore) {
         self.store = store
@@ -83,7 +83,7 @@ public struct TextToSpeechView: View {
             Section {
                 HStack {
                     Button("Create Speech") {
-                        let query = AudioSpeechQuery(model: selectedSpeechModel,
+                        let query = AudioSpeechQuery(model: SpeechModel(rawValue: selectedSpeechModel) ?? SpeechModel.allCases.first!,
                                                      input: prompt,
                                                      voice: voice,
                                                      responseFormat: responseFormat,

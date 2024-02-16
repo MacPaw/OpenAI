@@ -24,8 +24,8 @@ class OpenAITests: XCTestCase {
     }
     
     func testCompletions() async throws {
-        let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
-        let expectedResult = CompletionsResult(id: "foo", object: "bar", created: 100500, model: .babbage, choices: [
+        let query = CompletionsQuery(model: .davinci_002, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
+        let expectedResult = CompletionsResult(id: "foo", object: "bar", created: 100500, model: CompletionsModel.davinci_002.rawValue, choices: [
             .init(text: "42 is the answer to everything", index: 0, finishReason: nil)
         ], usage: .init(promptTokens: 10, completionTokens: 10, totalTokens: 20))
         try self.stub(result: expectedResult)
@@ -35,7 +35,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testCompletionsAPIError() async throws {
-        let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
+        let query = CompletionsQuery(model: .davinci_002, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
@@ -104,8 +104,8 @@ class OpenAITests: XCTestCase {
        let query = ChatQuery(messages: [
            .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
            .user(.init(content: .string("Who wrote Harry Potter?")))
-       ], model: .gpt3_5Turbo)
-        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
+       ], model: .gpt_3_5_turbo)
+        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: ChatModel.gpt_3_5_turbo.rawValue, choices: [
             .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
             .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
             .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
@@ -120,14 +120,14 @@ class OpenAITests: XCTestCase {
         let query = ChatQuery(messages: [
             .system(.init(content: "You are Weather-GPT. You know everything about the weather.")),
             .user(.init(content: .string("What's the weather like in Boston?"))),
-        ], model: .gpt3_5Turbo, toolChoice: .auto, tools: [
+        ], model: .gpt_3_5_turbo, toolChoice: .auto, tools: [
             .init(function: .init(name: "get_current_weather", description: "Get the current weather in a given location", parameters: .init(type: .object, properties: [
                 "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
                 "unit": .init(type: .string, enum: ["celsius", "fahrenheit"])
             ], required: ["location"])))
         ])
 
-        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
+        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: ChatModel.gpt_3_5_turbo.rawValue, choices: [
          .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
          .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
          .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
@@ -142,7 +142,7 @@ class OpenAITests: XCTestCase {
         let query = ChatQuery(messages: [
             .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
             .user(.init(content: .string("Who wrote Harry Potter?")))
-        ], model: .gpt3_5Turbo)
+        ], model: .gpt_4)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
 
@@ -151,7 +151,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testEdits() async throws {
-        let query = EditsQuery(model: .gpt4, input: "What day of the wek is it?", instruction: "Fix the spelling mistakes")
+        let query = EditsQuery(model: ChatModel.gpt_4.rawValue, input: "What day of the wek is it?", instruction: "Fix the spelling mistakes") // there is no Edits endpoint documented, so i don't know what to give a Query for testing...
         let editsResult = EditsResult(object: "edit", created: 1589478378, choices: [
             .init(text: "What day of the week is it?", index: 0)
         ], usage: .init(promptTokens: 25, completionTokens: 32, totalTokens: 57))
@@ -162,7 +162,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testEditsError() async throws {
-        let query = EditsQuery(model: .gpt4, input: "What day of the wek is it?", instruction: "Fix the spelling mistakes")
+        let query = EditsQuery(model: ChatModel.gpt_4.rawValue, input: "What day of the wek is it?", instruction: "Fix the spelling mistakes") // there is no Edits endpoint documented, so i don't know what to give a Query for testing...
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
 
@@ -173,14 +173,14 @@ class OpenAITests: XCTestCase {
     func testEmbeddings() async throws {
         let query = EmbeddingsQuery(
             input: .string("The food was delicious and the waiter..."),
-            model: .textEmbeddingAda)
+            model: .text_embedding_ada_002)
         let embeddingsResult = EmbeddingsResult(
             data: [
                 .init(object: "id-sdasd", embedding: [0.1, 0.2, 0.3, 0.4], index: 0),
                 .init(object: "id-sdasd1", embedding: [0.4, 0.1, 0.7, 0.1], index: 1),
                 .init(object: "id-sdasd2", embedding: [0.8, 0.1, 0.2, 0.8], index: 2)
             ],
-            model: .textEmbeddingAda,
+            model: EmbeddingsModel.text_embedding_ada_002.rawValue,
             usage: .init(promptTokens: 10, totalTokens: 10),
             object: "embeddings")
         try self.stub(result: embeddingsResult)
@@ -190,7 +190,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testEmbeddingsError() async throws {
-        let query = EmbeddingsQuery(input: .string("The food was delicious and the waiter..."), model: .textEmbeddingAda)
+        let query = EmbeddingsQuery(input: .string("The food was delicious and the waiter..."), model: .text_embedding_ada_002)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
 
@@ -199,14 +199,14 @@ class OpenAITests: XCTestCase {
     }
     
     func testQueryString() throws {
-        let pathParameter = APIPath.chats
+        let pathParameter = ChatModel.gpt_4.rawValue
         let result = APIPath.models.withPath(pathParameter)
         XCTAssertEqual(result, APIPath.models + "/" + pathParameter)
     }
     
     func testRetrieveModel() async throws {
-        let query = ModelQuery(model: .gpt3_5Turbo)
-        let modelResult = ModelResult(id: .gpt3_5Turbo, created: 999, object: "model", ownedBy: "openai")
+        let query = ModelQuery(model: ChatModel.gpt_4.rawValue)
+        let modelResult = ModelResult(id: ChatModel.gpt_4.rawValue, created: 999, object: "model", ownedBy: "openai")
         try self.stub(result: modelResult)
         
         let result = try await openAI.model(query: query)
@@ -214,7 +214,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testRetrieveModelError() async throws {
-        let query = ModelQuery(model: .gpt3_5Turbo)
+        let query = ModelQuery(model: ChatModel.gpt_4.rawValue)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
@@ -244,7 +244,7 @@ class OpenAITests: XCTestCase {
     
     func testModerations() async throws {
         let query = ModerationsQuery(input: "Hello, world!")
-        let moderationsResult = ModerationsResult(id: "foo", model: .moderation, results: [
+        let moderationsResult = ModerationsResult(id: "foo", model: ModerationsModel.textModerationLatest.rawValue, results: [
             .init(categories: .init(hate: false, hateThreatening: false, selfHarm: false, sexual: false, sexualMinors: false, violence: false, violenceGraphic: false),
                   categoryScores: .init(hate: 0.1, hateThreatening: 0.1, selfHarm: 0.1, sexual: 0.1, sexualMinors: 0.1, violence: 0.1, violenceGraphic: 0.1),
                   flagged: false)
@@ -353,7 +353,7 @@ class OpenAITests: XCTestCase {
     
     func testJSONRequestCreation() throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        let completionQuery = ChatQuery(messages: [.user(.init(content: .string("how are you?")))], model: .gpt3_5Turbo_16k)
+        let completionQuery = ChatQuery(messages: [.user(.init(content: .string("how are you?")))], model: .gpt_3_5_turbo_16k)
         let jsonRequest = JSONRequest<ChatResult>(body: completionQuery, url: URL(string: "http://google.com")!)
         let urlRequest = try jsonRequest.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
         

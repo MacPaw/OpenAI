@@ -36,7 +36,7 @@ public struct CompletionsResult: Codable, Equatable {
     public let id: String
     public let object: String
     public let created: TimeInterval
-    public let model: Model
+    public let model: String
     public let choices: [Choice]
     public let usage: Usage?
 }

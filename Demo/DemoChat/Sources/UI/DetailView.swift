@@ -17,13 +17,13 @@ struct DetailView: View {
     @State var inputText: String = ""
     @FocusState private var isFocused: Bool
     @State private var showsModelSelectionSheet = false
-    @State private var selectedChatModel: Model = .gpt4_0613
+    @State private var selectedChatModel: String = ChatModel.allCases.first!.rawValue
 
-    private static let availableChatModels: [Model] = [.gpt3_5Turbo, .gpt4]
+    private static let availableChatModels: [String] = ChatModel.allCases.map { $0.rawValue }
 
     let conversation: Conversation
     let error: Error?
-    let sendMessage: (String, Model) -> Void
+    let sendMessage: (String, String) -> Void
 
     private var fillColor: Color {
         #if os(iOS)

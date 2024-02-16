@@ -56,7 +56,7 @@ public final class ChatStore: ObservableObject {
     func sendMessage(
         _ message: Message,
         conversationId: Conversation.ID,
-        model: Model
+        model: String
     ) async {
         guard let conversationIndex = conversations.firstIndex(where: { $0.id == conversationId }) else {
             return
@@ -65,14 +65,14 @@ public final class ChatStore: ObservableObject {
 
         await completeChat(
             conversationId: conversationId,
-            model: model
+            model: ChatModel(rawValue: model) ?? ChatModel.allCases.first!
         )
     }
     
     @MainActor
     func completeChat(
         conversationId: Conversation.ID,
-        model: Model
+        model: ChatModel
     ) async {
         guard let conversation = conversations.first(where: { $0.id == conversationId }) else {
             return
