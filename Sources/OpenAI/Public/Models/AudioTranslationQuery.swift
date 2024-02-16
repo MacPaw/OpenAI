@@ -8,7 +8,7 @@
 import Foundation
 
 /// Translates audio into English.
-public struct AudioTranslationQuery: Codable {
+public struct AudioTranslationQuery: Encodable, Equatable {
     public typealias FileType = AudioTranscriptionQuery.FileType
     public typealias ResponseFormat = AudioTranscriptionQuery.ResponseFormat
 

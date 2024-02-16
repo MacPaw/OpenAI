@@ -7,8 +7,12 @@
 
 import Foundation
 
-public struct AudioTranscriptionResult: Codable, Equatable {
+public struct AudioTranscriptionResult: Decodable, Equatable {
 
     /// The transcribed text.
     public let text: String
+
+    public enum CodingKeys: CodingKey {
+        case text
+    }
 }

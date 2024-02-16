@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ImageEditsQuery: Codable {
+public struct ImageEditsQuery: Encodable {
     public typealias ResponseFormat = ImagesQuery.ResponseFormat
     public typealias Size = ImagesQuery.Size
 

@@ -7,9 +7,9 @@
 
 import Foundation
 
-public struct AudioTranscriptionQuery: Codable {
+public struct AudioTranscriptionQuery: Encodable, Equatable {
 
-public enum ResponseFormat: String, Codable, Equatable, CaseIterable {
+public enum ResponseFormat: String, Encodable, Equatable, CaseIterable {
     case json
     case text
     case verboseJson = "verbose_json"
@@ -44,7 +44,7 @@ public enum ResponseFormat: String, Codable, Equatable, CaseIterable {
         self.responseFormat = responseFormat
     }
 
-    public enum FileType: String, Codable, Equatable, CaseIterable {
+    public enum FileType: String, Encodable, Equatable, CaseIterable {
         case flac
         case mp3, mpga
         case mp4, m4a

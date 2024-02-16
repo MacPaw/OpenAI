@@ -400,7 +400,7 @@ extension OpenAITests {
         self.urlSession.dataTask = task
     }
     
-    func stub(result: Codable) throws {
+    func stub(result: Encodable) throws {
         let encoder = JSONEncoder()
         let data = try encoder.encode(result)
         let task = DataTaskMock.successful(with: data)

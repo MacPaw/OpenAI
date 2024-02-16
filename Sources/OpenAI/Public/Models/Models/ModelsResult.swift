@@ -8,10 +8,15 @@
 import Foundation
 
 /// A list of model objects.
-public struct ModelsResult: Codable, Equatable {
+public struct ModelsResult: Decodable, Equatable {
 
     /// A list of model objects.
     public let data: [ModelResult]
     /// The object type, which is always `list`
     public let object: String
+
+    public enum CodingKeys: CodingKey {
+        case data
+        case object
+    }
 }

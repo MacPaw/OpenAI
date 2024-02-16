@@ -7,9 +7,9 @@
 
 import Foundation
 
-public struct ChatResult: Codable, Equatable {
+public struct ChatResult: Decodable, Equatable {
 
-    public struct Choice: Codable, Equatable {
+    public struct Choice: Decodable, Equatable {
         public typealias ChatCompletionMessage = ChatQuery.ChatCompletionMessageParam
 
         /// The index of the choice in the list of choices.
@@ -21,11 +21,11 @@ public struct ChatResult: Codable, Equatable {
         /// The reason the model stopped generating tokens. This will be stop if the model hit a natural stop point or a provided stop sequence, length if the maximum number of tokens specified in the request was reached, content_filter if content was omitted due to a flag from our content filters, tool_calls if the model called a tool, or function_call (deprecated) if the model called a function.
         public let finishReason: String?
 
-        public struct ChoiceLogprobs: Codable, Equatable {
+        public struct ChoiceLogprobs: Decodable, Equatable {
 
             public let content: [Self.ChatCompletionTokenLogprob]?
 
-            public struct ChatCompletionTokenLogprob: Codable, Equatable {
+            public struct ChatCompletionTokenLogprob: Decodable, Equatable {
 
                 /// The token.
                 public let token: String
@@ -40,7 +40,7 @@ public struct ChatResult: Codable, Equatable {
                 /// In rare cases, there may be fewer than the number of requested `top_logprobs` returned.
                 public let topLogprobs: [TopLogprob]
 
-                public struct TopLogprob: Codable, Equatable {
+                public struct TopLogprob: Decodable, Equatable {
 
                     /// The token.
                     public let token: String
@@ -49,6 +49,12 @@ public struct ChatResult: Codable, Equatable {
                     public let bytes: [Int]?
                     /// The log probability of this token.
                     public let logprob: Double
+
+                    public enum CodingKeys: CodingKey {
+                        case token
+                        case bytes
+                        case logprob
+                    }
                 }
 
                 public enum CodingKeys: String, CodingKey {
@@ -57,6 +63,10 @@ public struct ChatResult: Codable, Equatable {
                     case logprob
                     case topLogprobs = "top_logprobs"
                 }
+            }
+
+            public enum CodingKeys: CodingKey {
+                case content
             }
         }
 
@@ -67,7 +77,7 @@ public struct ChatResult: Codable, Equatable {
             case finishReason = "finish_reason"
         }
 
-        public enum FinishReason: String, Codable, Equatable {
+        public enum FinishReason: String, Decodable, Equatable {
             case stop
             case length
             case toolCalls = "tool_calls"
@@ -76,7 +86,7 @@ public struct ChatResult: Codable, Equatable {
         }
     }
 
-    public struct CompletionUsage: Codable, Equatable {
+    public struct CompletionUsage: Decodable, Equatable {
 
         /// Number of tokens in the generated completion.
         public let completionTokens: Int
@@ -85,7 +95,7 @@ public struct ChatResult: Codable, Equatable {
         /// Total number of tokens used in the request (prompt + completion).
         public let totalTokens: Int
 
-        enum CodingKeys: String, CodingKey {
+        public enum CodingKeys: String, CodingKey {
             case completionTokens = "completion_tokens"
             case promptTokens = "prompt_tokens"
             case totalTokens = "total_tokens"
@@ -123,7 +133,7 @@ extension ChatQuery.ChatCompletionMessageParam {
 
     public init(from decoder: Decoder) throws {
         let messageContainer = try decoder.container(keyedBy: Self.ChatCompletionMessageParam.CodingKeys.self)
-        switch try messageContainer.decode(Role.self, forKey: .role) {
+        switch try messageContainer.decode(Self.Role.self, forKey: .role) {
         case .system:
             self = try .system(.init(from: decoder))
         case .user:

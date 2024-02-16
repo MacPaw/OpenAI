@@ -7,11 +7,11 @@
 
 import Foundation
 
-public struct ModerationsResult: Codable, Equatable {
+public struct ModerationsResult: Decodable, Equatable {
     
-    public struct CategoryResult: Codable, Equatable {
+    public struct CategoryResult: Decodable, Equatable {
         
-        public struct Categories: Codable, Equatable {
+        public struct Categories: Decodable, Equatable {
             /// Content that expresses, incites, or promotes hate based on race, gender, ethnicity, religion, nationality, sexual orientation, disability status, or caste.
             public let hate: Bool
             /// Hateful content that also includes violence or serious harm towards the targeted group.
@@ -27,7 +27,7 @@ public struct ModerationsResult: Codable, Equatable {
             /// Violent content that depicts death, violence, or serious physical injury in extreme graphic detail.
             public let violenceGraphic: Bool
             
-            enum CodingKeys: String, CodingKey {
+            public enum CodingKeys: String, CodingKey {
                 case hate
                 case hateThreatening = "hate/threatening"
                 case selfHarm = "self-harm"
@@ -38,7 +38,7 @@ public struct ModerationsResult: Codable, Equatable {
             }
         }
         
-        public struct CategoryScores: Codable, Equatable {
+        public struct CategoryScores: Decodable, Equatable {
             /// Content that expresses, incites, or promotes hate based on race, gender, ethnicity, religion, nationality, sexual orientation, disability status, or caste.
             public let hate: Double
             /// Hateful content that also includes violence or serious harm towards the targeted group.
@@ -54,7 +54,7 @@ public struct ModerationsResult: Codable, Equatable {
             /// Violent content that depicts death, violence, or serious physical injury in extreme graphic detail.
             public let violenceGraphic: Double
             
-            enum CodingKeys: String, CodingKey {
+            public enum CodingKeys: String, CodingKey {
                 case hate
                 case hateThreatening = "hate/threatening"
                 case selfHarm = "self-harm"
@@ -72,7 +72,7 @@ public struct ModerationsResult: Codable, Equatable {
         /// True if the model classifies the content as violating OpenAI's usage policies, false otherwise.
         public let flagged: Bool
         
-        enum CodingKeys: String, CodingKey {
+        public enum CodingKeys: String, CodingKey {
             case categories
             case categoryScores = "category_scores"
             case flagged
@@ -82,4 +82,10 @@ public struct ModerationsResult: Codable, Equatable {
     public let id: String
     public let model: Model
     public let results: [CategoryResult]
+
+    public enum CodingKeys: CodingKey {
+        case id
+        case model
+        case results
+    }
 }

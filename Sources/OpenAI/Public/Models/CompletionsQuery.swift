@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct CompletionsQuery: Codable, Streamable {
+public struct CompletionsQuery: Encodable, Streamable {
     /// ID of the model to use.
     public let model: Model
     /// The prompt(s) to generate completions for, encoded as a string, array of strings, array of tokens, or array of token arrays.
@@ -29,7 +29,7 @@ public struct CompletionsQuery: Codable, Streamable {
     
     var stream: Bool = false
     
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case model
         case prompt
         case stream

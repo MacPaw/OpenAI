@@ -24,7 +24,7 @@ public struct APIError: Error, Decodable, Equatable {
     self.code = code
   }
   
-  enum CodingKeys: CodingKey {
+  public enum CodingKeys: CodingKey {
     case message
     case type
     case param

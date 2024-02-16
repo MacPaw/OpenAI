@@ -10,7 +10,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSessionDelegate, URLSessionDataDelegate {
+final class StreamingSession<ResultType: Decodable>: NSObject, Identifiable, URLSessionDelegate, URLSessionDataDelegate {
     
     enum StreamingError: Error {
         case unknownContent

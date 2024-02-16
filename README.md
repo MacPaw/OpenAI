@@ -92,7 +92,7 @@ Given a prompt, the model will return one or more predicted completions, and can
 **Request**
 
 ```swift
-struct CompletionsQuery: Codable {
+struct CompletionsQuery: Encodable {
     /// ID of the model to use.
     public let model: Model
     /// The prompt(s) to generate completions for, encoded as a string, array of strings, array of tokens, or array of token arrays.
@@ -117,8 +117,8 @@ struct CompletionsQuery: Codable {
 **Response**
 
 ```swift
-struct CompletionsResult: Codable, Equatable {
-    public struct Choice: Codable, Equatable {
+struct CompletionsResult: Decodable, Equatable {
+    public struct Choice: Decodable, Equatable {
         public let text: String
         public let index: Int
     }
@@ -210,7 +210,7 @@ Using the OpenAI Chat API, you can build your own applications with `gpt-3.5-tur
 **Request**
 
 ```swift
- struct ChatQuery: Codable {
+ struct ChatQuery: Encodable {
      /// ID of the model to use. Currently, only gpt-3.5-turbo and gpt-3.5-turbo-0301 are supported.
      public let model: Model
      /// The messages to generate chat completions for
@@ -241,14 +241,14 @@ Using the OpenAI Chat API, you can build your own applications with `gpt-3.5-tur
 **Response**
 
 ```swift
-struct ChatResult: Codable, Equatable {
-    public struct Choice: Codable, Equatable {
+struct ChatResult: Decodable, Equatable {
+    public struct Choice: Decodable, Equatable {
         public let index: Int
         public let message: Chat
         public let finishReason: String
     }
     
-    public struct Usage: Codable, Equatable {
+    public struct Usage: Decodable, Equatable {
         public let promptTokens: Int
         public let completionTokens: Int
         public let totalTokens: Int
@@ -395,7 +395,7 @@ As Artificial Intelligence continues to develop, so too does the intriguing conc
 **Request**
 
 ```swift
-struct ImagesQuery: Codable {
+struct ImagesQuery: Encodable {
     /// A text description of the desired image(s). The maximum length is 1000 characters.
     public let prompt: String
     /// The number of images to generate. Must be between 1 and 10.
@@ -408,8 +408,8 @@ struct ImagesQuery: Codable {
 **Response**
 
 ```swift
-struct ImagesResult: Codable, Equatable {
-    public struct URLResult: Codable, Equatable {
+struct ImagesResult: Decodable, Equatable {
+    public struct URLResult: Decodable, Equatable {
         public let url: String
     }
     public let created: TimeInterval
@@ -448,7 +448,7 @@ Creates an edited or extended image given an original image and a prompt.
 **Request**
 
 ```swift
-public struct ImageEditsQuery: Codable {
+public struct ImageEditsQuery: Encodable {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
     public let image: Data
     public let fileName: String
@@ -487,7 +487,7 @@ Creates a variation of a given image.
 **Request**
 
 ```swift
-public struct ImageVariationsQuery: Codable {
+public struct ImageVariationsQuery: Encodable {
     /// The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask.
     public let image: Data
     public let fileName: String
@@ -534,7 +534,7 @@ This function sends an `AudioSpeechQuery` to the OpenAI API to create audio spee
 **Request:**  
 
 ```swift
-public struct AudioSpeechQuery: Codable, Equatable {
+public struct AudioSpeechQuery: Encodable, Equatable {
     //...
     public let model: Model // tts-1 or tts-1-hd  
     public let input: String
@@ -573,7 +573,7 @@ Transcribes audio into the input language.
 **Request**
 
 ```swift
-public struct AudioTranscriptionQuery: Codable, Equatable {
+public struct AudioTranscriptionQuery: Encodable, Equatable {
     
     public let file: Data
     public let fileName: String
@@ -588,7 +588,7 @@ public struct AudioTranscriptionQuery: Codable, Equatable {
 **Response**
 
 ```swift
-public struct AudioTranscriptionResult: Codable, Equatable {
+public struct AudioTranscriptionResult: Decodable, Equatable {
     
     public let text: String
 }
@@ -614,7 +614,7 @@ Translates audio into into English.
 **Request**
 
 ```swift
-public struct AudioTranslationQuery: Codable, Equatable {
+public struct AudioTranslationQuery: Encodable, Equatable {
     
     public let file: Data
     public let fileName: String
@@ -628,7 +628,7 @@ public struct AudioTranslationQuery: Codable, Equatable {
 **Response**
 
 ```swift
-public struct AudioTranslationResult: Codable, Equatable {
+public struct AudioTranslationResult: Decodable, Equatable {
     
     public let text: String
 }
@@ -656,7 +656,7 @@ Creates a new edit for the provided input, instruction, and parameters.
 **Request**
 
 ```swift
-struct EditsQuery: Codable {
+struct EditsQuery: Encodable {
     /// ID of the model to use.
     public let model: Model
     /// Input text to get embeddings for.
@@ -675,14 +675,14 @@ struct EditsQuery: Codable {
 **Response**
 
 ```swift
-struct EditsResult: Codable, Equatable {
+struct EditsResult: Decodable, Equatable {
     
-    public struct Choice: Codable, Equatable {
+    public struct Choice: Decodable, Equatable {
         public let text: String
         public let index: Int
     }
 
-    public struct Usage: Codable, Equatable {
+    public struct Usage: Decodable, Equatable {
         public let promptTokens: Int
         public let completionTokens: Int
         public let totalTokens: Int
@@ -721,7 +721,7 @@ Get a vector representation of a given input that can be easily consumed by mach
 **Request**
 
 ```swift
-struct EmbeddingsQuery: Codable {
+struct EmbeddingsQuery: Encodable {
     /// ID of the model to use.
     public let model: Model
     /// Input text to get embeddings for
@@ -732,9 +732,9 @@ struct EmbeddingsQuery: Codable {
 **Response**
 
 ```swift
-struct EmbeddingsResult: Codable, Equatable {
+struct EmbeddingsResult: Decodable, Equatable {
 
-    public struct Embedding: Codable, Equatable {
+    public struct Embedding: Decodable, Equatable {
 
         public let object: String
         public let embedding: [Double]
@@ -861,7 +861,7 @@ Lists the currently available models.
 **Response**
 
 ```swift
-public struct ModelsResult: Codable, Equatable {
+public struct ModelsResult: Decodable, Equatable {
     
     public let data: [ModelResult]
     public let object: String
@@ -885,7 +885,7 @@ Retrieves a model instance, providing ownership information.
 **Request**
 
 ```swift
-public struct ModelQuery: Codable, Equatable {
+public struct ModelQuery: Encodable, Equatable {
     
     public let model: Model
 }    
@@ -894,7 +894,7 @@ public struct ModelQuery: Codable, Equatable {
 **Response**
 
 ```swift
-public struct ModelResult: Codable, Equatable {
+public struct ModelResult: Decodable, Equatable {
 
     public let id: Model
     public let object: String
@@ -922,7 +922,7 @@ Given a input text, outputs if the model classifies it as violating OpenAI's con
 **Request**
 
 ```swift
-public struct ModerationsQuery: Codable {
+public struct ModerationsQuery: Encodable {
     
     public let input: String
     public let model: Model?
@@ -932,7 +932,7 @@ public struct ModerationsQuery: Codable {
 **Response**
 
 ```swift
-public struct ModerationsResult: Codable, Equatable {
+public struct ModerationsResult: Decodable, Equatable {
 
     public let id: String
     public let model: Model

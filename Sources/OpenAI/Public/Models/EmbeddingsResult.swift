@@ -7,9 +7,9 @@
 
 import Foundation
 
-public struct EmbeddingsResult: Codable, Equatable {
+public struct EmbeddingsResult: Decodable, Equatable {
 
-    public struct Embedding: Codable, Equatable {
+    public struct Embedding: Decodable, Equatable {
         /// The object type, which is always "embedding".
         public let object: String
         /// The embedding vector, which is a list of floats. The length of vector depends on the model as listed in the embedding guide.
@@ -17,13 +17,19 @@ public struct EmbeddingsResult: Codable, Equatable {
         public let embedding: [Double]
         /// The index of the embedding in the list of embeddings.
         public let index: Int
+
+        public enum CodingKeys: CodingKey {
+            case object
+            case embedding
+            case index
+        }
     }
     
-    public struct Usage: Codable, Equatable {
+    public struct Usage: Decodable, Equatable {
         public let promptTokens: Int
         public let totalTokens: Int
         
-        enum CodingKeys: String, CodingKey {
+        public enum CodingKeys: String, CodingKey {
             case promptTokens = "prompt_tokens"
             case totalTokens = "total_tokens"
         }
@@ -34,4 +40,11 @@ public struct EmbeddingsResult: Codable, Equatable {
     public let usage: Usage
     /// The object type, which is always "list".
     public let object: String
+
+    public enum CodingKeys: CodingKey {
+        case data
+        case model
+        case usage
+        case object
+    }
 }
