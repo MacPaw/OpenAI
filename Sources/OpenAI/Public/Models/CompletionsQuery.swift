@@ -29,7 +29,7 @@ public struct CompletionsQuery: Encodable, Streamable {
     
     var stream: Bool = false
     
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case model
         case prompt
         case stream

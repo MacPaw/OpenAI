@@ -10,8 +10,12 @@ import Foundation
 public struct EmbeddingsResult: Decodable, Equatable {
 
     public struct Embedding: Decodable, Equatable {
+        /// The object type, which is always "embedding".
         public let object: String
+        /// The embedding vector, which is a list of floats. The length of vector depends on the model as listed in the embedding guide.
+        /// https://platform.openai.com/docs/guides/embeddings
         public let embedding: [Double]
+        /// The index of the embedding in the list of embeddings.
         public let index: Int
 
         public enum CodingKeys: CodingKey {
@@ -32,12 +36,15 @@ public struct EmbeddingsResult: Decodable, Equatable {
     }
     
     public let data: [Embedding]
-    public let model: Model
+    public let model: String
     public let usage: Usage
+    /// The object type, which is always "list".
+    public let object: String
 
     public enum CodingKeys: CodingKey {
         case data
         case model
         case usage
+        case object
     }
 }
