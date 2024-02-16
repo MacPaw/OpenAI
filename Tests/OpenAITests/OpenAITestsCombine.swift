@@ -37,15 +37,15 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testChats() throws {
-       let query = ChatQuery(model: .gpt_4, messages: [
-           .init(role: .system, content: "You are Librarian-GPT. You know everything about the books."),
-           .init(role: .user, content: "Who wrote Harry Potter?")
-       ])
+        let query = ChatQuery(messages: [
+            .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
+            .user(.init(content: .string("Who wrote Harry Potter?")))
+       ], model: .gpt_4)
         let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: ChatModel.gpt_4.rawValue, choices: [
-        .init(index: 0, message: .init(role: .system, content: "bar"), finishReason: "baz"),
-        .init(index: 0, message: .init(role: .user, content: "bar1"), finishReason: "baz1"),
-        .init(index: 0, message: .init(role: .assistant, content: "bar2"), finishReason: "baz2")
-        ], usage: .init(promptTokens: 100, completionTokens: 200, totalTokens: 300))
+            .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
+            .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
+            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
+        ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
        try self.stub(result: chatResult)
        let result = try awaitPublisher(openAI.chats(query: query))
        XCTAssertEqual(result, chatResult)
@@ -62,12 +62,12 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testEmbeddings() throws {
-        let query = EmbeddingsQuery(model: .text_embedding_3_small, input: "The food was delicious and the waiter...")
+        let query = EmbeddingsQuery(input: .string("The food was delicious and the waiter..."), model: .text_embedding_3_small)
         let embeddingsResult = EmbeddingsResult(data: [
             .init(object: "id-sdasd", embedding: [0.1, 0.2, 0.3, 0.4], index: 0),
             .init(object: "id-sdasd1", embedding: [0.4, 0.1, 0.7, 0.1], index: 1),
             .init(object: "id-sdasd2", embedding: [0.8, 0.1, 0.2, 0.8], index: 2)
-        ], model: EmbeddingsModel.text_embedding_3_small.rawValue, usage: .init(promptTokens: 10, totalTokens: 10))
+        ], model: EmbeddingsModel.text_embedding_3_small.rawValue, usage: .init(promptTokens: 10, totalTokens: 10), object: "list")
         try self.stub(result: embeddingsResult)
         
         let result = try awaitPublisher(openAI.embeddings(query: query))
@@ -76,7 +76,7 @@ final class OpenAITestsCombine: XCTestCase {
     
     func testRetrieveModel() throws {
         let query = ModelQuery(model: ChatModel.gpt_4.rawValue)
-        let modelResult = ModelResult(id: ChatModel.gpt_4.rawValue, object: "model", ownedBy: "organization-owner")
+        let modelResult = ModelResult(id: ChatModel.gpt_4.rawValue, created: 200000000, object: "model", ownedBy: "organization-owner")
         try self.stub(result: modelResult)
         
         let result = try awaitPublisher(openAI.model(query: query))
@@ -106,7 +106,7 @@ final class OpenAITestsCombine: XCTestCase {
     
     func testAudioTranscriptions() throws {
         let data = Data()
-        let query = AudioTranscriptionQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
+        let query = AudioTranscriptionQuery(file: data, fileType: .m4a, model: .whisper_1)
         let transcriptionResult = AudioTranscriptionResult(text: "Hello, world!")
         try self.stub(result: transcriptionResult)
         
@@ -116,7 +116,7 @@ final class OpenAITestsCombine: XCTestCase {
     
     func testAudioTranslations() throws {
         let data = Data()
-        let query = AudioTranslationQuery(file: data, fileName: "audio.m4a", model: .whisper_1)
+        let query = AudioTranslationQuery(file: data, fileType: .m4a, model: .whisper_1)
         let transcriptionResult = AudioTranslationResult(text: "Hello, world!")
         try self.stub(result: transcriptionResult)
         

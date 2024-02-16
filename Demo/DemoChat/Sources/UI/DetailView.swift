@@ -17,13 +17,13 @@ struct DetailView: View {
     @State var inputText: String = ""
     @FocusState private var isFocused: Bool
     @State private var showsModelSelectionSheet = false
-    @State private var selectedChatModel: ChatModel = ChatModel.allCases.first!
+    @State private var selectedChatModel: String = ChatModel.allCases.first!.rawValue
 
-    private let availableChatModels: [ChatModel] = ChatModel.allCases
+    private static let availableChatModels: [String] = ChatModel.allCases.map { $0.rawValue }
 
     let conversation: Conversation
     let error: Error?
-    let sendMessage: (String, ChatModel) -> Void
+    let sendMessage: (String, String) -> Void
 
     private var fillColor: Color {
         #if os(iOS)
@@ -65,52 +65,8 @@ struct DetailView: View {
 
                     inputBar(scrollViewProxy: scrollViewProxy)
                 }
-                .navigationTitle("Chat")
-                .safeAreaInset(edge: .top) {
-                    HStack {
-                        Text(
-                            "Model: \(selectedChatModel.rawValue)"
-                        )
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        Spacer()
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                }
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: {
-                            showsModelSelectionSheet.toggle()
-                        }) {
-                            Image(systemName: "cpu")
-                        }
-                    }
-                }
-                .confirmationDialog(
-                    "Select model",
-                    isPresented: $showsModelSelectionSheet,
-                    titleVisibility: .visible,
-                    actions: {
-                        ForEach(availableChatModels, id: \.self) { model in
-                            Button {
-                                selectedChatModel = model
-                            } label: {
-                                Text(model.rawValue)
-                            }
-                        }
-
-                        Button("Cancel", role: .cancel) {
-                            showsModelSelectionSheet = false
-                        }
-                    },
-                    message: {
-                        Text(
-                            "View https://platform.openai.com/docs/models/overview for details"
-                        )
-                        .font(.caption)
-                    }
-                )
+                .navigationTitle("Chat", selectedModel: $selectedChatModel)
+                .modelSelect(selectedModel: $selectedChatModel, models: Self.availableChatModels, showsModelSelectionSheet: $showsModelSelectionSheet, help: "https://platform.openai.com/docs/models/overview")
             }
         }
     }
@@ -243,7 +199,7 @@ struct ChatBubble: View {
                     .foregroundColor(userForegroundColor)
                     .background(userBackgroundColor)
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            case .function:
+            case .tool:
               Text(message.content)
                   .font(.footnote.monospaced())
                   .padding(.horizontal, 16)
@@ -267,7 +223,7 @@ struct DetailView_Previews: PreviewProvider {
                     Message(id: "1", role: .assistant, content: "Hello, how can I help you today?", createdAt: Date(timeIntervalSinceReferenceDate: 0)),
                     Message(id: "2", role: .user, content: "I need help with my subscription.", createdAt: Date(timeIntervalSinceReferenceDate: 100)),
                     Message(id: "3", role: .assistant, content: "Sure, what seems to be the problem with your subscription?", createdAt: Date(timeIntervalSinceReferenceDate: 200)),
-                    Message(id: "4", role: .function, content:
+                    Message(id: "4", role: .tool, content:
                               """
                               get_current_weather({
                                 "location": "Glasgow, Scotland",

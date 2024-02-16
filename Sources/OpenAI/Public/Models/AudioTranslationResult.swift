@@ -8,6 +8,7 @@
 import Foundation
 
 public struct AudioTranslationResult: Codable, Equatable {
-    
+
+    /// The translated text.
     public let text: String
 }
