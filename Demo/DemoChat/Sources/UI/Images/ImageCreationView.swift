@@ -15,7 +15,7 @@ public struct ImageCreationView: View {
     @State private var n: Int = 1
     @State private var size = ImagesQuery.Size._1024
 
-    private var sizes = ImagesQuery.Size.allCases
+    private var sizes = ImagesQuery.Size.allCases.dropLast(2)
     
     public init(store: ImageStore) {
         self.store = store
