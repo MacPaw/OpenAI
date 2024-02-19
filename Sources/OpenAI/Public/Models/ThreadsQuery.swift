@@ -8,13 +8,13 @@
 import Foundation
 
 public struct ThreadsQuery: Equatable, Codable {
-    public let messages: [Chat]
+    public let messages: [ChatQuery.ChatCompletionMessageParam]
 
     enum CodingKeys: String, CodingKey {
         case messages
     }
 
-    public init(messages: [Chat]) {
+    public init(messages: [ChatQuery.ChatCompletionMessageParam]) {
         self.messages = messages
     }
 }
