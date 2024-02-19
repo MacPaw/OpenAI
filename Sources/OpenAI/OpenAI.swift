@@ -15,8 +15,8 @@ final public class OpenAI: OpenAIProtocol {
     public struct Configuration {
         
         /// OpenAI API token. See https://platform.openai.com/docs/api-reference/authentication
-        public let token: String
-        
+        public let token: String?
+
         /// Optional OpenAI organization identifier. See https://platform.openai.com/docs/api-reference/authentication
         public let organizationIdentifier: String?
         
@@ -26,10 +26,17 @@ final public class OpenAI: OpenAIProtocol {
         /// Default request timeout
         public let timeoutInterval: TimeInterval
         
-        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", timeoutInterval: TimeInterval = 60.0) {
-            self.token = token
+        public init(organizationIdentifier: String? = nil, host: String, timeoutInterval: TimeInterval = 60.0) {
+            self.token = nil
             self.organizationIdentifier = organizationIdentifier
             self.host = host
+            self.timeoutInterval = timeoutInterval
+        }
+
+        public init(token: String, organizationIdentifier: String? = nil, timeoutInterval: TimeInterval = 60.0) {
+            self.token = token
+            self.organizationIdentifier = organizationIdentifier
+            self.host = "api.openai.com"
             self.timeoutInterval = timeoutInterval
         }
     }
@@ -38,6 +45,10 @@ final public class OpenAI: OpenAIProtocol {
     private var streamingSessions = ArrayWithThreadSafety<NSObject>()
     
     public let configuration: Configuration
+
+    public convenience init(proxy: String) {
+        self.init(configuration: Configuration(host: proxy), session: URLSession.shared)
+    }
 
     public convenience init(apiToken: String) {
         self.init(configuration: Configuration(token: apiToken), session: URLSession.shared)
