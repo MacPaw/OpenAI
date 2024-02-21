@@ -63,30 +63,24 @@ public final class MiscStore: ObservableObject {
             func circleEmoji(for resultType: Bool) -> String {
                 resultType ? "🔴" : "🟢"
             }
-            
-            for result in categoryResults {
-                let content = """
-                \(circleEmoji(for: result.categories.hate)) Hate
-                \(circleEmoji(for: result.categories.hateThreatening)) Hate/Threatening
-                \(circleEmoji(for: result.categories.selfHarm)) Self-harm
-                \(circleEmoji(for: result.categories.sexual)) Sexual
-                \(circleEmoji(for: result.categories.sexualMinors)) Sexual/Minors
-                \(circleEmoji(for: result.categories.violence)) Violence
-                \(circleEmoji(for: result.categories.violenceGraphic)) Violence/Graphic
-                """
-                
+
+            categoryResults.forEach { categoryResult in
+                let content = categoryResult.categories.map { (label, value) in
+                    return "\(circleEmoji(for: value)) \(label)"
+                }
+
                 let message = Message(
                     id: response.id,
                     role: .assistant,
-                    content: content,
+                    content: content.joined(separator: "\n"),
                     createdAt: message.createdAt)
-                
+
                 if existingMessages.contains(message) {
-                    continue
+                    return
                 }
                 moderationConversation.messages.append(message)
             }
-            
+
         } catch {
             moderationConversationError = error
         }
