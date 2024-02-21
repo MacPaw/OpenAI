@@ -12,6 +12,7 @@ import SwiftUI
 @main
 struct DemoApp: App {
     @AppStorage("apiKey") var apiKey: String = ""
+    @AppStorage("proxy") var proxy: String = ""
     @State var isShowingAPIConfigModal: Bool = true
 
     let idProvider: () -> String
@@ -29,16 +30,17 @@ struct DemoApp: App {
             Group {
                 APIProvidedView(
                     apiKey: $apiKey,
+                    proxy: $proxy,
                     idProvider: idProvider
                 )
             }
             #if os(iOS)
             .fullScreenCover(isPresented: $isShowingAPIConfigModal) {
-                APIKeyModalView(apiKey: $apiKey)
+                APIKeyModalView(apiKey: $apiKey, proxy: $proxy)
             }
             #elseif os(macOS)
             .popover(isPresented: $isShowingAPIConfigModal) {
-                APIKeyModalView(apiKey: $apiKey)
+                APIKeyModalView(apiKey: $apiKey, proxy: $proxy)
             }
             #endif
         }

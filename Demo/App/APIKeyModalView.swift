@@ -13,14 +13,19 @@ struct APIKeyModalView: View {
     let isMandatory: Bool
 
     @Binding private var apiKey: String
+    @Binding private var proxy: String
     @State private var internalAPIKey: String
+    @State private var internalProxy: String
 
     public init(
         apiKey: Binding<String>,
+        proxy: Binding<String>,
         isMandatory: Bool = true
     ) {
         self._apiKey = apiKey
+        self._proxy = proxy
         self._internalAPIKey = State(initialValue: apiKey.wrappedValue)
+        self._internalProxy = State(initialValue: proxy.wrappedValue)
         self.isMandatory = isMandatory
     }
 
@@ -68,12 +73,41 @@ struct APIKeyModalView: View {
                 .background(Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(
+                        "Set your proxy."
+                    )
+                    .font(.caption)
+                }
+
+                TextEditor(
+                    text: $internalProxy
+                )
+                .frame(height: 120)
+                .font(.caption)
+                .padding(8)
+                .background(
+                    RoundedRectangle(
+                        cornerRadius: 8
+                    )
+                    .stroke(
+                        strokeColor,
+                        lineWidth: 1
+                    )
+                )
+                .padding(4)
+                .background(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+
                 if isMandatory {
                     HStack {
                         Spacer()
 
                         Button {
                             apiKey = internalAPIKey
+                            proxy = internalProxy
                             dismiss()
                         } label: {
                           Text(
@@ -82,7 +116,7 @@ struct APIKeyModalView: View {
                           .padding(8)
                         }
                         .buttonStyle(.borderedProminent)
-                        .disabled(internalAPIKey.isEmpty)
+                        .disabled(internalAPIKey.isEmpty && internalProxy.isEmpty || !internalAPIKey.isEmpty && !internalProxy.isEmpty)
 
                         Spacer()
                     }
@@ -102,6 +136,20 @@ struct APIKeyModalView: View {
                     }
                 }
             }
+            .padding()
+            .navigationTitle("OpenAI Reverse Proxy")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    if isMandatory {
+                        EmptyView()
+                    } else {
+                        Button("Close") {
+                            proxy = internalProxy
+                            dismiss()
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -109,11 +157,13 @@ struct APIKeyModalView: View {
 struct APIKeyModalView_Previews: PreviewProvider {
     struct APIKeyModalView_PreviewsContainerView: View {
         @State var apiKey = ""
+        @State var proxy = ""
         let isMandatory: Bool
 
         var body: some View {
             APIKeyModalView(
                 apiKey: $apiKey,
+                proxy: $proxy,
                 isMandatory: isMandatory
             )
         }

@@ -11,6 +11,7 @@ import SwiftUI
 
 struct APIProvidedView: View {
     @Binding var apiKey: String
+    @Binding var proxy: String
     @StateObject var chatStore: ChatStore
     @StateObject var imageStore: ImageStore
     @StateObject var miscStore: MiscStore
@@ -21,23 +22,32 @@ struct APIProvidedView: View {
 
     init(
         apiKey: Binding<String>,
+        proxy: Binding<String>,
         idProvider: @escaping () -> String
     ) {
         self._apiKey = apiKey
+        self._proxy = proxy
+        var client: OpenAI? = nil
+        if apiKey.wrappedValue.isEmpty && !proxy.wrappedValue.isEmpty {
+            client = OpenAI(proxy: proxy.wrappedValue)
+        } else {
+            client = OpenAI(apiToken: apiKey.wrappedValue)
+        }
+
         self._chatStore = StateObject(
             wrappedValue: ChatStore(
-                openAIClient: OpenAI(apiToken: apiKey.wrappedValue),
+                openAIClient: client!,
                 idProvider: idProvider
             )
         )
         self._imageStore = StateObject(
             wrappedValue: ImageStore(
-                openAIClient: OpenAI(apiToken: apiKey.wrappedValue)
+                openAIClient: client!
             )
         )
         self._miscStore = StateObject(
             wrappedValue: MiscStore(
-                openAIClient: OpenAI(apiToken: apiKey.wrappedValue)
+                openAIClient: client!
             )
         )
     }
@@ -50,6 +60,12 @@ struct APIProvidedView: View {
         )
         .onChange(of: apiKey) { newApiKey in
             let client = OpenAI(apiToken: newApiKey)
+            chatStore.openAIClient = client
+            imageStore.openAIClient = client
+            miscStore.openAIClient = client
+        }
+        .onChange(of: proxy) { newProxy in
+            let client = OpenAI(apiToken: newProxy)
             chatStore.openAIClient = client
             imageStore.openAIClient = client
             miscStore.openAIClient = client
