@@ -255,6 +255,7 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(result, moderationsResult)
     }
 
+    @available(iOS 16.0, *)
     func testModerationsIterable() {
         let categories = ModerationsResult.Moderation.Categories(harassment: false, harassmentThreatening: false, hate: false, hateThreatening: false, selfHarm: false, selfHarmIntent: false, selfHarmInstructions: false, sexual: false, sexualMinors: false, violence: false, violenceGraphic: false)
         Mirror(reflecting: categories).children.enumerated().forEach { index, element in
