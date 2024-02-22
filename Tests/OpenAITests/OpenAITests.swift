@@ -389,30 +389,31 @@ class OpenAITests: XCTestCase {
     }
 
     // 1106
-    func testAssistantQuery() async throws {
+    func testAssistantCreateQuery() async throws {
         let query = AssistantsQuery(model: .gpt4_1106_preview, name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: [])
-        let expectedResult = AssistantsResult(id: "asst_1234", data: [AssistantsResult.AssistantContent(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)], tools: [])
+        let expectedResult = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
         try self.stub(result: expectedResult)
 
-        let result = try await openAI.assistants(query: query, method: "POST", after: nil)
+        let result = try await openAI.assistantCreate(query: query)
         XCTAssertEqual(result, expectedResult)
     }
 
-    func testAssistantQueryError() async throws {
+    func testAssistantCreateQueryError() async throws {
         let query = AssistantsQuery(model: .gpt4_1106_preview, name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: [])
 
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
 
-        let apiError: APIError = try await XCTExpectError { try await openAI.assistants(query: query, method: "POST", after: nil) }
+        let apiError: APIError = try await XCTExpectError { try await openAI.assistantCreate(query: query) }
         XCTAssertEqual(inError, apiError)
     }
 
     func testListAssistantQuery() async throws {
-        let expectedResult = AssistantsResult(id: nil, data: [AssistantsResult.AssistantContent(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)], tools: nil)
+        let expectedAssistant = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
+        let expectedResult = AssistantsResult(data: [expectedAssistant], firstId: expectedAssistant.id, lastId: expectedAssistant.id, hasMore: false)
         try self.stub(result: expectedResult)
 
-        let result = try await openAI.assistants(query: nil, method: "GET", after: nil)
+        let result = try await openAI.assistants()
         XCTAssertEqual(result, expectedResult)
     }
 
@@ -420,7 +421,25 @@ class OpenAITests: XCTestCase {
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
 
-        let apiError: APIError = try await XCTExpectError { try await openAI.assistants(query: nil, method: "GET", after: nil) }
+        let apiError: APIError = try await XCTExpectError { try await openAI.assistants() }
+        XCTAssertEqual(inError, apiError)
+    }
+    
+    func testAssistantModifyQuery() async throws {
+        let query = AssistantsQuery(model: .gpt4_1106_preview, name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: [])
+        let expectedResult = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
+        try self.stub(result: expectedResult)
+        
+        let result = try await openAI.assistantModify(query: query, assistantId: "asst_9876")
+        XCTAssertEqual(result, expectedResult)
+    }
+    
+    func testAssistantModifyQueryError() async throws {
+        let query = AssistantsQuery(model: .gpt4_1106_preview, name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: [])
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.assistantModify(query: query, assistantId: "asst_9876") }
         XCTAssertEqual(inError, apiError)
     }
 
@@ -442,10 +461,28 @@ class OpenAITests: XCTestCase {
         let apiError: APIError = try await XCTExpectError { try await openAI.threads(query: query) }
         XCTAssertEqual(inError, apiError)
     }
+    
+    func testThreadRunQuery() async throws {
+        let query = ThreadRunQuery(assistantId: "asst_7654321", thread: .init(messages: [ChatQuery.ChatCompletionMessageParam(role: .user, content: "Hello, What is AI?")!]))
+        let expectedResult = RunResult(id: "run_1234", threadId: "thread_1234", status: .completed, requiredAction: nil)
+        try self.stub(result: expectedResult)
+        
+        let result = try await openAI.threadRun(query: query)
+        XCTAssertEqual(result, expectedResult)
+    }
 
+    func testThreadRunQueryError() async throws {
+        let query = ThreadRunQuery(assistantId: "asst_7654321", thread: .init(messages: [ChatQuery.ChatCompletionMessageParam(role: .user, content: "Hello, What is AI?")!]))
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.threadRun(query: query) }
+        XCTAssertEqual(inError, apiError)
+    }
+    
     func testRunsQuery() async throws {
         let query = RunsQuery(assistantId: "asst_7654321")
-        let expectedResult = RunsResult(id: "run_1234")
+        let expectedResult = RunResult(id: "run_1234", threadId: "thread_1234", status: .completed, requiredAction: nil)
         try self.stub(result: expectedResult)
 
         let result = try await openAI.runs(threadId: "thread_1234", query: query)
@@ -462,7 +499,7 @@ class OpenAITests: XCTestCase {
     }
 
     func testRunRetrieveQuery() async throws {
-        let expectedResult = RunRetreiveResult(status: "in_progress")
+        let expectedResult = RunResult(id: "run_1234", threadId: "thread_1234", status: .inProgress, requiredAction: nil)
         try self.stub(result: expectedResult)
 
         let result = try await openAI.runRetrieve(threadId: "thread_1234", runId: "run_1234")
@@ -476,12 +513,64 @@ class OpenAITests: XCTestCase {
         let apiError: APIError = try await XCTExpectError { try await openAI.runRetrieve(threadId: "thread_1234", runId: "run_1234") }
         XCTAssertEqual(inError, apiError)
     }
+    
+    func testRunRetrieveStepsQuery() async throws {
+        let expectedResult = RunRetrieveStepsResult(data: [.init(id: "step_1234", stepDetails: .init(toolCalls: [.init(id: "tool_456", type: .retrieval, codeInterpreter: nil, function: nil)]))])
+        try self.stub(result: expectedResult)
+        
+        let result = try await openAI.runRetrieveSteps(threadId: "thread_1234", runId: "run_1234")
+        XCTAssertEqual(result, expectedResult)
+    }
+    
+    func testRunRetreiveStepsQueryError() async throws {
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.runRetrieveSteps(threadId: "thread_1234", runId: "run_1234") }
+        XCTAssertEqual(inError, apiError)
+    }
+    
+    func testRunSubmitToolOutputsQuery() async throws {
+        let query = RunToolOutputsQuery(toolOutputs: [.init(toolCallId: "call_123", output: "Success")])
+        let expectedResult = RunResult(id: "run_123", threadId: "thread_456", status: .inProgress, requiredAction: nil)
+        try self.stub(result: expectedResult)
+        
+        let result = try await openAI.runSubmitToolOutputs(threadId: "thread_456", runId: "run_123", query: query)
+        XCTAssertEqual(result, expectedResult)
+    }
+    
+    func testRunSubmitToolOutputsQueryError() async throws {
+        let query = RunToolOutputsQuery(toolOutputs: [.init(toolCallId: "call_123", output: "Success")])
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.runSubmitToolOutputs(threadId: "thread_456", runId: "run_123", query: query) }
+        XCTAssertEqual(inError, apiError)
+    }
+    
+    func testThreadAddMessageQuery() async throws {
+        let query = MessageQuery(role: .user, content: "Hello, What is AI?", fileIds: ["file_123"])
+        let expectedResult = ThreadAddMessageResult(id: "message_1234")
+        try self.stub(result: expectedResult)
+        
+        let result = try await openAI.threadsAddMessage(threadId: "thread_1234", query: query)
+        XCTAssertEqual(result, expectedResult)
+    }
+    
+    func testThreadAddMessageQueryError() async throws {
+        let query = MessageQuery(role: .user, content: "Hello, What is AI?", fileIds: ["file_123"])
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.threadsAddMessage(threadId: "thread_1234", query: query) }
+        XCTAssertEqual(inError, apiError)
+    }
 
     func testThreadsMessageQuery() async throws {
-        let expectedResult = ThreadsMessagesResult(data: [ThreadsMessagesResult.ThreadsMessage(id: "thread_1234", role: ChatQuery.ChatCompletionMessageParam.Role.user.rawValue, content: [ThreadsMessagesResult.ThreadsMessage.ThreadsMessageContent(type: "text", text: ThreadsMessagesResult.ThreadsMessage.ThreadsMessageContent.ThreadsMessageContentText(value: "Hello, What is AI?"), imageFile: nil)])])
+        let expectedResult = ThreadsMessagesResult(data: [ThreadsMessagesResult.ThreadsMessage(id: "thread_1234", role: ChatQuery.ChatCompletionMessageParam.Role.user, content: [ThreadsMessagesResult.ThreadsMessage.ThreadsMessageContent(type: .text, text: ThreadsMessagesResult.ThreadsMessage.ThreadsMessageContent.ThreadsMessageContentText(value: "Hello, What is AI?"), imageFile: nil)])])
         try self.stub(result: expectedResult)
 
-        let result = try await openAI.threadsMessages(threadId: "thread_1234", before: nil)
+        let result = try await openAI.threadsMessages(threadId: "thread_1234")
         XCTAssertEqual(result, expectedResult)
     }
 
@@ -489,10 +578,30 @@ class OpenAITests: XCTestCase {
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
 
-        let apiError: APIError = try await XCTExpectError { try await openAI.threadsMessages(threadId: "thread_1234", before: nil) }
+        let apiError: APIError = try await XCTExpectError { try await openAI.threadsMessages(threadId: "thread_1234") }
         XCTAssertEqual(inError, apiError)
     }
 
+    func testFilesQuery() async throws {
+        let data = try XCTUnwrap("{\"test\":\"data\"}".data(using: .utf8))
+        let query = FilesQuery(purpose: "assistant", file: data, fileName: "test.json", contentType: "application/json")
+        let expectedResult = FilesResult(id: "file_1234", name: "test.json")
+        try self.stub(result: expectedResult)
+        
+        let result = try await openAI.files(query: query)
+        XCTAssertEqual(result, expectedResult)
+    }
+    
+    func testFilesQueryError() async throws {
+        let data = try XCTUnwrap("{\"test\":\"data\"}".data(using: .utf8))
+        let query = FilesQuery(purpose: "assistant", file: data, fileName: "test.json", contentType: "application/json")
+        let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+        self.stub(error: inError)
+        
+        let apiError: APIError = try await XCTExpectError { try await openAI.files(query: query) }
+        XCTAssertEqual(inError, apiError)
+    }
+    
     func testCustomRunsURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", timeoutInterval: 14)
         let openAI = OpenAI(configuration: configuration, session: self.urlSession)

@@ -123,7 +123,7 @@ public final class ChatStore: ObservableObject {
                     guard let currentThreadId else { return print("No thread to add message to.")}
 
                     let _ = try await openAIClient.threadsAddMessage(threadId: currentThreadId,
-                                                                     query: ThreadAddMessageQuery(role: message.role.rawValue, content: message.content))
+                                                                     query: MessageQuery(role: message.role, content: message.content))
 
                     guard let currentAssistantId = conversations[conversationIndex].assistantId else { return print("No assistant selected.")}
 
@@ -249,19 +249,19 @@ public final class ChatStore: ObservableObject {
             let result = try await openAIClient.runRetrieve(threadId: currentThreadId ?? "", runId: currentRunId ?? "")
 
             // TESTING RETRIEVAL OF RUN STEPS
-            handleRunRetrieveSteps()
+            try await handleRunRetrieveSteps()
 
             switch result.status {
                 // Get threadsMesages.
-            case "completed":
+            case .completed:
                 handleCompleted()
-                break
-            case "failed":
+            case .failed:
                 // Handle more gracefully with a popup dialog or failure indicator
                 await MainActor.run {
                     self.stopPolling()
                 }
-                break
+            case .requiresAction:
+                try await handleRequiresAction(result)
             default:
                 // Handle additional statuses "requires_action", "queued" ?, "expired", "cancelled"
                 // https://platform.openai.com/docs/assistants/how-it-works/runs-and-run-steps
@@ -293,7 +293,7 @@ public final class ChatStore: ObservableObject {
                 for innerItem in item.content {
                     let message = Message(
                         id: item.id,
-                        role: ChatQuery.ChatCompletionMessageParam.Role(rawValue: role) ?? .user,
+                        role: role,
                         content: innerItem.text?.value ?? "",
                         createdAt: Date(),
                         isLocal: false // Messages from the server are not local
@@ -314,54 +314,89 @@ public final class ChatStore: ObservableObject {
         }
     }
     
+    // Store the function call as a message and submit tool outputs with a simple done message.
+    private func handleRequiresAction(_ result: RunResult) async throws {
+        guard let currentThreadId, let currentRunId else {
+            return
+        }
+        
+        guard let toolCalls = result.requiredAction?.submitToolOutputs.toolCalls else {
+            return
+        }
+        
+        var toolOutputs = [RunToolOutputsQuery.ToolOutput]()
+
+        for toolCall in toolCalls {
+            let msgContent = "function\nname: \(toolCall.function.name ?? "")\nargs: \(toolCall.function.arguments ?? "{}")"
+
+            let runStepMessage = Message(
+                id: toolCall.id,
+                role: .assistant,
+                content: msgContent,
+                createdAt: Date(),
+                isRunStep: true
+            )
+            await addOrUpdateRunStepMessage(runStepMessage)
+            
+            // Just return a generic "Done" output for now
+            toolOutputs.append(.init(toolCallId: toolCall.id, output: "Done"))
+        }
+        
+        let query = RunToolOutputsQuery(toolOutputs: toolOutputs)
+        _ = try await openAIClient.runSubmitToolOutputs(threadId: currentThreadId, runId: currentRunId, query: query)
+    }
+    
     // The run retrieval steps are fetched in a separate task. This request is fetched, checking for new run steps, each time the run is fetched.
-    private func handleRunRetrieveSteps() {
-        Task {
-            guard let conversationIndex = conversations.firstIndex(where: { $0.id == currentConversationId }) else {
-                return
-            }
-            var before: String?
+    private func handleRunRetrieveSteps() async throws {
+        var before: String?
 //            if let lastRunStepMessage = self.conversations[conversationIndex].messages.last(where: { $0.isRunStep == true }) {
 //                before = lastRunStepMessage.id
 //            }
 
-            let stepsResult = try await openAIClient.runRetrieveSteps(threadId: currentThreadId ?? "", runId: currentRunId ?? "", before: before)
+        let stepsResult = try await openAIClient.runRetrieveSteps(threadId: currentThreadId ?? "", runId: currentRunId ?? "", before: before)
 
-            for item in stepsResult.data.reversed() {
-                let toolCalls = item.stepDetails.toolCalls?.reversed() ?? []
+        for item in stepsResult.data.reversed() {
+            let toolCalls = item.stepDetails.toolCalls?.reversed() ?? []
 
-                for step in toolCalls {
-                    // TODO: Depending on the type of tool tha is used we can add additional information here
-                    // ie: if its a retrieval: add file information, code_interpreter: add inputs and outputs info, or function: add arguemts and additional info.
-                    let msgContent: String
-                    switch step.type {
-                    case "retrieval":
-                        msgContent = "RUN STEP: \(step.type)"
+            for step in toolCalls {
+                // TODO: Depending on the type of tool tha is used we can add additional information here
+                // ie: if its a retrieval: add file information, code_interpreter: add inputs and outputs info, or function: add arguemts and additional info.
+                let msgContent: String
+                switch step.type {
+                case .retrieval:
+                    msgContent = "RUN STEP: \(step.type)"
 
-                    case "code_interpreter":
-                        msgContent = "code_interpreter\ninput:\n\(step.code?.input ?? "")\noutputs: \(step.code?.outputs?.first?.logs ?? "")"
+                case .codeInterpreter:
+                    let code = step.codeInterpreter
+                    msgContent = "code_interpreter\ninput:\n\(code?.input ?? "")\noutputs: \(code?.outputs?.first?.logs ?? "")"
 
-                    default:
-                        msgContent = "RUN STEP: \(step.type)"
+                case .function:
+                    msgContent = "function\nname: \(step.function?.name ?? "")\nargs: \(step.function?.arguments ?? "{}")"
 
-                    }
-                    let runStepMessage = Message(
-                        id: step.id,
-                        role: .assistant,
-                        content: msgContent,
-                        createdAt: Date(),
-                        isRunStep: true
-                    )
-                    await MainActor.run {
-                        if let localMessageIndex = self.conversations[conversationIndex].messages.firstIndex(where: { $0.isRunStep == true && $0.id == step.id }) {
-                            self.conversations[conversationIndex].messages[localMessageIndex] = runStepMessage
-                        }
-                        else {
-                            self.conversations[conversationIndex].messages.append(runStepMessage)
-                        }
-                    }
                 }
+                let runStepMessage = Message(
+                    id: step.id,
+                    role: .assistant,
+                    content: msgContent,
+                    createdAt: Date(),
+                    isRunStep: true
+                )
+                await addOrUpdateRunStepMessage(runStepMessage)
             }
+        }
+    }
+    
+    @MainActor
+    private func addOrUpdateRunStepMessage(_ message: Message) async {
+        guard let conversationIndex = conversations.firstIndex(where: { $0.id == currentConversationId }) else {
+            return
+        }
+        
+        if let localMessageIndex = conversations[conversationIndex].messages.firstIndex(where: { $0.isRunStep == true && $0.id == message.id }) {
+            conversations[conversationIndex].messages[localMessageIndex] = message
+        }
+        else {
+            conversations[conversationIndex].messages.append(message)
         }
     }
 }

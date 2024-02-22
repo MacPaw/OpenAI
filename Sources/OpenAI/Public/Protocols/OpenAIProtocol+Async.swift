@@ -231,12 +231,25 @@ public extension OpenAIProtocol {
 
     // 1106
     func assistants(
-        query: AssistantsQuery?,
-        method: String,
-        after: String?
+        after: String? = nil
     ) async throws -> AssistantsResult {
         try await withCheckedThrowingContinuation { continuation in
-            assistants(query: query, method: method, after: after) { result in
+            assistants(after: after) { result in
+                switch result {
+                case let .success(success):
+                    return continuation.resume(returning: success)
+                case let .failure(failure):
+                    return continuation.resume(throwing: failure)
+                }
+            }
+        }
+    }
+
+    func assistantCreate(
+        query: AssistantsQuery
+    ) async throws -> AssistantResult {
+        try await withCheckedThrowingContinuation { continuation in
+            assistantCreate(query: query) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -249,10 +262,10 @@ public extension OpenAIProtocol {
 
     func assistantModify(
         query: AssistantsQuery,
-        asstId: String
-    ) async throws -> AssistantsResult {
+        assistantId: String
+    ) async throws -> AssistantResult {
         try await withCheckedThrowingContinuation { continuation in
-            assistantModify(query: query, asstId: asstId) { result in
+            assistantModify(query: query, assistantId: assistantId) { result in
                 switch result {
                 case let .success(success):
                     return continuation.resume(returning: success)
@@ -278,10 +291,25 @@ public extension OpenAIProtocol {
         }
     }
 
+    func threadRun(
+        query: ThreadRunQuery
+    ) async throws -> RunResult {
+        try await withCheckedThrowingContinuation { continuation in
+            threadRun(query: query) { result in
+                switch result {
+                case let .success(success):
+                    return continuation.resume(returning: success)
+                case let .failure(failure):
+                    return continuation.resume(throwing: failure)
+                }
+            }
+        }
+    }
+
     func runs(
         threadId: String,
         query: RunsQuery
-    ) async throws -> RunsResult {
+    ) async throws -> RunResult {
         try await withCheckedThrowingContinuation { continuation in
             runs(threadId: threadId, query: query) { result in
                 switch result {
@@ -297,7 +325,7 @@ public extension OpenAIProtocol {
     func runRetrieve(
         threadId: String,
         runId: String
-    ) async throws -> RunRetreiveResult {
+    ) async throws -> RunResult {
         try await withCheckedThrowingContinuation { continuation in
             runRetrieve(threadId: threadId, runId: runId) { result in
                 switch result {
@@ -313,8 +341,8 @@ public extension OpenAIProtocol {
     func runRetrieveSteps(
         threadId: String,
         runId: String,
-        before: String?
-    ) async throws -> RunRetreiveStepsResult {
+        before: String? = nil
+    ) async throws -> RunRetrieveStepsResult {
         try await withCheckedThrowingContinuation { continuation in
             runRetrieveSteps(threadId: threadId, runId: runId, before: before) { result in
                 switch result {
@@ -327,9 +355,26 @@ public extension OpenAIProtocol {
         }
     }
 
+    func runSubmitToolOutputs(
+        threadId: String,
+        runId: String,
+        query: RunToolOutputsQuery
+    ) async throws -> RunResult {
+        try await withCheckedThrowingContinuation { continuation in
+            runSubmitToolOutputs(threadId: threadId, runId: runId, query: query) { result in
+                switch result {
+                case let .success(success):
+                    return continuation.resume(returning: success)
+                case let .failure(failure):
+                    return continuation.resume(throwing: failure)
+                }
+            }
+        }
+    }
+
     func threadsMessages(
         threadId: String,
-        before: String?
+        before: String? = nil
     ) async throws -> ThreadsMessagesResult {
         try await withCheckedThrowingContinuation { continuation in
             threadsMessages(threadId: threadId, before: before) { result in
@@ -345,7 +390,7 @@ public extension OpenAIProtocol {
 
     func threadsAddMessage(
         threadId: String,
-        query: ThreadAddMessageQuery
+        query: MessageQuery
     ) async throws -> ThreadAddMessageResult {
         try await withCheckedThrowingContinuation { continuation in
             threadsAddMessage(threadId: threadId, query: query) { result in
