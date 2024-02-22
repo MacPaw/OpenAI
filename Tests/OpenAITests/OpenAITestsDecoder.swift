@@ -373,18 +373,26 @@ class OpenAITestsDecoder: XCTestCase {
           "results": [
             {
               "categories": {
+                "harassment": false,
+                "harassment/threatening": false,
                 "hate": false,
                 "hate/threatening": true,
                 "self-harm": false,
+                "self-harm/intent": false,
+                "self-harm/instructions": false,
                 "sexual": false,
                 "sexual/minors": false,
                 "violence": true,
                 "violence/graphic": false
               },
               "category_scores": {
+                "harassment": 0.0431830403405153,
+                "harassment/threatening": 0.1229622494034651,
                 "hate": 0.22714105248451233,
                 "hate/threatening": 0.4132447838783264,
                 "self-harm": 0.00523239187896251,
+                "self-harm/intent": 0.307237106114835,
+                "self-harm/instructions": 0.42189350703096,
                 "sexual": 0.01407341007143259,
                 "sexual/minors": 0.0038522258400917053,
                 "violence": 0.9223177433013916,
@@ -397,8 +405,8 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         let expectedValue = ModerationsResult(id: "modr-5MWoLO", model: .moderation, results: [
-            .init(categories: .init(hate: false, hateThreatening: true, selfHarm: false, sexual: false, sexualMinors: false, violence: true, violenceGraphic: false),
-                  categoryScores: .init(hate: 0.22714105248451233, hateThreatening: 0.4132447838783264, selfHarm: 0.00523239187896251, sexual: 0.01407341007143259, sexualMinors: 0.0038522258400917053, violence: 0.9223177433013916, violenceGraphic: 0.036865197122097015),
+            .init(categories: .init(harassment: false, harassmentThreatening: false, hate: false, hateThreatening: true, selfHarm: false, selfHarmIntent: false, selfHarmInstructions: false, sexual: false, sexualMinors: false, violence: true, violenceGraphic: false),
+                  categoryScores: .init(harassment: 0.0431830403405153, harassmentThreatening: 0.1229622494034651, hate: 0.22714105248451233, hateThreatening: 0.4132447838783264, selfHarm: 0.00523239187896251, selfHarmIntent: 0.307237106114835, selfHarmInstructions: 0.42189350703096, sexual: 0.01407341007143259, sexualMinors: 0.0038522258400917053, violence: 0.9223177433013916, violenceGraphic: 0.036865197122097015),
                   flagged: true)
         ])
         try decode(data, expectedValue)
