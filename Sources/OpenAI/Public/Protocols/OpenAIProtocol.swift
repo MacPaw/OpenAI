@@ -49,7 +49,7 @@ public protocol OpenAIProtocol {
 
      Example:
      ```
-     let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: "1024x1024")
+     let query = ImagesQuery(prompt: "White cat with heterochromia sitting on the kitchen table", n: 1, size: ImagesQuery.Size._1024)
      openAI.images(query: query) { result in
        //Handle result here
      }
@@ -66,7 +66,7 @@ public protocol OpenAIProtocol {
 
      Example:
      ```
-     let query = ImagesEditQuery(image: "@whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+     let query = ImagesEditQuery(image: "@whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: ImagesQuery.Size._1024)
      openAI.imageEdits(query: query) { result in
        //Handle result here
      }
@@ -83,7 +83,7 @@ public protocol OpenAIProtocol {
 
      Example:
      ```
-     let query = ImagesVariationQuery(image: "@whitecat.png", n: 1, size: "1024x1024")
+     let query = ImagesVariationQuery(image: "@whitecat.png", n: 1, size: ImagesQuery.Size._1024)
      openAI.imageVariations(query: query) { result in
        //Handle result here
      }
@@ -211,7 +211,25 @@ public protocol OpenAIProtocol {
        - query: A `ModerationsQuery` object containing the input parameters for the API request. This includes the input text and optionally the model to be used.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ModerationsResult, Error>`, will contain either the `ModerationsResult` object with the list of category results, or an error if the request failed.
     **/
+    @available(iOS 13.0, *)
     func moderations(query: ModerationsQuery, completion: @escaping (Result<ModerationsResult, Error>) -> Void)
+    
+    /**
+     This function sends an `AudioSpeechQuery` to the OpenAI API to create audio speech from text using a specific voice and format.
+     
+     Example:
+     ```
+     let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 1.0)
+     openAI.audioCreateSpeech(query: query) { result in
+        // Handle response here
+     }
+     ```
+     
+     - Parameters:
+       - query: An `AudioSpeechQuery` object containing the parameters for the API request. This includes the Text-to-Speech model to be used, input text, voice to be used for generating the audio, the desired audio format, and the speed of the generated audio.
+       - completion: A closure which receives the result. The closure's parameter, `Result<AudioSpeechResult, Error>`, will either contain the `AudioSpeechResult` object with the audio data or an error if the request failed.
+     */
+    func audioCreateSpeech(query: AudioSpeechQuery, completion: @escaping (Result<AudioSpeechResult, Error>) -> Void)
     
     /**
     Transcribes audio data using OpenAI's audio transcription API and completes the operation asynchronously.

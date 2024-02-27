@@ -13,9 +13,9 @@ public struct ImageCreationView: View {
     
     @State private var prompt: String = ""
     @State private var n: Int = 1
-    @State private var size: String
-    
-    private var sizes = ["256x256", "512x512", "1024x1024"]
+    @State private var size = ImagesQuery.Size._1024
+
+    private var sizes = ImagesQuery.Size.allCases.dropLast(2)
     
     public init(store: ImageStore) {
         self.store = store
@@ -37,7 +37,7 @@ public struct ImageCreationView: View {
                 HStack {
                     Picker("Size", selection: $size) {
                         ForEach(sizes, id: \.self) {
-                            Text($0)
+                            Text($0.rawValue)
                         }
                     }
                 }
@@ -56,8 +56,8 @@ public struct ImageCreationView: View {
             }
             if !$store.images.isEmpty {
                 Section("Images") {
-                    ForEach($store.images, id: \.self) { image in
-                        let urlString = image.wrappedValue.url
+                    ForEach($store.images, id: \.url) { image in
+                        let urlString = image.wrappedValue.url ?? ""
                         if let imageURL = URL(string: urlString), UIApplication.shared.canOpenURL(imageURL) {
                             LinkPreview(previewURL: imageURL)
                                 .aspectRatio(contentMode: .fit)

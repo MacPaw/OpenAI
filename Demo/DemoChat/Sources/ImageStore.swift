@@ -11,7 +11,7 @@ import OpenAI
 public final class ImageStore: ObservableObject {
     public var openAIClient: OpenAIProtocol
     
-    @Published var images: [ImagesResult.URLResult] = []
+    @Published var images: [ImagesResult.Image] = []
     
     public init(
         openAIClient: OpenAIProtocol

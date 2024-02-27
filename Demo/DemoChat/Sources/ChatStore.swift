@@ -85,7 +85,7 @@ public final class ChatStore: ObservableObject {
                 return
             }
 
-            let weatherFunction = ChatFunctionDeclaration(
+            let weatherFunction = ChatQuery.ChatCompletionToolParam(function: .init(
                 name: "getWeatherData",
                 description: "Get the current weather in a given location",
                 parameters: .init(
@@ -95,38 +95,38 @@ public final class ChatStore: ObservableObject {
                   ],
                   required: ["location"]
                 )
-            )
+            ))
 
             let functions = [weatherFunction]
             
             let chatsStream: AsyncThrowingStream<ChatStreamResult, Error> = openAIClient.chatsStream(
                 query: ChatQuery(
-                    model: model,
                     messages: conversation.messages.map { message in
-                        Chat(role: message.role, content: message.content)
-                    },
-                    functions: functions
+                        ChatQuery.ChatCompletionMessageParam(role: message.role, content: message.content)!
+                    }, model: model,
+                    tools: functions
                 )
             )
 
-            var functionCallName = ""
-            var functionCallArguments = ""
+            var functionCalls = [(name: String, argument: String?)]()
             for try await partialChatResult in chatsStream {
                 for choice in partialChatResult.choices {
                     let existingMessages = conversations[conversationIndex].messages
                     // Function calls are also streamed, so we need to accumulate.
-                    if let functionCallDelta = choice.delta.functionCall {
-                        if let nameDelta = functionCallDelta.name {
-                          functionCallName += nameDelta
-                        }
-                        if let argumentsDelta = functionCallDelta.arguments {
-                          functionCallArguments += argumentsDelta
+                    choice.delta.toolCalls?.forEach { toolCallDelta in
+                        if let functionCallDelta = toolCallDelta.function {
+                            if let nameDelta = functionCallDelta.name {
+                                functionCalls.append((nameDelta, functionCallDelta.arguments))
+                            }
                         }
                     }
                     var messageText = choice.delta.content ?? ""
                     if let finishReason = choice.finishReason,
-                       finishReason == "function_call" {
-                        messageText += "Function call: name=\(functionCallName) arguments=\(functionCallArguments)"
+                       finishReason == .toolCalls
+                    {
+                        functionCalls.forEach { (name: String, argument: String?) in
+                            messageText += "Function call: name=\(name) arguments=\(argument ?? "")\n"
+                        }
                     }
                     let message = Message(
                         id: partialChatResult.id,

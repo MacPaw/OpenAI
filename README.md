@@ -24,6 +24,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
         - [Create Image Edit](#create-image-edit)
         - [Create Image Variation](#create-image-variation)
     - [Audio](#audio)
+        - [Audio Create Speech](#audio-create-speech)
         - [Audio Transcriptions](#audio-transcriptions)
         - [Audio Translations](#audio-translations)
     - [Edits](#edits)
@@ -35,6 +36,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
     - [Utilities](#utilities)
     - [Combine Extensions](#combine-extensions)
 - [Example Project](#example-project)
+- [Contribution Guidelines](#contribution-guidelines)
 - [Links](#links)
 - [License](#license)
 
@@ -470,7 +472,7 @@ Uses the ImagesResult response similarly to ImagesQuery.
 
 ```swift
 let data = image.pngData()
-let query = ImagesEditQuery(image: data, fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+let query = ImageEditQuery(image: data, fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
 openAI.imageEdits(query: query) { result in
   //Handle result here
 }
@@ -504,7 +506,7 @@ Uses the ImagesResult response similarly to ImagesQuery.
 
 ```swift
 let data = image.pngData()
-let query = ImagesVariationQuery(image: data, fileName: "whitecat.png", n: 1, size: "1024x1024")
+let query = ImageVariationQuery(image: data, fileName: "whitecat.png", n: 1, size: "1024x1024")
 openAI.imageVariations(query: query) { result in
   //Handle result here
 }
@@ -521,6 +523,48 @@ The speech to text API provides two endpoints, transcriptions and translations, 
 Transcribe audio into whatever language the audio is in.
 Translate and transcribe the audio into english.
 File uploads are currently limited to 25 MB and the following input file types are supported: mp3, mp4, mpeg, mpga, m4a, wav, and webm.
+
+#### Audio Create Speech
+
+This function sends an `AudioSpeechQuery` to the OpenAI API to create audio speech from text using a specific voice and format. 
+
+[Learn more about voices.](https://platform.openai.com/docs/guides/text-to-speech/voice-options)  
+[Learn more about models.](https://platform.openai.com/docs/models/tts)
+
+**Request:**  
+
+```swift
+public struct AudioSpeechQuery: Codable, Equatable {
+    //...
+    public let model: Model // tts-1 or tts-1-hd  
+    public let input: String
+    public let voice: AudioSpeechVoice
+    public let responseFormat: AudioSpeechResponseFormat
+    public let speed: String? // Initializes with Double?
+    //...
+}
+```
+
+**Response:**
+
+```swift
+/// Audio data for one of the following formats :`mp3`, `opus`, `aac`, `flac`
+public let audioData: Data?
+```
+
+**Example:**   
+
+```swift
+let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 1.0)
+
+openAI.audioCreateSpeech(query: query) { result in
+    // Handle response here
+}
+//or
+let result = try await openAI.audioCreateSpeech(query: query)
+```
+[OpenAI Create Speech – Documentation](https://platform.openai.com/docs/api-reference/audio/createSpeech)
+
 
 #### Audio Transcriptions
 
@@ -741,12 +785,24 @@ Models are represented as a typealias `typealias Model = String`.
 
 ```swift
 public extension Model {
+    static let gpt4_turbo_preview = "gpt-4-turbo-preview"
+    static let gpt4_vision_preview = "gpt-4-vision-preview"
+    static let gpt4_0125_preview = "gpt-4-0125-preview"
+    static let gpt4_1106_preview = "gpt-4-1106-preview"
     static let gpt4 = "gpt-4"
+    static let gpt4_0613 = "gpt-4-0613"
     static let gpt4_0314 = "gpt-4-0314"
     static let gpt4_32k = "gpt-4-32k"
+    static let gpt4_32k_0613 = "gpt-4-32k-0613"
     static let gpt4_32k_0314 = "gpt-4-32k-0314"
+    
     static let gpt3_5Turbo = "gpt-3.5-turbo"
-    static let gpt3_5Turbo0301 = "gpt-3.5-turbo-0301"
+    static let gpt3_5Turbo_0125 = "gpt-3.5-turbo-0125"
+    static let gpt3_5Turbo_1106 = "gpt-3.5-turbo-1106"
+    static let gpt3_5Turbo_0613 = "gpt-3.5-turbo-0613"
+    static let gpt3_5Turbo_0301 = "gpt-3.5-turbo-0301"
+    static let gpt3_5Turbo_16k = "gpt-3.5-turbo-16k"
+    static let gpt3_5Turbo_16k_0613 = "gpt-3.5-turbo-16k-0613"
     
     static let textDavinci_003 = "text-davinci-003"
     static let textDavinci_002 = "text-davinci-002"
@@ -757,7 +813,13 @@ public extension Model {
     static let textDavinci_001 = "text-davinci-001"
     static let codeDavinciEdit_001 = "code-davinci-edit-001"
     
+    static let tts_1 = "tts-1"
+    static let tts_1_hd = "tts-1-hd"
+    
     static let whisper_1 = "whisper-1"
+
+    static let dall_e_2 = "dall-e-2"
+    static let dall_e_3 = "dall-e-3"
     
     static let davinci = "davinci"
     static let curie = "curie"
@@ -768,19 +830,21 @@ public extension Model {
     static let textSearchAda = "text-search-ada-doc-001"
     static let textSearchBabbageDoc = "text-search-babbage-doc-001"
     static let textSearchBabbageQuery001 = "text-search-babbage-query-001"
+    static let textEmbedding3 = "text-embedding-3-small"
+    static let textEmbedding3Large = "text-embedding-3-large"
     
     static let textModerationStable = "text-moderation-stable"
     static let textModerationLatest = "text-moderation-latest"
-    static let moderation = "text-moderation-001"
+    static let moderation = "text-moderation-007"
 }
 ```
 
 GPT-4 models are supported. 
 
-For example to use basic GPT-4 8K model pass `.gpt4` as a parameter.
+As an example: To use the `gpt-4-turbo-preview` model, pass `.gpt4_turbo_preview` as the parameter to the `ChatQuery` init.
 
 ```swift
-let query = ChatQuery(model: .gpt4, messages: [
+let query = ChatQuery(model: .gpt4_turbo_preview, messages: [
     .init(role: .system, content: "You are Librarian-GPT. You know everything about the books."),
     .init(role: .user, content: "Who wrote Harry Potter?")
 ])
@@ -952,6 +1016,37 @@ func audioTranslations(query: AudioTranslationQuery) -> AnyPublisher<AudioTransl
 You can find example iOS application in [Demo](/Demo) folder. 
 
 ![mockuuups-iphone-13-pro-mockup-perspective-right](https://user-images.githubusercontent.com/1411778/231449395-2ad6bab6-c21f-43dc-8977-f45f505b609d.png)
+
+## Contribution Guidelines
+Make your Pull Requests clear and obvious to anyone viewing them.  
+Set `main` as your target branch.
+
+#### Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) principles in naming PRs and branches:
+
+- `Feat: ...` for new features and new functionality implementations.
+- `Bug: ...` for bug fixes.
+- `Fix: ...` for minor issues fixing, like typos or inaccuracies in code.
+- `Chore: ...` for boring stuff like code polishing, refactoring, deprecation fixing etc.
+
+PR naming example: `Feat: Add Threads API handling` or `Bug: Fix message result duplication`
+
+Branch naming example: `feat/add-threads-API-handling` or `bug/fix-message-result-duplication`
+
+#### Write description to pull requests in following format:
+- What
+
+  ...
+- Why
+  
+  ...
+- Affected Areas
+
+  ...
+- More Info
+
+  ...
+
+We'll appreciate you including tests to your code if it is needed and possible. ❤️
 
 ## Links
 

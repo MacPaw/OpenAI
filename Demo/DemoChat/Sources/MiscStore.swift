@@ -5,7 +5,7 @@
 //  Created by Aled Samuel on 22/04/2023.
 //
 
-import Foundation
+import UIKit
 import OpenAI
 
 public final class MiscStore: ObservableObject {
@@ -19,7 +19,7 @@ public final class MiscStore: ObservableObject {
         self.openAIClient = openAIClient
     }
     
-    // MARK: Models
+    // MARK: - Models
     
     @MainActor
     func getModels() async {
@@ -32,11 +32,11 @@ public final class MiscStore: ObservableObject {
         }
     }
     
-    // MARK: Moderations
+    // MARK: - Moderations
     
     @Published var moderationConversation = Conversation(id: "", messages: [])
     @Published var moderationConversationError: Error?
-
+    
     @MainActor
     func sendModerationMessage(_ message: Message) async {
         moderationConversation.messages.append(message)
@@ -51,7 +51,7 @@ public final class MiscStore: ObservableObject {
         do {
             let response = try await openAIClient.moderations(
                 query: ModerationsQuery(
-                    input: message.content,
+                    input: .init(message.content),
                     model: .textModerationLatest
                 )
             )
@@ -63,30 +63,24 @@ public final class MiscStore: ObservableObject {
             func circleEmoji(for resultType: Bool) -> String {
                 resultType ? "🔴" : "🟢"
             }
-            
-            for result in categoryResults {
-                let content = """
-                \(circleEmoji(for: result.categories.hate)) Hate
-                \(circleEmoji(for: result.categories.hateThreatening)) Hate/Threatening
-                \(circleEmoji(for: result.categories.selfHarm)) Self-harm
-                \(circleEmoji(for: result.categories.sexual)) Sexual
-                \(circleEmoji(for: result.categories.sexualMinors)) Sexual/Minors
-                \(circleEmoji(for: result.categories.violence)) Violence
-                \(circleEmoji(for: result.categories.violenceGraphic)) Violence/Graphic
-                """
-                
+
+            categoryResults.forEach { categoryResult in
+                let content = categoryResult.categories.map { (label, value) in
+                    return "\(circleEmoji(for: value)) \(label)"
+                }
+
                 let message = Message(
                     id: response.id,
                     role: .assistant,
-                    content: content,
+                    content: content.joined(separator: "\n"),
                     createdAt: message.createdAt)
-                
+
                 if existingMessages.contains(message) {
-                    continue
+                    return
                 }
                 moderationConversation.messages.append(message)
             }
-            
+
         } catch {
             moderationConversationError = error
         }
