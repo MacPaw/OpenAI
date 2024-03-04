@@ -191,18 +191,33 @@ extension OpenAI {
 extension OpenAI {
     func buildURL(path: String) -> URL {
         var components = URLComponents()
+
+        // Default scheme
         components.scheme = "https"
 
-        // Check if host contains a path component
-        let hostParts = configuration.host.split(separator: "/", maxSplits: 1, omittingEmptySubsequences: true)
+        // Extract scheme if present
+        var hostString = configuration.host
+        if hostString.hasPrefix("http://") {
+            components.scheme = "http"
+            hostString = String(hostString.dropFirst("http://".count))
+        } else if hostString.hasPrefix("https://") {
+            components.scheme = "https"
+            hostString = String(hostString.dropFirst("https://".count))
+        }
+
+        // Extract the host and optional port from the configuration host
+        let hostParts = hostString.split(separator: "/", maxSplits: 1, omittingEmptySubsequences: true)
+        let hostPortParts = hostParts[0].split(separator: ":", maxSplits: 1, omittingEmptySubsequences: true)
+
+        components.host = String(hostPortParts[0])
+
+        if hostPortParts.count > 1, let port = Int(hostPortParts[1]) {
+            components.port = port
+        }
+
         if hostParts.count > 1 {
-            // Host contains a path component
-            components.host = String(hostParts[0])
-            let hostPath = "/" + hostParts[1]
-            components.path = hostPath + path
+            components.path = "/\(hostParts[1])" + path
         } else {
-            // Host does not contain a path component
-            components.host = configuration.host
             components.path = path
         }
 
