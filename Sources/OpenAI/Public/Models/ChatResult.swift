@@ -145,15 +145,10 @@ extension ChatQuery.ChatCompletionMessageParam.ChatCompletionUserMessageParam.Co
             return
         } catch {}
         do {
-            let text = try container.decode(ChatCompletionContentPartTextParam.self)
-            self = .chatCompletionContentPartTextParam(text)
+            let vision = try container.decode([VisionContent].self)
+            self = .vision(vision)
             return
         } catch {}
-        do {
-            let image = try container.decode(ChatCompletionContentPartImageParam.self)
-            self = .chatCompletionContentPartImageParam(image)
-            return
-        } catch {}
-        throw DecodingError.typeMismatch(Self.self, .init(codingPath: [Self.CodingKeys.string, CodingKeys.chatCompletionContentPartTextParam, CodingKeys.chatCompletionContentPartImageParam], debugDescription: "Content: expected String, ChatCompletionContentPartTextParam, ChatCompletionContentPartImageParam"))
+        throw DecodingError.typeMismatch(Self.self, .init(codingPath: [Self.CodingKeys.string, Self.CodingKeys.vision], debugDescription: "Content: expected String || Vision"))
     }
 }
