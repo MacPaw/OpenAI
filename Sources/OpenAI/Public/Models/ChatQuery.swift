@@ -115,12 +115,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         case assistant(Self.ChatCompletionAssistantMessageParam)
         case tool(Self.ChatCompletionToolMessageParam)
 
-        public var content: Self.ChatCompletionUserMessageParam.Content? { get { // TODO: String type except for .user
+        public var content: Self.ChatCompletionUserMessageParam.Content? { get {
             switch self {
             case .system(let systemMessage):
                 return Self.ChatCompletionUserMessageParam.Content.string(systemMessage.content)
             case .user(let userMessage):
-                return userMessage.content // TODO: Content type
+                return userMessage.content
             case .assistant(let assistantMessage):
                 if let content = assistantMessage.content {
                     return Self.ChatCompletionUserMessageParam.Content.string(content)
@@ -178,7 +178,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         public init?(
             role: Role,
             content: String? = nil,
-            imageUrl: URL? = nil,
             name: String? = nil,
             toolCalls: [Self.ChatCompletionAssistantMessageParam.ChatCompletionMessageToolCallParam]? = nil,
             toolCallId: String? = nil
@@ -193,8 +192,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             case .user:
                 if let content {
                     self = .user(.init(content: .init(string: content), name: name))
-                } else if let imageUrl {
-                    self = .user(.init(content: .init(chatCompletionContentPartImageParam: .init(imageUrl: .init(url: imageUrl.absoluteString, detail: .auto))), name: name))
                 } else {
                     return nil
                 }
@@ -207,6 +204,20 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     return nil
                 }
             }
+        }
+
+        public init?(
+            role: Role,
+            content: [ChatCompletionUserMessageParam.Content.VisionContent],
+            name: String? = nil
+        ) {
+            switch role {
+            case .user:
+                self = .user(.init(content: .vision(content), name: name))
+            default:
+                return nil
+            }
+
         }
 
         private init?(
@@ -330,8 +341,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
 
             public enum Content: Codable, Equatable {
                 case string(String)
-                case chatCompletionContentPartTextParam(ChatCompletionContentPartTextParam)
-                case chatCompletionContentPartImageParam(ChatCompletionContentPartImageParam)
+                case vision([VisionContent])
 
                 public var string: String? { get {
                     switch self {
@@ -341,6 +351,33 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                         return nil
                     }
                 }}
+
+                public init(string: String) {
+                    self = .string(string)
+                }
+
+                public init(vision: [VisionContent]) {
+                    self = .vision(vision)
+                }
+
+                public enum CodingKeys: CodingKey {
+                    case string
+                    case vision
+                }
+
+                public func encode(to encoder: Encoder) throws {
+                    var container = encoder.singleValueContainer()
+                    switch self {
+                    case .string(let a0):
+                        try container.encode(a0)
+                    case .vision(let a0):
+                        try container.encode(a0)
+                    }
+                }
+
+            public enum VisionContent: Codable, Equatable {
+                case chatCompletionContentPartTextParam(ChatCompletionContentPartTextParam)
+                case chatCompletionContentPartImageParam(ChatCompletionContentPartImageParam)
 
                 public var text: String? { get {
                     switch self {
@@ -360,10 +397,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     }
                 }}
 
-                public init(string: String) {
-                    self = .string(string)
-                }
-
                 public init(chatCompletionContentPartTextParam: ChatCompletionContentPartTextParam) {
                     self = .chatCompletionContentPartTextParam(chatCompletionContentPartTextParam)
                 }
@@ -375,8 +408,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 public func encode(to encoder: Encoder) throws {
                     var container = encoder.singleValueContainer()
                     switch self {
-                    case .string(let a0):
-                        try container.encode(a0)
                     case .chatCompletionContentPartTextParam(let a0):
                         try container.encode(a0)
                     case .chatCompletionContentPartImageParam(let a0):
@@ -385,7 +416,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 }
 
                 enum CodingKeys: CodingKey {
-                    case string
                     case chatCompletionContentPartTextParam
                     case chatCompletionContentPartImageParam
                 }
@@ -409,7 +439,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
 
                     public init(imageUrl: ImageURL) {
                         self.imageUrl = imageUrl
-                        self.type = "imageUrl"
+                        self.type = "image_url"
                     }
 
                     public struct ImageURL: Codable, Equatable {
@@ -422,6 +452,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                         public init(url: String, detail: Detail) {
                             self.url = url
                             self.detail = detail
+                        }
+
+                        public init(url: Data, detail: Detail) {
+                            self.init(
+                                url: "data:image/jpeg;base64,\(url.base64EncodedString())",
+                                detail: detail)
                         }
 
                         public enum Detail: String, Codable, Equatable, CaseIterable {
@@ -437,6 +473,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     }
                 }
             }
+        }
         }
 
         internal struct ChatCompletionMessageParam: Codable, Equatable {

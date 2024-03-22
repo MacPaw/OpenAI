@@ -140,7 +140,51 @@ class OpenAITestsDecoder: XCTestCase {
         
         XCTAssertEqual(imageQueryAsDict, expectedValueAsDict)
     }
-  
+
+    func testChatQueryWithVision() async throws {
+        let chatQuery = ChatQuery(messages: [
+//            .init(role: .user, content: [
+//                .chatCompletionContentPartTextParam(.init(text: "What's in this image?")),
+//                .chatCompletionContentPartImageParam(.init(imageUrl: .init(url: "https://some.url/image.jpeg", detail: .auto)))
+//            ])!
+            .user(.init(content: .vision([
+                .chatCompletionContentPartTextParam(.init(text: "What's in this image?")),
+                .chatCompletionContentPartImageParam(.init(imageUrl: .init(url: "https://some.url/image.jpeg", detail: .auto)))
+            ])))
+        ], model: Model.gpt4_vision_preview, maxTokens: 300)
+        let expectedValue = """
+        {
+            "model": "gpt-4-vision-preview",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "What's in this image?"
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": "https://some.url/image.jpeg",
+                                "detail": "auto"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "max_tokens": 300,
+            "stream": false
+        }
+        """
+
+        // To compare serialized JSONs we first convert them both into NSDictionary which are comparable (unline native swift dictionaries)
+        let chatQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(chatQuery))
+        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
+
+        XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
+    }
+
     func testChatQueryWithFunctionCall() async throws {
         let chatQuery = ChatQuery(
             messages: [
