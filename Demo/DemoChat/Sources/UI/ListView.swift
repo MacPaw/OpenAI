@@ -17,10 +17,28 @@ struct ListView: View {
             editActions: [.delete],
             selection: $selectedConversationId
         ) { $conversation in
-            Text(
-                conversation.messages.last?.content ?? "New Conversation"
-            )
-            .lineLimit(2)
+            if let convoContent = conversation.messages.last?.content {
+                Text(
+                    convoContent
+                )
+                .lineLimit(2)
+            }
+            else {
+                if conversation.type == .assistant {
+                    Text(
+                        "New Assistant"
+                    )
+                    .lineLimit(2)
+                }
+                else {
+                    Text(
+                        "New Conversation"
+                    )
+                    .lineLimit(2)
+                }
+            }
+
+
         }
         .navigationTitle("Conversations")
     }

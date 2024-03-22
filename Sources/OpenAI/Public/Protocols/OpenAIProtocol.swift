@@ -248,4 +248,208 @@ public protocol OpenAIProtocol {
                          Returns a `Result` of type `AudioTranslationResult` if successful, or an `Error` if an error occurs.
      **/
     func audioTranslations(query: AudioTranslationQuery, completion: @escaping (Result<AudioTranslationResult, Error>) -> Void)
+    
+    ///
+    // The following functions represent new functionality added to OpenAI Beta on 11-06-23
+    ///
+
+    /**
+     This function sends a assistants query to the OpenAI API to list assistants that have been created.
+
+     Example: List Assistants
+     ```
+     openAI.assistants() { result in
+        //Handle response here
+     }
+     ```
+
+     - Parameter after: A cursor for use in pagination. after is an object ID that defines your place in the list.
+     - Parameter completion: The completion handler to be executed upon completion of the assistant request.
+                          Returns a `Result` of type `AssistantsResult` if successful, or an `Error` if an error occurs.
+     **/
+    func assistants(after: String?, completion: @escaping (Result<AssistantsResult, Error>) -> Void)
+    
+    /**
+     This function sends an assistants query to the OpenAI API and creates an assistant.
+
+     ```
+     let query = AssistantsQuery(model: Model.gpt4_1106_preview, name: name, description: description, instructions: instructions, tools: tools, fileIds: fileIds)
+     openAI.createAssistant(query: query) { result in
+        //Handle response here
+     }
+     ```
+
+     - Parameter query: The `AssistantsQuery` instance, containing the information required for the assistant request.
+     - Parameter completion: The completion handler to be executed upon completion of the assistant request.
+                          Returns a `Result` of type `AssistantResult` if successful, or an `Error` if an error occurs.
+     **/
+    func assistantCreate(query: AssistantsQuery, completion: @escaping (Result<AssistantResult, Error>) -> Void)
+
+    /**
+    This function sends a assistants query to the OpenAI API and modifies an assistant. The Assistants API in this usage enables you to modify an assistant.
+
+    Example: Modify Assistant
+    ```
+    let query = AssistantsQuery(model: Model.gpt4_1106_preview, name: name, description: description, instructions: instructions, tools: tools, fileIds: fileIds)
+    openAI.assistantModify(query: query, assistantId: "asst_1234") { result in
+       //Handle response here
+    }
+    ```
+
+     - Parameter query: The `AssistantsQuery` instance, containing the information required for the assistant request.
+     - Parameter assistantId: The assistant id for the assistant to modify.
+     - Parameter completion: The completion handler to be executed upon completion of the assistant request.
+                          Returns a `Result` of type `AssistantResult` if successful, or an `Error` if an error occurs.
+     **/
+    func assistantModify(query: AssistantsQuery, assistantId: String, completion: @escaping (Result<AssistantResult, Error>) -> Void)
+
+    /**
+     This function sends a threads query to the OpenAI API and creates a thread. The Threads API in this usage enables you to create a thread.
+
+     Example: Create Thread
+     ```
+     let threadsQuery = ThreadsQuery(messages: [Chat(role: message.role, content: message.content)])
+     openAI.threads(query: threadsQuery) { result in
+        //Handle response here
+     }
+
+     ```
+     - Parameter query: The `ThreadsQuery` instance, containing the information required for the threads request.
+     - Parameter completion: The completion handler to be executed upon completion of the threads request.
+                          Returns a `Result` of type `ThreadsResult` if successful, or an `Error` if an error occurs.
+     **/
+    func threads(query: ThreadsQuery, completion: @escaping (Result<ThreadsResult, Error>) -> Void)
+
+    /**
+     This function sends a threads query to the OpenAI API that creates and runs a thread in a single request.
+
+     Example: Create and Run Thread
+     ```
+     let threadsQuery = ThreadQuery(messages: [Chat(role: message.role, content: message.content)])
+     let threadRunQuery = ThreadRunQuery(assistantId: "asst_1234"  thread: threadsQuery)
+     openAI.threadRun(query: threadRunQuery) { result in
+        //Handle response here
+     }
+     ```
+     - Parameter query: The `ThreadRunQuery` instance, containing the information required for the request.
+     - Parameter completion: The completion handler to be executed upon completion of the threads request.
+                          Returns a `Result` of type `RunResult` if successful, or an `Error` if an error occurs.
+     **/
+    func threadRun(query: ThreadRunQuery, completion: @escaping (Result<RunResult, Error>) -> Void)
+    
+    /**
+     This function sends a runs query to the OpenAI API and creates a run. The Runs API in this usage enables you to create a run.
+
+     Example: Create Run
+     ```
+     let runsQuery = RunsQuery(assistantId:  currentAssistantId)
+     openAI.runs(threadId: threadsResult.id, query: runsQuery) { result in
+        //Handle response here
+     }
+     ```
+     
+     - Parameter threadId: The thread id for the thread to run.
+     - Parameter query: The `RunsQuery` instance, containing the information required for the runs request.
+     - Parameter completion: The completion handler to be executed upon completion of the runs request.
+                          Returns a `Result` of type `RunResult` if successful, or an `Error` if an error occurs.
+     **/
+    func runs(threadId: String, query: RunsQuery, completion: @escaping (Result<RunResult, Error>) -> Void)
+
+    /**
+     This function sends a thread id and run id to the OpenAI API and retrieves a run. The Runs API in this usage enables you to retrieve a run.
+
+     Example: Retrieve Run
+     ```
+     openAI.runRetrieve(threadId: currentThreadId, runId: currentRunId) { result in
+        //Handle response here
+     }
+     ```
+     - Parameter threadId: The thread id for the thread to run.
+     - Parameter runId: The run id for the run to retrieve.
+     - Parameter completion: The completion handler to be executed upon completion of the runRetrieve request.
+                          Returns a `Result` of type `RunRetrieveResult` if successful, or an `Error` if an error occurs.
+     **/
+    func runRetrieve(threadId: String, runId: String, completion: @escaping (Result<RunResult, Error>) -> Void)
+
+    /**
+     This function sends a thread id and run id to the OpenAI API and retrieves a list of run steps. The Runs API in this usage enables you to retrieve a runs run steps.
+
+     Example: Retrieve Run Steps
+     ```
+     openAI.runRetrieveSteps(threadId: currentThreadId, runId: currentRunId) { result in
+        //Handle response here
+     }
+     ```
+     - Parameter threadId: The thread id for the thread to run.
+     - Parameter runId: The run id for the run to retrieve.
+     - Parameter before: String?: The message id for the run step that defines your place in the list of run steps. Pass nil to get all.
+     - Parameter completion: The completion handler to be executed upon completion of the runRetrieve request.
+                          Returns a `Result` of type `RunRetrieveStepsResult` if successful, or an `Error` if an error occurs.
+     **/
+    func runRetrieveSteps(threadId: String, runId: String, before: String?, completion: @escaping (Result<RunRetrieveStepsResult, Error>) -> Void)
+
+    /**
+     This function submits tool outputs for a run to the OpenAI API. It should be submitted when a run is in status `required_action` and `required_action.type` is `submit_tool_outputs`
+
+     - Parameter threadId: The thread id for the thread which needs tool outputs.
+     - Parameter runId: The run id for the run  which needs tool outputs.
+     - Parameter query: An object containing the tool outputs, populated based on the results of the requested function call
+     - Parameter completion: The completion handler to be executed upon completion of the runSubmitToolOutputs request.
+                          Returns a `Result` of type `RunResult` if successful, or an `Error` if an error occurs.
+     */
+    func runSubmitToolOutputs(threadId: String, runId: String, query: RunToolOutputsQuery, completion: @escaping (Result<RunResult, Error>) -> Void)
+
+    /**
+     This function sends a thread id and run id to the OpenAI API and retrieves a threads messages.
+     The Thread API in this usage enables you to retrieve a threads messages.
+
+     Example: Get Threads Messages
+     ```
+     openAI.threadsMessages(threadId: currentThreadId) { result in
+        //Handle response here
+     }
+     ```
+
+     - Parameter threadId: The thread id for the thread to run.
+     - Parameter before: String?: The message id for the message that defines your place in the list of messages. Pass nil to get all.
+     - Parameter completion: The completion handler to be executed upon completion of the runRetrieve request.
+                          Returns a `Result` of type `ThreadsMessagesResult` if successful, or an `Error` if an error occurs.
+     **/
+    func threadsMessages(threadId: String, before: String?, completion: @escaping (Result<ThreadsMessagesResult, Error>) -> Void)
+
+    /**
+     This function sends a thread id and message contents to the OpenAI API and returns a run.
+
+     Example: Add Message to Thread
+     ```
+     let query = MessageQuery(role: message.role.rawValue, content: message.content)
+     openAI.threadsAddMessage(threadId: currentThreadId, query: query) { result in
+        //Handle response here
+     }
+     ```
+
+     - Parameter threadId: The thread id for the thread to run.
+     - Parameter query: The `MessageQuery` instance, containing the information required for the threads request.
+     - Parameter completion: The completion handler to be executed upon completion of the runRetrieve request.
+                          Returns a `Result` of type `ThreadAddMessageResult` if successful, or an `Error` if an error occurs.
+     **/
+    func threadsAddMessage(threadId: String, query: MessageQuery, completion: @escaping (Result<ThreadAddMessageResult, Error>) -> Void)
+
+    /**
+     This function sends a purpose string, file contents, and fileName contents to the OpenAI API and returns a file id result.
+
+     Example: Upload file
+     ```
+     let query = FilesQuery(purpose: "assistants", file: fileData, fileName: url.lastPathComponent, contentType: "application/pdf")
+     openAI.files(query: query) { result in
+        //Handle response here
+     }
+     ```
+     - Parameter query: The `FilesQuery` instance, containing the information required for the files request.
+     - Parameter completion: The completion handler to be executed upon completion of the files request.
+                          Returns a `Result` of type `FilesResult` if successful, or an `Error` if an error occurs.
+     **/
+    func files(query: FilesQuery, completion: @escaping (Result<FilesResult, Error>) -> Void)
+
+    // END new functionality added to OpenAI Beta on 11-06-23 end
 }
