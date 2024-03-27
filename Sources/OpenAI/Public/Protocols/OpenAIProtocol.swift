@@ -231,6 +231,21 @@ public protocol OpenAIProtocol {
      */
     func audioCreateSpeech(query: AudioSpeechQuery, completion: @escaping (Result<AudioSpeechResult, Error>) -> Void)
     
+    /** This function sends an `AudioSpeechQuery` to the OpenAI API to create audio speech from text using a specific voice and format.
+     Example:
+     ```
+     let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 1.0)
+     openAI.audioCreateSpeech(query: query) { result in
+        // Handle response here
+     }
+     ```
+     - Parameters:
+       - query: An `AudioSpeechQuery` object containing the parameters for the API request. This includes the Text-to-Speech model to be used, input text, voice to be used for generating the audio, the desired audio format, and the speed of the generated audio.
+       - onResult: A closure which receives the result when the API request finishes. The closure's parameter, `Result<AudioSpeechResult, Error>`, will contain either the `AudioSpeechResult` object with the generated Audio chunk, or an error if the request failed.
+       - completion: A closure that is being called when all chunks are delivered or uncrecoverable error occured
+    */
+    func audioCreateSpeechStream(query: AudioSpeechQuery, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?)
+
     /**
     Transcribes audio data using OpenAI's audio transcription API and completes the operation asynchronously.
 
