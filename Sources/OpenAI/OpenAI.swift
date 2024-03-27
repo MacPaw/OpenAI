@@ -119,7 +119,15 @@ final public class OpenAI: OpenAIProtocol {
     public func audioCreateSpeech(query: AudioSpeechQuery, completion: @escaping (Result<AudioSpeechResult, Error>) -> Void) {
         performSpeechRequest(request: JSONRequest<AudioSpeechResult>(body: query, url: buildURL(path: .audioSpeech)), completion: completion)
     }
-    
+
+
+    public func audioCreateSpeechStream(query: AudioSpeechQuery, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        performSpeechStreamingRequest(
+            request: JSONRequest<AudioSpeechResult>(body: query, url: buildURL(path: .audioSpeech)),
+            onResult: onResult,
+            completion: completion
+        )
+    }
 }
 
 extension OpenAI {
@@ -191,6 +199,29 @@ extension OpenAI {
             task.resume()
         } catch {
             completion(.failure(error))
+        }
+    }
+
+    func performSpeechStreamingRequest(request: any URLRequestBuildable, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        do {
+            let request = try request.build(token: configuration.token,
+                                            organizationIdentifier: configuration.organizationIdentifier,
+                                            timeoutInterval: configuration.timeoutInterval)
+            let session = StreamingSession<AudioSpeechResult>(urlRequest: request)
+            session.onReceiveContent = {_, object in
+                onResult(.success(object))
+            }
+            session.onProcessingError = {_, error in
+                onResult(.failure(error))
+            }
+            session.onComplete = { [weak self] object, error in
+                self?.streamingSessions.removeAll(where: { $0 == object })
+                completion?(error)
+            }
+            session.perform()
+            streamingSessions.append(session)
+        } catch {
+            completion?(error)
         }
     }
 }
