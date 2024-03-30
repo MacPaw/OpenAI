@@ -118,7 +118,7 @@ public extension OpenAIProtocol {
         query: ChatQuery
     ) -> AsyncThrowingStream<ChatStreamResult, Error> {
         return AsyncThrowingStream { continuation in
-            return chatsStream(query: query)  { result in
+            return chatsStream(query: query) { result in
                 continuation.yield(with: result)
             } completion: { error in
                 continuation.finish(throwing: error)
@@ -203,7 +203,7 @@ public extension OpenAIProtocol {
         query: AudioSpeechQuery
     ) -> AsyncThrowingStream<AudioSpeechResult, Error> {
         return AsyncThrowingStream { continuation in
-            return audioCreateSpeechStream(query: query)  { result in
+            return audioCreateSpeechStream(query: query) { result in
                 continuation.yield(with: result)
             } completion: { error in
                 continuation.finish(throwing: error)
