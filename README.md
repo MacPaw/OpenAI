@@ -565,6 +565,42 @@ let result = try await openAI.audioCreateSpeech(query: query)
 ```
 [OpenAI Create Speech – Documentation](https://platform.openai.com/docs/api-reference/audio/createSpeech)
 
+#### Audio Create Speech Streaming
+
+Audio Create Speech is available by using `audioCreateSpeechStream` function. Tokens will be sent one-by-one.
+
+**Closures**
+```swift
+openAI.audioCreateSpeechStream(query: query) { partialResult in
+    switch partialResult {
+    case .success(let result):
+        print(result.audio)
+    case .failure(let error):
+        //Handle chunk error here
+    }
+} completion: { error in
+    //Handle streaming error here
+}
+```
+
+**Combine**
+
+```swift
+openAI
+    .audioCreateSpeechStream(query: query)
+    .sink { completion in
+        //Handle completion result here
+    } receiveValue: { result in
+        //Handle chunk here
+    }.store(in: &cancellables)
+```
+
+**Structured concurrency**
+```swift
+for try await result in openAI.audioCreateSpeechStream(query: query) {
+   //Handle result here
+}
+```
 
 #### Audio Transcriptions
 
