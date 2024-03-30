@@ -120,7 +120,6 @@ final public class OpenAI: OpenAIProtocol {
         performSpeechRequest(request: JSONRequest<AudioSpeechResult>(body: query, url: buildURL(path: .audioSpeech)), completion: completion)
     }
 
-
     public func audioCreateSpeechStream(query: AudioSpeechQuery, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
         performSpeechStreamingRequest(
             request: JSONRequest<AudioSpeechResult>(body: query, url: buildURL(path: .audioSpeech)),
