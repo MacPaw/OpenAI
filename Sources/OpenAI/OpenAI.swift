@@ -162,10 +162,10 @@ extension OpenAI {
                                             organizationIdentifier: configuration.organizationIdentifier,
                                             timeoutInterval: configuration.timeoutInterval)
             let session = StreamingSession<ResultType>(urlRequest: request)
-            session.onReceiveContent = {_, object in
+            session.onReceiveContent = { _, object in
                 onResult(.success(object))
             }
-            session.onProcessingError = {_, error in
+            session.onProcessingError = { _, error in
                 onResult(.failure(error))
             }
             session.onComplete = { [weak self] object, error in
@@ -207,10 +207,10 @@ extension OpenAI {
                                             organizationIdentifier: configuration.organizationIdentifier,
                                             timeoutInterval: configuration.timeoutInterval)
             let session = StreamingSession<AudioSpeechResult>(urlRequest: request)
-            session.onReceiveContent = {_, object in
+            session.onReceiveContent = { _, object in
                 onResult(.success(object))
             }
-            session.onProcessingError = {_, error in
+            session.onProcessingError = { _, error in
                 onResult(.failure(error))
             }
             session.onComplete = { [weak self] object, error in
