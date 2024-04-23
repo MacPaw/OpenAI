@@ -24,7 +24,8 @@ public extension OpenAIProtocol {
     
     func completionsStream(query: CompletionsQuery) -> AnyPublisher<Result<CompletionsResult, Error>, Error> {
         let progress = PassthroughSubject<Result<CompletionsResult, Error>, Error>()
-        completionsStream(query: query) { result in
+        let control = StreamControl()
+        completionsStream(query: query, control: control) { result in
             progress.send(result)
         } completion: { error in
             if let error {
@@ -73,7 +74,8 @@ public extension OpenAIProtocol {
     
     func chatsStream(query: ChatQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
         let progress = PassthroughSubject<Result<ChatStreamResult, Error>, Error>()
-        chatsStream(query: query) { result in
+        let control = StreamControl()
+        chatsStream(query: query, control: control) { result in
             progress.send(result)
         } completion: { error in
             if let error {

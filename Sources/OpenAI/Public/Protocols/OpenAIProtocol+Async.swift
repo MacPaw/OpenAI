@@ -30,11 +30,16 @@ public extension OpenAIProtocol {
     func completionsStream(
         query: CompletionsQuery
     ) -> AsyncThrowingStream<CompletionsResult, Error> {
+        let control = StreamControl()
         return AsyncThrowingStream { continuation in
-            return completionsStream(query: query) { result in
+            completionsStream(query: query, control: control) { result in
                 continuation.yield(with: result)
             } completion: { error in
                 continuation.finish(throwing: error)
+            }
+            
+            continuation.onTermination = { @Sendable termination in
+                control.cancel()
             }
         }
     }
@@ -117,11 +122,17 @@ public extension OpenAIProtocol {
     func chatsStream(
         query: ChatQuery
     ) -> AsyncThrowingStream<ChatStreamResult, Error> {
+        let control = StreamControl()
+        
         return AsyncThrowingStream { continuation in
-            return chatsStream(query: query)  { result in
+            chatsStream(query: query, control: control)  { result in
                 continuation.yield(with: result)
             } completion: { error in
                 continuation.finish(throwing: error)
+            }
+            
+            continuation.onTermination = { @Sendable termination in
+                control.cancel()
             }
         }
     }
