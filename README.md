@@ -35,6 +35,22 @@ This repository contains Swift community-maintained implementation over [OpenAI]
     - [Moderations](#moderations)
     - [Utilities](#utilities)
     - [Combine Extensions](#combine-extensions)
+    - [Assistants (Beta)](#assistants)
+        - [Create Assistant](#create-assistant)
+        - [Modify Assistant](#modify-assistant)
+        - [List Assistants](#list-assistants) 
+        - [Threads](#threads)
+          - [Create Thread](#create-thread)
+          - [Create and Run Thread](#create-and-run-thread)
+          - [Get Threads Messages](#get-threads-messages)
+          - [Add Message to Thread](#add-message-to-thread)
+        - [Runs](#runs)
+          - [Create Run](#create-run)
+          - [Retrieve Run](#retrieve-run)
+          - [Retrieve Run Steps](#retrieve-run-steps)
+          - [Submit Tool Outputs for Run](#submit-tool-outputs-for-run)
+        - [Files](#files)
+          - [Upload File](#upload-file)
 - [Example Project](#example-project)
 - [Contribution Guidelines](#contribution-guidelines)
 - [Links](#links)
@@ -210,31 +226,35 @@ Using the OpenAI Chat API, you can build your own applications with `gpt-3.5-tur
 **Request**
 
 ```swift
- struct ChatQuery: Codable {
-     /// ID of the model to use. Currently, only gpt-3.5-turbo and gpt-3.5-turbo-0301 are supported.
-     public let model: Model
-     /// The messages to generate chat completions for
-     public let messages: [Chat]
-     /// A list of functions the model may generate JSON inputs for.
-     public let functions: [ChatFunctionDeclaration]?
-     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and  We generally recommend altering this or top_p but not both.
-     public let temperature: Double?
-     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-     public let topP: Double?
-     /// How many chat completion choices to generate for each input message.
-     public let n: Int?
-     /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
-     public let stop: [String]?
-     /// The maximum number of tokens to generate in the completion.
-     public let maxTokens: Int?
-     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-     public let presencePenalty: Double?
-     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-     public let frequencyPenalty: Double?
-     ///Modify the likelihood of specified tokens appearing in the completion.
-     public let logitBias: [String:Int]?
-     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
-     public let user: String?
+struct ChatQuery: Codable {
+    /// ID of the model to use.
+    public let model: Model
+    /// An object specifying the format that the model must output.
+    public let responseFormat: ResponseFormat?
+    /// The messages to generate chat completions for
+    public let messages: [Message]
+    /// A list of tools the model may call. Currently, only functions are supported as a tool. Use this to provide a list of functions the model may generate JSON inputs for.
+    public let tools: [Tool]?
+    /// Controls how the model responds to tool calls. "none" means the model does not call a function, and responds to the end-user. "auto" means the model can pick between and end-user or calling a function. Specifying a particular function via `{"name": "my_function"}` forces the model to call that function. "none" is the default when no functions are present. "auto" is the default if functions are present.
+    public let toolChoice: ToolChoice?
+    /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and  We generally recommend altering this or top_p but not both.
+    public let temperature: Double?
+    /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
+    public let topP: Double?
+    /// How many chat completion choices to generate for each input message.
+    public let n: Int?
+    /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
+    public let stop: [String]?
+    /// The maximum number of tokens to generate in the completion.
+    public let maxTokens: Int?
+    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
+    public let presencePenalty: Double?
+    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
+    public let frequencyPenalty: Double?
+    /// Modify the likelihood of specified tokens appearing in the completion.
+    public let logitBias: [String:Int]?
+    /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
+    public let user: String?
 }
 ```
 
@@ -332,7 +352,7 @@ for try await result in openAI.chatsStream(query: query) {
 let openAI = OpenAI(apiToken: "...")
 // Declare functions which GPT-3 might decide to call.
 let functions = [
-  ChatFunctionDeclaration(
+  FunctionDeclaration(
       name: "get_current_weather",
       description: "Get the current weather in a given location",
       parameters:
@@ -351,7 +371,7 @@ let query = ChatQuery(
   messages: [
       Chat(role: .user, content: "What's the weather like in Boston?")
   ],
-  functions: functions
+  tools: functions.map { Tool.function($0) }
 )
 let result = try await openAI.chats(query: query)
 ```
@@ -368,10 +388,16 @@ Result will be (serialized as JSON here for readability):
       "index": 0,
       "message": {
         "role": "assistant",
-        "function_call": {
-          "name": "get_current_weather",
-          "arguments": "{\n  \"location\": \"Boston, MA\"\n}"
-        }
+        "tool_calls": [
+          {
+            "id": "call-0",
+            "type": "function",
+            "function": {
+              "name": "get_current_weather",
+              "arguments": "{\n  \"location\": \"Boston, MA\"\n}"
+            }
+          }
+        ]
       },
       "finish_reason": "function_call"
     }
@@ -1009,6 +1035,142 @@ func models() -> AnyPublisher<ModelsResult, Error>
 func moderations(query: ModerationsQuery) -> AnyPublisher<ModerationsResult, Error>
 func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error>
 func audioTranslations(query: AudioTranslationQuery) -> AnyPublisher<AudioTranslationResult, Error>
+```
+
+### Assistants
+
+Review [Assistants Documentation](https://platform.openai.com/docs/api-reference/assistants) for more info.
+
+#### Create Assistant
+
+Example: Create Assistant
+```
+let query = AssistantsQuery(model: Model.gpt4_1106_preview, name: name, description: description, instructions: instructions, tools: tools, fileIds: fileIds)
+openAI.assistantCreate(query: query) { result in
+   //Handle response here
+}
+```
+
+#### Modify Assistant
+
+Example: Modify Assistant
+```
+let query = AssistantsQuery(model: Model.gpt4_1106_preview, name: name, description: description, instructions: instructions, tools: tools, fileIds: fileIds)
+openAI.assistantModify(query: query, assistantId: "asst_1234") { result in
+    //Handle response here
+}
+```
+
+#### List Assistants
+
+Example: List Assistants
+```
+openAI.assistants() { result in
+   //Handle response here
+}
+```
+
+#### Threads
+
+Review [Threads Documentation](https://platform.openai.com/docs/api-reference/threads) for more info.
+
+##### Create Thread
+
+Example: Create Thread
+```
+let threadsQuery = ThreadsQuery(messages: [Chat(role: message.role, content: message.content)])
+openAI.threads(query: threadsQuery) { result in
+  //Handle response here
+}
+```
+
+##### Create and Run Thread
+
+Example: Create and Run Thread
+```
+let threadsQuery = ThreadQuery(messages: [Chat(role: message.role, content: message.content)])
+let threadRunQuery = ThreadRunQuery(assistantId: "asst_1234"  thread: threadsQuery)
+openAI.threadRun(query: threadRunQuery) { result in
+  //Handle response here
+}
+```
+
+##### Get Threads Messages
+
+Review [Messages Documentation](https://platform.openai.com/docs/api-reference/messages) for more info.
+
+Example: Get Threads Messages
+```
+openAI.threadsMessages(threadId: currentThreadId) { result in
+  //Handle response here
+}
+```
+
+##### Add Message to Thread
+
+Example: Add Message to Thread
+```
+let query = MessageQuery(role: message.role.rawValue, content: message.content)
+openAI.threadsAddMessage(threadId: currentThreadId, query: query) { result in
+  //Handle response here
+}
+```
+
+#### Runs
+
+Review [Runs Documentation](https://platform.openai.com/docs/api-reference/runs) for more info.
+
+##### Create Run
+
+Example: Create Run
+```
+let runsQuery = RunsQuery(assistantId:  currentAssistantId)
+openAI.runs(threadId: threadsResult.id, query: runsQuery) { result in
+  //Handle response here
+}
+```
+
+##### Retrieve Run
+
+Example: Retrieve Run
+```
+openAI.runRetrieve(threadId: currentThreadId, runId: currentRunId) { result in
+  //Handle response here
+}
+```
+
+##### Retrieve Run Steps
+
+Example: Retrieve Run Steps
+```
+openAI.runRetrieveSteps(threadId: currentThreadId, runId: currentRunId) { result in
+  //Handle response here
+}
+```
+
+##### Submit Tool Outputs for Run
+
+Example: Submit Tool Outputs for Run
+```
+let output = RunToolOutputsQuery.ToolOutput(toolCallId: "call123", output: "Success")
+let query = RunToolOutputsQuery(toolOutputs: [output])
+openAI.runSubmitToolOutputs(threadId: currentThreadId, runId: currentRunId, query: query) { result in
+  //Handle response here
+}
+```
+
+#### Files
+
+Review [Files Documentation](https://platform.openai.com/docs/api-reference/files) for more info.
+
+##### Upload file
+
+Example: Upload file
+```
+let query = FilesQuery(purpose: "assistants", file: fileData, fileName: url.lastPathComponent, contentType: "application/pdf")
+openAI.files(query: query) { result in
+  //Handle response here
+}
 ```
 
 ## Example Project
