@@ -548,7 +548,7 @@ public struct AudioSpeechQuery: Codable, Equatable {
 **Response:**
 
 ```swift
-/// Audio data for one of the following formats :`mp3`, `opus`, `aac`, `flac`
+/// Audio data for one of the following formats :`mp3`, `opus`, `aac`, `flac`, `pcm`
 public let audioData: Data?
 ```
 

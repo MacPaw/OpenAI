@@ -31,11 +31,13 @@ public struct AudioSpeechQuery: Codable {
     /// -  opus
     /// -  aac
     /// -  flac
+    /// -  pcm
     public enum AudioSpeechResponseFormat: String, Codable, CaseIterable {
         case mp3
         case opus
         case aac
         case flac
+        case pcm
     }
 
     /// The text to generate audio for. The maximum length is 4096 characters.
@@ -45,7 +47,7 @@ public struct AudioSpeechQuery: Codable {
     /// The voice to use when generating the audio. Supported voices are alloy, echo, fable, onyx, nova, and shimmer. Previews of the voices are available in the Text to speech guide.
     /// https://platform.openai.com/docs/guides/text-to-speech/voice-options
     public let voice: AudioSpeechVoice
-    /// The format to audio in. Supported formats are mp3, opus, aac, and flac.
+    /// The format to audio in. Supported formats are mp3, opus, aac, flac, and pcm.
     /// Defaults to mp3
     public let responseFormat: AudioSpeechResponseFormat?
     /// The speed of the generated audio. Select a value from **0.25** to **4.0**. **1.0** is the default.
