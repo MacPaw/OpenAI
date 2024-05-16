@@ -539,6 +539,14 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     public let arguments: String
                     /// The name of the function to call.
                     public let name: String
+
+                    public init(
+                        arguments: String,
+                        name: String
+                    ) {
+                        self.arguments = arguments
+                        self.name = name
+                    }
                 }
             }
         }
