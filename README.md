@@ -27,7 +27,6 @@ This repository contains Swift community-maintained implementation over [OpenAI]
         - [Audio Create Speech](#audio-create-speech)
         - [Audio Transcriptions](#audio-transcriptions)
         - [Audio Translations](#audio-translations)
-    - [Edits](#edits)
     - [Embeddings](#embeddings)
     - [Models](#models)
         - [List Models](#list-models)
@@ -649,71 +648,6 @@ let result = try await openAI.audioTranslations(query: query)
 
 Review [Audio Documentation](https://platform.openai.com/docs/api-reference/audio) for more info.
 
-### Edits
-
-Creates a new edit for the provided input, instruction, and parameters.
-
-**Request**
-
-```swift
-struct EditsQuery: Codable {
-    /// ID of the model to use.
-    public let model: Model
-    /// Input text to get embeddings for.
-    public let input: String?
-    /// The instruction that tells the model how to edit the prompt.
-    public let instruction: String
-    /// The number of images to generate. Must be between 1 and 10.
-    public let n: Int?
-    /// What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
-    public let temperature: Double?
-    /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    public let topP: Double?
-}
-```
-
-**Response**
-
-```swift
-struct EditsResult: Codable, Equatable {
-    
-    public struct Choice: Codable, Equatable {
-        public let text: String
-        public let index: Int
-    }
-
-    public struct Usage: Codable, Equatable {
-        public let promptTokens: Int
-        public let completionTokens: Int
-        public let totalTokens: Int
-        
-        enum CodingKeys: String, CodingKey {
-            case promptTokens = "prompt_tokens"
-            case completionTokens = "completion_tokens"
-            case totalTokens = "total_tokens"
-        }
-    }
-    
-    public let object: String
-    public let created: TimeInterval
-    public let choices: [Choice]
-    public let usage: Usage
-}
-```
-
-**Example**
-
-```swift
-let query = EditsQuery(model: .gpt4, input: "What day of the wek is it?", instruction: "Fix the spelling mistakes")
-openAI.edits(query: query) { result in
-  //Handle response here
-}
-//or
-let result = try await openAI.edits(query: query)
-```
-
-Review [Edits Documentation](https://platform.openai.com/docs/api-reference/edits) for more info.
-
 ### Embeddings
 
 Get a vector representation of a given input that can be easily consumed by machine learning models and algorithms.
@@ -1003,7 +937,6 @@ func completions(query: CompletionsQuery) -> AnyPublisher<CompletionsResult, Err
 func images(query: ImagesQuery) -> AnyPublisher<ImagesResult, Error>
 func embeddings(query: EmbeddingsQuery) -> AnyPublisher<EmbeddingsResult, Error>
 func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error>
-func edits(query: EditsQuery) -> AnyPublisher<EditsResult, Error>
 func model(query: ModelQuery) -> AnyPublisher<ModelResult, Error>
 func models() -> AnyPublisher<ModelsResult, Error>
 func moderations(query: ModerationsQuery) -> AnyPublisher<ModerationsResult, Error>

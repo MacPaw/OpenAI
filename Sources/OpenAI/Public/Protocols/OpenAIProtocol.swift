@@ -148,23 +148,6 @@ public protocol OpenAIProtocol {
     func chatsStream(query: ChatQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?)
     
     /**
-     This function sends an edits query to the OpenAI API and retrieves an edited version of the prompt based on the instruction given.
-     
-     Example:
-     ```
-     let query = EditsQuery(model: .gpt4, input: "What day of the wek is it?", instruction: "Fix the spelling mistakes")
-     openAI.edits(query: query) { result in
-       //Handle response here
-     }
-     ```
-
-     - Parameters:
-       - query: An `EditsQuery` object containing the input parameters for the API request. This includes the input to be edited, the instruction specifying how it should be edited, and other settings.
-       - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<EditsResult, Error>`, will contain either the `EditsResult` object with the model's response to the queried edit, or an error if the request failed.
-    **/
-    func edits(query: EditsQuery, completion: @escaping (Result<EditsResult, Error>) -> Void)
-    
-    /**
      This function sends a model query to the OpenAI API and retrieves a model instance, providing owner information. The Models API in this usage enables you to gather detailed information on the model in question, like GPT-3.
      
      Example:
