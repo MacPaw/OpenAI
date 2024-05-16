@@ -136,7 +136,7 @@ extension ChatQuery.ChatCompletionMessageParam {
     }
 }
 
-extension ChatQuery.ChatCompletionMessageParam.ChatCompletionUserMessageParam.Content {
+extension ChatQuery.ChatCompletionMessageParam.UserMessageParam.Content {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         do {
