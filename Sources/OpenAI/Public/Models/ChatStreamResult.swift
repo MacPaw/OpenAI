@@ -115,6 +115,18 @@ public struct ChatStreamResult: Codable, Equatable {
             case logprobs
         }
     }
+    
+    public struct Usage: Codable, Equatable {
+        public let completionTokens: Int
+        public let promptTokens: Int
+        public let totalTokens: Int
+        
+        public enum CodingKeys: String, CodingKey {
+            case completionTokens = "completion_tokens"
+            case promptTokens = "prompt_tokens"
+            case totalTokens = "total_tokens"
+        }
+    }
 
     /// A unique identifier for the chat completion. Each chunk has the same ID.
     public let id: String
@@ -130,6 +142,8 @@ public struct ChatStreamResult: Codable, Equatable {
     public let choices: [Choice]
     /// This fingerprint represents the backend configuration that the model runs with. Can be used in conjunction with the `seed` request parameter to understand when backend changes have been made that might impact determinism.
     public let systemFingerprint: String?
+    /// In stream mode, if `streamOptions` are set in the request, return token usage data.
+    public let usage: Self.Usage?
 
     public enum CodingKeys: String, CodingKey {
         case id
@@ -138,5 +152,6 @@ public struct ChatStreamResult: Codable, Equatable {
         case model
         case choices
         case systemFingerprint = "system_fingerprint"
+        case usage
     }
 }
