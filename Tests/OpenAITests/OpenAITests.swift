@@ -20,7 +20,7 @@ class OpenAITests: XCTestCase {
         super.setUp()
         self.urlSession = URLSessionMock()
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        self.openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        self.openAI = OpenAI(configuration: configuration, session: self.urlSession, sslStreamingDelegate: nil)
     }
     
     func testCompletions() async throws {
@@ -390,14 +390,14 @@ class OpenAITests: XCTestCase {
     
     func testDefaultHostURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        let openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession, sslStreamingDelegate: nil)
         let chatsURL = openAI.buildURL(path: .chats)
         XCTAssertEqual(chatsURL, URL(string: "https://api.openai.com:443/v1/chat/completions"))
     }
     
     func testCustomURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", timeoutInterval: 14)
-        let openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession, sslStreamingDelegate: nil)
         let chatsURL = openAI.buildURL(path: .chats)
         XCTAssertEqual(chatsURL, URL(string: "https://my.host.com:443/v1/chat/completions"))
     }

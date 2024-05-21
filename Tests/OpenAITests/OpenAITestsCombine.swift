@@ -22,7 +22,7 @@ final class OpenAITestsCombine: XCTestCase {
         super.setUp()
         self.urlSession = URLSessionMock()
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        self.openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        self.openAI = OpenAI(configuration: configuration, session: self.urlSession, sslStreamingDelegate: nil)
     }
     
     func testCompletions() throws {
