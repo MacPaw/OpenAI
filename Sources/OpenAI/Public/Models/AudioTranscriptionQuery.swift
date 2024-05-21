@@ -58,8 +58,6 @@ public enum ResponseFormat: String, Codable, Equatable, CaseIterable {
             switch self {
             case .mpga:
                 fileName += Self.mp3.rawValue
-            case .m4a:
-                fileName += Self.mp4.rawValue
             default:
                 fileName += self.rawValue
             }
@@ -72,8 +70,6 @@ public enum ResponseFormat: String, Codable, Equatable, CaseIterable {
             switch self {
             case .mpga:
                 contentType += Self.mp3.rawValue
-            case .m4a:
-                contentType += Self.mp4.rawValue
             default:
                 contentType += self.rawValue
             }
