@@ -148,6 +148,13 @@ public protocol OpenAIProtocol {
     func chatsStream(query: ChatQuery, control: StreamControl, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?)
     
     /**
+     This function sends a chat query to the OpenAI API and retrieves chat stream conversation responses. 
+     
+     The Chat API enables you to use custom url to start a chat query.
+    **/
+    func chatsStream(query: ChatQuery, url: URL, control: StreamControl, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?)
+    
+    /**
      This function sends an edits query to the OpenAI API and retrieves an edited version of the prompt based on the instruction given.
      
      Example:
