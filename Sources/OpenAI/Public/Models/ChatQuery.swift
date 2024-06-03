@@ -630,7 +630,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 try container.encode(["name": name], forKey: .function)
             case .required:
                 var container = encoder.singleValueContainer()
-                try container.encode(CodingKeys.auto.rawValue)
+                try container.encode(CodingKeys.required.rawValue)
             }
         }
 
