@@ -28,13 +28,18 @@ public extension OpenAIProtocol {
     }
     
     func completionsStream(
-        query: CompletionsQuery
+        query: CompletionsQuery,
+        control: StreamControl = StreamControl()
     ) -> AsyncThrowingStream<CompletionsResult, Error> {
         return AsyncThrowingStream { continuation in
-            return completionsStream(query: query) { result in
+            completionsStream(query: query, control: control) { result in
                 continuation.yield(with: result)
             } completion: { error in
                 continuation.finish(throwing: error)
+            }
+            
+            continuation.onTermination = { @Sendable termination in
+                control.cancel()
             }
         }
     }
@@ -115,13 +120,36 @@ public extension OpenAIProtocol {
     }
     
     func chatsStream(
-        query: ChatQuery
+        query: ChatQuery,
+        control: StreamControl = StreamControl()
     ) -> AsyncThrowingStream<ChatStreamResult, Error> {
         return AsyncThrowingStream { continuation in
-            return chatsStream(query: query)  { result in
+            chatsStream(query: query, control: control)  { result in
                 continuation.yield(with: result)
             } completion: { error in
                 continuation.finish(throwing: error)
+            }
+            
+            continuation.onTermination = { @Sendable termination in
+                control.cancel()
+            }
+        }
+    }
+    
+    func chatsStream(
+        query: ChatQuery,
+        url: URL,
+        control: StreamControl = StreamControl()
+    ) -> AsyncThrowingStream<ChatStreamResult, Error> {
+        return AsyncThrowingStream { continuation in
+            chatsStream(query: query, url: url, control: control)  { result in
+                continuation.yield(with: result)
+            } completion: { error in
+                continuation.finish(throwing: error)
+            }
+            
+            continuation.onTermination = { @Sendable termination in
+                control.cancel()
             }
         }
     }
