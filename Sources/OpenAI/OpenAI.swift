@@ -63,8 +63,8 @@ final public class OpenAI: OpenAIProtocol {
         performRequest(request: JSONRequest<CompletionsResult>(body: query, url: buildURL(path: .completions)), completion: completion)
     }
     
-    public func completionsStream(query: CompletionsQuery, control: StreamControl, onResult: @escaping (Result<CompletionsResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        performSteamingRequest(request: JSONRequest<CompletionsResult>(body: query.makeStreamable(), url: buildURL(path: configuration.apiPath.completions)), control: control, onResult: onResult, completion: completion)
+    public func completionsStream(query: CompletionsQuery, control: StreamControl = StreamControl(), onResult: @escaping (Result<CompletionsResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        performStreamingRequest(request: JSONRequest<CompletionsResult>(body: query.makeStreamable(), url: buildURL(path: .completions)), control: control, onResult: onResult, completion: completion)
     }
     
     public func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
@@ -87,10 +87,18 @@ final public class OpenAI: OpenAIProtocol {
         performRequest(request: JSONRequest<ChatResult>(body: query, url: buildURL(path: .chats)), completion: completion)
     }
     
-    public func chatsStream(query: ChatQuery, control: StreamControl, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        performSteamingRequest(request: JSONRequest<ChatResult>(body: query.makeStreamable(), url: buildURL(path: configuration.apiPath.chats)), control: control, onResult: onResult, completion: completion)
+    public func chatsStream(query: ChatQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        performStreamingRequest(request: JSONRequest<ChatResult>(body: query.makeStreamable(), url: buildURL(path: .chats)), onResult: onResult, completion: completion)
     }
     
+    public func chatsStream(query: ChatQuery, control: StreamControl = StreamControl(), onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        performStreamingRequest(request: JSONRequest<ChatResult>(body: query.makeStreamable(), url: buildURL(path: .chats)), control: control, onResult: onResult, completion: completion)
+    }
+    
+    public func chatsStream(query: ChatQuery, url: URL, control: StreamControl = StreamControl(), onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        performStreamingRequest(request: JSONRequest<ChatStreamResult>(body: query.makeStreamable(), url: url), control: control, onResult: onResult, completion: completion)
+    }
+        
     public func edits(query: EditsQuery, completion: @escaping (Result<EditsResult, Error>) -> Void) {
         performRequest(request: JSONRequest<EditsResult>(body: query, url: buildURL(path: .edits)), completion: completion)
     }
@@ -149,7 +157,7 @@ extension OpenAI {
         }
     }
     
-    func performSteamingRequest<ResultType: Codable>(request: any URLRequestBuildable, control: StreamControl, onResult: @escaping (Result<ResultType, Error>) -> Void, completion: ((Error?) -> Void)?) {
+    func performStreamingRequest<ResultType: Codable>(request: any URLRequestBuildable, control: StreamControl = StreamControl(), onResult: @escaping (Result<ResultType, Error>) -> Void, completion: ((Error?) -> Void)?) {
         do {
             let request = try request.build(token: configuration.token, 
                                             organizationIdentifier: configuration.organizationIdentifier,

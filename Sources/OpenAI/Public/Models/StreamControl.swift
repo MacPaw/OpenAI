@@ -14,7 +14,9 @@ public class StreamControl {
         self.session = session
     }
     
-    func cancel() {
+    public init() {}
+    
+    public func cancel() {
         self.session?.cancel()
         self.session = nil
     }
