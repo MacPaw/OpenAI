@@ -17,7 +17,7 @@ extension Streamable {
     
     func makeStreamable() -> Self {
         var copy = self
-        copy.stream = true
+        copy.stream = true                
         return copy
     }
 }
