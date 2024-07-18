@@ -15,6 +15,9 @@ public extension Model {
     /// `gpt-4o`, currently the most advanced, multimodal flagship model that's cheaper and faster than GPT-4 Turbo.
     static let gpt4_o = "gpt-4o"
 
+    /// `gpt-4o-mini`, currently the most affordable and intelligent model for fast and lightweight requests.
+    static let gpt4_o_mini = "gpt-4o-mini"
+
     /// `gpt-4-turbo`, The latest GPT-4 Turbo model with vision capabilities. Vision requests can now use JSON mode and function calling and more. Context window: 128,000 tokens
     static let gpt4_turbo = "gpt-4-turbo"
     
