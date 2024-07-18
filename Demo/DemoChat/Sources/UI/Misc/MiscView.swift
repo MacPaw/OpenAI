@@ -24,6 +24,9 @@ public struct MiscView: View {
                 Section(header: Text("Moderations")) {
                     NavigationLink("Moderation Chat", destination: ModerationChatView(store: store))
                 }
+                Section(header: Text("Audio")) {
+                    NavigationLink("Create Speech", destination: TextToSpeechView(store: SpeechStore(openAIClient: store.openAIClient)))
+                }
             }
             .listStyle(.insetGrouped)
             .navigationTitle("Misc")
