@@ -1,6 +1,6 @@
 //
 //  OpenAIProtocol+Combine.swift
-//  
+//
 //
 //  Created by Sergii Kryvoblotskyi on 03/04/2023.
 //
@@ -8,13 +8,14 @@
 #if canImport(Combine)
 
 import Combine
+import Foundation
 
 @available(iOS 13.0, *)
 @available(tvOS 13.0, *)
 @available(macOS 10.15, *)
 @available(watchOS 6.0, *)
 public extension OpenAIProtocol {
-
+    
     func completions(query: CompletionsQuery) -> AnyPublisher<CompletionsResult, Error> {
         Future<CompletionsResult, Error> {
             completions(query: query, completion: $0)
@@ -22,9 +23,11 @@ public extension OpenAIProtocol {
         .eraseToAnyPublisher()
     }
     
-    func completionsStream(query: CompletionsQuery) -> AnyPublisher<Result<CompletionsResult, Error>, Error> {
+    func completionsStream(query: CompletionsQuery,
+                           control: StreamControl = StreamControl()
+    ) -> AnyPublisher<Result<CompletionsResult, Error>, Error> {
         let progress = PassthroughSubject<Result<CompletionsResult, Error>, Error>()
-        completionsStream(query: query) { result in
+        completionsStream(query: query, control: control) { result in
             progress.send(result)
         } completion: { error in
             if let error {
@@ -35,7 +38,7 @@ public extension OpenAIProtocol {
         }
         return progress.eraseToAnyPublisher()
     }
-
+    
     func images(query: ImagesQuery) -> AnyPublisher<ImagesResult, Error> {
         Future<ImagesResult, Error> {
             images(query: query, completion: $0)
@@ -56,14 +59,14 @@ public extension OpenAIProtocol {
         }
         .eraseToAnyPublisher()
     }
-
+    
     func embeddings(query: EmbeddingsQuery) -> AnyPublisher<EmbeddingsResult, Error> {
         Future<EmbeddingsResult, Error> {
             embeddings(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
-
+    
     func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error> {
         Future<ChatResult, Error> {
             chats(query: query, completion: $0)
@@ -71,9 +74,28 @@ public extension OpenAIProtocol {
         .eraseToAnyPublisher()
     }
     
-    func chatsStream(query: ChatQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
+    func chatsStream(query: ChatQuery,
+                     control: StreamControl = StreamControl()
+    ) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
         let progress = PassthroughSubject<Result<ChatStreamResult, Error>, Error>()
-        chatsStream(query: query) { result in
+        chatsStream(query: query, control: control) { result in
+            progress.send(result)
+        } completion: { error in
+            if let error {
+                progress.send(completion: .failure(error))
+            } else {
+                progress.send(completion: .finished)
+            }
+        }
+        return progress.eraseToAnyPublisher()
+    }
+    
+    func chatsStream(query: ChatQuery,
+                     url: URL,
+                     control: StreamControl = StreamControl()
+    ) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
+        let progress = PassthroughSubject<Result<ChatStreamResult, Error>, Error>()
+        chatsStream(query: query, url: url, control: control) { result in
             progress.send(result)
         } completion: { error in
             if let error {
@@ -112,21 +134,21 @@ public extension OpenAIProtocol {
         }
         .eraseToAnyPublisher()
     }
-
+    
     func audioCreateSpeech(query: AudioSpeechQuery) -> AnyPublisher<AudioSpeechResult, Error> {
         Future<AudioSpeechResult, Error> {
             audioCreateSpeech(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
-
+    
     func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error> {
         Future<AudioTranscriptionResult, Error> {
             audioTranscriptions(query: query, completion: $0)
         }
         .eraseToAnyPublisher()
     }
-
+    
     func audioTranslations(query: AudioTranslationQuery) -> AnyPublisher<AudioTranslationResult, Error> {
         Future<AudioTranslationResult, Error> {
             audioTranslations(query: query, completion: $0)
