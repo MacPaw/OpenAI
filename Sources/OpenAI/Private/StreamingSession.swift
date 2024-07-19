@@ -45,6 +45,10 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
     }
     
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        if ResultType.self == AudioSpeechResult.self, let result = AudioSpeechResult(audio: data) as? ResultType {
+            onReceiveContent?(self, result)
+            return
+        }
         guard let stringContent = String(data: data, encoding: .utf8) else {
             onProcessingError?(self, StreamingError.unknownContent)
             return
