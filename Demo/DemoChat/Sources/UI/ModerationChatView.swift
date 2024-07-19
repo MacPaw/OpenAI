@@ -19,7 +19,7 @@ public struct ModerationChatView: View {
     
     public var body: some View {
         DetailView(
-            conversation: store.moderationConversation,
+            availableAssistants: [], conversation: store.moderationConversation, 
             error: store.moderationConversationError,
             sendMessage: { message, _ in
                 Task {
@@ -32,7 +32,7 @@ public struct ModerationChatView: View {
                         )
                     )
                 }
-            }
+            }, isSendingMessage: Binding.constant(false)
         )
     }
 }

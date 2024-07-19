@@ -133,6 +133,93 @@ public extension OpenAIProtocol {
         }
         .eraseToAnyPublisher()
     }
+
+    // 1106
+    func assistants(after: String? = nil) -> AnyPublisher<AssistantsResult, Error> {
+        Future<AssistantsResult, Error> {
+            assistants(after: after, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+
+    func assistantCreate(query: AssistantsQuery) -> AnyPublisher<AssistantResult, Error> {
+        Future<AssistantResult, Error> {
+            assistantCreate(query: query, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    func assistantModify(query: AssistantsQuery, assistantId: String) -> AnyPublisher<AssistantResult, Error> {
+        Future<AssistantResult, Error> {
+            assistantModify(query: query, assistantId: assistantId, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+
+    func threads(query: ThreadsQuery) -> AnyPublisher<ThreadsResult, Error> {
+        Future<ThreadsResult, Error> {
+            threads(query: query, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+
+    func threadRun(query: ThreadRunQuery) -> AnyPublisher<RunResult, Error> {
+        Future<RunResult, Error> {
+            threadRun(query: query, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+
+    func runs(threadId: String, query: RunsQuery) -> AnyPublisher<RunResult, Error> {
+        Future<RunResult, Error> {
+            runs(threadId: threadId, query: query, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+
+    func runRetrieve(threadId: String, runId: String) -> AnyPublisher<RunResult, Error> {
+        Future<RunResult, Error> {
+            runRetrieve(threadId: threadId, runId: runId, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    func runRetrieveSteps(threadId: String, runId: String, before: String? = nil) -> AnyPublisher<RunRetrieveStepsResult, Error> {
+        Future<RunRetrieveStepsResult, Error> {
+            runRetrieveSteps(threadId: threadId, runId: runId, before: before, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    func runSubmitToolOutputs(threadId: String, runId: String, query: RunToolOutputsQuery) -> AnyPublisher<RunResult, Error> {
+        Future<RunResult, Error> {
+            runSubmitToolOutputs(threadId: threadId, runId: runId, query: query, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+
+    func threadsMessages(threadId: String, before: String? = nil) -> AnyPublisher<ThreadsMessagesResult, Error> {
+        Future<ThreadsMessagesResult, Error> {
+            threadsMessages(threadId: threadId, before: before, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+
+    func threadsAddMessage(threadId: String, query: MessageQuery) -> AnyPublisher<ThreadAddMessageResult, Error> {
+        Future<ThreadAddMessageResult, Error> {
+            threadsAddMessage(threadId: threadId, query: query, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    func files(query: FilesQuery) -> AnyPublisher<FilesResult, Error> {
+        Future<FilesResult, Error> {
+            files(query: query, completion: $0)
+        }
+        .eraseToAnyPublisher()
+    }
+
+    // 1106 end
 }
 
 #endif

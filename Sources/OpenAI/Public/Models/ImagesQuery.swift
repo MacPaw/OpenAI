@@ -9,7 +9,7 @@ import Foundation
 
 /// Given a prompt and/or an input image, the model will generate a new image.
 /// https://platform.openai.com/docs/guides/images
-public struct ImagesQuery: Codable {
+public struct ImagesQuery: Codable, Equatable {
 
 public enum ResponseFormat: String, Codable, Equatable {
     case url
