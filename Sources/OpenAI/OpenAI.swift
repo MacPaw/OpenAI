@@ -38,25 +38,27 @@ final public class OpenAI: OpenAIProtocol {
     }
     
     private let session: URLSessionProtocol
+    private let sslStreamingDelegate: SSLDelegateProtocol?
     private var streamingSessions = ArrayWithThreadSafety<NSObject>()
     
     public let configuration: Configuration
 
     public convenience init(apiToken: String) {
-        self.init(configuration: Configuration(token: apiToken), session: URLSession.shared)
+        self.init(configuration: Configuration(token: apiToken), session: URLSession.shared, sslStreamingDelegate: nil)
     }
     
     public convenience init(configuration: Configuration) {
-        self.init(configuration: configuration, session: URLSession.shared)
+        self.init(configuration: configuration, session: URLSession.shared, sslStreamingDelegate: nil)
     }
 
-    init(configuration: Configuration, session: URLSessionProtocol) {
+    init(configuration: Configuration, session: URLSessionProtocol, sslStreamingDelegate: SSLDelegateProtocol?) {
         self.configuration = configuration
         self.session = session
+        self.sslStreamingDelegate = sslStreamingDelegate
     }
 
-    public convenience init(configuration: Configuration, session: URLSession = URLSession.shared) {
-        self.init(configuration: configuration, session: session as URLSessionProtocol)
+    public convenience init(configuration: Configuration, session: URLSession = URLSession.shared, sslStreamingDelegate: SSLDelegateProtocol? = nil) {
+        self.init(configuration: configuration, session: session as URLSessionProtocol, sslStreamingDelegate: sslStreamingDelegate)
     }
     
     public func completions(query: CompletionsQuery, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
@@ -154,7 +156,7 @@ extension OpenAI {
             let request = try request.build(token: configuration.token, 
                                             organizationIdentifier: configuration.organizationIdentifier,
                                             timeoutInterval: configuration.timeoutInterval)
-            let session = StreamingSession<ResultType>(urlRequest: request)
+            let session = StreamingSession<ResultType>(urlRequest: request, sslDelegate: sslStreamingDelegate)
             session.onReceiveContent = {_, object in
                 onResult(.success(object))
             }
