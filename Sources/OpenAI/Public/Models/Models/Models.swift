@@ -1,6 +1,6 @@
 //
 //  Models.swift
-//  
+//
 //
 //  Created by Sergii Kryvoblotskyi on 12/19/22.
 //
@@ -27,6 +27,9 @@ public extension Model {
 
     /// `gpt-4-vision-preview`, able to understand images, in addition to all other GPT-4 Turbo capabilities.
     static let gpt4_vision_preview = "gpt-4-vision-preview"
+    
+    /// `gpt-4-turbo-2024-04-09`, GPT-4 Turbo with Vision model. Vision requests can now use JSON mode and function calling. gpt-4-turbo currently points to this version.
+    static let gpt4_turbo_2024_04_09 = "gpt-4-turbo-2024-04-09"
     
     /// Snapshot of `gpt-4-turbo-preview` from January 25th 2024. This model reduces cases of “laziness” where the model doesn’t complete a task. Also fixes the bug impacting non-English UTF-8 generations. Maximum of 4096 output tokens
     static let gpt4_0125_preview = "gpt-4-0125-preview"
