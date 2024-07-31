@@ -21,18 +21,31 @@ final public class OpenAI: OpenAIProtocol {
         public let organizationIdentifier: String?
         
         /// API host. Set this property if you use some kind of proxy or your own server. Default is api.openai.com
-        public let host: String
-        public let port: Int
-        public let scheme: String
+        public let endpoint : URL
+        var scheme : String {endpoint.scheme ?? "https"}
+        var host : String {endpoint.host ?? "api.openai.com"}
+        var port : Int {endpoint.port ?? 443}
+
         /// Default request timeout
         public let timeoutInterval: TimeInterval
         
         public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", timeoutInterval: TimeInterval = 60.0) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
-            self.host = host
-            self.port = port
-            self.scheme = scheme
+
+            var components = URLComponents()
+            components.scheme = scheme
+            components.host = host
+            components.port = port
+
+            self.endpoint = components.url!
+            self.timeoutInterval = timeoutInterval
+        }
+        
+        public init(token: String, organizationIdentifier: String? = nil, endpoint: URL, timeoutInterval: TimeInterval = 60.0) {
+            self.token = token
+            self.organizationIdentifier = organizationIdentifier
+            self.endpoint = endpoint
             self.timeoutInterval = timeoutInterval
         }
     }
@@ -198,12 +211,7 @@ extension OpenAI {
 extension OpenAI {
     
     func buildURL(path: String) -> URL {
-        var components = URLComponents()
-        components.scheme = configuration.scheme
-        components.host = configuration.host
-        components.port = configuration.port
-        components.path = path
-        return components.url!
+        return configuration.endpoint.appendingPathComponent(path)
     }
 }
 

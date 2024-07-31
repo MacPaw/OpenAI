@@ -401,6 +401,13 @@ class OpenAITests: XCTestCase {
         let chatsURL = openAI.buildURL(path: .chats)
         XCTAssertEqual(chatsURL, URL(string: "https://my.host.com:443/v1/chat/completions"))
     }
+    
+    func testCustomEndpointURLBuilt() {
+        let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", endpoint: URL(string: "https://api.internal.company.com:443/prod/aiendpoint")!, timeoutInterval: 14)
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        let chatsURL = openAI.buildURL(path: .chats)
+        XCTAssertEqual(chatsURL, URL(string: "https://api.internal.company.com:443/prod/aiendpoint/v1/chat/completions"))
+    }
 }
 
 @available(tvOS 13.0, *)
