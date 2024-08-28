@@ -598,16 +598,193 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             self = .stringList(stringList)
         }
     }
+    
+    public protocol WithSample2: Codable {
+        static var sample: Self { get }
+    }
 
     // See more https://platform.openai.com/docs/guides/text-generation/json-mode
-    public enum ResponseFormat: String, Codable, Equatable {
-        case jsonObject = "json_object"
+    public enum ResponseFormat: Codable, Equatable {
+        
+        case jsonSchema(value: WithSample2)
+        case jsonObject
         case text
-
-        public func encode(to encoder: Encoder) throws {
-            var container = encoder.singleValueContainer()
-            try container.encode(["type": self.rawValue])
+        
+        enum CodingKeys: String, CodingKey {
+            case type
+            case jsonSchema = "json_schema"
         }
+        
+        public init(from decoder: any Decoder) throws {
+            self = .text
+        }
+        
+        
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            switch self {
+            case .jsonSchema(let value):
+                try container.encode("json_schema", forKey: .type)
+                let schema = HighLevelSchema(name: "sample", schema: value)
+                try container.encode(schema, forKey: .jsonSchema)
+            case .jsonObject:
+                try container.encode("json_object", forKey: .type)
+            case .text:
+                try container.encode("text", forKey: .type)
+            }
+        }
+        
+        public static func == (lhs: ResponseFormat, rhs: ResponseFormat) -> Bool {
+            return false
+        }
+    }
+    
+    public struct HighLevelSchema: Codable, Equatable {
+        
+        let name: String
+        let schema: WithSample2
+        
+        enum CodingKeys: String, CodingKey {
+            case name
+            case schema
+        }
+        
+        init(name: String, schema: WithSample2) {
+            self.name = name
+            self.schema = schema
+        }
+        
+        public init(from decoder: any Decoder) throws {
+            self = .init(name: "hi", schema: SampleWithSample2(name: "hi"))
+        }
+        
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode("sample", forKey: .name)
+            try container.encode(try Self.whatisgoingon(schema), forKey: .schema)
+        }
+        
+        public static func == (lhs: HighLevelSchema, rhs: HighLevelSchema) -> Bool {
+            return true
+        }
+        
+        static func whatisgoingon<T: Any>(_ value: T) throws -> PropertyValue {
+            
+            switch value {
+            case _ as String:
+                return .stringValue("string")
+            case _ as Bool:
+                return .boolValue(true)
+            case _ as Int, _ as Int8, _ as Int16, _ as Int32, _ as Int64,
+                _ as UInt, _ as UInt8, _ as UInt16, _ as UInt32, _ as UInt64:
+                return .intValue(0)
+            case _ as Double, _ as Float, _ as CGFloat:
+                return .intValue(0)
+            default:
+                let mirror = Mirror(reflecting: value)
+                if let displayStyle = mirror.displayStyle {
+                    switch displayStyle {
+                    case .struct, .class:
+                        var dict = [String: PropertyValue]()
+                        for child in mirror.children {
+                            dict[child.label!] = try whatisgoingon(child.value)
+                        }
+                        return .propertyValueDictionary(dict)
+                    case .collection:
+                        if let child = mirror.children.first {
+                            return .array(try whatisgoingon(child.value))
+                        } else {
+                            print("no child")
+                            throw StructuredAIError.unsupportedType
+                        }
+                    default:
+                        print("no bueno")
+                        throw StructuredAIError.unsupportedType
+                    }
+                }
+                throw StructuredAIError.unsupportedType
+            }
+            
+        }
+    }
+    
+    private struct SampleWithSample2: WithSample2 {
+        let name: String
+        static var sample: SampleWithSample2 { .init(name: "sample") }
+    }
+    
+    
+    
+    indirect enum PropertyValue: Codable {
+        
+        case stringValue(String)
+        case intValue(Int)
+        case boolValue(Bool)
+        case propertyValueDictionary([String: PropertyValue])
+        case array(PropertyValue)
+        
+        enum CodingKeys: String, CodingKey {
+            case type
+            case value
+            case properties
+            case items
+        }
+        
+        enum ValueType: String, Codable {
+            case stringValue
+            case intValue
+            case boolValue
+            case dictionary
+            case array
+        }
+        
+        func encode(to encoder: Encoder) throws {
+            
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            
+            switch self {
+            case .stringValue:
+                try container.encode(String("string"), forKey: .type)
+            case .intValue:
+                try container.encode(String("integer"), forKey: .type)
+            case .boolValue:
+                try container.encode(String("boolean"), forKey: .type)
+            case .propertyValueDictionary(let dictionary):
+                try container.encode(String("object"), forKey: .type)
+                try container.encode(dictionary, forKey: .properties)
+            case .array(let items):
+                try container.encode(String("array"), forKey: .type)
+                try container.encode(items, forKey: .items)
+                
+            }
+        }
+        
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let type = try container.decode(ValueType.self, forKey: .type)
+            
+            switch type {
+            case .stringValue:
+                let string = try container.decode(String.self, forKey: .value)
+                self = .stringValue(string)
+            case .intValue:
+                let int = try container.decode(Int.self, forKey: .value)
+                self = .intValue(int)
+            case .boolValue:
+                let bool = try container.decode(Bool.self, forKey: .value)
+                self = .boolValue(bool)
+            case .dictionary:
+                let dictionary = try container.decode([String: PropertyValue].self, forKey: .value)
+                self = .propertyValueDictionary(dictionary)
+            case .array:
+                let arr = try container.decode(PropertyValue.self, forKey: .value)
+                self = .array(arr)
+            }
+        }
+    }
+    
+    enum StructuredAIError: Error {
+        case unsupportedType
     }
 
     public enum ChatCompletionFunctionCallOptionParam: Codable, Equatable {
