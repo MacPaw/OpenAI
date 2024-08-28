@@ -1,6 +1,6 @@
 //
 //  StructuredOutput.swift
-//  OpenAI
+//  
 //
 //  Created by Andriy Gordiyenko on 8/28/24.
 //

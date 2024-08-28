@@ -611,11 +611,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             case jsonSchema = "json_schema"
         }
         
-        /// A formal initializer reqluired for the inherited Decodable conformance. This type is never returned from the server and is never decoded into.
-        public init(from decoder: any Decoder) throws {
-            self = .text
-        }
-        
         public func encode(to encoder: any Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             switch self {
@@ -633,6 +628,11 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         public static func == (lhs: ResponseFormat, rhs: ResponseFormat) -> Bool {
             // TODO: Implement a proper comparison
             return false
+        }
+        
+        /// A formal initializer reqluired for the inherited Decodable conformance. This type is never returned from the server and is never decoded into.
+        public init(from decoder: any Decoder) throws {
+            self = .text
         }
     }
     
