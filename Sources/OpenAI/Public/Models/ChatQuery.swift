@@ -598,15 +598,11 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             self = .stringList(stringList)
         }
     }
-    
-    public protocol WithSample2: Codable {
-        static var sample: Self { get }
-    }
 
     // See more https://platform.openai.com/docs/guides/structured-outputs/introduction
     public enum ResponseFormat: Codable, Equatable {
         
-        case jsonSchema(value: WithSample2)
+        case jsonSchema(value: StructuredOutput.Type)
         case jsonObject
         case text
         
@@ -625,7 +621,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             switch self {
             case .jsonSchema(let value):
                 try container.encode("json_schema", forKey: .type)
-                let schema = JSONSchema(name: "sample", schema: value)
+                let schema = JSONSchema(name: "sample", schema: value.example)
                 try container.encode(schema, forKey: .jsonSchema)
             case .jsonObject:
                 try container.encode("json_object", forKey: .type)
@@ -635,45 +631,28 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
         
         public static func == (lhs: ResponseFormat, rhs: ResponseFormat) -> Bool {
+            // TODO: Implement a proper comparison
             return false
         }
     }
     
-    public struct JSONSchema: Codable, Equatable {
+    public struct JSONSchema: Encodable {
         
         let name: String
-        let schema: WithSample2
+        let schema: StructuredOutput
         
         enum CodingKeys: String, CodingKey {
             case name
             case schema
-        }
-        
-        init(name: String, schema: WithSample2) {
-            self.name = name
-            self.schema = schema
-        }
-        
-        /// A formal initializer reqluired for the inherited Decodable conformance. This type is never returned from the server and is never decoded into.
-        public init(from decoder: any Decoder) throws {
-            self = .init(name: "sample", schema: SampleWithSample2(name: "hi"))
+            case strict
         }
         
         public func encode(to encoder: any Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode("sample", forKey: .name)
+            try container.encode(true, forKey: .strict)
             try container.encode(try PropertyValue.generate(from: schema), forKey: .schema)
         }
-        
-        public static func == (lhs: JSONSchema, rhs: JSONSchema) -> Bool {
-            // TODO: Implement a proper comparison
-            return true
-        }
-    }
-    
-    private struct SampleWithSample2: WithSample2 {
-        let name: String
-        static var sample: SampleWithSample2 { .init(name: "sample") }
     }
     
     indirect enum PropertyValue: Codable {
