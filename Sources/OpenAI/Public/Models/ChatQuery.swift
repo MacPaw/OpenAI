@@ -626,11 +626,18 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
         
         public static func == (lhs: ResponseFormat, rhs: ResponseFormat) -> Bool {
-            // TODO: Implement a proper comparison
-            return false
+            switch (lhs, rhs) {
+            case (.text, .text): return true
+            case (.jsonObject, .jsonObject): return true
+            case (.jsonSchema(let lhsName, let lhsType), .jsonSchema(let rhsName, let rhsType)):
+                return lhsName == rhsName && lhsType == rhsType
+            default:
+                return false
+            }
         }
         
-        /// A formal initializer reqluired for the inherited Decodable conformance. This type is never returned from the server and is never decoded into.
+        /// A formal initializer reqluired for the inherited Decodable conformance.
+        /// This type is never returned from the server and is never decoded into.
         public init(from decoder: any Decoder) throws {
             self = .text
         }
