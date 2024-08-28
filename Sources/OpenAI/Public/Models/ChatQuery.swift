@@ -784,20 +784,31 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                         if let child = mirror.children.first {
                             return .array(try generate(from: child.value))
                         } else {
-                            throw StructuredOutputError.unsupportedType
+                            throw StructuredOutputError.typeUnsupported
                         }
+                    case .enum:
+                        throw StructuredOutputError.enumsUnsupported
                     default:
-                        throw StructuredOutputError.unsupportedType
+                        throw StructuredOutputError.typeUnsupported
                     }
                 }
-                throw StructuredOutputError.unsupportedType
+                throw StructuredOutputError.typeUnsupported
             }
         }
     }
     
-    // TODO: Implement other options. Move to a separate file too? Public?
-    public enum StructuredOutputError: Error {
-        case unsupportedType
+    public enum StructuredOutputError: LocalizedError {
+        case enumsUnsupported
+        case typeUnsupported
+        
+        public var errorDescription: String? {
+            switch self {
+            case .enumsUnsupported:
+                return "Enums are not supported at the moment. Consider using one of the basics types and specifying the accepted values in the prompt."
+            case .typeUnsupported:
+                return "Unsupported type. Supported types: String, Bool, Int, Double, Array, and Codable struct/class instances."
+            }
+        }
     }
 
     public enum ChatCompletionFunctionCallOptionParam: Codable, Equatable {
