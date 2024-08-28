@@ -656,10 +656,21 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         
         init(name: String, schema: StructuredOutput) {
             
-            self.name = name
+            func format(_ name: String) -> String {
+                let underscored = name.replacingOccurrences(of: " ", with: "_")
+                let regex = try! NSRegularExpression(pattern: "[^a-zA-Z0-9_-]", options: [])
+                let range = NSRange(location: 0, length: underscored.utf16.count)
+                let sanitized = regex.stringByReplacingMatches(in: underscored, options: [], range: range, withTemplate: "")
+                let nonempty = sanitized.isEmpty ? "sample" : sanitized
+                return String(nonempty.prefix(64))
+            }
             
-            
+            self.name = format(name)
             self.schema = schema
+            
+            if self.name != name {
+                print("The name was changed to \(self.name) to satisfy the API requirements. See more: https://platform.openai.com/docs/api-reference/chat/create")
+            }
         }
         
         public func encode(to encoder: any Encoder) throws {
