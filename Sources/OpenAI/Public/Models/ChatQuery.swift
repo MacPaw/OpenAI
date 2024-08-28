@@ -696,6 +696,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             case properties
             case items
             case additionalProperties
+            case required
         }
         
         enum ValueType: String, Codable {
@@ -723,6 +724,8 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 try container.encode(String("object"), forKey: .type)
                 try container.encode(false, forKey: .additionalProperties)
                 try container.encode(object, forKey: .properties)
+                let fields = try object.map { key, value in key }
+                try container.encode(fields, forKey: .required)
             case .array(let items):
                 try container.encode(String("array"), forKey: .type)
                 try container.encode(items, forKey: .items)
