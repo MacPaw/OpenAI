@@ -603,7 +603,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         static var sample: Self { get }
     }
 
-    // See more https://platform.openai.com/docs/guides/text-generation/json-mode
+    // See more https://platform.openai.com/docs/guides/structured-outputs/introduction
     public enum ResponseFormat: Codable, Equatable {
         
         case jsonSchema(value: WithSample2)
@@ -615,17 +615,17 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             case jsonSchema = "json_schema"
         }
         
+        /// A formal initializer reqluired for the inherited Decodable conformance. This type is never returned from the server and is never decoded into.
         public init(from decoder: any Decoder) throws {
             self = .text
         }
-        
         
         public func encode(to encoder: any Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             switch self {
             case .jsonSchema(let value):
                 try container.encode("json_schema", forKey: .type)
-                let schema = HighLevelSchema(name: "sample", schema: value)
+                let schema = JSONSchema(name: "sample", schema: value)
                 try container.encode(schema, forKey: .jsonSchema)
             case .jsonObject:
                 try container.encode("json_object", forKey: .type)
@@ -639,7 +639,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
     }
     
-    public struct HighLevelSchema: Codable, Equatable {
+    public struct JSONSchema: Codable, Equatable {
         
         let name: String
         let schema: WithSample2
@@ -654,57 +654,20 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             self.schema = schema
         }
         
+        /// A formal initializer reqluired for the inherited Decodable conformance. This type is never returned from the server and is never decoded into.
         public init(from decoder: any Decoder) throws {
-            self = .init(name: "hi", schema: SampleWithSample2(name: "hi"))
+            self = .init(name: "sample", schema: SampleWithSample2(name: "hi"))
         }
         
         public func encode(to encoder: any Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode("sample", forKey: .name)
-            try container.encode(try Self.whatisgoingon(schema), forKey: .schema)
+            try container.encode(try PropertyValue.generate(from: schema), forKey: .schema)
         }
         
-        public static func == (lhs: HighLevelSchema, rhs: HighLevelSchema) -> Bool {
+        public static func == (lhs: JSONSchema, rhs: JSONSchema) -> Bool {
+            // TODO: Implement a proper comparison
             return true
-        }
-        
-        static func whatisgoingon<T: Any>(_ value: T) throws -> PropertyValue {
-            
-            switch value {
-            case _ as String:
-                return .stringValue("string")
-            case _ as Bool:
-                return .boolValue(true)
-            case _ as Int, _ as Int8, _ as Int16, _ as Int32, _ as Int64,
-                _ as UInt, _ as UInt8, _ as UInt16, _ as UInt32, _ as UInt64:
-                return .intValue(0)
-            case _ as Double, _ as Float, _ as CGFloat:
-                return .intValue(0)
-            default:
-                let mirror = Mirror(reflecting: value)
-                if let displayStyle = mirror.displayStyle {
-                    switch displayStyle {
-                    case .struct, .class:
-                        var dict = [String: PropertyValue]()
-                        for child in mirror.children {
-                            dict[child.label!] = try whatisgoingon(child.value)
-                        }
-                        return .propertyValueDictionary(dict)
-                    case .collection:
-                        if let child = mirror.children.first {
-                            return .array(try whatisgoingon(child.value))
-                        } else {
-                            print("no child")
-                            throw StructuredAIError.unsupportedType
-                        }
-                    default:
-                        print("no bueno")
-                        throw StructuredAIError.unsupportedType
-                    }
-                }
-                throw StructuredAIError.unsupportedType
-            }
-            
         }
     }
     
@@ -712,8 +675,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         let name: String
         static var sample: SampleWithSample2 { .init(name: "sample") }
     }
-    
-    
     
     indirect enum PropertyValue: Codable {
         
@@ -781,8 +742,48 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 self = .array(arr)
             }
         }
+        
+        static func generate<T: Any>(from value: T) throws -> PropertyValue {
+            
+            switch value {
+            case _ as String:
+                return .stringValue("string")
+            case _ as Bool:
+                return .boolValue(true)
+            case _ as Int, _ as Int8, _ as Int16, _ as Int32, _ as Int64,
+                _ as UInt, _ as UInt8, _ as UInt16, _ as UInt32, _ as UInt64:
+                return .intValue(0)
+            case _ as Double, _ as Float, _ as CGFloat:
+                return .intValue(0)
+            default:
+                let mirror = Mirror(reflecting: value)
+                if let displayStyle = mirror.displayStyle {
+                    switch displayStyle {
+                    case .struct, .class:
+                        var dict = [String: PropertyValue]()
+                        for child in mirror.children {
+                            dict[child.label!] = try generate(from: child.value)
+                        }
+                        return .propertyValueDictionary(dict)
+                    case .collection:
+                        if let child = mirror.children.first {
+                            return .array(try generate(from: child.value))
+                        } else {
+                            print("no child")
+                            throw StructuredAIError.unsupportedType
+                        }
+                    default:
+                        print("no bueno")
+                        throw StructuredAIError.unsupportedType
+                    }
+                }
+                throw StructuredAIError.unsupportedType
+            }
+            
+        }
     }
     
+    // TODO: Implement other options. Move to a separate file too? Public?
     enum StructuredAIError: Error {
         case unsupportedType
     }
