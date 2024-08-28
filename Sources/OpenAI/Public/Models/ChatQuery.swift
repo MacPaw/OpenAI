@@ -602,9 +602,9 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     // See more https://platform.openai.com/docs/guides/structured-outputs/introduction
     public enum ResponseFormat: Codable, Equatable {
         
-        case jsonSchema(value: StructuredOutput.Type)
-        case jsonObject
         case text
+        case jsonObject
+        case jsonSchema(name: String, type: StructuredOutput.Type)
         
         enum CodingKeys: String, CodingKey {
             case type
@@ -619,14 +619,14 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         public func encode(to encoder: any Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             switch self {
-            case .jsonSchema(let value):
-                try container.encode("json_schema", forKey: .type)
-                let schema = JSONSchema(name: "sample", schema: value.example)
-                try container.encode(schema, forKey: .jsonSchema)
-            case .jsonObject:
-                try container.encode("json_object", forKey: .type)
             case .text:
                 try container.encode("text", forKey: .type)
+            case .jsonObject:
+                try container.encode("json_object", forKey: .type)
+            case .jsonSchema(let name, let type):
+                try container.encode("json_schema", forKey: .type)
+                let schema = JSONSchema(name: name, schema: type.example)
+                try container.encode(schema, forKey: .jsonSchema)
             }
         }
         
@@ -646,6 +646,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             case schema
             case strict
         }
+        
+        // TODO: Create an init that validates the name and throws or auto-fixes and prints a warning
+//        init(name: String, schema: StructuredOutput) {
+//            self.name = name
+//            self.schema = schema
+//        }
         
         public func encode(to encoder: any Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
