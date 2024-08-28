@@ -664,7 +664,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         
         public func encode(to encoder: any Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode("sample", forKey: .name)
+            try container.encode(name, forKey: .name)
             try container.encode(true, forKey: .strict)
             try container.encode(try PropertyValue.generate(from: schema), forKey: .schema)
         }
@@ -672,10 +672,11 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     
     private indirect enum PropertyValue: Codable {
         
-        case stringValue(String)
-        case intValue(Int)
-        case boolValue(Bool)
-        case propertyValueDictionary([String: PropertyValue])
+        case string(String)
+        case integer(Int)
+        case number(Double)
+        case boolean(Bool)
+        case object([String: PropertyValue])
         case array(PropertyValue)
         
         enum CodingKeys: String, CodingKey {
@@ -686,27 +687,29 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
         
         enum ValueType: String, Codable {
-            case stringValue
-            case intValue
-            case boolValue
-            case dictionary
+            case string
+            case integer
+            case number
+            case boolean
+            case object
             case array
         }
         
         func encode(to encoder: Encoder) throws {
-            
             var container = encoder.container(keyedBy: CodingKeys.self)
             
             switch self {
-            case .stringValue:
+            case .string:
                 try container.encode(String("string"), forKey: .type)
-            case .intValue:
+            case .integer:
                 try container.encode(String("integer"), forKey: .type)
-            case .boolValue:
+            case .number:
+                try container.encode(String("number"), forKey: .type)
+            case .boolean:
                 try container.encode(String("boolean"), forKey: .type)
-            case .propertyValueDictionary(let dictionary):
+            case .object(let object):
                 try container.encode(String("object"), forKey: .type)
-                try container.encode(dictionary, forKey: .properties)
+                try container.encode(object, forKey: .properties)
             case .array(let items):
                 try container.encode(String("array"), forKey: .type)
                 try container.encode(items, forKey: .items)
@@ -719,36 +722,38 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             let type = try container.decode(ValueType.self, forKey: .type)
             
             switch type {
-            case .stringValue:
+            case .string:
                 let string = try container.decode(String.self, forKey: .value)
-                self = .stringValue(string)
-            case .intValue:
-                let int = try container.decode(Int.self, forKey: .value)
-                self = .intValue(int)
-            case .boolValue:
+                self = .string(string)
+            case .integer:
+                let integer = try container.decode(Int.self, forKey: .value)
+                self = .integer(integer)
+            case .number:
+                let double = try container.decode(Double.self, forKey: .value)
+                self = .number(double)
+            case .boolean:
                 let bool = try container.decode(Bool.self, forKey: .value)
-                self = .boolValue(bool)
-            case .dictionary:
-                let dictionary = try container.decode([String: PropertyValue].self, forKey: .value)
-                self = .propertyValueDictionary(dictionary)
+                self = .boolean(bool)
+            case .object:
+                let object = try container.decode([String: PropertyValue].self, forKey: .value)
+                self = .object(object)
             case .array:
-                let arr = try container.decode(PropertyValue.self, forKey: .value)
-                self = .array(arr)
+                let array = try container.decode(PropertyValue.self, forKey: .value)
+                self = .array(array)
             }
         }
         
         static func generate<T: Any>(from value: T) throws -> PropertyValue {
-            
             switch value {
             case _ as String:
-                return .stringValue("string")
+                return .string("string")
             case _ as Bool:
-                return .boolValue(true)
+                return .boolean(true)
             case _ as Int, _ as Int8, _ as Int16, _ as Int32, _ as Int64,
                 _ as UInt, _ as UInt8, _ as UInt16, _ as UInt32, _ as UInt64:
-                return .intValue(0)
+                return .integer(0)
             case _ as Double, _ as Float, _ as CGFloat:
-                return .intValue(0)
+                return .integer(0)
             default:
                 let mirror = Mirror(reflecting: value)
                 if let displayStyle = mirror.displayStyle {
@@ -758,27 +763,24 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                         for child in mirror.children {
                             dict[child.label!] = try generate(from: child.value)
                         }
-                        return .propertyValueDictionary(dict)
+                        return .object(dict)
                     case .collection:
                         if let child = mirror.children.first {
                             return .array(try generate(from: child.value))
                         } else {
-                            print("no child")
-                            throw StructuredAIError.unsupportedType
+                            throw StructuredOutputError.unsupportedType
                         }
                     default:
-                        print("no bueno")
-                        throw StructuredAIError.unsupportedType
+                        throw StructuredOutputError.unsupportedType
                     }
                 }
-                throw StructuredAIError.unsupportedType
+                throw StructuredOutputError.unsupportedType
             }
-            
         }
     }
     
     // TODO: Implement other options. Move to a separate file too? Public?
-    enum StructuredAIError: Error {
+    public enum StructuredOutputError: Error {
         case unsupportedType
     }
 
