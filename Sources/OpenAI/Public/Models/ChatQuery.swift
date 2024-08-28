@@ -599,14 +599,215 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
     }
 
-    // See more https://platform.openai.com/docs/guides/text-generation/json-mode
-    public enum ResponseFormat: String, Codable, Equatable {
-        case jsonObject = "json_object"
+    // See more https://platform.openai.com/docs/guides/structured-outputs/introduction
+    public enum ResponseFormat: Codable, Equatable {
+        
         case text
-
-        public func encode(to encoder: Encoder) throws {
-            var container = encoder.singleValueContainer()
-            try container.encode(["type": self.rawValue])
+        case jsonObject
+        case jsonSchema(name: String, type: StructuredOutput.Type)
+        
+        enum CodingKeys: String, CodingKey {
+            case type
+            case jsonSchema = "json_schema"
+        }
+        
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            switch self {
+            case .text:
+                try container.encode("text", forKey: .type)
+            case .jsonObject:
+                try container.encode("json_object", forKey: .type)
+            case .jsonSchema(let name, let type):
+                try container.encode("json_schema", forKey: .type)
+                let schema = JSONSchema(name: name, schema: type.example)
+                try container.encode(schema, forKey: .jsonSchema)
+            }
+        }
+        
+        public static func == (lhs: ResponseFormat, rhs: ResponseFormat) -> Bool {
+            switch (lhs, rhs) {
+            case (.text, .text): return true
+            case (.jsonObject, .jsonObject): return true
+            case (.jsonSchema(let lhsName, let lhsType), .jsonSchema(let rhsName, let rhsType)):
+                return lhsName == rhsName && lhsType == rhsType
+            default:
+                return false
+            }
+        }
+        
+        /// A formal initializer reqluired for the inherited Decodable conformance.
+        /// This type is never returned from the server and is never decoded into.
+        public init(from decoder: any Decoder) throws {
+            self = .text
+        }
+    }
+    
+    private struct JSONSchema: Encodable {
+        
+        let name: String
+        let schema: StructuredOutput
+        
+        enum CodingKeys: String, CodingKey {
+            case name
+            case schema
+            case strict
+        }
+        
+        init(name: String, schema: StructuredOutput) {
+            
+            func format(_ name: String) -> String {
+                let underscored = name.replacingOccurrences(of: " ", with: "_")
+                let regex = try! NSRegularExpression(pattern: "[^a-zA-Z0-9_-]", options: [])
+                let range = NSRange(location: 0, length: underscored.utf16.count)
+                let sanitized = regex.stringByReplacingMatches(in: underscored, options: [], range: range, withTemplate: "")
+                let nonempty = sanitized.isEmpty ? "sample" : sanitized
+                return String(nonempty.prefix(64))
+            }
+            
+            self.name = format(name)
+            self.schema = schema
+            
+            if self.name != name {
+                print("The name was changed to \(self.name) to satisfy the API requirements. See more: https://platform.openai.com/docs/api-reference/chat/create")
+            }
+        }
+        
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(name, forKey: .name)
+            try container.encode(true, forKey: .strict)
+            try container.encode(try PropertyValue.generate(from: schema), forKey: .schema)
+        }
+    }
+    
+    private indirect enum PropertyValue: Codable {
+        
+        case string(String)
+        case integer(Int)
+        case number(Double)
+        case boolean(Bool)
+        case object([String: PropertyValue])
+        case array(PropertyValue)
+        
+        enum CodingKeys: String, CodingKey {
+            case type
+            case value
+            case properties
+            case items
+            case additionalProperties
+            case required
+        }
+        
+        enum ValueType: String, Codable {
+            case string
+            case integer
+            case number
+            case boolean
+            case object
+            case array
+        }
+        
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            
+            switch self {
+            case .string:
+                try container.encode(String("string"), forKey: .type)
+            case .integer:
+                try container.encode(String("integer"), forKey: .type)
+            case .number:
+                try container.encode(String("number"), forKey: .type)
+            case .boolean:
+                try container.encode(String("boolean"), forKey: .type)
+            case .object(let object):
+                try container.encode(String("object"), forKey: .type)
+                try container.encode(false, forKey: .additionalProperties)
+                try container.encode(object, forKey: .properties)
+                let fields = try object.map { key, value in key }
+                try container.encode(fields, forKey: .required)
+            case .array(let items):
+                try container.encode(String("array"), forKey: .type)
+                try container.encode(items, forKey: .items)
+                
+            }
+        }
+        
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let type = try container.decode(ValueType.self, forKey: .type)
+            
+            switch type {
+            case .string:
+                let string = try container.decode(String.self, forKey: .value)
+                self = .string(string)
+            case .integer:
+                let integer = try container.decode(Int.self, forKey: .value)
+                self = .integer(integer)
+            case .number:
+                let double = try container.decode(Double.self, forKey: .value)
+                self = .number(double)
+            case .boolean:
+                let bool = try container.decode(Bool.self, forKey: .value)
+                self = .boolean(bool)
+            case .object:
+                let object = try container.decode([String: PropertyValue].self, forKey: .value)
+                self = .object(object)
+            case .array:
+                let array = try container.decode(PropertyValue.self, forKey: .value)
+                self = .array(array)
+            }
+        }
+        
+        static func generate<T: Any>(from value: T) throws -> PropertyValue {
+            switch value {
+            case _ as String:
+                return .string("string")
+            case _ as Bool:
+                return .boolean(true)
+            case _ as Int, _ as Int8, _ as Int16, _ as Int32, _ as Int64,
+                _ as UInt, _ as UInt8, _ as UInt16, _ as UInt32, _ as UInt64:
+                return .integer(0)
+            case _ as Double, _ as Float, _ as CGFloat:
+                return .integer(0)
+            default:
+                let mirror = Mirror(reflecting: value)
+                if let displayStyle = mirror.displayStyle {
+                    switch displayStyle {
+                    case .struct, .class:
+                        var dict = [String: PropertyValue]()
+                        for child in mirror.children {
+                            dict[child.label!] = try generate(from: child.value)
+                        }
+                        return .object(dict)
+                    case .collection:
+                        if let child = mirror.children.first {
+                            return .array(try generate(from: child.value))
+                        } else {
+                            throw StructuredOutputError.typeUnsupported
+                        }
+                    case .enum:
+                        throw StructuredOutputError.enumsUnsupported
+                    default:
+                        throw StructuredOutputError.typeUnsupported
+                    }
+                }
+                throw StructuredOutputError.typeUnsupported
+            }
+        }
+    }
+    
+    public enum StructuredOutputError: LocalizedError {
+        case enumsUnsupported
+        case typeUnsupported
+        
+        public var errorDescription: String? {
+            switch self {
+            case .enumsUnsupported:
+                return "Enums are not supported at the moment. Consider using one of the basics types and specifying the accepted values in the prompt."
+            case .typeUnsupported:
+                return "Unsupported type. Supported types: String, Bool, Int, Double, Array, and Codable struct/class instances."
+            }
         }
     }
 
