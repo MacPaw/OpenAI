@@ -643,7 +643,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
     }
     
-    public struct JSONSchema: Encodable {
+    private struct JSONSchema: Encodable {
         
         let name: String
         let schema: StructuredOutput
@@ -654,11 +654,13 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             case strict
         }
         
-        // TODO: Create an init that validates the name and throws or auto-fixes and prints a warning
-//        init(name: String, schema: StructuredOutput) {
-//            self.name = name
-//            self.schema = schema
-//        }
+        init(name: String, schema: StructuredOutput) {
+            
+            self.name = name
+            
+            
+            self.schema = schema
+        }
         
         public func encode(to encoder: any Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
@@ -668,7 +670,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
     }
     
-    indirect enum PropertyValue: Codable {
+    private indirect enum PropertyValue: Codable {
         
         case stringValue(String)
         case intValue(Int)
