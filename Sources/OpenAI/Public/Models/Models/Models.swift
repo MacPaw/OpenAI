@@ -12,7 +12,7 @@ public extension Model {
     // Chat Completion
     // GPT-4
 
-    /// TODO: Write a proper description
+    /// `gpt-4o-2024-08-06`, latest snapshot that supports Structured Outputs
     static let gpt4_o_2024_08_06 = "gpt-4o-2024-08-06"
 
     /// `gpt-4o`, currently the most advanced, multimodal flagship model that's cheaper and faster than GPT-4 Turbo.
