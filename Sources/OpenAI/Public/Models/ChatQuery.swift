@@ -688,6 +688,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         case integer(Int)
         case number(Double)
         case boolean(Bool)
+        case `enum`([String])
         case object([String: PropertyValue])
         case array(PropertyValue)
         
@@ -699,6 +700,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             case items
             case additionalProperties
             case required
+            case `enum`
         }
         
         enum ValueType: String, Codable {
@@ -726,6 +728,9 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 try container.encode(String("number"), forKey: .type)
             case .boolean:
                 try container.encode(String("boolean"), forKey: .type)
+            case .enum(let cases):
+                try container.encode(String("string"), forKey: .type)
+                try container.encode(cases, forKey: .enum)
             case .object(let object):
                 try container.encode(String("object"), forKey: .type)
                 try container.encode(false, forKey: .additionalProperties)
@@ -784,21 +789,29 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             default:
                 let mirror = Mirror(reflecting: value)
                 if let displayStyle = mirror.displayStyle {
+                    
                     switch displayStyle {
+                        
                     case .struct, .class:
                         var dict = [String: PropertyValue]()
                         for child in mirror.children {
                             dict[child.label!] = try generate(from: child.value)
                         }
                         return .object(dict)
+                        
                     case .collection:
                         if let child = mirror.children.first {
                             return .array(try generate(from: child.value))
                         } else {
                             throw StructuredOutputError.typeUnsupported
                         }
+                        
                     case .enum:
-                        throw StructuredOutputError.enumsUnsupported
+                        if let structuredEnum = value as? any StructuredOutputEnum {
+                            return .enum(structuredEnum.caseNames)
+                        } else {
+                            throw StructuredOutputError.enumsConformance
+                        }
                     default:
                         throw StructuredOutputError.typeUnsupported
                     }
@@ -809,13 +822,13 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     }
     
     public enum StructuredOutputError: LocalizedError {
-        case enumsUnsupported
+        case enumsConformance
         case typeUnsupported
         
         public var errorDescription: String? {
             switch self {
-            case .enumsUnsupported:
-                return "Enums are not supported at the moment. Consider using one of the basics types and specifying the accepted values in the prompt."
+            case .enumsConformance:
+                return "Conform the enum types to StructuredOutputEnum and provide the `caseNames` property with a list of available cases."
             case .typeUnsupported:
                 return "Unsupported type. Supported types: String, Bool, Int, Double, Array, and Codable struct/class instances."
             }
