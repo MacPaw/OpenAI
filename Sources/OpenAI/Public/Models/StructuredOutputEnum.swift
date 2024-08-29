@@ -1,6 +1,6 @@
 //
-//  File.swift
-// 
+//  StructuredOutputEnum.swift
+//
 //
 //  Created by Andriy Gordiyenko on 8/29/24.
 //
