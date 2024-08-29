@@ -703,6 +703,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         
         enum ValueType: String, Codable {
             case string
+            case date
             case integer
             case number
             case boolean
@@ -746,6 +747,9 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             case .string:
                 let string = try container.decode(String.self, forKey: .value)
                 self = .string(string)
+            case .date:
+                let date = try container.decode(Date.self, forKey: .value)
+                self = .date(date)
             case .integer:
                 let integer = try container.decode(Int.self, forKey: .value)
                 self = .integer(integer)
