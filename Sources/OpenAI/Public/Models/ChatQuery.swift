@@ -684,6 +684,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     private indirect enum PropertyValue: Codable {
         
         case string(String)
+        case date(Date)
         case integer(Int)
         case number(Double)
         case boolean(Bool)
@@ -692,6 +693,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         
         enum CodingKeys: String, CodingKey {
             case type
+            case description
             case value
             case properties
             case items
@@ -714,6 +716,9 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             switch self {
             case .string:
                 try container.encode(String("string"), forKey: .type)
+            case .date:
+                try container.encode(String("string"), forKey: .type)
+                try container.encode(String("Date in iso8601 format"), forKey: .description)
             case .integer:
                 try container.encode(String("integer"), forKey: .type)
             case .number:
@@ -769,7 +774,9 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 _ as UInt, _ as UInt8, _ as UInt16, _ as UInt32, _ as UInt64:
                 return .integer(0)
             case _ as Double, _ as Float, _ as CGFloat:
-                return .integer(0)
+                return .number(0)
+            case _ as Date:
+                return .date(Date())
             default:
                 let mirror = Mirror(reflecting: value)
                 if let displayStyle = mirror.displayStyle {
