@@ -657,12 +657,13 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         init(name: String, schema: StructuredOutput) {
             
             func format(_ name: String) -> String {
-                let underscored = name.replacingOccurrences(of: " ", with: "_")
+                var formattedName = name.replacingOccurrences(of: " ", with: "_")
                 let regex = try! NSRegularExpression(pattern: "[^a-zA-Z0-9_-]", options: [])
-                let range = NSRange(location: 0, length: underscored.utf16.count)
-                let sanitized = regex.stringByReplacingMatches(in: underscored, options: [], range: range, withTemplate: "")
-                let nonempty = sanitized.isEmpty ? "sample" : sanitized
-                return String(nonempty.prefix(64))
+                let range = NSRange(location: 0, length: formattedName.utf16.count)
+                formattedName = regex.stringByReplacingMatches(in: formattedName, options: [], range: range, withTemplate: "")
+                formattedName = formattedName.isEmpty ? "sample" : formattedName
+                formattedName = String(formattedName.prefix(64))
+                return formattedName
             }
             
             self.name = format(name)
@@ -677,17 +678,26 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(name, forKey: .name)
             try container.encode(true, forKey: .strict)
-            try container.encode(try PropertyValue.generate(from: schema), forKey: .schema)
+            try container.encode(try PropertyValue(from: schema), forKey: .schema)
         }
     }
     
     private indirect enum PropertyValue: Codable {
         
-        case string(isOptional: Bool)
+        enum SimpleType: String, Codable {
+            case string, integer, number, boolean
+        }
+        
+        enum ComplexType: String, Codable {
+            case object, array, date
+        }
+        
+        enum SpecialType: String, Codable {
+            case null
+        }
+        
+        case simple(SimpleType, isOptional: Bool)
         case date(isOptional: Bool)
-        case integer(isOptional: Bool)
-        case number(isOptional: Bool)
-        case boolean(isOptional: Bool)
         case `enum`(cases: [String], isOptional: Bool)
         case object([String: PropertyValue], isOptional: Bool)
         case array(PropertyValue, isOptional: Bool)
@@ -695,7 +705,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         enum CodingKeys: String, CodingKey {
             case type
             case description
-            case value
             case properties
             case items
             case additionalProperties
@@ -717,49 +726,31 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             var container = encoder.container(keyedBy: CodingKeys.self)
             
             switch self {
-            case .string(let isOptional):
+            case .simple(let type, let isOptional):
                 if isOptional {
-                    try container.encode(["string", "null"], forKey: .type)
+                    try container.encode([type.rawValue, SpecialType.null.rawValue], forKey: .type)
                 } else {
-                    try container.encode(String("string"), forKey: .type)
+                    try container.encode(type.rawValue, forKey: .type)
                 }
             case .date(let isOptional):
-               if isOptional {
-                   try container.encode(["string", "null"], forKey: .type)
-               } else {
-                   try container.encode(String("string"), forKey: .type)
-               }
-                try container.encode(String("Date in iso8601 format"), forKey: .description)
-            case .integer(let isOptional):
                 if isOptional {
-                    try container.encode(["integer", "null"], forKey: .type)
+                    try container.encode([SimpleType.string.rawValue, SpecialType.null.rawValue], forKey: .type)
                 } else {
-                    try container.encode(String("integer"), forKey: .type)
+                    try container.encode(SimpleType.string.rawValue, forKey: .type)
                 }
-            case .number(let isOptional):
-                if isOptional {
-                    try container.encode(["number", "null"], forKey: .type)
-                } else {
-                    try container.encode(String("number"), forKey: .type)
-                }
-            case .boolean(let isOptional):
-                if isOptional {
-                    try container.encode(["boolean", "null"], forKey: .type)
-                } else {
-                    try container.encode(String("boolean"), forKey: .type)
-                }
+                try container.encode("String that represents a date formatted in iso8601", forKey: .description)
             case .enum(let cases, let isOptional):
                 if isOptional {
-                    try container.encode(["string", "null"], forKey: .type)
+                    try container.encode([SimpleType.string.rawValue, SpecialType.null.rawValue], forKey: .type)
                 } else {
-                    try container.encode(String("string"), forKey: .type)
+                    try container.encode(SimpleType.string.rawValue, forKey: .type)
                 }
                 try container.encode(cases, forKey: .enum)
             case .object(let object, let isOptional):
                 if isOptional {
-                    try container.encode(["object", "null"], forKey: .type)
+                    try container.encode([ComplexType.object.rawValue, SpecialType.null.rawValue], forKey: .type)
                 } else {
-                    try container.encode(String("object"), forKey: .type)
+                    try container.encode(ComplexType.object.rawValue, forKey: .type)
                 }
                 try container.encode(false, forKey: .additionalProperties)
                 try container.encode(object, forKey: .properties)
@@ -767,61 +758,34 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 try container.encode(fields, forKey: .required)
             case .array(let items, let isOptional):
                 if isOptional {
-                    try container.encode(["array", "null"], forKey: .type)
+                    try container.encode([ComplexType.array.rawValue, SpecialType.null.rawValue], forKey: .type)
                 } else {
-                    try container.encode(String("array"), forKey: .type)
+                    try container.encode(ComplexType.array.rawValue, forKey: .type)
                 }
                 try container.encode(items, forKey: .items)
-                
             }
         }
         
-        init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            let type = try container.decode(ValueType.self, forKey: .type)
-            
-            switch type {
-            case .string:
-                let string = try container.decode(String.self, forKey: .value)
-                self = .string(isOptional: false)
-            case .date:
-                let date = try container.decode(Date.self, forKey: .value)
-                self = .date(isOptional: false)
-            case .integer:
-                let integer = try container.decode(Int.self, forKey: .value)
-                self = .integer(isOptional: false)
-            case .number:
-                let double = try container.decode(Double.self, forKey: .value)
-                self = .number(isOptional: false)
-            case .boolean:
-                let bool = try container.decode(Bool.self, forKey: .value)
-                self = .boolean(isOptional: false)
-            case .object:
-                let object = try container.decode([String: PropertyValue].self, forKey: .value)
-                self = .object(object, isOptional: false)
-            case .array:
-                let array = try container.decode(PropertyValue.self, forKey: .value)
-                self = .array(array, isOptional: false)
-            }
-        }
-        
-        static func generate<T: Any>(from value: T) throws -> PropertyValue {
-            
+        init<T: Any>(from value: T) throws {
             let mirror = Mirror(reflecting: value)
             let isOptional = mirror.displayStyle == .optional
             
             switch value {
             case _ as String:
-                return .string(isOptional: isOptional)
+                self = .simple(.string, isOptional: isOptional)
+                return
             case _ as Bool:
-                return .boolean(isOptional: isOptional)
-            case _ as Int, _ as Int8, _ as Int16, _ as Int32, _ as Int64,
-                _ as UInt, _ as UInt8, _ as UInt16, _ as UInt32, _ as UInt64:
-                return .integer(isOptional: isOptional)
+                self = .simple(.boolean, isOptional: isOptional)
+                return
+            case _ as Int, _ as Int8, _ as Int16, _ as Int32, _ as Int64, _ as UInt, _ as UInt8, _ as UInt16, _ as UInt32, _ as UInt64:
+                self = .simple(.integer, isOptional: isOptional)
+                return
             case _ as Double, _ as Float, _ as CGFloat:
-                return .number(isOptional: isOptional)
+                self = .simple(.number, isOptional: isOptional)
+                return
             case _ as Date:
-                return .date(isOptional: isOptional)
+                self = .date(isOptional: isOptional)
+                return
             default:
                 
                 var unwrappedMirror: Mirror!
@@ -841,20 +805,23 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     case .struct, .class:
                         var dict = [String: PropertyValue]()
                         for child in unwrappedMirror.children {
-                            dict[child.label!] = try generate(from: child.value)
+                            dict[child.label!] = try Self(from: child.value)
                         }
-                        return .object(dict, isOptional: isOptional)
+                        self = .object(dict, isOptional: isOptional)
+                        return
                         
                     case .collection:
                         if let child = unwrappedMirror.children.first {
-                            return .array(try generate(from: child.value), isOptional: isOptional)
+                            self = .array(try Self(from: child.value), isOptional: isOptional)
+                            return
                         } else {
                             throw StructuredOutputError.typeUnsupported
                         }
                         
                     case .enum:
                         if let structuredEnum = value as? any StructuredOutputEnum {
-                            return .enum(cases: structuredEnum.caseNames, isOptional: isOptional)
+                            self = .enum(cases: structuredEnum.caseNames, isOptional: isOptional)
+                            return
                         } else {
                             throw StructuredOutputError.enumsConformance
                         }
@@ -865,6 +832,13 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 }
                 throw StructuredOutputError.typeUnsupported
             }
+        }
+        
+        
+        /// A formal initializer reqluired for the inherited Decodable conformance.
+        /// This type is never returned from the server and is never decoded into.
+        init(from decoder: Decoder) throws {
+            self = .simple(.boolean, isOptional: false)
         }
     }
     
