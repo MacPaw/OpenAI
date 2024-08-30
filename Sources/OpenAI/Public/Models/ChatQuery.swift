@@ -703,6 +703,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 public let multipleOf: Int?
                 public let minimum: Int?
                 public let maximum: Int?
+                public let additionalProperties: Bool?
 
                 public init(
                     type: Self.JSONType,
@@ -713,7 +714,8 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     enum: [String]? = nil,
                     multipleOf: Int? = nil,
                     minimum: Int? = nil,
-                    maximum: Int? = nil
+                    maximum: Int? = nil,
+                    additionalProperties: Bool? = nil
                 ) {
                     self.type = type
                     self.properties = properties
@@ -724,6 +726,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     self.multipleOf = multipleOf
                     self.minimum = minimum
                     self.maximum = maximum
+                    self.additionalProperties = additionalProperties
                 }
 
                 public struct Property: Codable, Equatable {
