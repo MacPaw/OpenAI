@@ -676,14 +676,19 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             /// **Python library defines only [String: Object] dictionary.
             public let parameters: Self.FunctionParameters?
 
+            /// Whether to enable strict schema adherence when generating the function call. If set to true, the model will follow the exact schema defined in the parameters field. Only a subset of JSON Schema is supported when strict is true.
+            public let strict: Bool?
+
             public init(
                 name: String,
                 description: String? = nil,
-                parameters: Self.FunctionParameters? = nil
+                parameters: Self.FunctionParameters? = nil,
+                strict: Bool? = nil
             ) {
                 self.name = name
                 self.description = description
                 self.parameters = parameters
+                self.strict = strict
             }
 
             /// See the [guide](/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.

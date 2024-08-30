@@ -247,6 +247,70 @@ class OpenAITestsDecoder: XCTestCase {
         XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
     }
 
+    func testChatQueryWithFunctionCallStrict() async throws {
+        let chatQuery = ChatQuery(
+            messages: [
+                .user(.init(content: .string("What's the weather like in Boston?")))
+            ],
+            model: .gpt3_5Turbo,
+            responseFormat: ChatQuery.ResponseFormat.jsonObject,
+            tools: [
+                .init(function: .init(
+                    name: "get_current_weather",
+                    description: "Get the current weather in a given location",
+                    parameters: .init(
+                        type: .object,
+                        properties: [
+                          "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
+                          "unit": .init(type: .string, enum: ["celsius", "fahrenheit"])
+                        ],
+                        required: ["location"]
+                      ),
+                    strict: true
+                ))
+            ]
+        )
+        let expectedValue = """
+        {
+          "model": "gpt-3.5-turbo",
+          "messages": [
+            { "role": "user", "content": "What's the weather like in Boston?" }
+          ],
+          "response_format": {
+            "type": "json_object"
+           },
+          "tools": [
+            {
+              "function": {
+                "name": "get_current_weather",
+                "description": "Get the current weather in a given location",
+                "parameters": {
+                  "type": "object",
+                  "properties": {
+                    "location": {
+                      "type": "string",
+                      "description": "The city and state, e.g. San Francisco, CA"
+                    },
+                    "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] }
+                  },
+                  "required": ["location"]
+                },
+                "strict": true
+              },
+              "type": "function"
+            }
+          ],
+          "stream": false
+        }
+        """
+
+        // To compare serialized JSONs we first convert them both into NSDictionary which are comparable (unline native swift dictionaries)
+        let chatQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(chatQuery))
+        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
+
+        XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
+    }
+
     func testChatCompletionWithFunctionCall() async throws {
         let data = """
         {
