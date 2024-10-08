@@ -115,6 +115,46 @@ class OpenAITests: XCTestCase {
        let result = try await openAI.chats(query: query)
        XCTAssertEqual(result, chatResult)
     }
+    
+    func testChatQueryWithStructuredOutput() async throws {
+        
+        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
+            ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
+        try self.stub(result: chatResult)
+        
+        enum MovieGenre: String, Codable, StructuredOutputEnum {
+            case action, drama, comedy, scifi
+            var caseNames: [String] { Self.allCases.map { $0.rawValue } }
+        }
+        
+        struct MovieInfo: StructuredOutput {
+            
+            let title: String
+            let director: String
+            let release: Date
+            let genres: [MovieGenre]
+            let cast: [String]
+            
+            static let example: Self = {
+                .init(
+                    title: "Earth",
+                    director: "Alexander Dovzhenko",
+                    release: Calendar.current.date(from: DateComponents(year: 1930, month: 4, day: 1))!,
+                    genres: [.drama],
+                    cast: ["Stepan Shkurat", "Semyon Svashenko", "Yuliya Solntseva"]
+                )
+            }()
+        }
+        
+        let query = ChatQuery(
+            messages: [.system(.init(content: "Return a structured response."))],
+            model: .gpt4_o,
+            responseFormat: .jsonSchema(name: "movie-info", type: MovieInfo.self)
+        )
+        
+        let result = try await openAI.chats(query: query)
+        XCTAssertEqual(result, chatResult)
+    }
 
     func testChatsFunction() async throws {
         let query = ChatQuery(messages: [
