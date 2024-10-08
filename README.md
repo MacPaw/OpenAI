@@ -405,22 +405,22 @@ struct MovieInfo: StructuredOutput {
         .init(
             title: "Earth",
             director: "Alexander Dovzhenko",
-            release: Calendar.current.date(year: 1930, month: 4, day: 8)!,
+            release: Calendar.current.date(from: DateComponents(year: 1930, month: 4, day: 1))!,
             genres: [.drama],
-            cast: [ "Stepan Shkurat", "Semyon Svashenko", "Yuliya Solntseva" ]
+            cast: ["Stepan Shkurat", "Semyon Svashenko", "Yuliya Solntseva"]
         )
     }()
 }
 
-enum MovieGenre: String, StructuredOutputEnum {
+enum MovieGenre: String, Codable, StructuredOutputEnum {
     case action, drama, comedy, scifi
     
     var caseNames: [String] { Self.allCases.map { $0.rawValue } }
 }
 
 let query = ChatQuery(
-    messages: [.system(.init(content: message))],
-    model: .gpt4_o_2024_08_06,
+    messages: [.system(.init(content: "Best Picture winner at the 2011 Oscars"))],
+    model: .gpt4_o,
     responseFormat: .jsonSchema(name: "movie-info", type: MovieInfo.self)
 )
 let result = try await openAI.chats(query: query)
