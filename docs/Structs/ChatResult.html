@@ -287,7 +287,40 @@
 
                 </div>
               </div>
-            
+            <p><a href="https://platform.openai.com/docs/api-reference/chat/object">https://platform.openai.com/docs/api-reference/chat/object</a>
+Example Completion object print</p>
+<pre class="highlight swift"><code><span class="p">{</span>
+ <span class="s">"id"</span><span class="p">:</span> <span class="s">"chatcmpl-123456"</span><span class="p">,</span>
+ <span class="s">"object"</span><span class="p">:</span> <span class="s">"chat.completion"</span><span class="p">,</span>
+ <span class="s">"created"</span><span class="p">:</span> <span class="mi">1728933352</span><span class="p">,</span>
+ <span class="s">"model"</span><span class="p">:</span> <span class="s">"gpt-4o-2024-08-06"</span><span class="p">,</span>
+ <span class="s">"choices"</span><span class="p">:</span> <span class="p">[</span>
+   <span class="p">{</span>
+     <span class="s">"index"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+     <span class="s">"message"</span><span class="p">:</span> <span class="p">{</span>
+       <span class="s">"role"</span><span class="p">:</span> <span class="s">"assistant"</span><span class="p">,</span>
+       <span class="s">"content"</span><span class="p">:</span> <span class="s">"Hi there! How can I assist you today?"</span><span class="p">,</span>
+       <span class="s">"refusal"</span><span class="p">:</span> <span class="n">null</span>
+     <span class="p">},</span>
+     <span class="s">"logprobs"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+     <span class="s">"finish_reason"</span><span class="p">:</span> <span class="s">"stop"</span>
+   <span class="p">}</span>
+ <span class="p">],</span>
+ <span class="s">"usage"</span><span class="p">:</span> <span class="p">{</span>
+   <span class="s">"prompt_tokens"</span><span class="p">:</span> <span class="mi">19</span><span class="p">,</span>
+   <span class="s">"completion_tokens"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+   <span class="s">"total_tokens"</span><span class="p">:</span> <span class="mi">29</span><span class="p">,</span>
+   <span class="s">"prompt_tokens_details"</span><span class="p">:</span> <span class="p">{</span>
+     <span class="s">"cached_tokens"</span><span class="p">:</span> <span class="mi">0</span>
+   <span class="p">},</span>
+   <span class="s">"completion_tokens_details"</span><span class="p">:</span> <span class="p">{</span>
+     <span class="s">"reasoning_tokens"</span><span class="p">:</span> <span class="mi">0</span>
+   <span class="p">}</span>
+ <span class="p">},</span>
+ <span class="s">"system_fingerprint"</span><span class="p">:</span> <span class="s">"fp_6b68a8204b"</span>
+<span class="p">}</span>
+</code></pre>
+
           </section>
           <section class="section task-group-section">
             <div class="task-group">
@@ -305,7 +338,8 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        
+                        <p>mimic the choices array in the chat completion object</p>
+
                         <a href="../Structs/ChatResult/Choice.html" class="slightly-smaller">See more</a>
                       </div>
                       <div class="declaration">

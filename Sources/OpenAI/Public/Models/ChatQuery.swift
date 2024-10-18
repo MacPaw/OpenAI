@@ -9,6 +9,7 @@ import Foundation
 
 /// Creates a model response for the given chat conversation
 /// https://platform.openai.com/docs/guides/text-generation
+/// https://platform.openai.com/docs/api-reference/chat/create
 public struct ChatQuery: Equatable, Codable, Streamable {
 
     /// A list of messages comprising the conversation so far
