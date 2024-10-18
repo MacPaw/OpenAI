@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>ChatQuery Structure Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Struct/ChatQuery" class="dashAnchor"></a>
+    <a title="ChatQuery Structure Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html"> Docs</a> (100% documented)</p>
+        <div class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">Index</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        <a href="../Structs.html">Structures</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        OpenAI.ChatQuery Structure Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/OpenAI.html">OpenAI</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/OpenAI/Configuration.html">– Configuration</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/OpenAIError.html">OpenAIError</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Extensions/Model.html">Model</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/OpenAIProtocol.html">OpenAIProtocol</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/APIError.html">APIError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/APIErrorResponse.html">APIErrorResponse</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechQuery.html">AudioSpeechQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechQuery/AudioSpeechVoice.html">– AudioSpeechVoice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechQuery/AudioSpeechResponseFormat.html">– AudioSpeechResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechQuery/Speed.html">– Speed</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechResult.html">AudioSpeechResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranscriptionQuery.html">AudioTranscriptionQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranscriptionQuery/ResponseFormat.html">– ResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranscriptionQuery/FileType.html">– FileType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranscriptionResult.html">AudioTranscriptionResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranslationQuery.html">AudioTranslationQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranslationResult.html">AudioTranslationResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery.html">ChatQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/ChatCompletionMessageParam.html">– ChatCompletionMessageParam</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/Stop.html">– Stop</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/ResponseFormat.html">– ResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/ChatCompletionFunctionCallOptionParam.html">– ChatCompletionFunctionCallOptionParam</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/ChatCompletionToolParam.html">– ChatCompletionToolParam</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatResult.html">ChatResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatResult/CompletionUsage.html">– CompletionUsage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatResult/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatStreamResult.html">ChatStreamResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatStreamResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatStreamResult/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CompletionsQuery.html">CompletionsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CompletionsResult.html">CompletionsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CompletionsResult/Usage.html">– Usage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CompletionsResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EditsQuery.html">EditsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EditsResult.html">EditsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EditsResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EditsResult/Usage.html">– Usage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsQuery.html">EmbeddingsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsQuery/Input.html">– Input</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsQuery/EncodingFormat.html">– EncodingFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsResult.html">EmbeddingsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsResult/Embedding.html">– Embedding</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsResult/Usage.html">– Usage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImageEditsQuery.html">ImageEditsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImageEditsQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImageVariationsQuery.html">ImageVariationsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImageVariationsQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery.html">ImagesQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery/ResponseFormat.html">– ResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery/Style.html">– Style</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery/Quality.html">– Quality</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery/Size.html">– Size</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesResult.html">ImagesResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesResult/Image.html">– Image</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModelQuery.html">ModelQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModelResult.html">ModelResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModelResult/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModelsResult.html">ModelsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModerationsQuery.html">ModerationsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModerationsResult.html">ModerationsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModerationsResult/Moderation.html">– Moderation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/Vector.html">Vector</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Typealiases.html">Type Aliases</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Typealiases.html#/s:6OpenAI5Modela">Model</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>ChatQuery</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">ChatQuery</span> <span class="p">:</span> <span class="kt">Equatable</span><span class="p">,</span> <span class="kt">Codable</span><span class="p">,</span> <span class="kt">Streamable</span></code></pre>
+
+                </div>
+              </div>
+            <p>Creates a model response for the given chat conversation
+<a href="https://platform.openai.com/docs/guides/text-generation">https://platform.openai.com/docs/guides/text-generation</a></p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV8messagesSayAC0C22CompletionMessageParamOGvp"></a>
+                    <a name="//apple_ref/swift/Property/messages" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV8messagesSayAC0C22CompletionMessageParamOGvp">messages</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A list of messages comprising the conversation so far</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">messages</span><span class="p">:</span> <span class="p">[`</span><span class="nv">Self</span><span class="p">`</span><span class="o">.</span><span class="kt"><a href="../Structs/ChatQuery/ChatCompletionMessageParam.html">ChatCompletionMessageParam</a></span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV5modelSSvp"></a>
+                    <a name="//apple_ref/swift/Property/model" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV5modelSSvp">model</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>ID of the model to use. See the model endpoint compatibility table for details on which models work with the Chat API.
+<a href="https://platform.openai.com/docs/models/model-endpoint-compatibility">https://platform.openai.com/docs/models/model-endpoint-compatibility</a></p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">model</span><span class="p">:</span> <span class="kt"><a href="../Typealiases.html#/s:6OpenAI5Modela">Model</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV16frequencyPenaltySdSgvp"></a>
+                    <a name="//apple_ref/swift/Property/frequencyPenalty" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV16frequencyPenaltySdSgvp">frequencyPenalty</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model&rsquo;s likelihood to repeat the same line verbatim.
+Defaults to 0
+<a href="https://platform.openai.com/docs/guides/text-generation/parameter-details">https://platform.openai.com/docs/guides/text-generation/parameter-details</a></p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">frequencyPenalty</span><span class="p">:</span> <span class="kt">Double</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV9logitBiasSDySSSiGSgvp"></a>
+                    <a name="//apple_ref/swift/Property/logitBias" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV9logitBiasSDySSSiGSgvp">logitBias</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Modify the likelihood of specified tokens appearing in the completion.
+Accepts a JSON object that maps tokens (specified by their token ID in the tokenizer) to an associated bias value from -100 to 100. Mathematically, the bias is added to the logits generated by the model prior to sampling. The exact effect will vary per model, but values between -1 and 1 should decrease or increase likelihood of selection; values like -100 or 100 should result in a ban or exclusive selection of the relevant token.
+Defaults to null</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">logitBias</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span> <span class="p">:</span> <span class="kt">Int</span><span class="p">]?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV8logprobsSbSgvp"></a>
+                    <a name="//apple_ref/swift/Property/logprobs" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV8logprobsSbSgvp">logprobs</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Whether to return log probabilities of the output tokens or not. If true, returns the log probabilities of each output token returned in the content of message. This option is currently not available on the gpt-4-vision-preview model.
+Defaults to false</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">logprobs</span><span class="p">:</span> <span class="kt">Bool</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV9maxTokensSiSgvp"></a>
+                    <a name="//apple_ref/swift/Property/maxTokens" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV9maxTokensSiSgvp">maxTokens</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The maximum number of tokens to generate in the completion.
+The total length of input tokens and generated tokens is limited by the model&rsquo;s context length.
+<a href="https://platform.openai.com/tokenizer">https://platform.openai.com/tokenizer</a></p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">maxTokens</span><span class="p">:</span> <span class="kt">Int</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV1nSiSgvp"></a>
+                    <a name="//apple_ref/swift/Property/n" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV1nSiSgvp">n</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>How many chat completion choices to generate for each input message. Note that you will be charged based on the number of generated tokens across all of the choices. Keep n as 1 to minimize costs.
+Defaults to 1</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">n</span><span class="p">:</span> <span class="kt">Int</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV15presencePenaltySdSgvp"></a>
+                    <a name="//apple_ref/swift/Property/presencePenalty" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV15presencePenaltySdSgvp">presencePenalty</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model&rsquo;s likelihood to talk about new topics.
+<a href="https://platform.openai.com/docs/guides/text-generation/parameter-details">https://platform.openai.com/docs/guides/text-generation/parameter-details</a></p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">presencePenalty</span><span class="p">:</span> <span class="kt">Double</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV14responseFormatAC08ResponseF0OSgvp"></a>
+                    <a name="//apple_ref/swift/Property/responseFormat" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV14responseFormatAC08ResponseF0OSgvp">responseFormat</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>An object specifying the format that the model must output. Compatible with gpt-4-1106-preview and gpt-3.5-turbo-1106.
+Setting to { &ldquo;type&rdquo;: &ldquo;json_object&rdquo; } enables JSON mode, which guarantees the message the model generates is valid JSON.
+Important: when using JSON mode, you must also instruct the model to produce JSON yourself via a system or user message. Without this, the model may generate an unending stream of whitespace until the generation reaches the token limit, resulting in a long-running and seemingly &ldquo;stuck&rdquo; request. Also note that the message content may be partially cut off if finish_reason=&ldquo;length&rdquo;, which indicates the generation exceeded max_tokens or the conversation exceeded the max context length.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">responseFormat</span><span class="p">:</span> <span class="p">`</span><span class="nv">Self</span><span class="p">`</span><span class="o">.</span><span class="kt"><a href="../Structs/ChatQuery/ResponseFormat.html">ResponseFormat</a></span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV4seedSiSgvp"></a>
+                    <a name="//apple_ref/swift/Property/seed" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV4seedSiSgvp">seed</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This feature is in Beta. If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same seed and parameters should return the same result. Determinism is not guaranteed, and you should refer to the system_fingerprint response parameter to monitor changes in the backend.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">seed</span><span class="p">:</span> <span class="kt">Int</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV4stopAC4StopOSgvp"></a>
+                    <a name="//apple_ref/swift/Property/stop" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV4stopAC4StopOSgvp">stop</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
+Defaults to null</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">stop</span><span class="p">:</span> <span class="kt"><a href="../Structs/ChatQuery/Stop.html">Stop</a></span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV11temperatureSdSgvp"></a>
+                    <a name="//apple_ref/swift/Property/temperature" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV11temperatureSdSgvp">temperature</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
+We generally recommend altering this or top_p but not both.
+Defaults to 1</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">temperature</span><span class="p">:</span> <span class="kt">Double</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV10toolChoiceAC0C33CompletionFunctionCallOptionParamOSgvp"></a>
+                    <a name="//apple_ref/swift/Property/toolChoice" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV10toolChoiceAC0C33CompletionFunctionCallOptionParamOSgvp">toolChoice</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Controls which (if any) function is called by the model. none means the model will not call a function and instead generates a message. auto means the model can pick between generating a message or calling a function. Specifying a particular function via {&ldquo;type&rdquo;: &ldquo;function&rdquo;, &ldquo;function&rdquo;: {&ldquo;name&rdquo;: &ldquo;my_function&rdquo;}} forces the model to call that function.
+none is the default when no functions are present. auto is the default if functions are present</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">toolChoice</span><span class="p">:</span> <span class="p">`</span><span class="nv">Self</span><span class="p">`</span><span class="o">.</span><span class="kt"><a href="../Structs/ChatQuery/ChatCompletionFunctionCallOptionParam.html">ChatCompletionFunctionCallOptionParam</a></span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV5toolsSayAC0C19CompletionToolParamVGSgvp"></a>
+                    <a name="//apple_ref/swift/Property/tools" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV5toolsSayAC0C19CompletionToolParamVGSgvp">tools</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A list of tools the model may call. Currently, only functions are supported as a tool. Use this to provide a list of functions the model may generate JSON inputs for.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">tools</span><span class="p">:</span> <span class="p">[`</span><span class="nv">Self</span><span class="p">`</span><span class="o">.</span><span class="kt"><a href="../Structs/ChatQuery/ChatCompletionToolParam.html">ChatCompletionToolParam</a></span><span class="p">]?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV11topLogprobsSiSgvp"></a>
+                    <a name="//apple_ref/swift/Property/topLogprobs" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV11topLogprobsSiSgvp">topLogprobs</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>An integer between 0 and 5 specifying the number of most likely tokens to return at each token position, each with an associated log probability. logprobs must be set to true if this parameter is used.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">topLogprobs</span><span class="p">:</span> <span class="kt">Int</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV4topPSdSgvp"></a>
+                    <a name="//apple_ref/swift/Property/topP" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV4topPSdSgvp">topP</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
+We generally recommend altering this or temperature but not both.
+Defaults to 1</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">topP</span><span class="p">:</span> <span class="kt">Double</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV4userSSSgvp"></a>
+                    <a name="//apple_ref/swift/Property/user" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV4userSSSgvp">user</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
+<a href="https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids">https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids</a></p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">user</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV6streamSbvp"></a>
+                    <a name="//apple_ref/swift/Property/stream" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV6streamSbvp">stream</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only server-sent events as they become available, with the stream terminated by a data: [DONE] message.
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format">https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format</a></p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">stream</span><span class="p">:</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV8messages5model16frequencyPenalty9logitBias8logprobs9maxTokens1n08presenceH014responseFormat4seed4stop11temperature10toolChoice5tools11topLogprobs0W1P4user6streamACSayAC0C22CompletionMessageParamOG_SSSdSgSDySSSiGSgSbSgSiSgA1_AyC08ResponseP0OSgA1_AC4StopOSgAyC0C33CompletionFunctionCallOptionParamOSgSayAC0C19CompletionToolParamVGSgA1_AYSSSgSbtcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(messages:model:frequencyPenalty:logitBias:logprobs:maxTokens:n:presencePenalty:responseFormat:seed:stop:temperature:toolChoice:tools:topLogprobs:topP:user:stream:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV8messages5model16frequencyPenalty9logitBias8logprobs9maxTokens1n08presenceH014responseFormat4seed4stop11temperature10toolChoice5tools11topLogprobs0W1P4user6streamACSayAC0C22CompletionMessageParamOG_SSSdSgSDySSSiGSgSbSgSiSgA1_AyC08ResponseP0OSgA1_AC4StopOSgAyC0C33CompletionFunctionCallOptionParamOSgSayAC0C19CompletionToolParamVGSgA1_AYSSSgSbtcfc">init(messages:<wbr>model:<wbr>frequencyPenalty:<wbr>logitBias:<wbr>logprobs:<wbr>maxTokens:<wbr>n:<wbr>presencePenalty:<wbr>responseFormat:<wbr>seed:<wbr>stop:<wbr>temperature:<wbr>toolChoice:<wbr>tools:<wbr>topLogprobs:<wbr>topP:<wbr>user:<wbr>stream:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span>
+    <span class="nv">messages</span><span class="p">:</span> <span class="p">[</span><span class="k">Self</span><span class="o">.</span><span class="kt"><a href="../Structs/ChatQuery/ChatCompletionMessageParam.html">ChatCompletionMessageParam</a></span><span class="p">],</span>
+    <span class="nv">model</span><span class="p">:</span> <span class="kt"><a href="../Typealiases.html#/s:6OpenAI5Modela">Model</a></span><span class="p">,</span>
+    <span class="nv">frequencyPenalty</span><span class="p">:</span> <span class="kt">Double</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">logitBias</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span> <span class="p">:</span> <span class="kt">Int</span><span class="p">]?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">logprobs</span><span class="p">:</span> <span class="kt">Bool</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">maxTokens</span><span class="p">:</span> <span class="kt">Int</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">n</span><span class="p">:</span> <span class="kt">Int</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">presencePenalty</span><span class="p">:</span> <span class="kt">Double</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">responseFormat</span><span class="p">:</span> <span class="k">Self</span><span class="o">.</span><span class="kt"><a href="../Structs/ChatQuery/ResponseFormat.html">ResponseFormat</a></span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">seed</span><span class="p">:</span> <span class="kt">Int</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">stop</span><span class="p">:</span> <span class="k">Self</span><span class="o">.</span><span class="kt"><a href="../Structs/ChatQuery/Stop.html">Stop</a></span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">temperature</span><span class="p">:</span> <span class="kt">Double</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">toolChoice</span><span class="p">:</span> <span class="k">Self</span><span class="o">.</span><span class="kt"><a href="../Structs/ChatQuery/ChatCompletionFunctionCallOptionParam.html">ChatCompletionFunctionCallOptionParam</a></span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">tools</span><span class="p">:</span> <span class="p">[</span><span class="k">Self</span><span class="o">.</span><span class="kt"><a href="../Structs/ChatQuery/ChatCompletionToolParam.html">ChatCompletionToolParam</a></span><span class="p">]?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">topLogprobs</span><span class="p">:</span> <span class="kt">Int</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">topP</span><span class="p">:</span> <span class="kt">Double</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">user</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">stream</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">false</span>
+<span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO"></a>
+                    <a name="//apple_ref/swift/Enum/ChatCompletionMessageParam" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO">ChatCompletionMessageParam</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                        <a href="../Structs/ChatQuery/ChatCompletionMessageParam.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">ChatCompletionMessageParam</span> <span class="p">:</span> <span class="kt">Codable</span><span class="p">,</span> <span class="kt">Equatable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV4StopO"></a>
+                    <a name="//apple_ref/swift/Enum/Stop" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV4StopO">Stop</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                        <a href="../Structs/ChatQuery/Stop.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Stop</span> <span class="p">:</span> <span class="kt">Codable</span><span class="p">,</span> <span class="kt">Equatable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV14ResponseFormatO"></a>
+                    <a name="//apple_ref/swift/Enum/ResponseFormat" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV14ResponseFormatO">ResponseFormat</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                        <a href="../Structs/ChatQuery/ResponseFormat.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">ResponseFormat</span> <span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="kt">Codable</span><span class="p">,</span> <span class="kt">Equatable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C33CompletionFunctionCallOptionParamO"></a>
+                    <a name="//apple_ref/swift/Enum/ChatCompletionFunctionCallOptionParam" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C33CompletionFunctionCallOptionParamO">ChatCompletionFunctionCallOptionParam</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                        <a href="../Structs/ChatQuery/ChatCompletionFunctionCallOptionParam.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">ChatCompletionFunctionCallOptionParam</span> <span class="p">:</span> <span class="kt">Codable</span><span class="p">,</span> <span class="kt">Equatable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C19CompletionToolParamV"></a>
+                    <a name="//apple_ref/swift/Struct/ChatCompletionToolParam" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C19CompletionToolParamV">ChatCompletionToolParam</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                        <a href="../Structs/ChatQuery/ChatCompletionToolParam.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">ChatCompletionToolParam</span> <span class="p">:</span> <span class="kt">Codable</span><span class="p">,</span> <span class="kt">Equatable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV10CodingKeysO"></a>
+                    <a name="//apple_ref/swift/Enum/CodingKeys" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV10CodingKeysO">CodingKeys</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                        <a href="../Structs/ChatQuery/CodingKeys.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">CodingKeys</span> <span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="kt">CodingKey</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2024 <a class="link" href="" target="_blank" rel="external noopener"></a>. All rights reserved. (Last updated: 2024-10-17)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

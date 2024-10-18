@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>ResponseFormat Enumeration Reference</title>
+    <link rel="stylesheet" type="text/css" href="../../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../../js/jquery.min.js" defer></script>
+    <script src="../../js/jazzy.js" defer></script>
+    
+    <script src="../../js/lunr.min.js" defer></script>
+    <script src="../../js/typeahead.jquery.js" defer></script>
+    <script src="../../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Enum/ResponseFormat" class="dashAnchor"></a>
+    <a title="ResponseFormat Enumeration Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../../index.html"> Docs</a> (100% documented)</p>
+        <div class="header-right">
+          <form role="search" action="../../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../../index.html">Index</a>
+        <img id="carat" src="../../img/carat.png" alt=""/>
+        <a href="../../Structs.html">Structures</a>
+        <img id="carat" src="../../img/carat.png" alt=""/>
+        <a href="../../Structs/AudioTranscriptionQuery.html">OpenAI.AudioTranscriptionQuery</a>
+        <img id="carat" src="../../img/carat.png" alt=""/>
+        ResponseFormat Enumeration Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Classes/OpenAI.html">OpenAI</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/OpenAI/Configuration.html">– Configuration</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Enums/OpenAIError.html">OpenAIError</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Extensions/Model.html">Model</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Protocols/OpenAIProtocol.html">OpenAIProtocol</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Structs/APIError.html">APIError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/APIErrorResponse.html">APIErrorResponse</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioSpeechQuery.html">AudioSpeechQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioSpeechQuery/AudioSpeechVoice.html">– AudioSpeechVoice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioSpeechQuery/AudioSpeechResponseFormat.html">– AudioSpeechResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioSpeechQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioSpeechQuery/Speed.html">– Speed</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioSpeechResult.html">AudioSpeechResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioTranscriptionQuery.html">AudioTranscriptionQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioTranscriptionQuery/ResponseFormat.html">– ResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioTranscriptionQuery/FileType.html">– FileType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioTranscriptionResult.html">AudioTranscriptionResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioTranslationQuery.html">AudioTranslationQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioTranslationResult.html">AudioTranslationResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatQuery.html">ChatQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatQuery/ChatCompletionMessageParam.html">– ChatCompletionMessageParam</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatQuery/Stop.html">– Stop</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatQuery/ResponseFormat.html">– ResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatQuery/ChatCompletionFunctionCallOptionParam.html">– ChatCompletionFunctionCallOptionParam</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatQuery/ChatCompletionToolParam.html">– ChatCompletionToolParam</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatResult.html">ChatResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatResult/CompletionUsage.html">– CompletionUsage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatResult/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatStreamResult.html">ChatStreamResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatStreamResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatStreamResult/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/CompletionsQuery.html">CompletionsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/CompletionsResult.html">CompletionsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/CompletionsResult/Usage.html">– Usage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/CompletionsResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EditsQuery.html">EditsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EditsResult.html">EditsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EditsResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EditsResult/Usage.html">– Usage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EmbeddingsQuery.html">EmbeddingsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EmbeddingsQuery/Input.html">– Input</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EmbeddingsQuery/EncodingFormat.html">– EncodingFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EmbeddingsQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EmbeddingsResult.html">EmbeddingsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EmbeddingsResult/Embedding.html">– Embedding</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EmbeddingsResult/Usage.html">– Usage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImageEditsQuery.html">ImageEditsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImageEditsQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImageVariationsQuery.html">ImageVariationsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImageVariationsQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesQuery.html">ImagesQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesQuery/ResponseFormat.html">– ResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesQuery/Style.html">– Style</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesQuery/Quality.html">– Quality</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesQuery/Size.html">– Size</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesResult.html">ImagesResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesResult/Image.html">– Image</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ModelQuery.html">ModelQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ModelResult.html">ModelResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ModelResult/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ModelsResult.html">ModelsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ModerationsQuery.html">ModerationsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ModerationsResult.html">ModerationsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ModerationsResult/Moderation.html">– Moderation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/Vector.html">Vector</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Typealiases.html">Type Aliases</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Typealiases.html#/s:6OpenAI5Modela">Model</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>ResponseFormat</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">ResponseFormat</span> <span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="kt">Codable</span><span class="p">,</span> <span class="kt">Equatable</span><span class="p">,</span> <span class="kt">CaseIterable</span></code></pre>
+
+                </div>
+              </div>
+            
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI23AudioTranscriptionQueryV14ResponseFormatO4jsonyA2EmF"></a>
+                    <a name="//apple_ref/swift/Element/json" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI23AudioTranscriptionQueryV14ResponseFormatO4jsonyA2EmF">json</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">json</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI23AudioTranscriptionQueryV14ResponseFormatO4textyA2EmF"></a>
+                    <a name="//apple_ref/swift/Element/text" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI23AudioTranscriptionQueryV14ResponseFormatO4textyA2EmF">text</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">text</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI23AudioTranscriptionQueryV14ResponseFormatO11verboseJsonyA2EmF"></a>
+                    <a name="//apple_ref/swift/Element/verboseJson" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI23AudioTranscriptionQueryV14ResponseFormatO11verboseJsonyA2EmF">verboseJson</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">verboseJson</span> <span class="o">=</span> <span class="s">"verbose_json"</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI23AudioTranscriptionQueryV14ResponseFormatO3srtyA2EmF"></a>
+                    <a name="//apple_ref/swift/Element/srt" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI23AudioTranscriptionQueryV14ResponseFormatO3srtyA2EmF">srt</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">srt</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI23AudioTranscriptionQueryV14ResponseFormatO3vttyA2EmF"></a>
+                    <a name="//apple_ref/swift/Element/vtt" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI23AudioTranscriptionQueryV14ResponseFormatO3vttyA2EmF">vtt</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">vtt</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2024 <a class="link" href="" target="_blank" rel="external noopener"></a>. All rights reserved. (Last updated: 2024-10-17)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>
