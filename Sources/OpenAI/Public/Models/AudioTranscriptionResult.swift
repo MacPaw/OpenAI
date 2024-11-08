@@ -18,7 +18,21 @@ public struct AudioTranscriptionResult: Codable, Equatable {
     public let text: String
     /// The segments containing detailed information (only present in verbose_json format)
     public let segments: [Segment]?
-    
+
+    public init(
+        task: String? = nil,
+        language: String? = nil,
+        duration: Double? = nil,
+        text: String,
+        segments: [Segment]? = nil
+    ) {
+        self.task = task
+        self.language = language
+        self.duration = duration
+        self.text = text
+        self.segments = segments
+    }
+        
     public struct Segment: Codable, Equatable {
         public let id: Int
         public let seek: Int

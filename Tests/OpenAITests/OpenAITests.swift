@@ -320,7 +320,38 @@ class OpenAITests: XCTestCase {
         let result = try await openAI.audioTranscriptions(query: query)
         XCTAssertEqual(result, transcriptionResult)
     }
-    
+
+    func testVerboseJsonAudioTranscriptions() async throws {
+        let data = Data()
+        let query = AudioTranscriptionQuery(file: data, fileType: .m4a, model: .whisper_1, responseFormat: .verboseJson)
+
+        let transcriptionResult = AudioTranscriptionResult(
+            task: "transcribe",
+            language: "english",
+            duration: 3.759999990463257,
+            text: "This is a test.",
+            segments: [
+                AudioTranscriptionResult.Segment(
+                    id: 0,
+                    seek: 0,
+                    start: 0,
+                    end: 3.759999990463257,
+                    text: " This is a test.",
+                    tokens: [50364, 639, 307, 257, 1500, 13, 50552],
+                    temperature: 0,
+                    avg_logprob: -0.5153926610946655,
+                    compression_ratio: 0.7142857313156128,
+                    no_speech_prob: 0.08552933484315872
+                )
+            ]
+        )
+
+        try self.stub(result: transcriptionResult)
+
+        let result = try await openAI.audioTranscriptions(query: query)
+        XCTAssertEqual(result, transcriptionResult)
+    }
+
     func testAudioTranscriptionsError() async throws {
         let data = Data()
         let query = AudioTranscriptionQuery(file: data, fileType: .m4a, model: .whisper_1)
