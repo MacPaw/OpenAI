@@ -11,6 +11,6 @@ import Foundation
 /// Learn more: [OpenAI Speech – Documentation](https://platform.openai.com/docs/api-reference/audio/createSpeech)
 public struct AudioSpeechResult: Codable, Equatable {
 
-    /// Audio data for one of the following formats :`mp3`, `opus`, `aac`, `flac`
+    /// Audio data for one of the following formats :`mp3`, `opus`, `aac`, `flac`, `pcm`
     public let audio: Data
 }
