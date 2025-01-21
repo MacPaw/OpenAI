@@ -110,24 +110,24 @@ public struct ChatQuery: Equatable, Codable, Streamable {
 
     public enum ChatCompletionMessageParam: Codable, Equatable {
 
-        case system(Self.ChatCompletionSystemMessageParam)
-        case user(Self.ChatCompletionUserMessageParam)
-        case assistant(Self.ChatCompletionAssistantMessageParam)
-        case tool(Self.ChatCompletionToolMessageParam)
+        case system(Self.SystemMessageParam)
+        case user(Self.UserMessageParam)
+        case assistant(Self.AssistantMessageParam)
+        case tool(Self.ToolMessageParam)
 
-        public var content: Self.ChatCompletionUserMessageParam.Content? { get { // TODO: String type except for .user
+        public var content: Self.UserMessageParam.Content? { get {
             switch self {
             case .system(let systemMessage):
-                return Self.ChatCompletionUserMessageParam.Content.string(systemMessage.content)
+                return Self.UserMessageParam.Content.string(systemMessage.content)
             case .user(let userMessage):
-                return userMessage.content // TODO: Content type
+                return userMessage.content
             case .assistant(let assistantMessage):
                 if let content = assistantMessage.content {
-                    return Self.ChatCompletionUserMessageParam.Content.string(content)
+                    return Self.UserMessageParam.Content.string(content)
                 }
                 return nil
             case .tool(let toolMessage):
-                return Self.ChatCompletionUserMessageParam.Content.string(toolMessage.content)
+                return Self.UserMessageParam.Content.string(toolMessage.content)
             }
         }}
 
@@ -166,7 +166,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }}
 
-        public var toolCalls: [Self.ChatCompletionAssistantMessageParam.ChatCompletionMessageToolCallParam]? { get {
+        public var toolCalls: [Self.AssistantMessageParam.ToolCallParam]? { get {
             switch self {
             case .assistant(let assistantMessage):
                 return assistantMessage.toolCalls
@@ -178,9 +178,8 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         public init?(
             role: Role,
             content: String? = nil,
-            imageUrl: URL? = nil,
             name: String? = nil,
-            toolCalls: [Self.ChatCompletionAssistantMessageParam.ChatCompletionMessageToolCallParam]? = nil,
+            toolCalls: [Self.AssistantMessageParam.ToolCallParam]? = nil,
             toolCallId: String? = nil
         ) {
             switch role {
@@ -193,8 +192,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             case .user:
                 if let content {
                     self = .user(.init(content: .init(string: content), name: name))
-                } else if let imageUrl {
-                    self = .user(.init(content: .init(chatCompletionContentPartImageParam: .init(imageUrl: .init(url: imageUrl.absoluteString, detail: .auto))), name: name))
                 } else {
                     return nil
                 }
@@ -207,6 +204,20 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     return nil
                 }
             }
+        }
+
+        public init?(
+            role: Role,
+            content: [UserMessageParam.Content.VisionContent],
+            name: String? = nil
+        ) {
+            switch role {
+            case .user:
+                self = .user(.init(content: .vision(content), name: name))
+            default:
+                return nil
+            }
+
         }
 
         private init?(
@@ -222,7 +233,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
 
         private init?(
-            content: Self.ChatCompletionUserMessageParam.Content,
+            content: Self.UserMessageParam.Content,
             role: Role,
             name: String? = nil
         ) {
@@ -237,7 +248,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             role: Role,
             content: String? = nil,
             name: String? = nil,
-            toolCalls: [Self.ChatCompletionAssistantMessageParam.ChatCompletionMessageToolCallParam]? = nil
+            toolCalls: [Self.AssistantMessageParam.ToolCallParam]? = nil
         ) {
             if role == .assistant {
                 self = .assistant(.init(content: content, name: name, toolCalls: toolCalls))
@@ -279,7 +290,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             case tool
         }
 
-        public struct ChatCompletionSystemMessageParam: Codable, Equatable {
+        public struct SystemMessageParam: Codable, Equatable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             /// The contents of the system message.
@@ -304,7 +315,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }
 
-        public struct ChatCompletionUserMessageParam: Codable, Equatable {
+        public struct UserMessageParam: Codable, Equatable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             /// The contents of the user message.
@@ -330,8 +341,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
 
             public enum Content: Codable, Equatable {
                 case string(String)
-                case chatCompletionContentPartTextParam(ChatCompletionContentPartTextParam)
-                case chatCompletionContentPartImageParam(ChatCompletionContentPartImageParam)
+                case vision([VisionContent])
 
                 public var string: String? { get {
                     switch self {
@@ -341,6 +351,33 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                         return nil
                     }
                 }}
+
+                public init(string: String) {
+                    self = .string(string)
+                }
+
+                public init(vision: [VisionContent]) {
+                    self = .vision(vision)
+                }
+
+                public enum CodingKeys: CodingKey {
+                    case string
+                    case vision
+                }
+
+                public func encode(to encoder: Encoder) throws {
+                    var container = encoder.singleValueContainer()
+                    switch self {
+                    case .string(let a0):
+                        try container.encode(a0)
+                    case .vision(let a0):
+                        try container.encode(a0)
+                    }
+                }
+
+            public enum VisionContent: Codable, Equatable {
+                case chatCompletionContentPartTextParam(ChatCompletionContentPartTextParam)
+                case chatCompletionContentPartImageParam(ChatCompletionContentPartImageParam)
 
                 public var text: String? { get {
                     switch self {
@@ -360,10 +397,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     }
                 }}
 
-                public init(string: String) {
-                    self = .string(string)
-                }
-
                 public init(chatCompletionContentPartTextParam: ChatCompletionContentPartTextParam) {
                     self = .chatCompletionContentPartTextParam(chatCompletionContentPartTextParam)
                 }
@@ -375,8 +408,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 public func encode(to encoder: Encoder) throws {
                     var container = encoder.singleValueContainer()
                     switch self {
-                    case .string(let a0):
-                        try container.encode(a0)
                     case .chatCompletionContentPartTextParam(let a0):
                         try container.encode(a0)
                     case .chatCompletionContentPartImageParam(let a0):
@@ -385,7 +416,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 }
 
                 enum CodingKeys: CodingKey {
-                    case string
                     case chatCompletionContentPartTextParam
                     case chatCompletionContentPartImageParam
                 }
@@ -409,7 +439,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
 
                     public init(imageUrl: ImageURL) {
                         self.imageUrl = imageUrl
-                        self.type = "imageUrl"
+                        self.type = "image_url"
                     }
 
                     public struct ImageURL: Codable, Equatable {
@@ -422,6 +452,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                         public init(url: String, detail: Detail) {
                             self.url = url
                             self.detail = detail
+                        }
+
+                        public init(url: Data, detail: Detail) {
+                            self.init(
+                                url: "data:image/jpeg;base64,\(url.base64EncodedString())",
+                                detail: detail)
                         }
 
                         public enum Detail: String, Codable, Equatable, CaseIterable {
@@ -438,6 +474,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 }
             }
         }
+        }
 
         internal struct ChatCompletionMessageParam: Codable, Equatable {
             typealias Role = ChatQuery.ChatCompletionMessageParam.Role
@@ -449,7 +486,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }
 
-        public struct ChatCompletionAssistantMessageParam: Codable, Equatable {
+        public struct AssistantMessageParam: Codable, Equatable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             //// The role of the messages author, in this case assistant.
@@ -459,12 +496,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             /// The name of the author of this message. `name` is required if role is `function`, and it should be the name of the function whose response is in the `content`. May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
             public let name: String?
             /// The tool calls generated by the model, such as function calls.
-            public let toolCalls: [Self.ChatCompletionMessageToolCallParam]?
+            public let toolCalls: [Self.ToolCallParam]?
 
             public init(
                 content: String? = nil,
                 name: String? = nil,
-                toolCalls: [Self.ChatCompletionMessageToolCallParam]? = nil
+                toolCalls: [Self.ToolCallParam]? = nil
             ) {
                 self.content = content
                 self.name = name
@@ -478,7 +515,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 case toolCalls = "tool_calls"
             }
 
-            public struct ChatCompletionMessageToolCallParam: Codable, Equatable {
+            public struct ToolCallParam: Codable, Equatable {
                 public typealias ToolsType = ChatQuery.ChatCompletionToolParam.ToolsType
 
                 /// The ID of the tool call.
@@ -506,7 +543,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }
 
-        public struct ChatCompletionToolMessageParam: Codable, Equatable {
+        public struct ToolMessageParam: Codable, Equatable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             /// The contents of the tool message.
