@@ -426,11 +426,46 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(chatsURL, URL(string: "https://api.openai.com:443/v1/chat/completions"))
     }
     
-    func testCustomURLBuilt() {
+    func testCustomURLBuiltWithPredefinedPath() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", timeoutInterval: 14)
         let openAI = OpenAI(configuration: configuration, session: self.urlSession)
         let chatsURL = openAI.buildURL(path: .chats)
         XCTAssertEqual(chatsURL, URL(string: "https://my.host.com:443/v1/chat/completions"))
+    }
+    
+    func testCustomURLBuiltWithCustomPath() {
+        let configuration = OpenAI.Configuration(
+            token: "foo",
+            organizationIdentifier: "bar",
+            host: "bizbaz.com",
+            timeoutInterval: 14
+        )
+        let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
+        XCTAssertEqual(openAI.buildURL(path: "foo"), URL(string: "https://bizbaz.com:443/foo"))
+    }
+    
+    func testCustomURLBuiltWithCustomBasePath() {
+        let configuration = OpenAI.Configuration(
+            token: "foo",
+            organizationIdentifier: "bar",
+            host: "bizbaz.com",
+            basePath: "/openai",
+            timeoutInterval: 14
+        )
+        let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
+        XCTAssertEqual(openAI.buildURL(path: "foo"), URL(string:"https://bizbaz.com:443/openai/foo"))
+    }
+    
+    func testCustomURLBuiltWithCustomBasePathWithTrailingSlash() {
+        let configuration = OpenAI.Configuration(
+            token: "foo",
+            organizationIdentifier: "bar",
+            host: "bizbaz.com",
+            basePath: "/openai/",
+            timeoutInterval: 14
+        )
+        let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
+        XCTAssertEqual(openAI.buildURL(path: "/foo"), URL(string: "https://bizbaz.com:443/openai/foo"))
     }
 }
 

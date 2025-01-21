@@ -22,17 +22,23 @@ final public class OpenAI: OpenAIProtocol {
         
         /// API host. Set this property if you use some kind of proxy or your own server. Default is api.openai.com
         public let host: String
+
+        /// Optional base path if you set up OpenAI API proxy on a custom path on your own host. Default is ""
+        public let basePath: String
+
         public let port: Int
         public let scheme: String
+        
         /// Default request timeout
         public let timeoutInterval: TimeInterval
         
-        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", timeoutInterval: TimeInterval = 60.0) {
+        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", basePath: String = "", timeoutInterval: TimeInterval = 60.0) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host
             self.port = port
             self.scheme = scheme
+            self.basePath = basePath
             self.timeoutInterval = timeoutInterval
         }
     }
@@ -202,8 +208,21 @@ extension OpenAI {
         components.scheme = configuration.scheme
         components.host = configuration.host
         components.port = configuration.port
-        components.path = path
-        return components.url!
+        
+        let pathComponents = [configuration.basePath, path]
+            .filter { !$0.isEmpty }
+            .map { $0.trimmingCharacters(in: ["/"]) }
+        
+        components.path = "/" + pathComponents.joined(separator: "/")
+        
+        if let url = components.url {
+            return url
+        } else {
+            // We're expecting components.url to be not nil
+            // But if it isn't, let's just use some URL api that returns non-nil url
+            // Let all requests fail, but so that we don't crash on explicit unwrapping
+            return URL(fileURLWithPath: "")
+        }
     }
 }
 
