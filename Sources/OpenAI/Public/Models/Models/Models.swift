@@ -94,11 +94,6 @@ public extension Model {
     /// Capable of very simple tasks, usually the fastest model in the GPT-3 series, and lowest cost.
     static let textAda = "text-ada-001"
     
-    // Edits
-    
-    static let textDavinci_001 = "text-davinci-001"
-    static let codeDavinciEdit_001 = "code-davinci-edit-001"
-    
     // Speech
     
     /// The latest text to speech model, optimized for speed.
