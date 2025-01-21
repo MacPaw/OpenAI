@@ -441,7 +441,7 @@ class OpenAITests: XCTestCase {
             timeoutInterval: 14
         )
         let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
-        XCTAssertEqual(openAI.buildURL(path: "foo"), URL(string: "https://bizbaz.com/foo"))
+        XCTAssertEqual(openAI.buildURL(path: "foo"), URL(string: "https://bizbaz.com:443/foo"))
     }
     
     func testCustomURLBuiltWithCustomBasePath() {
@@ -453,7 +453,7 @@ class OpenAITests: XCTestCase {
             timeoutInterval: 14
         )
         let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
-        XCTAssertEqual(openAI.buildURL(path: "foo"), URL(string:"https://bizbaz.com/openai/foo"))
+        XCTAssertEqual(openAI.buildURL(path: "foo"), URL(string:"https://bizbaz.com:443/openai/foo"))
     }
     
     func testCustomURLBuiltWithCustomBasePathWithTrailingSlash() {
@@ -465,7 +465,7 @@ class OpenAITests: XCTestCase {
             timeoutInterval: 14
         )
         let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
-        XCTAssertEqual(openAI.buildURL(path: "/foo"), URL(string: "https://bizbaz.com/openai/foo"))
+        XCTAssertEqual(openAI.buildURL(path: "/foo"), URL(string: "https://bizbaz.com:443/openai/foo"))
     }
 }
 
