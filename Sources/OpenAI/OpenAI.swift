@@ -209,9 +209,11 @@ extension OpenAI {
         components.host = configuration.host
         components.port = configuration.port
         
-        components.path = NSString.path(withComponents: [
-            "/", configuration.basePath, path
-        ])
+        let pathComponents = [configuration.basePath, path]
+            .filter { !$0.isEmpty }
+            .map { $0.trimmingCharacters(in: ["/"]) }
+        
+        components.path = "/" + pathComponents.joined(separator: "/")
         
         if let url = components.url {
             return url
