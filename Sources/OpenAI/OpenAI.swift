@@ -199,9 +199,21 @@ extension OpenAI {
 extension OpenAI {
     
     func buildURL(path: String) -> URL {
-        return URL(string: "https://\(configuration.host)")!
-            .appendingPathComponent(configuration.basePath.trimmingCharacters(in: .init(charactersIn: "/")))
-            .appendingPathComponent(path.trimmingCharacters(in: .init(charactersIn: "/")))
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = configuration.host
+        components.path = NSString.path(withComponents: [
+            "/", configuration.basePath, path
+        ])
+        
+        if let url = components.url {
+            return url
+        } else {
+            // We're expecting components.url to be not nil
+            // But if it isn't, let's just use some URL api that returns non-nil url
+            // Let all requests fail, but so that we don't crash on explicit unwrapping
+            return URL(fileURLWithPath: "")
+        }
     }
 }
 
