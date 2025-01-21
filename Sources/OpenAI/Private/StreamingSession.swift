@@ -60,14 +60,23 @@ extension StreamingSession {
         if stringContent.isEmpty {
             return
         }
-        let jsonObjects = "\(previousChunkBuffer)\(stringContent)"
+
+        // Join the previous chunk buffer with the new chunk, and filter out comments.
+        // FIX OpenRouter: https://github.com/tisfeng/Easydict/issues/743
+        let filteredContent = "\(previousChunkBuffer)\(stringContent)"
             .trimmingCharacters(in: .whitespacesAndNewlines)
+            .components(separatedBy: .newlines)
+            .filter { !$0.hasPrefix(":") }  // Filter out comments, like ": OPENROUTER PROCESSING"
+            .joined(separator: "\n")
+
+        // Split the filtered content into separate JSON objects.
+        let jsonObjects = filteredContent
             .components(separatedBy: "data:")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { $0.isEmpty == false }
+            .filter { !$0.isEmpty }
 
         previousChunkBuffer = ""
-        
+
         guard jsonObjects.isEmpty == false, jsonObjects.first != streamingCompletionMarker else {
             return
         }
