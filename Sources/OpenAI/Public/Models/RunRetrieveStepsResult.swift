@@ -30,7 +30,7 @@ public struct RunRetrieveStepsResult: Codable, Equatable {
                 public enum ToolType: String, Codable {
                     case codeInterpreter = "code_interpreter"
                     case function
-                    case retrieval
+                    case fileSearch = "file_search"
                 }
                 
                 public let id: String

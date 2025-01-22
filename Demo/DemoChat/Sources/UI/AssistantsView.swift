@@ -27,7 +27,7 @@ public struct AssistantsView: View {
     @State private var fileIds: [String] = []
 
     @State private var codeInterpreter: Bool = false
-    @State private var retrieval: Bool = false
+    @State private var fileSearch: Bool = false
     @State private var functions: [FunctionDeclaration] = []
     @State var isLoadingMore = false
     @State private var isModalPresented = false
@@ -106,7 +106,7 @@ public struct AssistantsView: View {
     @ViewBuilder
     private func assistantContentView() -> some View {
         AssistantModalContentView(name: $name, description: $description, customInstructions: $customInstructions,
-                                  codeInterpreter: $codeInterpreter, retrieval: $retrieval, functions: $functions, fileIds: $fileIds,
+                                  codeInterpreter: $codeInterpreter, fileSearch: $fileSearch, functions: $functions, fileIds: $fileIds,
                                   isUploading: $isUploading, modify: mode == .modify, isPickerPresented: $isPickerPresented, selectedFileURL: $selectedFileURL) {
             Task {
                 await handleOKTap()
@@ -149,7 +149,7 @@ public struct AssistantsView: View {
         switch mode {
         // Create new Assistant and select it
         case .create:
-            asstId = await assistantStore.createAssistant(name: name, description: description, instructions: customInstructions, codeInterpreter: codeInterpreter, retrieval: retrieval, functions: functions, fileIds: mergedFileIds.isEmpty ? nil : mergedFileIds)
+            asstId = await assistantStore.createAssistant(name: name, description: description, instructions: customInstructions, codeInterpreter: codeInterpreter, fileSearch: fileSearch, functions: functions, fileIds: mergedFileIds.isEmpty ? nil : mergedFileIds)
             assistantStore.selectedAssistantId = asstId
         // Modify existing Assistant
         case .modify:
@@ -158,7 +158,7 @@ public struct AssistantsView: View {
                 return
             }
 
-            asstId = await assistantStore.modifyAssistant(asstId: selectedAssistantId, name: name, description: description, instructions: customInstructions, codeInterpreter: codeInterpreter, retrieval: retrieval, functions: functions, fileIds: mergedFileIds.isEmpty ? nil : mergedFileIds)
+            asstId = await assistantStore.modifyAssistant(asstId: selectedAssistantId, name: name, description: description, instructions: customInstructions, codeInterpreter: codeInterpreter, fileSearch: fileSearch, functions: functions, fileIds: mergedFileIds.isEmpty ? nil : mergedFileIds)
         }
 
         // Reset Assistant Creator after attempted creation or modification.
@@ -189,7 +189,7 @@ public struct AssistantsView: View {
         customInstructions = ""
 
         codeInterpreter = false
-        retrieval = false
+        fileSearch = false
         functions = []
         selectedFileURL = nil
         uploadedFileId = nil
@@ -205,7 +205,7 @@ public struct AssistantsView: View {
         description = selectedAssistant?.description ?? ""
         customInstructions = selectedAssistant?.instructions ?? ""
         codeInterpreter = selectedAssistant?.codeInterpreter ?? false
-        retrieval = selectedAssistant?.retrieval ?? false
+        fileSearch = selectedAssistant?.fileSearch ?? false
         functions = selectedAssistant?.functions ?? []
         fileIds = selectedAssistant?.fileIds ?? []
 

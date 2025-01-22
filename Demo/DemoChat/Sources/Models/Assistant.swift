@@ -9,13 +9,13 @@ import Foundation
 import OpenAI
 
 struct Assistant: Hashable {
-    init(id: String, name: String, description: String? = nil, instructions: String? = nil, codeInterpreter: Bool, retrieval: Bool, fileIds: [String]? = nil, functions: [FunctionDeclaration] = []) {
+    init(id: String, name: String, description: String? = nil, instructions: String? = nil, codeInterpreter: Bool, fileSearch: Bool, fileIds: [String]? = nil, functions: [FunctionDeclaration] = []) {
         self.id = id
         self.name = name
         self.description = description
         self.instructions = instructions
         self.codeInterpreter = codeInterpreter
-        self.retrieval = retrieval
+        self.fileSearch = fileSearch
         self.fileIds = fileIds
         self.functions = functions
     }
@@ -28,7 +28,7 @@ struct Assistant: Hashable {
     let instructions: String?
     let fileIds: [String]?
     var codeInterpreter: Bool
-    var retrieval: Bool
+    var fileSearch: Bool
     var functions: [FunctionDeclaration]
 }
 

@@ -360,10 +360,10 @@ public final class ChatStore: ObservableObject {
 
             for step in toolCalls {
                 // TODO: Depending on the type of tool tha is used we can add additional information here
-                // ie: if its a retrieval: add file information, code_interpreter: add inputs and outputs info, or function: add arguemts and additional info.
+                // ie: if its a fileSearch: add file information, code_interpreter: add inputs and outputs info, or function: add arguemts and additional info.
                 let msgContent: String
                 switch step.type {
-                case .retrieval:
+                case .fileSearch:
                     msgContent = "RUN STEP: \(step.type)"
 
                 case .codeInterpreter:

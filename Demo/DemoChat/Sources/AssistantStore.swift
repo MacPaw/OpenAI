@@ -27,10 +27,10 @@ public final class AssistantStore: ObservableObject {
     // MARK: Models
 
     @MainActor
-    func createAssistant(name: String, description: String, instructions: String, codeInterpreter: Bool, retrieval: Bool, functions: [FunctionDeclaration], fileIds: [String]? = nil) async -> String? {
+    func createAssistant(name: String, description: String, instructions: String, codeInterpreter: Bool, fileSearch: Bool, functions: [FunctionDeclaration], fileIds: [String]? = nil) async -> String? {
         do {
-            let tools = createToolsArray(codeInterpreter: codeInterpreter, retrieval: retrieval, functions: functions)
-            let query = AssistantsQuery(model: Model.gpt4_1106_preview, name: name, description: description, instructions: instructions, tools:tools, fileIds: fileIds)
+            let tools = createToolsArray(codeInterpreter: codeInterpreter, fileSearch: fileSearch, functions: functions)
+            let query = AssistantsQuery(model: Model.gpt4_turbo_preview, name: name, description: description, instructions: instructions, tools:tools, fileIds: fileIds)
             let response = try await openAIClient.assistantCreate(query: query)
             
             // Refresh assistants with one just created (or modified)
@@ -47,10 +47,10 @@ public final class AssistantStore: ObservableObject {
     }
 
     @MainActor
-    func modifyAssistant(asstId: String, name: String, description: String, instructions: String, codeInterpreter: Bool, retrieval: Bool, functions: [FunctionDeclaration], fileIds: [String]? = nil) async -> String? {
+    func modifyAssistant(asstId: String, name: String, description: String, instructions: String, codeInterpreter: Bool, fileSearch: Bool, functions: [FunctionDeclaration], fileIds: [String]? = nil) async -> String? {
         do {
-            let tools = createToolsArray(codeInterpreter: codeInterpreter, retrieval: retrieval, functions: functions)
-            let query = AssistantsQuery(model: Model.gpt4_1106_preview, name: name, description: description, instructions: instructions, tools:tools, fileIds: fileIds)
+            let tools = createToolsArray(codeInterpreter: codeInterpreter, fileSearch: fileSearch, functions: functions)
+            let query = AssistantsQuery(model: Model.gpt4_turbo_preview, name: name, description: description, instructions: instructions, tools:tools, fileIds: fileIds)
             let response = try await openAIClient.assistantModify(query: query, assistantId: asstId)
 
             // Returns assistantId
@@ -72,7 +72,7 @@ public final class AssistantStore: ObservableObject {
             for result in response.data ?? [] {
                 let tools = result.tools ?? []
                 let codeInterpreter = tools.contains { $0 == .codeInterpreter }
-                let retrieval = tools.contains { $0 == .retrieval }
+                let fileSearch = tools.contains { $0 == .fileSearch }
                 let functions = tools.compactMap {
                     switch $0 {
                     case let .function(declaration):
@@ -83,7 +83,7 @@ public final class AssistantStore: ObservableObject {
                 }
                 let fileIds = result.fileIds ?? []
 
-                assistants.append(Assistant(id: result.id, name: result.name ?? "", description: result.description, instructions: result.instructions, codeInterpreter: codeInterpreter, retrieval: retrieval, fileIds: fileIds, functions: functions))
+                assistants.append(Assistant(id: result.id, name: result.name ?? "", description: result.description, instructions: result.instructions, codeInterpreter: codeInterpreter, fileSearch: fileSearch, fileIds: fileIds, functions: functions))
             }
             if after == nil {
                 availableAssistants = assistants
@@ -121,13 +121,13 @@ public final class AssistantStore: ObservableObject {
         }
     }
 
-    func createToolsArray(codeInterpreter: Bool, retrieval: Bool, functions: [FunctionDeclaration]) -> [Tool] {
+    func createToolsArray(codeInterpreter: Bool, fileSearch: Bool, functions: [FunctionDeclaration]) -> [Tool] {
         var tools = [Tool]()
         if codeInterpreter {
             tools.append(.codeInterpreter)
         }
-        if retrieval {
-            tools.append(.retrieval)
+        if fileSearch {
+            tools.append(.fileSearch)
         }
         return tools + functions.map { .function($0) }
     }

@@ -135,7 +135,7 @@ final class OpenAITestsCombine: XCTestCase {
     }
 
     func testAssistantCreateQuery() throws {
-        let query = AssistantsQuery(model: .gpt4_1106_preview, name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: [])
+        let query = AssistantsQuery.makeMock()
         let expectedResult = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
         try self.stub(result: expectedResult)
 
@@ -144,7 +144,7 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testAssistantModifyQuery() throws {
-        let query = AssistantsQuery(model: .gpt4_1106_preview, name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: [])
+        let query = AssistantsQuery.makeMock()
         let expectedResult = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
         try self.stub(result: expectedResult)
         

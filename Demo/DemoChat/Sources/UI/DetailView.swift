@@ -76,7 +76,7 @@ struct DetailView: View {
                 .safeAreaInset(edge: .top) {
                     HStack {
                         Text(
-                            "Model: \(conversation.type == .assistant ? Model.gpt4_1106_preview : selectedChatModel)"
+                            "Model: \(conversation.type == .assistant ? Model.gpt4_turbo_preview : selectedChatModel)"
                         )
                         .font(.caption)
                         .foregroundColor(.secondary)

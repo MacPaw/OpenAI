@@ -405,7 +405,7 @@ class OpenAITests: XCTestCase {
 
     // 1106
     func testAssistantCreateQuery() async throws {
-        let query = AssistantsQuery(model: .gpt4_1106_preview, name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: [])
+        let query = assistantsQuery()
         let expectedResult = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
         try self.stub(result: expectedResult)
 
@@ -414,7 +414,7 @@ class OpenAITests: XCTestCase {
     }
 
     func testAssistantCreateQueryError() async throws {
-        let query = AssistantsQuery(model: .gpt4_1106_preview, name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: [])
+        let query = assistantsQuery()
 
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
@@ -441,7 +441,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testAssistantModifyQuery() async throws {
-        let query = AssistantsQuery(model: .gpt4_1106_preview, name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: [])
+        let query = assistantsQuery()
         let expectedResult = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
         try self.stub(result: expectedResult)
         
@@ -450,7 +450,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testAssistantModifyQueryError() async throws {
-        let query = AssistantsQuery(model: .gpt4_1106_preview, name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: [])
+        let query = assistantsQuery()
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         
@@ -638,6 +638,10 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(completionsURL, URL(string: "https://my.host.com/v1/threads/thread_4321/runs/run_1234/steps"))
     }
     // 1106 end
+    
+    private func assistantsQuery() -> AssistantsQuery {
+        .makeMock()
+    }
 }
 
 @available(tvOS 13.0, *)

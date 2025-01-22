@@ -15,8 +15,8 @@ public enum Tool: Codable, Equatable {
     case codeInterpreter
     /// Function calling allows you to describe functions to the Assistants and have it intelligently return the functions that need to be called along with their arguments.
     case function(FunctionDeclaration)
-    /// Retrieval augments the Assistant with knowledge from outside its model, such as proprietary product information or documents provided by your users.
-    case retrieval
+    /// File Search augments the Assistant with knowledge from outside its model, such as proprietary product information or documents provided by your users.
+    case fileSearch
     
     enum CodingKeys: String, CodingKey {
         case type
@@ -29,8 +29,8 @@ public enum Tool: Codable, Equatable {
             return "code_interpreter"
         case .function:
             return "function"
-        case .retrieval:
-            return "retrieval"
+        case .fileSearch:
+            return "file_search"
         }
     }
     
@@ -44,8 +44,8 @@ public enum Tool: Codable, Equatable {
         case "function":
             let functionDeclaration = try container.decode(FunctionDeclaration.self, forKey: .function)
             self = .function(functionDeclaration)
-        case "retrieval":
-            self = .retrieval
+        case "file_search":
+            self = .fileSearch
         default:
             throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid tool type")
         }

@@ -19,7 +19,7 @@ struct AssistantModalContentView: View {
     @Binding var customInstructions: String
 
     @Binding var codeInterpreter: Bool
-    @Binding var retrieval: Bool
+    @Binding var fileSearch: Bool
     @Binding var functions: [FunctionDeclaration]
     @Binding var fileIds: [String]
     @Binding var isUploading: Bool
@@ -67,8 +67,8 @@ struct AssistantModalContentView: View {
                     Text("Code interpreter")
                 })
                 
-                Toggle(isOn: $retrieval, label: {
-                    Text("Retrieval")
+                Toggle(isOn: $fileSearch, label: {
+                    Text("File Search")
                 })
             }
             
