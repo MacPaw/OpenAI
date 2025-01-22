@@ -81,7 +81,7 @@ public final class AssistantStore: ObservableObject {
                         return nil
                     }
                 }
-                let fileIds = result.fileIds ?? []
+                let fileIds = result.toolResources?.codeInterpreter.fileIds ?? []
 
                 assistants.append(Assistant(id: result.id, name: result.name ?? "", description: result.description, instructions: result.instructions, codeInterpreter: codeInterpreter, fileSearch: fileSearch, fileIds: fileIds, functions: functions))
             }
