@@ -166,7 +166,7 @@ final public class OpenAI: OpenAIProtocol {
 
     public func assistantCreate(query: AssistantsQuery, completion: @escaping (Result<AssistantResult, Error>) -> Void) {
         performRequest(
-            request: AssistantsRequest<AssistantsResult>.jsonRequest(
+            request: AssistantsRequest<AssistantResult>.jsonRequest(
                 urlBuilder: DefaultURLBuilder(configuration: configuration, path: .Assistants.assistants.stringValue),
                 body: query
             ),
