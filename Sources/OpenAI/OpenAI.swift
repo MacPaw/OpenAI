@@ -64,7 +64,145 @@ final public class OpenAI: OpenAIProtocol {
     public convenience init(configuration: Configuration, session: URLSession = URLSession.shared) {
         self.init(configuration: configuration, session: session as URLSessionProtocol)
     }
+
+    // UPDATES FROM 11-06-23
+    public func threadsAddMessage(threadId: String, query: MessageQuery, completion: @escaping (Result<ThreadAddMessageResult, Error>) -> Void) {
+        performRequest(
+            request: AssistantsRequest<ThreadsMessagesResult>.jsonRequest(
+                urlBuilder: RunsURLBuilder(
+                    configuration: configuration,
+                    path: .threadsMessages,
+                    threadId: threadId
+                ),
+                body: query
+            ),
+            completion: completion
+        )
+    }
+
+    public func threadsMessages(threadId: String, before: String? = nil, completion: @escaping (Result<ThreadsMessagesResult, Error>) -> Void) {
+        performRequest(
+            request: AssistantsRequest<ThreadsMessagesResult>.jsonRequest(
+                urlBuilder: RunsURLBuilder(configuration: configuration, path: .threadsMessages, threadId: threadId),
+                body: nil,
+                method: "GET"
+            ),
+            completion: completion
+        )
+    }
+
+    public func runRetrieve(threadId: String, runId: String, completion: @escaping (Result<RunResult, Error>) -> Void) {
+        performRequest(
+            request: AssistantsRequest<RunResult>.jsonRequest(
+                urlBuilder: RunRetrieveURLBuilder(configuration: configuration, path: .runRetrieve, threadId: threadId, runId: runId),
+                body: nil,
+                method: "GET"
+            ),
+            completion: completion
+        )
+    }
+
+    public func runRetrieveSteps(threadId: String, runId: String, before: String? = nil, completion: @escaping (Result<RunRetrieveStepsResult, Error>) -> Void) {
+        performRequest(
+            request: AssistantsRequest<RunRetrieveStepsResult>.jsonRequest(
+                urlBuilder: RunRetrieveURLBuilder(
+                    configuration: configuration,
+                    path: .runRetrieveSteps,
+                    threadId: threadId,
+                    runId: runId,
+                    before: before
+                ),
+                body: nil,
+                method: "GET"
+            ),
+            completion: completion
+        )
+    }
+
+    public func runSubmitToolOutputs(threadId: String, runId: String, query: RunToolOutputsQuery, completion: @escaping (Result<RunResult, Error>) -> Void) {
+        performRequest(
+            request: AssistantsRequest<RunResult>.jsonRequest(
+                urlBuilder: DefaultURLBuilder(
+                    configuration: configuration,
+                    path: .Assistants.runSubmitToolOutputs(threadId: threadId, runId: runId).stringValue
+                ),
+                body: query
+            ),
+            completion: completion
+        )
+    }
+
+    public func runs(threadId: String, query: RunsQuery, completion: @escaping (Result<RunResult, Error>) -> Void) {
+        performRequest(
+            request: AssistantsRequest<RunResult>.jsonRequest(
+                urlBuilder: RunsURLBuilder(configuration: configuration, path: .runs, threadId: threadId),
+                body: query
+            ),
+            completion: completion
+        )
+    }
+
+    public func threads(query: ThreadsQuery, completion: @escaping (Result<ThreadsResult, Error>) -> Void) {
+        performRequest(
+            request: AssistantsRequest<ThreadsResult>.jsonRequest(
+                urlBuilder: DefaultURLBuilder(configuration: configuration, path: .Assistants.threads.stringValue),
+                body: query
+            ),
+            completion: completion
+        )
+    }
     
+    public func threadRun(query: ThreadRunQuery, completion: @escaping (Result<RunResult, Error>) -> Void) {
+        performRequest(
+            request: AssistantsRequest<RunResult>.jsonRequest(
+                urlBuilder: DefaultURLBuilder(configuration: configuration, path: .Assistants.threadRun.stringValue),
+                body: query
+            ),
+            completion: completion
+        )
+    }
+
+    public func assistants(after: String? = nil, completion: @escaping (Result<AssistantsResult, Error>) -> Void) {
+        performRequest(
+            request: AssistantsRequest<AssistantsResult>.jsonRequest(
+                urlBuilder: DefaultURLBuilder(configuration: configuration, path: .Assistants.assistants.stringValue, after: after),
+                body: nil,
+                method: "GET"
+            ),
+            completion: completion
+        )
+    }
+
+    public func assistantCreate(query: AssistantsQuery, completion: @escaping (Result<AssistantResult, Error>) -> Void) {
+        performRequest(
+            request: AssistantsRequest<AssistantResult>.jsonRequest(
+                urlBuilder: DefaultURLBuilder(configuration: configuration, path: .Assistants.assistants.stringValue),
+                body: query
+            ),
+            completion: completion
+        )
+    }
+
+    public func assistantModify(query: AssistantsQuery, assistantId: String, completion: @escaping (Result<AssistantResult, Error>) -> Void) {
+        performRequest(
+            request: AssistantsRequest<AssistantsResult>.jsonRequest(
+                urlBuilder: AssistantsURLBuilder(configuration: configuration, path: .assistantsModify, assistantId: assistantId),
+                body: query
+            ),
+            completion: completion
+        )
+    }
+
+    public func files(query: FilesQuery, completion: @escaping (Result<FilesResult, Error>) -> Void) {
+        performRequest(
+            request: AssistantsRequest<FilesResult>.multipartFormDataRequest(
+                urlBuilder: DefaultURLBuilder(configuration: configuration, path: .Assistants.files.stringValue),
+                body: query
+            ),
+            completion: completion
+        )
+    }
+
     public func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
         performRequest(request: JSONRequest<ImagesResult>(body: query, url: buildURL(path: .images)), completion: completion)
     }
@@ -190,33 +328,46 @@ extension OpenAI {
 }
 
 extension OpenAI {
-    
-    func buildURL(path: String) -> URL {
-        var components = URLComponents()
-        components.scheme = configuration.scheme
-        components.host = configuration.host
-        components.port = configuration.port
-        
-        let pathComponents = [configuration.basePath, path]
-            .filter { !$0.isEmpty }
-            .map { $0.trimmingCharacters(in: ["/"]) }
-        
-        components.path = "/" + pathComponents.joined(separator: "/")
-        
-        if let url = components.url {
-            return url
-        } else {
-            // We're expecting components.url to be not nil
-            // But if it isn't, let's just use some URL api that returns non-nil url
-            // Let all requests fail, but so that we don't crash on explicit unwrapping
-            return URL(fileURLWithPath: "")
-        }
+    func buildURL(path: String, after: String? = nil) -> URL {
+        DefaultURLBuilder(configuration: configuration, path: path, after: after)
+            .buildURL()
+    }
+
+    func buildRunsURL(path: String, threadId: String, before: String? = nil) -> URL {
+        RunsURLBuilder(configuration: configuration, path: .init(stringValue: path), threadId: threadId)
+            .buildURL()
+    }
+
+    func buildRunRetrieveURL(path: String, threadId: String, runId: String, before: String? = nil) -> URL {
+        RunRetrieveURLBuilder(configuration: configuration, path: .init(stringValue: path), threadId: threadId, runId: runId, before: before)
+            .buildURL()
+    }
+
+    func buildAssistantURL(path: APIPath.Assistants, assistantId: String) -> URL {
+        AssistantsURLBuilder(configuration: configuration, path: path, assistantId: assistantId)
+            .buildURL()
     }
 }
 
 typealias APIPath = String
 extension APIPath {
-    
+    struct Assistants {
+        static let assistants = Assistants(stringValue: "/v1/assistants")
+        static let assistantsModify = Assistants(stringValue: "/v1/assistants/ASST_ID")
+        static let threads = Assistants(stringValue: "/v1/threads")
+        static let threadRun = Assistants(stringValue: "/v1/threads/runs")
+        static let runs = Assistants(stringValue: "/v1/threads/THREAD_ID/runs")
+        static let runRetrieve = Assistants(stringValue: "/v1/threads/THREAD_ID/runs/RUN_ID")
+        static let runRetrieveSteps = Assistants(stringValue: "/v1/threads/THREAD_ID/runs/RUN_ID/steps")
+        static func runSubmitToolOutputs(threadId: String, runId: String) -> Assistants {
+            Assistants(stringValue: "/v1/threads/\(threadId)/runs/\(runId)/submit_tool_outputs")
+        }
+        static let threadsMessages = Assistants(stringValue: "/v1/threads/THREAD_ID/messages")
+        static let files = Assistants(stringValue: "/v1/files")
+        
+        let stringValue: String
+    }
+
     static let embeddings = "/v1/embeddings"
     static let chats = "/v1/chat/completions"
     static let models = "/v1/models"
