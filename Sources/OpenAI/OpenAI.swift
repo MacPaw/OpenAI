@@ -346,6 +346,7 @@ extension OpenAI {
     func buildAssistantURL(path: APIPath.Assistants, assistantId: String) -> URL {
         AssistantsURLBuilder(configuration: configuration, path: path, assistantId: assistantId)
             .buildURL()
+    }
 
     func buildURL(path: String) -> URL {
         var components = URLComponents()
