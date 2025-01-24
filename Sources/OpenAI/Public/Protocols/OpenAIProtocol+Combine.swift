@@ -15,27 +15,6 @@ import Combine
 @available(watchOS 6.0, *)
 public extension OpenAIProtocol {
 
-    func completions(query: CompletionsQuery) -> AnyPublisher<CompletionsResult, Error> {
-        Future<CompletionsResult, Error> {
-            completions(query: query, completion: $0)
-        }
-        .eraseToAnyPublisher()
-    }
-    
-    func completionsStream(query: CompletionsQuery) -> AnyPublisher<Result<CompletionsResult, Error>, Error> {
-        let progress = PassthroughSubject<Result<CompletionsResult, Error>, Error>()
-        completionsStream(query: query) { result in
-            progress.send(result)
-        } completion: { error in
-            if let error {
-                progress.send(completion: .failure(error))
-            } else {
-                progress.send(completion: .finished)
-            }
-        }
-        return progress.eraseToAnyPublisher()
-    }
-
     func images(query: ImagesQuery) -> AnyPublisher<ImagesResult, Error> {
         Future<ImagesResult, Error> {
             images(query: query, completion: $0)
@@ -83,13 +62,6 @@ public extension OpenAIProtocol {
             }
         }
         return progress.eraseToAnyPublisher()
-    }
-    
-    func edits(query: EditsQuery) -> AnyPublisher<EditsResult, Error> {
-        Future<EditsResult, Error> {
-            edits(query: query, completion: $0)
-        }
-        .eraseToAnyPublisher()
     }
     
     func model(query: ModelQuery) -> AnyPublisher<ModelResult, Error> {

@@ -34,35 +34,6 @@ class OpenAITestsDecoder: XCTestCase {
         return NSDictionary(dictionary: try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any])
     }
     
-    func testCompletions() async throws {
-        let data = """
-        {
-          "id": "foo",
-          "object": "text_completion",
-          "created": 1589478378,
-          "model": "text-davinci-003",
-          "choices": [
-            {
-              "text": "Hello, world!",
-              "index": 0,
-              "logprobs": null,
-              "finish_reason": "length"
-            }
-          ],
-          "usage": {
-            "prompt_tokens": 5,
-            "completion_tokens": 7,
-            "total_tokens": 12
-          }
-        }
-        """
-        
-        let expectedValue = CompletionsResult(id: "foo", object: "text_completion", created: 1589478378, model: .textDavinci_003, choices: [
-            .init(text: "Hello, world!", index: 0, finishReason: "length")
-        ], usage: .init(promptTokens: 5, completionTokens: 7, totalTokens: 12))
-        try decode(data, expectedValue)
-    }
-    
     func testImages() async throws {
         let data = """
         {
@@ -143,7 +114,51 @@ class OpenAITestsDecoder: XCTestCase {
         
         try encode(imageQuery, expectedValue)
     }
-  
+
+    func testChatQueryWithVision() async throws {
+        let chatQuery = ChatQuery(messages: [
+//            .init(role: .user, content: [
+//                .chatCompletionContentPartTextParam(.init(text: "What's in this image?")),
+//                .chatCompletionContentPartImageParam(.init(imageUrl: .init(url: "https://some.url/image.jpeg", detail: .auto)))
+//            ])!
+            .user(.init(content: .vision([
+                .chatCompletionContentPartTextParam(.init(text: "What's in this image?")),
+                .chatCompletionContentPartImageParam(.init(imageUrl: .init(url: "https://some.url/image.jpeg", detail: .auto)))
+            ])))
+        ], model: Model.gpt4_vision_preview, maxTokens: 300)
+        let expectedValue = """
+        {
+            "model": "gpt-4-vision-preview",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "What's in this image?"
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": "https://some.url/image.jpeg",
+                                "detail": "auto"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "max_tokens": 300,
+            "stream": false
+        }
+        """
+
+        // To compare serialized JSONs we first convert them both into NSDictionary which are comparable (unline native swift dictionaries)
+        let chatQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(chatQuery))
+        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
+
+        XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
+    }
+
     func testChatQueryWithFunctionCall() async throws {
         let chatQuery = ChatQuery(
             messages: [
@@ -259,31 +274,6 @@ class OpenAITestsDecoder: XCTestCase {
             ],
             usage: .init(completionTokens: 18, promptTokens: 82, totalTokens: 100),
             systemFingerprint: nil)
-        try decode(data, expectedValue)
-    }
-
-    func testEdits() async throws {
-        let data = """
-        {
-          "object": "edit",
-          "created": 1589478378,
-          "choices": [
-            {
-              "text": "What day of the week is it?",
-              "index": 0,
-            }
-          ],
-          "usage": {
-            "prompt_tokens": 25,
-            "completion_tokens": 32,
-            "total_tokens": 57
-          }
-        }
-        """
-        
-        let expectedValue = EditsResult(object: "edit", created: 1589478378, choices: [
-            .init(text: "What day of the week is it?", index: 0)
-        ], usage: .init(promptTokens: 25, completionTokens: 32, totalTokens: 57))
         try decode(data, expectedValue)
     }
     

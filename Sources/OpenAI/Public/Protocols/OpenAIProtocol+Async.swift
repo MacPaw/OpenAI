@@ -12,32 +12,6 @@ import Foundation
 @available(tvOS 13.0, *)
 @available(watchOS 6.0, *)
 public extension OpenAIProtocol {
-    func completions(
-        query: CompletionsQuery
-    ) async throws -> CompletionsResult {
-        try await withCheckedThrowingContinuation { continuation in
-            completions(query: query) { result in
-                switch result {
-                case let .success(success):
-                    return continuation.resume(returning: success)
-                case let .failure(failure):
-                    return continuation.resume(throwing: failure)
-                }
-            }
-        }
-    }
-    
-    func completionsStream(
-        query: CompletionsQuery
-    ) -> AsyncThrowingStream<CompletionsResult, Error> {
-        return AsyncThrowingStream { continuation in
-            return completionsStream(query: query) { result in
-                continuation.yield(with: result)
-            } completion: { error in
-                continuation.finish(throwing: error)
-            }
-        }
-    }
 
     func images(
         query: ImagesQuery
@@ -122,21 +96,6 @@ public extension OpenAIProtocol {
                 continuation.yield(with: result)
             } completion: { error in
                 continuation.finish(throwing: error)
-            }
-        }
-    }
-    
-    func edits(
-        query: EditsQuery
-    ) async throws -> EditsResult {
-        try await withCheckedThrowingContinuation { continuation in
-            edits(query: query) { result in
-                switch result {
-                case let .success(success):
-                    return continuation.resume(returning: success)
-                case let .failure(failure):
-                    return continuation.resume(throwing: failure)
-                }
             }
         }
     }

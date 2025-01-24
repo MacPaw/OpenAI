@@ -15,8 +15,6 @@ This repository contains Swift community-maintained implementation over [OpenAI]
 - [Installation](#installation)
 - [Usage](#usage)
     - [Initialization](#initialization)
-    - [Completions](#completions)
-        - [Completions Streaming](#completions-streaming)
     - [Chats](#chats)
         - [Chats Streaming](#chats-streaming) 
     - [Images](#images)
@@ -27,7 +25,6 @@ This repository contains Swift community-maintained implementation over [OpenAI]
         - [Audio Create Speech](#audio-create-speech)
         - [Audio Transcriptions](#audio-transcriptions)
         - [Audio Translations](#audio-translations)
-    - [Edits](#edits)
     - [Embeddings](#embeddings)
     - [Models](#models)
         - [List Models](#list-models)
@@ -100,115 +97,6 @@ let openAI = OpenAI(configuration: configuration)
 ```
 
 Once token you posses the token, and the instance is initialized you are ready to make requests.
-
-### Completions
-
-Given a prompt, the model will return one or more predicted completions, and can also return the probabilities of alternative tokens at each position.
-
-**Request**
-
-```swift
-struct CompletionsQuery: Codable {
-    /// ID of the model to use.
-    public let model: Model
-    /// The prompt(s) to generate completions for, encoded as a string, array of strings, array of tokens, or array of token arrays.
-    public let prompt: String
-    /// What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
-    public let temperature: Double?
-    /// The maximum number of tokens to generate in the completion.
-    public let maxTokens: Int?
-    /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    public let topP: Double?
-    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-    public let frequencyPenalty: Double?
-    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-    public let presencePenalty: Double?
-    /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
-    public let stop: [String]?
-    /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
-    public let user: String?
-}
-```
-
-**Response**
-
-```swift
-struct CompletionsResult: Codable, Equatable {
-    public struct Choice: Codable, Equatable {
-        public let text: String
-        public let index: Int
-    }
-
-    public let id: String
-    public let object: String
-    public let created: TimeInterval
-    public let model: Model
-    public let choices: [Choice]
-    public let usage: Usage
-}
-```
-**Example**
-
-```swift
-let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
-openAI.completions(query: query) { result in
-  //Handle result here
-}
-//or
-let result = try await openAI.completions(query: query)
-```
-
-```
-(lldb) po result
-▿ CompletionsResult
-  - id : "cmpl-6P9be2p2fQlwB7zTOl0NxCOetGmX3"
-  - object : "text_completion"
-  - created : 1671453146.0
-  - model : OpenAI.Model.textDavinci_003
-  ▿ choices : 1 element
-    ▿ 0 : Choice
-      - text : "\n\n42 is the answer to the ultimate question of life, the universe, and everything, according to the book The Hitchhiker\'s Guide to the Galaxy."
-      - index : 0
-```
-
-#### Completions Streaming
-
-Completions streaming is available by using `completionsStream` function. Tokens will be sent one-by-one.
-
-**Closures**
-```swift
-openAI.completionsStream(query: query) { partialResult in
-    switch partialResult {
-    case .success(let result):
-        print(result.choices)
-    case .failure(let error):
-        //Handle chunk error here
-    }
-} completion: { error in
-    //Handle streaming error here
-}
-```
-
-**Combine**
-
-```swift
-openAI
-    .completionsStream(query: query)
-    .sink { completion in
-        //Handle completion result here
-    } receiveValue: { result in
-        //Handle chunk here
-    }.store(in: &cancellables)
-```
-
-**Structured concurrency**
-```swift
-for try await result in openAI.completionsStream(query: query) {
-   //Handle result here
-}
-```
-
-Review [Completions Documentation](https://platform.openai.com/docs/api-reference/completions) for more info.
 
 ### Chats
 
@@ -574,7 +462,7 @@ public struct AudioSpeechQuery: Codable, Equatable {
 **Response:**
 
 ```swift
-/// Audio data for one of the following formats :`mp3`, `opus`, `aac`, `flac`
+/// Audio data for one of the following formats :`mp3`, `opus`, `aac`, `flac`, `pcm`
 public let audioData: Data?
 ```
 
@@ -674,71 +562,6 @@ let result = try await openAI.audioTranslations(query: query)
 ```
 
 Review [Audio Documentation](https://platform.openai.com/docs/api-reference/audio) for more info.
-
-### Edits
-
-Creates a new edit for the provided input, instruction, and parameters.
-
-**Request**
-
-```swift
-struct EditsQuery: Codable {
-    /// ID of the model to use.
-    public let model: Model
-    /// Input text to get embeddings for.
-    public let input: String?
-    /// The instruction that tells the model how to edit the prompt.
-    public let instruction: String
-    /// The number of images to generate. Must be between 1 and 10.
-    public let n: Int?
-    /// What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
-    public let temperature: Double?
-    /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    public let topP: Double?
-}
-```
-
-**Response**
-
-```swift
-struct EditsResult: Codable, Equatable {
-    
-    public struct Choice: Codable, Equatable {
-        public let text: String
-        public let index: Int
-    }
-
-    public struct Usage: Codable, Equatable {
-        public let promptTokens: Int
-        public let completionTokens: Int
-        public let totalTokens: Int
-        
-        enum CodingKeys: String, CodingKey {
-            case promptTokens = "prompt_tokens"
-            case completionTokens = "completion_tokens"
-            case totalTokens = "total_tokens"
-        }
-    }
-    
-    public let object: String
-    public let created: TimeInterval
-    public let choices: [Choice]
-    public let usage: Usage
-}
-```
-
-**Example**
-
-```swift
-let query = EditsQuery(model: .gpt4, input: "What day of the wek is it?", instruction: "Fix the spelling mistakes")
-openAI.edits(query: query) { result in
-  //Handle response here
-}
-//or
-let result = try await openAI.edits(query: query)
-```
-
-Review [Edits Documentation](https://platform.openai.com/docs/api-reference/edits) for more info.
 
 ### Embeddings
 
@@ -1025,11 +848,9 @@ Read more about Cosine Similarity [here](https://en.wikipedia.org/wiki/Cosine_si
 The library contains built-in [Combine](https://developer.apple.com/documentation/combine) extensions.
 
 ```swift
-func completions(query: CompletionsQuery) -> AnyPublisher<CompletionsResult, Error>
 func images(query: ImagesQuery) -> AnyPublisher<ImagesResult, Error>
 func embeddings(query: EmbeddingsQuery) -> AnyPublisher<EmbeddingsResult, Error>
 func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error>
-func edits(query: EditsQuery) -> AnyPublisher<EditsResult, Error>
 func model(query: ModelQuery) -> AnyPublisher<ModelResult, Error>
 func models() -> AnyPublisher<ModelsResult, Error>
 func moderations(query: ModerationsQuery) -> AnyPublisher<ModerationsResult, Error>

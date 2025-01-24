@@ -22,14 +22,23 @@ final public class OpenAI: OpenAIProtocol {
         
         /// API host. Set this property if you use some kind of proxy or your own server. Default is api.openai.com
         public let host: String
+
+        /// Optional base path if you set up OpenAI API proxy on a custom path on your own host. Default is ""
+        public let basePath: String
+
+        public let port: Int
+        public let scheme: String
         
         /// Default request timeout
         public let timeoutInterval: TimeInterval
         
-        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", timeoutInterval: TimeInterval = 60.0) {
+        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", basePath: String = "", timeoutInterval: TimeInterval = 60.0) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host
+            self.port = port
+            self.scheme = scheme
+            self.basePath = basePath
             self.timeoutInterval = timeoutInterval
         }
     }
@@ -109,7 +118,7 @@ final public class OpenAI: OpenAIProtocol {
             completion: completion
         )
     }
-    
+
     public func runSubmitToolOutputs(threadId: String, runId: String, query: RunToolOutputsQuery, completion: @escaping (Result<RunResult, Error>) -> Void) {
         performRequest(
             request: AssistantsRequest<RunResult>.jsonRequest(
@@ -193,16 +202,7 @@ final public class OpenAI: OpenAIProtocol {
             completion: completion
         )
     }
-    // END UPDATES FROM 11-06-23
 
-    public func completions(query: CompletionsQuery, completion: @escaping (Result<CompletionsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<CompletionsResult>(body: query, url: buildURL(path: .completions)), completion: completion)
-    }
-    
-    public func completionsStream(query: CompletionsQuery, onResult: @escaping (Result<CompletionsResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        performStreamingRequest(request: JSONRequest<CompletionsResult>(body: query.makeStreamable(), url: buildURL(path: .completions)), onResult: onResult, completion: completion)
-    }
-    
     public func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) {
         performRequest(request: JSONRequest<ImagesResult>(body: query, url: buildURL(path: .images)), completion: completion)
     }
@@ -225,10 +225,6 @@ final public class OpenAI: OpenAIProtocol {
     
     public func chatsStream(query: ChatQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
         performStreamingRequest(request: JSONRequest<ChatStreamResult>(body: query.makeStreamable(), url: buildURL(path: .chats)), onResult: onResult, completion: completion)
-    }
-    
-    public func edits(query: EditsQuery, completion: @escaping (Result<EditsResult, Error>) -> Void) {
-        performRequest(request: JSONRequest<EditsResult>(body: query, url: buildURL(path: .edits)), completion: completion)
     }
     
     public func model(query: ModelQuery, completion: @escaping (Result<ModelResult, Error>) -> Void) {
@@ -332,7 +328,6 @@ extension OpenAI {
 }
 
 extension OpenAI {
-    
     func buildURL(path: String, after: String? = nil) -> URL {
         DefaultURLBuilder(configuration: configuration, path: path, after: after)
             .buildURL()
@@ -351,12 +346,32 @@ extension OpenAI {
     func buildAssistantURL(path: APIPath.Assistants, assistantId: String) -> URL {
         AssistantsURLBuilder(configuration: configuration, path: path, assistantId: assistantId)
             .buildURL()
+
+    func buildURL(path: String) -> URL {
+        var components = URLComponents()
+        components.scheme = configuration.scheme
+        components.host = configuration.host
+        components.port = configuration.port
+        
+        let pathComponents = [configuration.basePath, path]
+            .filter { !$0.isEmpty }
+            .map { $0.trimmingCharacters(in: ["/"]) }
+        
+        components.path = "/" + pathComponents.joined(separator: "/")
+        
+        if let url = components.url {
+            return url
+        } else {
+            // We're expecting components.url to be not nil
+            // But if it isn't, let's just use some URL api that returns non-nil url
+            // Let all requests fail, but so that we don't crash on explicit unwrapping
+            return URL(fileURLWithPath: "")
+        }
     }
 }
 
 typealias APIPath = String
 extension APIPath {
-    // 1106
     struct Assistants {
         static let assistants = Assistants(stringValue: "/v1/assistants")
         static let assistantsModify = Assistants(stringValue: "/v1/assistants/ASST_ID")
@@ -373,12 +388,9 @@ extension APIPath {
         
         let stringValue: String
     }
-    // 1106 end
 
-    static let completions = "/v1/completions"
     static let embeddings = "/v1/embeddings"
     static let chats = "/v1/chat/completions"
-    static let edits = "/v1/edits"
     static let models = "/v1/models"
     static let moderations = "/v1/moderations"
     

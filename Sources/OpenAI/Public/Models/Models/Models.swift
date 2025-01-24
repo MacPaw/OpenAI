@@ -12,7 +12,17 @@ public extension Model {
     // Chat Completion
     // GPT-4
 
-    /// `gpt-4-turbo`, the latest gpt-4 model with improved instruction following, JSON mode, reproducible outputs, parallel function calling and more. Maximum of 4096 output tokens
+    /// `gpt-4o`, currently the most advanced, multimodal flagship model that's cheaper and faster than GPT-4 Turbo.
+    static let gpt4_o = "gpt-4o"
+
+    /// `gpt-4o-mini`, currently the most affordable and intelligent model for fast and lightweight requests.
+    static let gpt4_o_mini = "gpt-4o-mini"
+
+    /// `gpt-4-turbo`, The latest GPT-4 Turbo model with vision capabilities. Vision requests can now use JSON mode and function calling and more. Context window: 128,000 tokens
+    static let gpt4_turbo = "gpt-4-turbo"
+    
+    /// `gpt-4-turbo`, gpt-4 model with improved instruction following, JSON mode, reproducible outputs, parallel function calling and more. Maximum of 4096 output tokens
+    @available(*, deprecated, message: "Please upgrade to the newer model")
     static let gpt4_turbo_preview = "gpt-4-turbo-preview"
 
     /// `gpt-4-vision-preview`, able to understand images, in addition to all other GPT-4 Turbo capabilities.
@@ -70,24 +80,6 @@ public extension Model {
     
     /// Snapshot of `gpt-3.5-turbo-16k` from June 13th 2023. Unlike `gpt-3.5-turbo-16k`, this model will not receive updates, and will be deprecated 3 months after a new version is released.
     static let gpt3_5Turbo_16k_0613 = "gpt-3.5-turbo-16k-0613"
-
-    // Completions
-    
-    /// Can do any language task with better quality, longer output, and consistent instruction-following than the curie, babbage, or ada models. Also supports inserting completions within text.
-    static let textDavinci_003 = "text-davinci-003"
-    /// Similar capabilities to text-davinci-003 but trained with supervised fine-tuning instead of reinforcement learning.
-    static let textDavinci_002 = "text-davinci-002"
-    /// Very capable, faster and lower cost than Davinci.
-    static let textCurie = "text-curie-001"
-    /// Capable of straightforward tasks, very fast, and lower cost.
-    static let textBabbage = "text-babbage-001"
-    /// Capable of very simple tasks, usually the fastest model in the GPT-3 series, and lowest cost.
-    static let textAda = "text-ada-001"
-    
-    // Edits
-    
-    static let textDavinci_001 = "text-davinci-001"
-    static let codeDavinciEdit_001 = "code-davinci-edit-001"
     
     // Speech
     
