@@ -866,7 +866,7 @@ Review [Assistants Documentation](https://platform.openai.com/docs/api-reference
 
 Example: Create Assistant
 ```
-let query = AssistantsQuery(model: Model.gpt4_1106_preview, name: name, description: description, instructions: instructions, tools: tools, fileIds: fileIds)
+let query = AssistantsQuery(model: Model.gpt4_o_mini, name: name, description: description, instructions: instructions, tools: tools, toolResources: toolResources)
 openAI.assistantCreate(query: query) { result in
    //Handle response here
 }
@@ -876,7 +876,7 @@ openAI.assistantCreate(query: query) { result in
 
 Example: Modify Assistant
 ```
-let query = AssistantsQuery(model: Model.gpt4_1106_preview, name: name, description: description, instructions: instructions, tools: tools, fileIds: fileIds)
+let query = AssistantsQuery(model: Model.gpt4_o_mini, name: name, description: description, instructions: instructions, tools: tools, toolResources: toolResources)
 openAI.assistantModify(query: query, assistantId: "asst_1234") { result in
     //Handle response here
 }
