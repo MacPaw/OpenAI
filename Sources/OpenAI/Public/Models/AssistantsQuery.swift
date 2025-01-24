@@ -13,7 +13,7 @@ public struct AssistantsQuery: Codable, Equatable {
     public let description: String?
     public let instructions: String?
     public let tools: [Tool]?
-    public let fileIds: [String]?
+    public let toolResources: ToolResources?
 
     enum CodingKeys: String, CodingKey {
         case model
@@ -21,15 +21,22 @@ public struct AssistantsQuery: Codable, Equatable {
         case description
         case instructions
         case tools
-        case fileIds = "file_ids"
+        case toolResources = "tool_resources"
     }
     
-    public init(model: Model, name: String?, description: String?, instructions: String?, tools: [Tool]?, fileIds: [String]? = nil) {
+    public init(
+        model: Model,
+        name: String?,
+        description: String?,
+        instructions: String?,
+        tools: [Tool]?,
+        toolResources: ToolResources? = nil
+    ) {
         self.model = model
         self.name = name
         self.description = description
         self.instructions = instructions
         self.tools = tools
-        self.fileIds = fileIds
+        self.toolResources = toolResources
     }
 }

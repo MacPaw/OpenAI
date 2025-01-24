@@ -29,8 +29,14 @@ public final class AssistantStore: ObservableObject {
     @MainActor
     func createAssistant(name: String, description: String, instructions: String, codeInterpreter: Bool, fileSearch: Bool, functions: [FunctionDeclaration], fileIds: [String]? = nil) async -> String? {
         do {
+            let toolResources: ToolResources? = if let fileIds {
+                ToolResources(fileSearch: nil, codeInterpreter: .init(fileIds: fileIds))
+            } else {
+                nil
+            }
+            
             let tools = createToolsArray(codeInterpreter: codeInterpreter, fileSearch: fileSearch, functions: functions)
-            let query = AssistantsQuery(model: Model.gpt4_turbo_preview, name: name, description: description, instructions: instructions, tools:tools, fileIds: fileIds)
+            let query = AssistantsQuery(model: Model.gpt4_turbo_preview, name: name, description: description, instructions: instructions, tools:tools, toolResources: toolResources)
             let response = try await openAIClient.assistantCreate(query: query)
             
             // Refresh assistants with one just created (or modified)
@@ -49,8 +55,14 @@ public final class AssistantStore: ObservableObject {
     @MainActor
     func modifyAssistant(asstId: String, name: String, description: String, instructions: String, codeInterpreter: Bool, fileSearch: Bool, functions: [FunctionDeclaration], fileIds: [String]? = nil) async -> String? {
         do {
+            let toolResources: ToolResources? = if let fileIds {
+                ToolResources(fileSearch: nil, codeInterpreter: .init(fileIds: fileIds))
+            } else {
+                nil
+            }
+            
             let tools = createToolsArray(codeInterpreter: codeInterpreter, fileSearch: fileSearch, functions: functions)
-            let query = AssistantsQuery(model: Model.gpt4_turbo_preview, name: name, description: description, instructions: instructions, tools:tools, fileIds: fileIds)
+            let query = AssistantsQuery(model: Model.gpt4_turbo_preview, name: name, description: description, instructions: instructions, tools:tools, toolResources: toolResources)
             let response = try await openAIClient.assistantModify(query: query, assistantId: asstId)
 
             // Returns assistantId

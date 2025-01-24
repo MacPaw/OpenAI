@@ -29,6 +29,11 @@ public struct ToolResources: Codable, Equatable {
     public let fileSearch: FileSearchResources?
     public let codeInterpreter: CodeInterpreterResources?
     
+    public init(fileSearch: FileSearchResources?, codeInterpreter: CodeInterpreterResources?) {
+        self.fileSearch = fileSearch
+        self.codeInterpreter = codeInterpreter
+    }
+    
     enum CodingKeys: String, CodingKey {
         case fileSearch = "file_search"
         case codeInterpreter = "code_interpreter"
@@ -45,6 +50,10 @@ public struct FileSearchResources: Codable, Equatable {
 
 public struct CodeInterpreterResources: Codable, Equatable {
     public let fileIds: [String]
+    
+    public init(fileIds: [String]) {
+        self.fileIds = fileIds
+    }
     
     enum CodingKeys: String, CodingKey {
         case fileIds = "file_ids"
