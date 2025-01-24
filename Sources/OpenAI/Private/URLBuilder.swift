@@ -26,14 +26,13 @@ struct DefaultURLBuilder: URLBuilder {
     }
     
     func buildURL() -> URL {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = configuration.host
-        components.path = path
+        var components = URLComponents.components(perConfiguration: configuration, path: path)
+        
         if let after {
             components.queryItems = [URLQueryItem(name: "after", value: after)]
         }
-        return components.url!
+        
+        return components.urlSafe
     }
 }
 
@@ -43,12 +42,9 @@ struct AssistantsURLBuilder: URLBuilder {
     let assistantId: String
     
     func buildURL() -> URL {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = configuration.host
-        components.path = path.stringValue.replacingOccurrences(of: "ASST_ID", with: assistantId)
-
-        return components.url!
+        var components = URLComponents.components(perConfiguration: configuration, path: path.stringValue)
+        components.path = components.path.replacingOccurrences(of: "ASST_ID", with: assistantId)
+        return components.urlSafe
     }
 }
 
@@ -59,14 +55,12 @@ struct RunsURLBuilder: URLBuilder {
     let before: String? = nil
     
     func buildURL() -> URL {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = configuration.host
-        components.path = path.stringValue.replacingOccurrences(of: "THREAD_ID", with: threadId)
+        var components = URLComponents.components(perConfiguration: configuration, path: path.stringValue)
+        components.path = components.path.replacingOccurrences(of: "THREAD_ID", with: threadId)
         if let before {
             components.queryItems = [URLQueryItem(name: "before", value: before)]
         }
-        return components.url!
+        return components.urlSafe
     }
 }
 
@@ -86,14 +80,16 @@ struct RunRetrieveURLBuilder: URLBuilder {
     }
     
     func buildURL() -> URL {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = configuration.host
-        components.path = path.stringValue.replacingOccurrences(of: "THREAD_ID", with: threadId)
-                              .replacingOccurrences(of: "RUN_ID", with: runId)
+        var components = URLComponents.components(perConfiguration: configuration, path: path.stringValue)
+        components.path = components.path
+            .replacingOccurrences(of: "THREAD_ID", with: threadId)
+            .replacingOccurrences(of: "RUN_ID", with: runId)
+        
         if let before {
             components.queryItems = [URLQueryItem(name: "before", value: before)]
         }
-        return components.url!
+        return components.urlSafe
     }
 }
+
+

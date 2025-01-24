@@ -13,7 +13,7 @@ public struct AssistantResult: Codable, Equatable {
     public let description: String?
     public let instructions: String?
     public let tools: [Tool]?
-    public let toolResources: ToolResources
+    public let toolResources: ToolResources?
 
     enum CodingKeys: String, CodingKey {
         case id

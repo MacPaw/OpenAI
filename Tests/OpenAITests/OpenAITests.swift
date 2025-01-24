@@ -432,7 +432,7 @@ class OpenAITests: XCTestCase {
     // 1106
     func testAssistantCreateQuery() async throws {
         let query = assistantsQuery()
-        let expectedResult = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
+        let expectedResult = AssistantResult.makeMock()
         try self.stub(result: expectedResult)
 
         let result = try await openAI.assistantCreate(query: query)
@@ -450,7 +450,7 @@ class OpenAITests: XCTestCase {
     }
 
     func testListAssistantQuery() async throws {
-        let expectedAssistant = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
+        let expectedAssistant = AssistantResult.makeMock()
         let expectedResult = AssistantsResult(data: [expectedAssistant], firstId: expectedAssistant.id, lastId: expectedAssistant.id, hasMore: false)
         try self.stub(result: expectedResult)
 
@@ -468,7 +468,7 @@ class OpenAITests: XCTestCase {
     
     func testAssistantModifyQuery() async throws {
         let query = assistantsQuery()
-        let expectedResult = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
+        let expectedResult = AssistantResult.makeMock()
         try self.stub(result: expectedResult)
         
         let result = try await openAI.assistantModify(query: query, assistantId: "asst_9876")
@@ -556,7 +556,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testRunRetrieveStepsQuery() async throws {
-        let expectedResult = RunRetrieveStepsResult(data: [.init(id: "step_1234", stepDetails: .init(toolCalls: [.init(id: "tool_456", type: .retrieval, codeInterpreter: nil, function: nil)]))])
+        let expectedResult = RunRetrieveStepsResult(data: [.init(id: "step_1234", stepDetails: .init(toolCalls: [.init(id: "tool_456", type: .fileSearch, codeInterpreter: nil, function: nil)]))])
         try self.stub(result: expectedResult)
         
         let result = try await openAI.runRetrieveSteps(threadId: "thread_1234", runId: "run_1234")
@@ -646,22 +646,22 @@ class OpenAITests: XCTestCase {
     func testCustomRunsURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", timeoutInterval: 14)
         let openAI = OpenAI(configuration: configuration, session: self.urlSession)
-        let completionsURL = openAI.buildRunsURL(path: .runs, threadId: "thread_4321")
-        XCTAssertEqual(completionsURL, URL(string: "https://my.host.com/v1/threads/thread_4321/runs"))
+        let completionsURL = openAI.buildRunsURL(path: APIPath.Assistants.runs.stringValue, threadId: "thread_4321")
+        XCTAssertEqual(completionsURL, URL(string: "https://my.host.com:443/v1/threads/thread_4321/runs"))
     }
 
     func testCustomRunsRetrieveURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", timeoutInterval: 14)
         let openAI = OpenAI(configuration: configuration, session: self.urlSession)
-        let completionsURL = openAI.buildRunRetrieveURL(path: .runRetrieve, threadId: "thread_4321", runId: "run_1234")
-        XCTAssertEqual(completionsURL, URL(string: "https://my.host.com/v1/threads/thread_4321/runs/run_1234"))
+        let completionsURL = openAI.buildRunRetrieveURL(path: APIPath.Assistants.runRetrieve.stringValue, threadId: "thread_4321", runId: "run_1234")
+        XCTAssertEqual(completionsURL, URL(string: "https://my.host.com:443/v1/threads/thread_4321/runs/run_1234"))
     }
 
     func testCustomRunRetrieveStepsURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", timeoutInterval: 14)
         let openAI = OpenAI(configuration: configuration, session: self.urlSession)
-        let completionsURL = openAI.buildRunRetrieveURL(path: .runRetrieveSteps, threadId: "thread_4321", runId: "run_1234")
-        XCTAssertEqual(completionsURL, URL(string: "https://my.host.com/v1/threads/thread_4321/runs/run_1234/steps"))
+        let completionsURL = openAI.buildRunRetrieveURL(path: APIPath.Assistants.runRetrieveSteps.stringValue, threadId: "thread_4321", runId: "run_1234")
+        XCTAssertEqual(completionsURL, URL(string: "https://my.host.com:443/v1/threads/thread_4321/runs/run_1234/steps"))
     }
     // 1106 end
     

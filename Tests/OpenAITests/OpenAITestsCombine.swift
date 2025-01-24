@@ -105,7 +105,7 @@ final class OpenAITestsCombine: XCTestCase {
 
     // 1106
     func testAssistantsQuery() throws {
-        let expectedAssistant = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
+        let expectedAssistant = AssistantResult.makeMock()
         let expectedResult = AssistantsResult(data: [expectedAssistant], firstId: expectedAssistant.id, lastId: expectedAssistant.id, hasMore: false)
         try self.stub(result: expectedResult)
 
@@ -115,7 +115,7 @@ final class OpenAITestsCombine: XCTestCase {
 
     func testAssistantCreateQuery() throws {
         let query = AssistantsQuery.makeMock()
-        let expectedResult = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
+        let expectedResult = AssistantResult.makeMock()
         try self.stub(result: expectedResult)
 
         let result = try awaitPublisher(openAI.assistantCreate(query: query))
@@ -124,7 +124,7 @@ final class OpenAITestsCombine: XCTestCase {
     
     func testAssistantModifyQuery() throws {
         let query = AssistantsQuery.makeMock()
-        let expectedResult = AssistantResult(id: "asst_9876", name: "My New Assistant", description: "Assistant Description", instructions: "You are a helpful assistant.", tools: nil, fileIds: nil)
+        let expectedResult = AssistantResult.makeMock()
         try self.stub(result: expectedResult)
         
         let result = try awaitPublisher(openAI.assistantModify(query: query, assistantId: "asst_9876"))
@@ -170,7 +170,7 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testRunRetrieveStepsQuery() throws {
-        let expectedResult = RunRetrieveStepsResult(data: [.init(id: "step_1234", stepDetails: .init(toolCalls: [.init(id: "tool_456", type: .retrieval, codeInterpreter: nil, function: nil)]))])
+        let expectedResult = RunRetrieveStepsResult(data: [.init(id: "step_1234", stepDetails: .init(toolCalls: [.init(id: "tool_456", type: .fileSearch, codeInterpreter: nil, function: nil)]))])
         try self.stub(result: expectedResult)
         
         let result = try awaitPublisher(openAI.runRetrieveSteps(threadId: "thread_1234", runId: "run_1234"))

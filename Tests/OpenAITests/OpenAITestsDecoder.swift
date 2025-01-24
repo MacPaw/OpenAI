@@ -444,7 +444,7 @@ class OpenAITestsDecoder: XCTestCase {
         }
         """
         
-        let expectedValue = AssistantResult(id: "asst_abc123", name: "Math Tutor", description: nil, instructions: "You are a personal math tutor. When asked a question, write and run Python code to answer the question.", tools: [.codeInterpreter], fileIds: [])
+        let expectedValue = AssistantResult(id: "asst_abc123", name: "Math Tutor", description: nil, instructions: "You are a personal math tutor. When asked a question, write and run Python code to answer the question.", tools: [.codeInterpreter], toolResources: nil)
         try decode(data, expectedValue)
     }
     
@@ -455,7 +455,7 @@ class OpenAITestsDecoder: XCTestCase {
             description: nil,
             instructions: "You are a personal math tutor. When asked a question, write and run Python code to answer the question.",
             tools: [.codeInterpreter],
-            fileIds: nil
+            toolResources: nil
         )
         
         let expectedValue = """
@@ -510,8 +510,8 @@ class OpenAITestsDecoder: XCTestCase {
         
         let expectedValue = AssistantsResult(
             data: [
-                .init(id: "asst_abc123", name: "Coding Tutor", description: nil, instructions: "You are a helpful assistant designed to make me better at coding!", tools: [], fileIds: []),
-                .init(id: "asst_abc456", name: "My Assistant", description: nil, instructions: "You are a helpful assistant designed to teach me about AI!", tools: [], fileIds: []),
+                .init(id: "asst_abc123", name: "Coding Tutor", description: nil, instructions: "You are a helpful assistant designed to make me better at coding!", tools: [], toolResources: nil),
+                .init(id: "asst_abc456", name: "My Assistant", description: nil, instructions: "You are a helpful assistant designed to teach me about AI!", tools: [], toolResources: nil),
             ],
             firstId: "asst_abc123", 
             lastId: "asst_abc789",
