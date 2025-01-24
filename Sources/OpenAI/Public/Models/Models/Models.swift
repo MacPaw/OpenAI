@@ -10,6 +10,16 @@ public typealias Model = String
 
 public extension Model {
     // Chat Completion
+    
+    // o1 series
+    // The o1 series of models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.
+    
+    /// `o1`: reasoning model designed to solve hard problems across domains
+    static let o1 = "o1"
+    
+    /// `o1-mini`: fast and affordable reasoning model for specialized tasks
+    static let o1_mini = "o1-mini"
+    
     // GPT-4
 
     /// `gpt-4o`, currently the most advanced, multimodal flagship model that's cheaper and faster than GPT-4 Turbo.
