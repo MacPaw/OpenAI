@@ -110,24 +110,24 @@ public struct ChatQuery: Equatable, Codable, Streamable {
 
     public enum ChatCompletionMessageParam: Codable, Equatable {
 
-        case system(Self.ChatCompletionSystemMessageParam)
-        case user(Self.ChatCompletionUserMessageParam)
-        case assistant(Self.ChatCompletionAssistantMessageParam)
-        case tool(Self.ChatCompletionToolMessageParam)
+        case system(Self.SystemMessageParam)
+        case user(Self.UserMessageParam)
+        case assistant(Self.AssistantMessageParam)
+        case tool(Self.ToolMessageParam)
 
-        public var content: Self.ChatCompletionUserMessageParam.Content? { get {
+        public var content: Self.UserMessageParam.Content? { get {
             switch self {
             case .system(let systemMessage):
-                return Self.ChatCompletionUserMessageParam.Content.string(systemMessage.content)
+                return Self.UserMessageParam.Content.string(systemMessage.content)
             case .user(let userMessage):
                 return userMessage.content
             case .assistant(let assistantMessage):
                 if let content = assistantMessage.content {
-                    return Self.ChatCompletionUserMessageParam.Content.string(content)
+                    return Self.UserMessageParam.Content.string(content)
                 }
                 return nil
             case .tool(let toolMessage):
-                return Self.ChatCompletionUserMessageParam.Content.string(toolMessage.content)
+                return Self.UserMessageParam.Content.string(toolMessage.content)
             }
         }}
 
@@ -166,7 +166,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }}
 
-        public var toolCalls: [Self.ChatCompletionAssistantMessageParam.ChatCompletionMessageToolCallParam]? { get {
+        public var toolCalls: [Self.AssistantMessageParam.ToolCallParam]? { get {
             switch self {
             case .assistant(let assistantMessage):
                 return assistantMessage.toolCalls
@@ -179,7 +179,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             role: Role,
             content: String? = nil,
             name: String? = nil,
-            toolCalls: [Self.ChatCompletionAssistantMessageParam.ChatCompletionMessageToolCallParam]? = nil,
+            toolCalls: [Self.AssistantMessageParam.ToolCallParam]? = nil,
             toolCallId: String? = nil
         ) {
             switch role {
@@ -208,7 +208,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
 
         public init?(
             role: Role,
-            content: [ChatCompletionUserMessageParam.Content.VisionContent],
+            content: [UserMessageParam.Content.VisionContent],
             name: String? = nil
         ) {
             switch role {
@@ -233,7 +233,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
 
         private init?(
-            content: Self.ChatCompletionUserMessageParam.Content,
+            content: Self.UserMessageParam.Content,
             role: Role,
             name: String? = nil
         ) {
@@ -248,7 +248,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             role: Role,
             content: String? = nil,
             name: String? = nil,
-            toolCalls: [Self.ChatCompletionAssistantMessageParam.ChatCompletionMessageToolCallParam]? = nil
+            toolCalls: [Self.AssistantMessageParam.ToolCallParam]? = nil
         ) {
             if role == .assistant {
                 self = .assistant(.init(content: content, name: name, toolCalls: toolCalls))
@@ -290,7 +290,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             case tool
         }
 
-        public struct ChatCompletionSystemMessageParam: Codable, Equatable {
+        public struct SystemMessageParam: Codable, Equatable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             /// The contents of the system message.
@@ -315,7 +315,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }
 
-        public struct ChatCompletionUserMessageParam: Codable, Equatable {
+        public struct UserMessageParam: Codable, Equatable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             /// The contents of the user message.
@@ -486,7 +486,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }
 
-        public struct ChatCompletionAssistantMessageParam: Codable, Equatable {
+        public struct AssistantMessageParam: Codable, Equatable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             //// The role of the messages author, in this case assistant.
@@ -496,12 +496,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             /// The name of the author of this message. `name` is required if role is `function`, and it should be the name of the function whose response is in the `content`. May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
             public let name: String?
             /// The tool calls generated by the model, such as function calls.
-            public let toolCalls: [Self.ChatCompletionMessageToolCallParam]?
+            public let toolCalls: [Self.ToolCallParam]?
 
             public init(
                 content: String? = nil,
                 name: String? = nil,
-                toolCalls: [Self.ChatCompletionMessageToolCallParam]? = nil
+                toolCalls: [Self.ToolCallParam]? = nil
             ) {
                 self.content = content
                 self.name = name
@@ -515,7 +515,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 case toolCalls = "tool_calls"
             }
 
-            public struct ChatCompletionMessageToolCallParam: Codable, Equatable {
+            public struct ToolCallParam: Codable, Equatable {
                 public typealias ToolsType = ChatQuery.ChatCompletionToolParam.ToolsType
 
                 /// The ID of the tool call.
@@ -543,7 +543,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }
 
-        public struct ChatCompletionToolMessageParam: Codable, Equatable {
+        public struct ToolMessageParam: Codable, Equatable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             /// The contents of the tool message.
@@ -1100,5 +1100,149 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         case topP = "top_p"
         case user
         case stream
+    }
+}
+
+/// See the [guide](/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
+public struct JSONSchema: Codable, Hashable {
+    public let type: JSONType
+    public let properties: [String: Property]?
+    public let required: [String]?
+    public let pattern: String?
+    public let const: String?
+    public let enumValues: [String]?
+    public let multipleOf: Int?
+    public let minimum: Int?
+    public let maximum: Int?
+
+    private enum CodingKeys: String, CodingKey {
+        case type, properties, required, pattern, const
+        case enumValues = "enum"
+        case multipleOf, minimum, maximum
+    }
+
+    public struct Property: Codable, Hashable {
+        public let type: JSONType
+        public let description: String?
+        public let format: String?
+        public let items: Items?
+        public let required: [String]?
+        public let pattern: String?
+        public let const: String?
+        public let enumValues: [String]?
+        public let multipleOf: Int?
+        public let minimum: Double?
+        public let maximum: Double?
+        public let minItems: Int?
+        public let maxItems: Int?
+        public let uniqueItems: Bool?
+
+        private enum CodingKeys: String, CodingKey {
+            case type, description, format, items, required, pattern, const
+            case enumValues = "enum"
+            case multipleOf, minimum, maximum
+            case minItems, maxItems, uniqueItems
+        }
+
+        public init(type: JSONType, description: String? = nil, format: String? = nil, items: Items? = nil, required: [String]? = nil, pattern: String? = nil, const: String? = nil, enumValues: [String]? = nil, multipleOf: Int? = nil, minimum: Double? = nil, maximum: Double? = nil, minItems: Int? = nil, maxItems: Int? = nil, uniqueItems: Bool? = nil) {
+            self.type = type
+            self.description = description
+            self.format = format
+            self.items = items
+            self.required = required
+            self.pattern = pattern
+            self.const = const
+            self.enumValues = enumValues
+            self.multipleOf = multipleOf
+            self.minimum = minimum
+            self.maximum = maximum
+            self.minItems = minItems
+            self.maxItems = maxItems
+            self.uniqueItems = uniqueItems
+        }
+    }
+
+    public enum JSONType: String, Codable {
+        case integer = "integer"
+        case string = "string"
+        case boolean = "boolean"
+        case array = "array"
+        case object = "object"
+        case number = "number"
+        case `null` = "null"
+    }
+
+    public struct Items: Codable, Hashable {
+        public let type: JSONType
+        public let properties: [String: Property]?
+        public let pattern: String?
+        public let const: String?
+        public let enumValues: [String]?
+        public let multipleOf: Int?
+        public let minimum: Double?
+        public let maximum: Double?
+        public let minItems: Int?
+        public let maxItems: Int?
+        public let uniqueItems: Bool?
+
+        private enum CodingKeys: String, CodingKey {
+            case type, properties, pattern, const
+            case enumValues = "enum"
+            case multipleOf, minimum, maximum, minItems, maxItems, uniqueItems
+        }
+
+        public init(type: JSONType, properties: [String : Property]? = nil, pattern: String? = nil, const: String? = nil, enumValues: [String]? = nil, multipleOf: Int? = nil, minimum: Double? = nil, maximum: Double? = nil, minItems: Int? = nil, maxItems: Int? = nil, uniqueItems: Bool? = nil) {
+            self.type = type
+            self.properties = properties
+            self.pattern = pattern
+            self.const = const
+            self.enumValues = enumValues
+            self.multipleOf = multipleOf
+            self.minimum = minimum
+            self.maximum = maximum
+            self.minItems = minItems
+            self.maxItems = maxItems
+            self.uniqueItems = uniqueItems
+        }
+    }
+
+    public init(type: JSONType, properties: [String : Property]? = nil, required: [String]? = nil, pattern: String? = nil, const: String? = nil, enumValues: [String]? = nil, multipleOf: Int? = nil, minimum: Int? = nil, maximum: Int? = nil) {
+        self.type = type
+        self.properties = properties
+        self.required = required
+        self.pattern = pattern
+        self.const = const
+        self.enumValues = enumValues
+        self.multipleOf = multipleOf
+        self.minimum = minimum
+        self.maximum = maximum
+    }
+}
+
+public struct ChatFunctionCall: Codable, Equatable {
+    /// The name of the function to call.
+    public let name: String
+    /// The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.
+    public let arguments: String
+
+    public init(name: String, arguments: String) {
+        self.name = name
+        self.arguments = arguments
+    }
+}
+
+public struct ChatToolCall: Codable, Equatable {
+    public enum ToolType: String, Codable, Equatable {
+        case function
+    }
+
+    public let id: String
+    public let type: ToolType
+    public let function: ChatFunctionCall
+
+    public init(id: String, type: ToolType = .function, function: ChatFunctionCall) {
+        self.id = id
+        self.type = type
+        self.function = function
     }
 }

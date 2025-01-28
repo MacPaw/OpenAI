@@ -10,6 +10,16 @@ public typealias Model = String
 
 public extension Model {
     // Chat Completion
+    
+    // o1 series
+    // The o1 series of models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.
+    
+    /// `o1`: reasoning model designed to solve hard problems across domains
+    static let o1 = "o1"
+    
+    /// `o1-mini`: fast and affordable reasoning model for specialized tasks
+    static let o1_mini = "o1-mini"
+    
     // GPT-4
 
     /// `gpt-4o`, currently the most advanced, multimodal flagship model that's cheaper and faster than GPT-4 Turbo.
@@ -80,24 +90,6 @@ public extension Model {
     
     /// Snapshot of `gpt-3.5-turbo-16k` from June 13th 2023. Unlike `gpt-3.5-turbo-16k`, this model will not receive updates, and will be deprecated 3 months after a new version is released.
     static let gpt3_5Turbo_16k_0613 = "gpt-3.5-turbo-16k-0613"
-
-    // Completions
-    
-    /// Can do any language task with better quality, longer output, and consistent instruction-following than the curie, babbage, or ada models. Also supports inserting completions within text.
-    static let textDavinci_003 = "text-davinci-003"
-    /// Similar capabilities to text-davinci-003 but trained with supervised fine-tuning instead of reinforcement learning.
-    static let textDavinci_002 = "text-davinci-002"
-    /// Very capable, faster and lower cost than Davinci.
-    static let textCurie = "text-curie-001"
-    /// Capable of straightforward tasks, very fast, and lower cost.
-    static let textBabbage = "text-babbage-001"
-    /// Capable of very simple tasks, usually the fastest model in the GPT-3 series, and lowest cost.
-    static let textAda = "text-ada-001"
-    
-    // Edits
-    
-    static let textDavinci_001 = "text-davinci-001"
-    static let codeDavinciEdit_001 = "code-davinci-edit-001"
     
     // Speech
     

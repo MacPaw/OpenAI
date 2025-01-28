@@ -15,11 +15,13 @@ final class MultipartFormDataRequest<ResultType> {
     let body: MultipartFormDataBodyEncodable
     let url: URL
     let method: String
+    let customHeaders: [String: String]
         
-    init(body: MultipartFormDataBodyEncodable, url: URL, method: String = "POST") {
+    init(body: MultipartFormDataBodyEncodable, url: URL, method: String = "POST", customHeaders: [String: String] = [:]) {
         self.body = body
         self.url = url
         self.method = method
+        self.customHeaders = customHeaders
     }
 }
 
@@ -35,6 +37,11 @@ extension MultipartFormDataRequest: URLRequestBuildable {
         if let organizationIdentifier {
             request.setValue(organizationIdentifier, forHTTPHeaderField: "OpenAI-Organization")
         }
+        
+        for (headerField, value) in customHeaders {
+            request.setValue(value, forHTTPHeaderField: headerField)
+        }
+        
         request.httpBody = body.encode(boundary: boundary)
         return request
     }
