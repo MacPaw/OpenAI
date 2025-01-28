@@ -754,7 +754,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 }
                 try container.encode(false, forKey: .additionalProperties)
                 try container.encode(object, forKey: .properties)
-                let fields = try object.map { key, value in key }
+                let fields = object.map { key, value in key }
                 try container.encode(fields, forKey: .required)
             case .array(let items, let isOptional):
                 if isOptional {
