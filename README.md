@@ -17,6 +17,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
     - [Initialization](#initialization)
     - [Chats](#chats)
         - [Chats Streaming](#chats-streaming) 
+        - [Structured Output](#structured-output) 
     - [Images](#images)
         - [Create Image](#create-image)
         - [Create Image Edit](#create-image-edit)
@@ -295,8 +296,56 @@ Result will be (serialized as JSON here for readability):
 
 ```
 
-
 Review [Chat Documentation](https://platform.openai.com/docs/guides/chat) for more info.
+
+#### Structured Output
+
+JSON is one of the most widely used formats in the world for applications to exchange data.
+
+Structured Outputs is a feature that ensures the model will always generate responses that adhere to your supplied JSON Schema, so you don't need to worry about the model omitting a required key, or hallucinating an invalid enum value.
+
+**Example**
+
+```swift
+struct MovieInfo: StructuredOutput {
+    
+    let title: String
+    let director: String
+    let release: Date
+    let genres: [MovieGenre]
+    let cast: [String]
+    
+    static let example: Self = { 
+        .init(
+            title: "Earth",
+            director: "Alexander Dovzhenko",
+            release: Calendar.current.date(from: DateComponents(year: 1930, month: 4, day: 1))!,
+            genres: [.drama],
+            cast: ["Stepan Shkurat", "Semyon Svashenko", "Yuliya Solntseva"]
+        )
+    }()
+}
+
+enum MovieGenre: String, Codable, StructuredOutputEnum {
+    case action, drama, comedy, scifi
+    
+    var caseNames: [String] { Self.allCases.map { $0.rawValue } }
+}
+
+let query = ChatQuery(
+    messages: [.system(.init(content: "Best Picture winner at the 2011 Oscars"))],
+    model: .gpt4_o,
+    responseFormat: .jsonSchema(name: "movie-info", type: MovieInfo.self)
+)
+let result = try await openAI.chats(query: query)
+```
+
+- Use the `jsonSchema(name:type:)` response format when creating a `ChatQuery`
+- Provide a schema name and a type that conforms to `ChatQuery.StructuredOutput` and generates an instance as an example
+- Make sure all enum types within the provided type conform to `ChatQuery.StructuredOutputEnum` and generate an array of names for all cases
+
+
+Review [Structured Output Documentation](https://platform.openai.com/docs/guides/structured-outputs) for more info.
 
 ### Images
 

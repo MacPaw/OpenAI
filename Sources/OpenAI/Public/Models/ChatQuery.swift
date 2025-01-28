@@ -599,14 +599,263 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
     }
 
-    // See more https://platform.openai.com/docs/guides/text-generation/json-mode
-    public enum ResponseFormat: String, Codable, Equatable {
-        case jsonObject = "json_object"
+    // See more https://platform.openai.com/docs/guides/structured-outputs/introduction
+    public enum ResponseFormat: Codable, Equatable {
+        
         case text
-
-        public func encode(to encoder: Encoder) throws {
-            var container = encoder.singleValueContainer()
-            try container.encode(["type": self.rawValue])
+        case jsonObject
+        case jsonSchema(name: String, type: StructuredOutput.Type)
+        
+        enum CodingKeys: String, CodingKey {
+            case type
+            case jsonSchema = "json_schema"
+        }
+        
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            switch self {
+            case .text:
+                try container.encode("text", forKey: .type)
+            case .jsonObject:
+                try container.encode("json_object", forKey: .type)
+            case .jsonSchema(let name, let type):
+                try container.encode("json_schema", forKey: .type)
+                let schema = JSONSchema(name: name, schema: type.example)
+                try container.encode(schema, forKey: .jsonSchema)
+            }
+        }
+        
+        public static func == (lhs: ResponseFormat, rhs: ResponseFormat) -> Bool {
+            switch (lhs, rhs) {
+            case (.text, .text): return true
+            case (.jsonObject, .jsonObject): return true
+            case (.jsonSchema(let lhsName, let lhsType), .jsonSchema(let rhsName, let rhsType)):
+                return lhsName == rhsName && lhsType == rhsType
+            default:
+                return false
+            }
+        }
+        
+        /// A formal initializer reqluired for the inherited Decodable conformance.
+        /// This type is never returned from the server and is never decoded into.
+        public init(from decoder: any Decoder) throws {
+            self = .text
+        }
+    }
+    
+    private struct JSONSchema: Encodable {
+        
+        let name: String
+        let schema: StructuredOutput
+        
+        enum CodingKeys: String, CodingKey {
+            case name
+            case schema
+            case strict
+        }
+        
+        init(name: String, schema: StructuredOutput) {
+            
+            func format(_ name: String) -> String {
+                var formattedName = name.replacingOccurrences(of: " ", with: "_")
+                let regex = try! NSRegularExpression(pattern: "[^a-zA-Z0-9_-]", options: [])
+                let range = NSRange(location: 0, length: formattedName.utf16.count)
+                formattedName = regex.stringByReplacingMatches(in: formattedName, options: [], range: range, withTemplate: "")
+                formattedName = formattedName.isEmpty ? "sample" : formattedName
+                formattedName = String(formattedName.prefix(64))
+                return formattedName
+            }
+            
+            self.name = format(name)
+            self.schema = schema
+            
+            if self.name != name {
+                print("The name was changed to \(self.name) to satisfy the API requirements. See more: https://platform.openai.com/docs/api-reference/chat/create")
+            }
+        }
+        
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(name, forKey: .name)
+            try container.encode(true, forKey: .strict)
+            try container.encode(try PropertyValue(from: schema), forKey: .schema)
+        }
+    }
+    
+    private indirect enum PropertyValue: Codable {
+        
+        enum SimpleType: String, Codable {
+            case string, integer, number, boolean
+        }
+        
+        enum ComplexType: String, Codable {
+            case object, array, date
+        }
+        
+        enum SpecialType: String, Codable {
+            case null
+        }
+        
+        case simple(SimpleType, isOptional: Bool)
+        case date(isOptional: Bool)
+        case `enum`(cases: [String], isOptional: Bool)
+        case object([String: PropertyValue], isOptional: Bool)
+        case array(PropertyValue, isOptional: Bool)
+        
+        enum CodingKeys: String, CodingKey {
+            case type
+            case description
+            case properties
+            case items
+            case additionalProperties
+            case required
+            case `enum`
+        }
+        
+        enum ValueType: String, Codable {
+            case string
+            case date
+            case integer
+            case number
+            case boolean
+            case object
+            case array
+        }
+        
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            
+            switch self {
+            case .simple(let type, let isOptional):
+                if isOptional {
+                    try container.encode([type.rawValue, SpecialType.null.rawValue], forKey: .type)
+                } else {
+                    try container.encode(type.rawValue, forKey: .type)
+                }
+            case .date(let isOptional):
+                if isOptional {
+                    try container.encode([SimpleType.string.rawValue, SpecialType.null.rawValue], forKey: .type)
+                } else {
+                    try container.encode(SimpleType.string.rawValue, forKey: .type)
+                }
+                try container.encode("String that represents a date formatted in iso8601", forKey: .description)
+            case .enum(let cases, let isOptional):
+                if isOptional {
+                    try container.encode([SimpleType.string.rawValue, SpecialType.null.rawValue], forKey: .type)
+                } else {
+                    try container.encode(SimpleType.string.rawValue, forKey: .type)
+                }
+                try container.encode(cases, forKey: .enum)
+            case .object(let object, let isOptional):
+                if isOptional {
+                    try container.encode([ComplexType.object.rawValue, SpecialType.null.rawValue], forKey: .type)
+                } else {
+                    try container.encode(ComplexType.object.rawValue, forKey: .type)
+                }
+                try container.encode(false, forKey: .additionalProperties)
+                try container.encode(object, forKey: .properties)
+                let fields = object.map { key, value in key }
+                try container.encode(fields, forKey: .required)
+            case .array(let items, let isOptional):
+                if isOptional {
+                    try container.encode([ComplexType.array.rawValue, SpecialType.null.rawValue], forKey: .type)
+                } else {
+                    try container.encode(ComplexType.array.rawValue, forKey: .type)
+                }
+                try container.encode(items, forKey: .items)
+            }
+        }
+        
+        init<T: Any>(from value: T) throws {
+            let mirror = Mirror(reflecting: value)
+            let isOptional = mirror.displayStyle == .optional
+            
+            switch value {
+            case _ as String:
+                self = .simple(.string, isOptional: isOptional)
+                return
+            case _ as Bool:
+                self = .simple(.boolean, isOptional: isOptional)
+                return
+            case _ as Int, _ as Int8, _ as Int16, _ as Int32, _ as Int64, _ as UInt, _ as UInt8, _ as UInt16, _ as UInt32, _ as UInt64:
+                self = .simple(.integer, isOptional: isOptional)
+                return
+            case _ as Double, _ as Float, _ as CGFloat:
+                self = .simple(.number, isOptional: isOptional)
+                return
+            case _ as Date:
+                self = .date(isOptional: isOptional)
+                return
+            default:
+                
+                var unwrappedMirror: Mirror!
+                if isOptional {
+                    guard let child = mirror.children.first else {
+                        throw StructuredOutputError.nilFoundInExample
+                    }
+                    unwrappedMirror = Mirror(reflecting: child.value)
+                } else {
+                    unwrappedMirror = mirror
+                }
+                
+                if let displayStyle = unwrappedMirror.displayStyle {
+                    
+                    switch displayStyle {
+                        
+                    case .struct, .class:
+                        var dict = [String: PropertyValue]()
+                        for child in unwrappedMirror.children {
+                            dict[child.label!] = try Self(from: child.value)
+                        }
+                        self = .object(dict, isOptional: isOptional)
+                        return
+                        
+                    case .collection:
+                        if let child = unwrappedMirror.children.first {
+                            self = .array(try Self(from: child.value), isOptional: isOptional)
+                            return
+                        } else {
+                            throw StructuredOutputError.typeUnsupported
+                        }
+                        
+                    case .enum:
+                        if let structuredEnum = value as? any StructuredOutputEnum {
+                            self = .enum(cases: structuredEnum.caseNames, isOptional: isOptional)
+                            return
+                        } else {
+                            throw StructuredOutputError.enumsConformance
+                        }
+                        
+                    default:
+                        throw StructuredOutputError.typeUnsupported
+                    }
+                }
+                throw StructuredOutputError.typeUnsupported
+            }
+        }
+        
+        
+        /// A formal initializer reqluired for the inherited Decodable conformance.
+        /// This type is never returned from the server and is never decoded into.
+        init(from decoder: Decoder) throws {
+            self = .simple(.boolean, isOptional: false)
+        }
+    }
+    
+    public enum StructuredOutputError: LocalizedError {
+        case enumsConformance
+        case typeUnsupported
+        case nilFoundInExample
+        
+        public var errorDescription: String? {
+            switch self {
+            case .enumsConformance:
+                return "Conform the enum types to StructuredOutputEnum and provide the `caseNames` property with a list of available cases."
+            case .typeUnsupported:
+                return "Unsupported type. Supported types: String, Bool, Int, Double, Array, and Codable struct/class instances."
+            case .nilFoundInExample:
+                return "Found nils when serializing the StructuredOutput‘s example. Provide values for all optional properties in the example."
+            }
         }
     }
 
