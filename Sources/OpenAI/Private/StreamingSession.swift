@@ -60,11 +60,26 @@ extension StreamingSession {
         if stringContent.isEmpty {
             return
         }
-        let jsonObjects = "\(previousChunkBuffer)\(stringContent)"
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .components(separatedBy: "data:")
+
+        let fullChunk = "\(previousChunkBuffer)\(stringContent)"
+        let chunkLines = fullChunk
+            .components(separatedBy: .newlines)
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { $0.isEmpty == false }
+
+        var jsonObjects: [String] = []
+        for line in chunkLines {
+
+            // Skip comments
+            if line.starts(with: ":") { continue }
+
+            // Get JSON object
+            let jsonData = line
+                .components(separatedBy: "data:")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { $0.isEmpty == false }
+            jsonObjects.append(contentsOf: jsonData)
+        }
 
         previousChunkBuffer = ""
         
