@@ -25,4 +25,6 @@ extension URLSession: URLSessionCombine {
 #else
 protocol URLSessionCombine {
 }
+
+extension URLSession: URLSessionCombine {}
 #endif
