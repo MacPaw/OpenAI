@@ -23,6 +23,7 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
     
     private let streamingCompletionMarker = "[DONE]"
     private let urlRequest: URLRequest
+    private let sslDelegate: SSLDelegateProtocol?
     private lazy var urlSession: URLSession = {
         let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
         return session
@@ -30,8 +31,9 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
     
     private var previousChunkBuffer = ""
 
-    init(urlRequest: URLRequest) {
+    init(urlRequest: URLRequest, sslDelegate: SSLDelegateProtocol?) {
         self.urlRequest = urlRequest
+        self.sslDelegate = sslDelegate
     }
     
     func perform() {
@@ -52,6 +54,14 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
         processJSON(from: stringContent)
     }
     
+    func urlSession(
+        _ session: URLSession,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        guard let sslDelegate else { return completionHandler(.performDefaultHandling, nil) }
+        sslDelegate.urlSession(session, didReceive: challenge, completionHandler: completionHandler)
+    }
 }
 
 extension StreamingSession {
