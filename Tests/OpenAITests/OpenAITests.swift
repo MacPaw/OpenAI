@@ -13,7 +13,7 @@ import XCTest
 @available(tvOS 13.0, *)
 class OpenAITests: XCTestCase {
 
-    var openAI: OpenAIProtocol!
+    var openAI: OpenAI!
     var urlSession: URLSessionMock!
     
     override func setUp() {

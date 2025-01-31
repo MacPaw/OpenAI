@@ -24,7 +24,7 @@ public protocol OpenAIProtocol {
        - query: An `ImagesQuery` object containing the input parameters for the API request. This includes the query parameters such as the text prompt, image size, and other settings.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ImagesResult, Error>`, will contain either the `ImagesResult` object with the generated images, or an error if the request failed.
     **/
-    func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void)
+    @discardableResult func images(query: ImagesQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) -> CancellableRequest
     
     /**
      This function sends an image edit query to the OpenAI API and retrieves generated images in response. The Images Edit API enables you to edit images or graphics using OpenAI's powerful deep learning models.
@@ -41,7 +41,7 @@ public protocol OpenAIProtocol {
        - query: An `ImagesEditQuery` object containing the input parameters for the API request. This includes the query parameters such as the image to be edited, an image to be used a mask if applicable, text prompt, image size, and other settings.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ImagesResult, Error>`, will contain either the `ImagesResult` object with the generated images, or an error if the request failed.
     **/
-    func imageEdits(query: ImageEditsQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void)
+    @discardableResult func imageEdits(query: ImageEditsQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) -> CancellableRequest
     
     /**
      This function sends an image variation query to the OpenAI API and retrieves generated images in response. The Images Variations API enables you to create a variation of a given image using OpenAI's powerful deep learning models.
@@ -58,7 +58,7 @@ public protocol OpenAIProtocol {
        - query: An `ImagesVariationQuery` object containing the input parameters for the API request. This includes the query parameters such as the image to use as a basis for the variation(s), image size, and other settings.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ImagesResult, Error>`, will contain either the `ImagesResult` object with the generated images, or an error if the request failed.
     **/
-    func imageVariations(query: ImageVariationsQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void)
+    @discardableResult func imageVariations(query: ImageVariationsQuery, completion: @escaping (Result<ImagesResult, Error>) -> Void) -> CancellableRequest
     
     /**
      This function sends an embeddings query to the OpenAI API and retrieves embeddings in response. The Embeddings API enables you to generate high-dimensional vector representations of texts, which can be used for various natural language processing tasks such as semantic similarity, clustering, and classification.
@@ -75,7 +75,7 @@ public protocol OpenAIProtocol {
        - query: An `EmbeddingsQuery` object containing the input parameters for the API request. This includes the list of text prompts to be converted into embeddings, the model to be used, and other settings.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<EmbeddingsResult, Error>`, will contain either the `EmbeddingsResult` object with the generated embeddings, or an error if the request failed.
     **/
-    func embeddings(query: EmbeddingsQuery, completion: @escaping (Result<EmbeddingsResult, Error>) -> Void)
+    @discardableResult func embeddings(query: EmbeddingsQuery, completion: @escaping (Result<EmbeddingsResult, Error>) -> Void) -> CancellableRequest
     
     /**
      This function sends a chat query to the OpenAI API and retrieves chat conversation responses. The Chat API enables you to build chatbots or conversational applications using OpenAI's powerful natural language models, like GPT-3.
@@ -92,7 +92,7 @@ public protocol OpenAIProtocol {
        - query: A `ChatQuery` object containing the input parameters for the API request. This includes the lists of message objects for the conversation, the model to be used, and other settings.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ChatResult, Error>`, will contain either the `ChatResult` object with the model's response to the conversation, or an error if the request failed.
     **/
-    func chats(query: ChatQuery, completion: @escaping (Result<ChatResult, Error>) -> Void)
+    @discardableResult func chats(query: ChatQuery, completion: @escaping (Result<ChatResult, Error>) -> Void) -> CancellableRequest
     
     /**
      This function sends a chat query to the OpenAI API and retrieves chat stream conversation responses. The Chat API enables you to build chatbots or conversational applications using OpenAI's powerful natural language models, like GPT-3. The result is returned by chunks.
@@ -110,7 +110,7 @@ public protocol OpenAIProtocol {
        - onResult: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ChatStreamResult, Error>`, will contain either the `ChatStreamResult` object with the model's response to the conversation, or an error if the request failed.
        - completion: A closure that is being called when all chunks are delivered or uncrecoverable error occured
     **/
-    func chatsStream(query: ChatQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?)
+    @discardableResult func chatsStream(query: ChatQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?) -> CancellableRequest
     
     /**
      This function sends a model query to the OpenAI API and retrieves a model instance, providing owner information. The Models API in this usage enables you to gather detailed information on the model in question, like GPT-3.
@@ -127,7 +127,7 @@ public protocol OpenAIProtocol {
        - query: A `ModelQuery` object containing the input parameters for the API request, which is only the model to be queried.
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ModelResult, Error>`, will contain either the `ModelResult` object with more information about the model, or an error if the request failed.
     **/
-    func model(query: ModelQuery, completion: @escaping (Result<ModelResult, Error>) -> Void)
+    @discardableResult func model(query: ModelQuery, completion: @escaping (Result<ModelResult, Error>) -> Void) -> CancellableRequest
     
     /**
      This function sends a models query to the OpenAI API and retrieves a list of models. The Models API in this usage enables you to list all the available models.
@@ -142,7 +142,7 @@ public protocol OpenAIProtocol {
      - Parameters:
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ModelsResult, Error>`, will contain either the `ModelsResult` object with the list of model types, or an error if the request failed.
     **/
-    func models(completion: @escaping (Result<ModelsResult, Error>) -> Void)
+    @discardableResult func models(completion: @escaping (Result<ModelsResult, Error>) -> Void) -> CancellableRequest
     
     /**
      This function sends a moderations query to the OpenAI API and retrieves a list of category results to classify how text may violate OpenAI's Content Policy.
@@ -160,7 +160,7 @@ public protocol OpenAIProtocol {
        - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ModerationsResult, Error>`, will contain either the `ModerationsResult` object with the list of category results, or an error if the request failed.
     **/
     @available(iOS 13.0, *)
-    func moderations(query: ModerationsQuery, completion: @escaping (Result<ModerationsResult, Error>) -> Void)
+    @discardableResult func moderations(query: ModerationsQuery, completion: @escaping (Result<ModerationsResult, Error>) -> Void) -> CancellableRequest
     
     /**
      This function sends an `AudioSpeechQuery` to the OpenAI API to create audio speech from text using a specific voice and format.
@@ -177,7 +177,7 @@ public protocol OpenAIProtocol {
        - query: An `AudioSpeechQuery` object containing the parameters for the API request. This includes the Text-to-Speech model to be used, input text, voice to be used for generating the audio, the desired audio format, and the speed of the generated audio.
        - completion: A closure which receives the result. The closure's parameter, `Result<AudioSpeechResult, Error>`, will either contain the `AudioSpeechResult` object with the audio data or an error if the request failed.
      */
-    func audioCreateSpeech(query: AudioSpeechQuery, completion: @escaping (Result<AudioSpeechResult, Error>) -> Void)
+    @discardableResult func audioCreateSpeech(query: AudioSpeechQuery, completion: @escaping (Result<AudioSpeechResult, Error>) -> Void) -> CancellableRequest
     
     /**
     Transcribes audio data using OpenAI's audio transcription API and completes the operation asynchronously.
@@ -186,7 +186,7 @@ public protocol OpenAIProtocol {
     - Parameter completion: The completion handler to be executed upon completion of the transcription request.
                           Returns a `Result` of type `AudioTranscriptionResult` if successful, or an `Error` if an error occurs.
      **/
-    func audioTranscriptions(query: AudioTranscriptionQuery, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void)
+    @discardableResult func audioTranscriptions(query: AudioTranscriptionQuery, completion: @escaping (Result<AudioTranscriptionResult, Error>) -> Void) -> CancellableRequest
     
     /**
     Translates audio data using OpenAI's audio translation API and completes the operation asynchronously.
@@ -195,11 +195,7 @@ public protocol OpenAIProtocol {
     - Parameter completion: The completion handler to be executed upon completion of the translation request.
                          Returns a `Result` of type `AudioTranslationResult` if successful, or an `Error` if an error occurs.
      **/
-    func audioTranslations(query: AudioTranslationQuery, completion: @escaping (Result<AudioTranslationResult, Error>) -> Void)
-    
-    ///
-    // The following functions represent new functionality added to OpenAI Beta on 11-06-23
-    ///
+    @discardableResult func audioTranslations(query: AudioTranslationQuery, completion: @escaping (Result<AudioTranslationResult, Error>) -> Void) -> CancellableRequest
 
     /**
      This function sends a assistants query to the OpenAI API to list assistants that have been created.
@@ -215,7 +211,7 @@ public protocol OpenAIProtocol {
      - Parameter completion: The completion handler to be executed upon completion of the assistant request.
                           Returns a `Result` of type `AssistantsResult` if successful, or an `Error` if an error occurs.
      **/
-    func assistants(after: String?, completion: @escaping (Result<AssistantsResult, Error>) -> Void)
+    @discardableResult func assistants(after: String?, completion: @escaping (Result<AssistantsResult, Error>) -> Void) -> CancellableRequest
     
     /**
      This function sends an assistants query to the OpenAI API and creates an assistant.
@@ -231,7 +227,7 @@ public protocol OpenAIProtocol {
      - Parameter completion: The completion handler to be executed upon completion of the assistant request.
                           Returns a `Result` of type `AssistantResult` if successful, or an `Error` if an error occurs.
      **/
-    func assistantCreate(query: AssistantsQuery, completion: @escaping (Result<AssistantResult, Error>) -> Void)
+    @discardableResult func assistantCreate(query: AssistantsQuery, completion: @escaping (Result<AssistantResult, Error>) -> Void) -> CancellableRequest
 
     /**
     This function sends a assistants query to the OpenAI API and modifies an assistant. The Assistants API in this usage enables you to modify an assistant.
@@ -249,7 +245,7 @@ public protocol OpenAIProtocol {
      - Parameter completion: The completion handler to be executed upon completion of the assistant request.
                           Returns a `Result` of type `AssistantResult` if successful, or an `Error` if an error occurs.
      **/
-    func assistantModify(query: AssistantsQuery, assistantId: String, completion: @escaping (Result<AssistantResult, Error>) -> Void)
+    @discardableResult func assistantModify(query: AssistantsQuery, assistantId: String, completion: @escaping (Result<AssistantResult, Error>) -> Void) -> CancellableRequest
 
     /**
      This function sends a threads query to the OpenAI API and creates a thread. The Threads API in this usage enables you to create a thread.
@@ -266,7 +262,7 @@ public protocol OpenAIProtocol {
      - Parameter completion: The completion handler to be executed upon completion of the threads request.
                           Returns a `Result` of type `ThreadsResult` if successful, or an `Error` if an error occurs.
      **/
-    func threads(query: ThreadsQuery, completion: @escaping (Result<ThreadsResult, Error>) -> Void)
+    @discardableResult func threads(query: ThreadsQuery, completion: @escaping (Result<ThreadsResult, Error>) -> Void) -> CancellableRequest
 
     /**
      This function sends a threads query to the OpenAI API that creates and runs a thread in a single request.
@@ -283,7 +279,7 @@ public protocol OpenAIProtocol {
      - Parameter completion: The completion handler to be executed upon completion of the threads request.
                           Returns a `Result` of type `RunResult` if successful, or an `Error` if an error occurs.
      **/
-    func threadRun(query: ThreadRunQuery, completion: @escaping (Result<RunResult, Error>) -> Void)
+    @discardableResult func threadRun(query: ThreadRunQuery, completion: @escaping (Result<RunResult, Error>) -> Void) -> CancellableRequest
     
     /**
      This function sends a runs query to the OpenAI API and creates a run. The Runs API in this usage enables you to create a run.
@@ -301,7 +297,7 @@ public protocol OpenAIProtocol {
      - Parameter completion: The completion handler to be executed upon completion of the runs request.
                           Returns a `Result` of type `RunResult` if successful, or an `Error` if an error occurs.
      **/
-    func runs(threadId: String, query: RunsQuery, completion: @escaping (Result<RunResult, Error>) -> Void)
+    @discardableResult func runs(threadId: String, query: RunsQuery, completion: @escaping (Result<RunResult, Error>) -> Void) -> CancellableRequest
 
     /**
      This function sends a thread id and run id to the OpenAI API and retrieves a run. The Runs API in this usage enables you to retrieve a run.
@@ -317,7 +313,7 @@ public protocol OpenAIProtocol {
      - Parameter completion: The completion handler to be executed upon completion of the runRetrieve request.
                           Returns a `Result` of type `RunRetrieveResult` if successful, or an `Error` if an error occurs.
      **/
-    func runRetrieve(threadId: String, runId: String, completion: @escaping (Result<RunResult, Error>) -> Void)
+    @discardableResult func runRetrieve(threadId: String, runId: String, completion: @escaping (Result<RunResult, Error>) -> Void) -> CancellableRequest
 
     /**
      This function sends a thread id and run id to the OpenAI API and retrieves a list of run steps. The Runs API in this usage enables you to retrieve a runs run steps.
@@ -334,7 +330,7 @@ public protocol OpenAIProtocol {
      - Parameter completion: The completion handler to be executed upon completion of the runRetrieve request.
                           Returns a `Result` of type `RunRetrieveStepsResult` if successful, or an `Error` if an error occurs.
      **/
-    func runRetrieveSteps(threadId: String, runId: String, before: String?, completion: @escaping (Result<RunRetrieveStepsResult, Error>) -> Void)
+    @discardableResult func runRetrieveSteps(threadId: String, runId: String, before: String?, completion: @escaping (Result<RunRetrieveStepsResult, Error>) -> Void) -> CancellableRequest
 
     /**
      This function submits tool outputs for a run to the OpenAI API. It should be submitted when a run is in status `required_action` and `required_action.type` is `submit_tool_outputs`
@@ -345,7 +341,7 @@ public protocol OpenAIProtocol {
      - Parameter completion: The completion handler to be executed upon completion of the runSubmitToolOutputs request.
                           Returns a `Result` of type `RunResult` if successful, or an `Error` if an error occurs.
      */
-    func runSubmitToolOutputs(threadId: String, runId: String, query: RunToolOutputsQuery, completion: @escaping (Result<RunResult, Error>) -> Void)
+    @discardableResult func runSubmitToolOutputs(threadId: String, runId: String, query: RunToolOutputsQuery, completion: @escaping (Result<RunResult, Error>) -> Void) -> CancellableRequest
 
     /**
      This function sends a thread id and run id to the OpenAI API and retrieves a threads messages.
@@ -363,7 +359,7 @@ public protocol OpenAIProtocol {
      - Parameter completion: The completion handler to be executed upon completion of the runRetrieve request.
                           Returns a `Result` of type `ThreadsMessagesResult` if successful, or an `Error` if an error occurs.
      **/
-    func threadsMessages(threadId: String, before: String?, completion: @escaping (Result<ThreadsMessagesResult, Error>) -> Void)
+    @discardableResult func threadsMessages(threadId: String, before: String?, completion: @escaping (Result<ThreadsMessagesResult, Error>) -> Void) -> CancellableRequest
 
     /**
      This function sends a thread id and message contents to the OpenAI API and returns a run.
@@ -381,7 +377,7 @@ public protocol OpenAIProtocol {
      - Parameter completion: The completion handler to be executed upon completion of the runRetrieve request.
                           Returns a `Result` of type `ThreadAddMessageResult` if successful, or an `Error` if an error occurs.
      **/
-    func threadsAddMessage(threadId: String, query: MessageQuery, completion: @escaping (Result<ThreadAddMessageResult, Error>) -> Void)
+    @discardableResult func threadsAddMessage(threadId: String, query: MessageQuery, completion: @escaping (Result<ThreadAddMessageResult, Error>) -> Void) -> CancellableRequest
 
     /**
      This function sends a purpose string, file contents, and fileName contents to the OpenAI API and returns a file id result.
@@ -397,7 +393,5 @@ public protocol OpenAIProtocol {
      - Parameter completion: The completion handler to be executed upon completion of the files request.
                           Returns a `Result` of type `FilesResult` if successful, or an `Error` if an error occurs.
      **/
-    func files(query: FilesQuery, completion: @escaping (Result<FilesResult, Error>) -> Void)
-
-    // END new functionality added to OpenAI Beta on 11-06-23 end
+    @discardableResult func files(query: FilesQuery, completion: @escaping (Result<FilesResult, Error>) -> Void) -> CancellableRequest
 }

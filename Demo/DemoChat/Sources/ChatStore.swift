@@ -11,7 +11,7 @@ import OpenAI
 import SwiftUI
 
 public final class ChatStore: ObservableObject {
-    public var openAIClient: OpenAIProtocol
+    public var openAIClient: OpenAI
     let idProvider: () -> String
 
     @Published var conversations: [Conversation] = []
@@ -41,7 +41,7 @@ public final class ChatStore: ObservableObject {
     }
 
     public init(
-        openAIClient: OpenAIProtocol,
+        openAIClient: OpenAI,
         idProvider: @escaping () -> String
     ) {
         self.openAIClient = openAIClient

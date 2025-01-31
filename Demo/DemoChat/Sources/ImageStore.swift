@@ -9,12 +9,12 @@ import Foundation
 import OpenAI
 
 public final class ImageStore: ObservableObject {
-    public var openAIClient: OpenAIProtocol
+    public var openAIClient: OpenAI
     
     @Published var images: [ImagesResult.Image] = []
     
     public init(
-        openAIClient: OpenAIProtocol
+        openAIClient: OpenAI
     ) {
         self.openAIClient = openAIClient
     }

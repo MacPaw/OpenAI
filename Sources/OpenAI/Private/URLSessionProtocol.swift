@@ -10,14 +10,20 @@ import Foundation
 import FoundationNetworking
 #endif
 
-protocol URLSessionProtocol {
-    
+protocol InvalidatableSession {
+    func invalidateAndCancel()
+    func finishTasksAndInvalidate()
+}
+
+protocol URLSessionProtocol: InvalidatableSession, URLSessionCombine {
     func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTaskProtocol
     func dataTask(with request: URLRequest) -> URLSessionDataTaskProtocol
+    
+    @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+    func data(for request: URLRequest) async throws -> (Data, URLResponse)
 }
 
 extension URLSession: URLSessionProtocol {
-    
     func dataTask(with request: URLRequest) -> URLSessionDataTaskProtocol {
         dataTask(with: request) as URLSessionDataTask
     }

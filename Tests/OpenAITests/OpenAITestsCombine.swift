@@ -15,7 +15,7 @@ import XCTest
 @available(tvOS 13.0, *)
 final class OpenAITestsCombine: XCTestCase {
     
-    var openAI: OpenAIProtocol!
+    var openAI: OpenAI!
     var urlSession: URLSessionMock!
     
     override func setUp() {
@@ -108,7 +108,7 @@ final class OpenAITestsCombine: XCTestCase {
         let expectedAssistant = AssistantResult.makeMock()
         let expectedResult = AssistantsResult(data: [expectedAssistant], firstId: expectedAssistant.id, lastId: expectedAssistant.id, hasMore: false)
         try self.stub(result: expectedResult)
-
+        
         let result = try awaitPublisher(openAI.assistants())
         XCTAssertEqual(result, expectedResult)
     }
@@ -222,8 +222,7 @@ final class OpenAITestsCombine: XCTestCase {
 @available(watchOS 6.0, *)
 extension OpenAITestsCombine {
     
-    func stub(error: Error) {
-        let error = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+    func stub(error: URLError) {
         let task = DataTaskMock.failed(with: error)
         self.urlSession.dataTask = task
     }

@@ -16,11 +16,15 @@ class DataTaskMock: URLSessionDataTaskProtocol {
     var data: Data?
     var response: URLResponse?
     var error: Error?
+    var urlError: URLError? // Needed for mocking combine dataTaskPublisher
     
     var completion: ((Data?, URLResponse?, Error?) -> Void)?
     
     func resume() {
         completion?(data, response, error)
+    }
+    
+    func cancel() {
     }
 }
 

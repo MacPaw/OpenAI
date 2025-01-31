@@ -10,14 +10,14 @@ import Combine
 import OpenAI
 
 public final class AssistantStore: ObservableObject {
-    public var openAIClient: OpenAIProtocol
+    public var openAIClient: OpenAI
     let idProvider: () -> String
     @Published var selectedAssistantId: String?
 
     @Published var availableAssistants: [Assistant] = []
 
     public init(
-        openAIClient: OpenAIProtocol,
+        openAIClient: OpenAI,
         idProvider: @escaping () -> String
     ) {
         self.openAIClient = openAIClient
