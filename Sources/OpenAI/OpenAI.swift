@@ -211,20 +211,7 @@ extension OpenAI {
             let request = try request.build(token: configuration.token, 
                                             organizationIdentifier: configuration.organizationIdentifier,
                                             timeoutInterval: configuration.timeoutInterval)
-            let task = session.dataTask(with: request) { data, _, error in
-                if let error = error {
-                    return completion(.failure(error))
-                }
-                guard let data = data else {
-                    return completion(.failure(OpenAIError.emptyData))
-                }
-                let decoder = JSONDecoder()
-                do {
-                    completion(.success(try decoder.decode(ResultType.self, from: data)))
-                } catch {
-                    completion(.failure((try? decoder.decode(APIErrorResponse.self, from: data)) ?? error))
-                }
-            }
+            let task = makeDataTask(forRequest: request, completion: completion)
             cancellable.task = task
             task.resume()
         } catch {
@@ -282,6 +269,23 @@ extension OpenAI {
             completion(.failure(error))
         }
         return cancellable
+    }
+    
+    func makeDataTask<ResultType: Codable>(forRequest request: URLRequest, completion: @escaping (Result<ResultType, Error>) -> Void) -> URLSessionDataTaskProtocol {
+        session.dataTask(with: request) { data, _, error in
+            if let error = error {
+                return completion(.failure(error))
+            }
+            guard let data = data else {
+                return completion(.failure(OpenAIError.emptyData))
+            }
+            let decoder = JSONDecoder()
+            do {
+                completion(.success(try decoder.decode(ResultType.self, from: data)))
+            } catch {
+                completion(.failure((try? decoder.decode(APIErrorResponse.self, from: data)) ?? error))
+            }
+        }
     }
 }
 

@@ -24,7 +24,7 @@ class URLSessionMock: URLSessionProtocol {
         dataTask
     }
     
-    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+    func data(for request: URLRequest, delegate: (any URLSessionTaskDelegate)?) async throws -> (Data, URLResponse) {
         if let data = dataTask.data {
             return (data, dataTask.response!)
         } else {

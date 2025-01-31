@@ -179,15 +179,36 @@ extension OpenAI: OpenAIAsync {
     }
     
     func performRequestAsync<ResultType: Codable>(request: any URLRequestBuildable) async throws -> ResultType {
-        let request = try request.build(token: configuration.token,
+        let urlRequest = try request.build(token: configuration.token,
                                         organizationIdentifier: configuration.organizationIdentifier,
                                         timeoutInterval: configuration.timeoutInterval)
-        let (data, _) = try await session.data(for: request)
-        let decoder = JSONDecoder()
-        do {
-            return try decoder.decode(ResultType.self, from: data)
-        } catch {
-            throw (try? decoder.decode(APIErrorResponse.self, from: data)) ?? error
+        if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
+            let (data, _) = try await session.data(for: urlRequest, delegate: nil)
+            let decoder = JSONDecoder()
+            do {
+                return try decoder.decode(ResultType.self, from: data)
+            } catch {
+                throw (try? decoder.decode(APIErrorResponse.self, from: data)) ?? error
+            }
+        } else {
+            let dataTaskStore = URLSessionDataTaskStore()
+            return try await withTaskCancellationHandler {
+                return try await withCheckedThrowingContinuation { continuation in
+                    let dataTask = self.makeDataTask(forRequest: urlRequest) { (result: Result<ResultType, Error>) in
+                        continuation.resume(with: result)
+                    }
+                    
+                    dataTask.resume()
+                    
+                    Task {
+                        await dataTaskStore.setDataTask(dataTask)
+                    }
+                }
+            } onCancel: {
+                Task {
+                    await dataTaskStore.getDataTask()?.cancel()
+                }
+            }
         }
     }
 }
