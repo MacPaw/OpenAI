@@ -10,7 +10,6 @@ import Foundation
 import FoundationNetworking
 #endif
 @testable import OpenAI
-import Combine
 
 class URLSessionMock: URLSessionProtocol {
     var dataTask: DataTaskMock!
@@ -32,6 +31,17 @@ class URLSessionMock: URLSessionProtocol {
         }
     }
     
+    func invalidateAndCancel() {
+    }
+    
+    func finishTasksAndInvalidate() {
+    }
+}
+
+#if canImport(Combine)
+import Combine
+
+extension URLSessionMock {
     func dataTaskPublisher(for request: URLRequest) -> AnyPublisher<(data: Data, response: URLResponse), URLError> {
         if let data = dataTask.data {
             return Just((data, dataTask.response!))
@@ -42,10 +52,6 @@ class URLSessionMock: URLSessionProtocol {
                 .eraseToAnyPublisher()
         }
     }
-    
-    func invalidateAndCancel() {
-    }
-    
-    func finishTasksAndInvalidate() {
-    }
 }
+#else
+#endif
