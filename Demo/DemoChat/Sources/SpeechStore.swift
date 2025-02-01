@@ -10,12 +10,12 @@ import SwiftUI
 import AVFAudio
 
 public final class SpeechStore: ObservableObject {
-    public var openAIClient: OpenAI
+    public var openAIClient: OpenAIProtocol
     
     @Published var audioObjects: [AudioObject] = []
     
     public init(
-        openAIClient: OpenAI
+        openAIClient: OpenAIProtocol
     ) {
         self.openAIClient = openAIClient
     }

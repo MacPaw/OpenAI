@@ -11,35 +11,35 @@ import Foundation
 
 @available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
 extension OpenAI: OpenAICombine {
-    func images(query: ImagesQuery) -> AnyPublisher<ImagesResult, any Error> {
+    public func images(query: ImagesQuery) -> AnyPublisher<ImagesResult, any Error> {
         performRequestCombine(request: makeImagesRequest(query: query))
     }
     
-    func imageEdits(query: ImageEditsQuery) -> AnyPublisher<ImagesResult, Error> {
+    public func imageEdits(query: ImageEditsQuery) -> AnyPublisher<ImagesResult, Error> {
         performRequestCombine(
             request: makeImageEditsRequest(query: query)
         )
     }
     
-    func imageVariations(query: ImageVariationsQuery) -> AnyPublisher<ImagesResult, Error> {
+    public func imageVariations(query: ImageVariationsQuery) -> AnyPublisher<ImagesResult, Error> {
         performRequestCombine(
             request: makeImageVariationsRequest(query: query)
         )
     }
     
-    func embeddings(query: EmbeddingsQuery) -> AnyPublisher<EmbeddingsResult, Error> {
+    public func embeddings(query: EmbeddingsQuery) -> AnyPublisher<EmbeddingsResult, Error> {
         performRequestCombine(
             request: makeEmbeddingsRequest(query: query)
         )
     }
     
-    func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error> {
+    public func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error> {
         performRequestCombine(
             request: makeChatsRequest(query: query)
         )
     }
     
-    func chatsStream(query: ChatQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
+    public func chatsStream(query: ChatQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
         let progress = PassthroughSubject<Result<ChatStreamResult, Error>, Error>()
         let cancellable = chatsStream(query: query) { result in
             progress.send(result)
@@ -57,119 +57,123 @@ extension OpenAI: OpenAICombine {
             .eraseToAnyPublisher()
     }
     
-    func model(query: ModelQuery) -> AnyPublisher<ModelResult, Error> {
+    public func model(query: ModelQuery) -> AnyPublisher<ModelResult, Error> {
         performRequestCombine(
             request: makeModelRequest(query: query)
         )
     }
     
-    func models() -> AnyPublisher<ModelsResult, Error> {
+    public func models() -> AnyPublisher<ModelsResult, Error> {
         performRequestCombine(
             request: makeModelsRequest()
         )
     }
     
-    func moderations(query: ModerationsQuery) -> AnyPublisher<ModerationsResult, Error> {
+    public func moderations(query: ModerationsQuery) -> AnyPublisher<ModerationsResult, Error> {
         performRequestCombine(
             request: makeModerationsRequest(query: query)
         )
     }
     
-    func audioCreateSpeech(query: AudioSpeechQuery) -> AnyPublisher<AudioSpeechResult, Error> {
+    public func audioCreateSpeech(query: AudioSpeechQuery) -> AnyPublisher<AudioSpeechResult, Error> {
         performRequestCombine(
             request: makeAudioCreateSpeechRequest(query: query)
         )
     }
     
-    func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error> {
+    public func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error> {
         performRequestCombine(
             request: makeAudioTranscriptionsRequest(query: query)
         )
     }
     
-    func audioTranslations(query: AudioTranslationQuery) -> AnyPublisher<AudioTranslationResult, Error> {
+    public func audioTranslations(query: AudioTranslationQuery) -> AnyPublisher<AudioTranslationResult, Error> {
         performRequestCombine(
             request: makeAudioTranslationsRequest(query: query)
         )
     }
     
     // TODO: Remove and use default arguments values if decide to remove OpenAI protocols
-    func assistants() -> AnyPublisher<AssistantsResult, Error> {
+    public func assistants() -> AnyPublisher<AssistantsResult, Error> {
         assistants(after: nil)
     }
     
-    func assistants(after: String?) -> AnyPublisher<AssistantsResult, Error> {
+    public func assistants(after: String?) -> AnyPublisher<AssistantsResult, Error> {
         performRequestCombine(
             request: makeAssistantsRequest(after)
         )
     }
     
-    func assistantCreate(query: AssistantsQuery) -> AnyPublisher<AssistantResult, Error> {
+    public func assistantCreate(query: AssistantsQuery) -> AnyPublisher<AssistantResult, Error> {
         performRequestCombine(
             request: makeAssistantCreateRequest(query)
         )
     }
     
-    func assistantModify(query: AssistantsQuery, assistantId: String) -> AnyPublisher<AssistantResult, Error> {
+    public func assistantModify(query: AssistantsQuery, assistantId: String) -> AnyPublisher<AssistantResult, Error> {
         performRequestCombine(
             request: makeAssistantModifyRequest(assistantId, query)
         )
     }
     
-    func threads(query: ThreadsQuery) -> AnyPublisher<ThreadsResult, Error> {
+    public func threads(query: ThreadsQuery) -> AnyPublisher<ThreadsResult, Error> {
         performRequestCombine(
             request: makeThreadsRequest(query)
         )
     }
     
-    func threadRun(query: ThreadRunQuery) -> AnyPublisher<RunResult, Error> {
+    public func threadRun(query: ThreadRunQuery) -> AnyPublisher<RunResult, Error> {
         performRequestCombine(
             request: makeThreadRunRequest(query)
         )
     }
     
-    func runs(threadId: String, query: RunsQuery) -> AnyPublisher<RunResult, Error> {
+    public func runs(threadId: String, query: RunsQuery) -> AnyPublisher<RunResult, Error> {
         performRequestCombine(
             request: makeRunsRequest(threadId, query)
         )
     }
     
-    func runRetrieve(threadId: String, runId: String) -> AnyPublisher<RunResult, Error> {
+    public func runRetrieve(threadId: String, runId: String) -> AnyPublisher<RunResult, Error> {
         performRequestCombine(
             request: makeRunRetrieveRequest(threadId, runId)
         )
     }
     
     // TODO: Remove and use default arguments values if decide to remove OpenAI protocols
-    func runRetrieveSteps(threadId: String, runId: String) -> AnyPublisher<RunRetrieveStepsResult, Error> {
+    public func runRetrieveSteps(threadId: String, runId: String) -> AnyPublisher<RunRetrieveStepsResult, Error> {
         runRetrieveSteps(threadId: threadId, runId: runId, before: nil)
     }
     
-    func runRetrieveSteps(threadId: String, runId: String, before: String?) -> AnyPublisher<RunRetrieveStepsResult, Error> {
+    public func runRetrieveSteps(threadId: String, runId: String, before: String?) -> AnyPublisher<RunRetrieveStepsResult, Error> {
         performRequestCombine(
             request: makeRunRetrieveStepsRequest(threadId, runId, before)
         )
     }
     
-    func runSubmitToolOutputs(threadId: String, runId: String, query: RunToolOutputsQuery) -> AnyPublisher<RunResult, Error> {
+    public func runSubmitToolOutputs(threadId: String, runId: String, query: RunToolOutputsQuery) -> AnyPublisher<RunResult, Error> {
         performRequestCombine(
             request: makeRunSubmitToolOutputsRequest(threadId, runId, query)
         )
     }
     
-    func threadsMessages(threadId: String, before: String?) -> AnyPublisher<ThreadsMessagesResult, Error> {
+    public func threadsMessages(threadId: String) -> AnyPublisher<ThreadsMessagesResult, any Error> {
+        threadsMessages(threadId: threadId, before: nil)
+    }
+    
+    public func threadsMessages(threadId: String, before: String?) -> AnyPublisher<ThreadsMessagesResult, Error> {
         performRequestCombine(
             request: makeThreadsMessagesRequest(threadId, before: before)
         )
     }
     
-    func threadsAddMessage(threadId: String, query: MessageQuery) -> AnyPublisher<ThreadAddMessageResult, Error> {
+    public func threadsAddMessage(threadId: String, query: MessageQuery) -> AnyPublisher<ThreadAddMessageResult, Error> {
         performRequestCombine(
             request: makeThreadsAddMessageRequest(threadId, query)
         )
     }
     
-    func files(query: FilesQuery) -> AnyPublisher<FilesResult, Error> {
+    public func files(query: FilesQuery) -> AnyPublisher<FilesResult, Error> {
         performRequestCombine(
             request: makeFilesRequest(query: query)
         )

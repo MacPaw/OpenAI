@@ -9,12 +9,12 @@ import UIKit
 import OpenAI
 
 public final class MiscStore: ObservableObject {
-    public var openAIClient: OpenAI
+    public var openAIClient: OpenAIProtocol
     
     @Published var availableModels: [ModelResult] = []
     
     public init(
-        openAIClient: OpenAI
+        openAIClient: OpenAIProtocol
     ) {
         self.openAIClient = openAIClient
     }
