@@ -16,6 +16,9 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     /// ID of the model to use. See the model endpoint compatibility table for details on which models work with the Chat API.
     /// https://platform.openai.com/docs/models/model-endpoint-compatibility
     public let model: Model
+    /// Constrains effort on reasoning for reasoning models. Currently supported values are low, medium, and high. Reducing reasoning effort can result in faster responses and fewer tokens used on reasoning in a response.
+    /// Applies only to reasoning models (o1, o3-mini, etc)
+    public let reasoningEffort: ReasoningEffort?
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
     /// Defaults to 0
     /// https://platform.openai.com/docs/guides/text-generation/parameter-details
@@ -71,6 +74,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     public init(
         messages: [Self.ChatCompletionMessageParam],
         model: Model,
+        reasoningEffort: ReasoningEffort? = nil,
         frequencyPenalty: Double? = nil,
         logitBias: [String : Int]? = nil,
         logprobs: Bool? = nil,
@@ -90,6 +94,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     ) {
         self.messages = messages
         self.model = model
+        self.reasoningEffort = reasoningEffort
         self.frequencyPenalty = frequencyPenalty
         self.logitBias = logitBias
         self.logprobs = logprobs
@@ -650,6 +655,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             self = .stringList(stringList)
         }
     }
+    
+    public enum ReasoningEffort: String, Codable, Equatable {
+        case low
+        case medium
+        case high
+    }
 
     // See more https://platform.openai.com/docs/guides/structured-outputs/introduction
     public enum ResponseFormat: Codable, Equatable {
@@ -1136,6 +1147,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     public enum CodingKeys: String, CodingKey {
         case messages
         case model
+        case reasoningEffort = "reasoning_effort"
         case frequencyPenalty = "frequency_penalty"
         case logitBias = "logit_bias"
         case logprobs
