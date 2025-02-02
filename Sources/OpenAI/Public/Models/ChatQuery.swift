@@ -34,6 +34,10 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     /// The total length of input tokens and generated tokens is limited by the model's context length.
     /// https://platform.openai.com/tokenizer
     public let maxTokens: Int?
+    /// An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and reasoning tokens.
+    /// https://platform.openai.com/docs/api-reference/chat/create#chat-create-max_completion_tokens
+    /// See more about reasoning tokens: https://platform.openai.com/docs/guides/reasoning
+    public let maxCompletionTokens: Int?
     /// How many chat completion choices to generate for each input message. Note that you will be charged based on the number of generated tokens across all of the choices. Keep n as 1 to minimize costs.
     /// Defaults to 1
     public let n: Int?
@@ -79,6 +83,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         logitBias: [String : Int]? = nil,
         logprobs: Bool? = nil,
         maxTokens: Int? = nil,
+        maxCompletionTokens: Int? = nil,
         n: Int? = nil,
         presencePenalty: Double? = nil,
         responseFormat: Self.ResponseFormat? = nil,
@@ -99,6 +104,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         self.logitBias = logitBias
         self.logprobs = logprobs
         self.maxTokens = maxTokens
+        self.maxCompletionTokens = maxCompletionTokens
         self.n = n
         self.presencePenalty = presencePenalty
         self.responseFormat = responseFormat
@@ -1152,6 +1158,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         case logitBias = "logit_bias"
         case logprobs
         case maxTokens = "max_tokens"
+        case maxCompletionTokens = "max_completion_tokens"
         case n
         case presencePenalty = "presence_penalty"
         case responseFormat = "response_format"
