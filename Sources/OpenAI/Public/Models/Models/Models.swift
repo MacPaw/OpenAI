@@ -11,6 +11,10 @@ public typealias Model = String
 public extension Model {
     // Chat Completion
     
+    // o3 series
+    /// `o3-mini`: small reasoning model providing high intelligence at the same cost and latency targets of o1-mini.
+    static let o3_mini = "o3-mini"
+    
     // o1 series
     // The o1 series of models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.
     
