@@ -93,7 +93,6 @@ extension OpenAI: OpenAICombine {
         )
     }
     
-    // TODO: Remove and use default arguments values if decide to remove OpenAI protocols
     public func assistants() -> AnyPublisher<AssistantsResult, Error> {
         assistants(after: nil)
     }
@@ -140,7 +139,6 @@ extension OpenAI: OpenAICombine {
         )
     }
     
-    // TODO: Remove and use default arguments values if decide to remove OpenAI protocols
     public func runRetrieveSteps(threadId: String, runId: String) -> AnyPublisher<RunRetrieveStepsResult, Error> {
         runRetrieveSteps(threadId: threadId, runId: runId, before: nil)
     }

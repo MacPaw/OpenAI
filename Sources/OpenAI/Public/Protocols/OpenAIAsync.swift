@@ -21,7 +21,6 @@ public protocol OpenAIAsync {
     func audioCreateSpeech(query: AudioSpeechQuery) async throws -> AudioSpeechResult
     func audioTranscriptions(query: AudioTranscriptionQuery) async throws -> AudioTranscriptionResult
     func audioTranslations(query: AudioTranslationQuery) async throws -> AudioTranslationResult
-    // TODO: Remove and use default arguments values if decide to remove OpenAI protocols
     func assistants() async throws -> AssistantsResult
     func assistants(after: String?) async throws -> AssistantsResult
     func assistantCreate(query: AssistantsQuery) async throws -> AssistantResult
@@ -30,11 +29,9 @@ public protocol OpenAIAsync {
     func threadRun(query: ThreadRunQuery) async throws -> RunResult
     func runs(threadId: String, query: RunsQuery) async throws -> RunResult
     func runRetrieve(threadId: String, runId: String) async throws -> RunResult
-    // TODO: Remove and use default arguments values if decide to remove OpenAI protocols
     func runRetrieveSteps(threadId: String, runId: String) async throws -> RunRetrieveStepsResult
     func runRetrieveSteps(threadId: String, runId: String, before: String?) async throws -> RunRetrieveStepsResult
     func runSubmitToolOutputs(threadId: String, runId: String, query: RunToolOutputsQuery) async throws -> RunResult
-    // TODO: Remove and use default arguments values if decide to remove OpenAI protocols
     func threadsMessages(threadId: String) async throws -> ThreadsMessagesResult
     func threadsMessages(threadId: String, before: String?) async throws -> ThreadsMessagesResult
     func threadsAddMessage(threadId: String, query: MessageQuery) async throws -> ThreadAddMessageResult

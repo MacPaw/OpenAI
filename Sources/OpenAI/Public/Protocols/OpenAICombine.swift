@@ -23,7 +23,6 @@ public protocol OpenAICombine {
     func audioCreateSpeech(query: AudioSpeechQuery) -> AnyPublisher<AudioSpeechResult, Error>
     func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error>
     func audioTranslations(query: AudioTranslationQuery) -> AnyPublisher<AudioTranslationResult, Error>
-    // TODO: Remove and use default arguments values if decide to remove OpenAI protocols
     func assistants() -> AnyPublisher<AssistantsResult, Error>
     func assistants(after: String?) -> AnyPublisher<AssistantsResult, Error>
     func assistantCreate(query: AssistantsQuery) -> AnyPublisher<AssistantResult, Error>
@@ -32,11 +31,9 @@ public protocol OpenAICombine {
     func threadRun(query: ThreadRunQuery) -> AnyPublisher<RunResult, Error>
     func runs(threadId: String, query: RunsQuery) -> AnyPublisher<RunResult, Error>
     func runRetrieve(threadId: String, runId: String) -> AnyPublisher<RunResult, Error>
-    // TODO: Remove and use default arguments values if decide to remove OpenAI protocols
     func runRetrieveSteps(threadId: String, runId: String) -> AnyPublisher<RunRetrieveStepsResult, Error>
     func runRetrieveSteps(threadId: String, runId: String, before: String?) -> AnyPublisher<RunRetrieveStepsResult, Error>
     func runSubmitToolOutputs(threadId: String, runId: String, query: RunToolOutputsQuery) -> AnyPublisher<RunResult, Error>
-    // TODO: Remove and use default arguments values if decide to remove OpenAI protocols
     func threadsMessages(threadId: String) -> AnyPublisher<ThreadsMessagesResult, Error>
     func threadsMessages(threadId: String, before: String?) -> AnyPublisher<ThreadsMessagesResult, Error>
     func threadsAddMessage(threadId: String, query: MessageQuery) -> AnyPublisher<ThreadAddMessageResult, Error>

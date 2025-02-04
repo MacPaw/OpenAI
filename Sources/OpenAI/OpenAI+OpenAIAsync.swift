@@ -48,7 +48,12 @@ extension OpenAI: OpenAIAsync {
             }
             
             continuation.onTermination = { termination in
-                cancellableRequest.cancelRequest()
+                switch termination {
+                case .cancelled:
+                    cancellableRequest.cancelRequest()
+                case .finished:
+                    break
+                }
             }
         }
     }
@@ -89,7 +94,6 @@ extension OpenAI: OpenAIAsync {
         )
     }
     
-    // TODO: Remove and use default arguments values if decide to remove OpenAI protocols
     public func assistants() async throws -> AssistantsResult {
         try await assistants(after: nil)
     }
@@ -136,7 +140,6 @@ extension OpenAI: OpenAIAsync {
         )
     }
     
-    // TODO: Remove and use default arguments values if decide to remove OpenAI protocols
     public func runRetrieveSteps(threadId: String, runId: String) async throws -> RunRetrieveStepsResult {
         try await runRetrieveSteps(threadId: threadId, runId: runId, before: nil)
     }
@@ -153,7 +156,6 @@ extension OpenAI: OpenAIAsync {
         )
     }
     
-    // TODO: Remove this method and use the one with default arguments if decided to remove OpenAI protocols
     public func threadsMessages(threadId: String) async throws -> ThreadsMessagesResult {
         try await performRequestAsync(
             request: makeThreadsMessagesRequest(threadId, before: nil)
