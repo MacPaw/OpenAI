@@ -16,6 +16,9 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     /// ID of the model to use. See the model endpoint compatibility table for details on which models work with the Chat API.
     /// https://platform.openai.com/docs/models/model-endpoint-compatibility
     public let model: Model
+    /// Constrains effort on reasoning for reasoning models. Currently supported values are low, medium, and high. Reducing reasoning effort can result in faster responses and fewer tokens used on reasoning in a response.
+    /// Applies only to reasoning models (o1, o3-mini, etc)
+    public let reasoningEffort: ReasoningEffort?
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
     /// Defaults to 0
     /// https://platform.openai.com/docs/guides/text-generation/parameter-details
@@ -31,6 +34,10 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     /// The total length of input tokens and generated tokens is limited by the model's context length.
     /// https://platform.openai.com/tokenizer
     public let maxTokens: Int?
+    /// An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and reasoning tokens.
+    /// https://platform.openai.com/docs/api-reference/chat/create#chat-create-max_completion_tokens
+    /// See more about reasoning tokens: https://platform.openai.com/docs/guides/reasoning
+    public let maxCompletionTokens: Int?
     /// How many chat completion choices to generate for each input message. Note that you will be charged based on the number of generated tokens across all of the choices. Keep n as 1 to minimize costs.
     /// Defaults to 1
     public let n: Int?
@@ -71,10 +78,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     public init(
         messages: [Self.ChatCompletionMessageParam],
         model: Model,
+        reasoningEffort: ReasoningEffort? = nil,
         frequencyPenalty: Double? = nil,
         logitBias: [String : Int]? = nil,
         logprobs: Bool? = nil,
         maxTokens: Int? = nil,
+        maxCompletionTokens: Int? = nil,
         n: Int? = nil,
         presencePenalty: Double? = nil,
         responseFormat: Self.ResponseFormat? = nil,
@@ -90,10 +99,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     ) {
         self.messages = messages
         self.model = model
+        self.reasoningEffort = reasoningEffort
         self.frequencyPenalty = frequencyPenalty
         self.logitBias = logitBias
         self.logprobs = logprobs
         self.maxTokens = maxTokens
+        self.maxCompletionTokens = maxCompletionTokens
         self.n = n
         self.presencePenalty = presencePenalty
         self.responseFormat = responseFormat
@@ -650,6 +661,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             self = .stringList(stringList)
         }
     }
+    
+    public enum ReasoningEffort: String, Codable, Equatable {
+        case low
+        case medium
+        case high
+    }
 
     // See more https://platform.openai.com/docs/guides/structured-outputs/introduction
     public enum ResponseFormat: Codable, Equatable {
@@ -1136,10 +1153,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     public enum CodingKeys: String, CodingKey {
         case messages
         case model
+        case reasoningEffort = "reasoning_effort"
         case frequencyPenalty = "frequency_penalty"
         case logitBias = "logit_bias"
         case logprobs
         case maxTokens = "max_tokens"
+        case maxCompletionTokens = "max_completion_tokens"
         case n
         case presencePenalty = "presence_penalty"
         case responseFormat = "response_format"
