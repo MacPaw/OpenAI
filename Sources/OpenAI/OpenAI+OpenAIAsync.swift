@@ -53,6 +53,8 @@ extension OpenAI: OpenAIAsync {
                     cancellableRequest.cancelRequest()
                 case .finished:
                     break
+                @unknown default:
+                    break
                 }
             }
         }
