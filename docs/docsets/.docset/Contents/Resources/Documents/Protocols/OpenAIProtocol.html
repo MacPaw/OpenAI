@@ -1,0 +1,2181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>OpenAIProtocol Protocol Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Protocol/OpenAIProtocol" class="dashAnchor"></a>
+    <a title="OpenAIProtocol Protocol Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html"> Docs</a> (100% documented)</p>
+        <div class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">Index</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        <a href="../Protocols.html">Protocols</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        OpenAI.OpenAIProtocol Protocol Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/OpenAI.html">OpenAI</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/OpenAI/Configuration.html">– Configuration</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/OpenAIError.html">OpenAIError</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Extensions/Model.html">Model</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/OpenAIProtocol.html">OpenAIProtocol</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/APIError.html">APIError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/APIErrorResponse.html">APIErrorResponse</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechQuery.html">AudioSpeechQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechQuery/AudioSpeechVoice.html">– AudioSpeechVoice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechQuery/AudioSpeechResponseFormat.html">– AudioSpeechResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechQuery/Speed.html">– Speed</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechResult.html">AudioSpeechResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranscriptionQuery.html">AudioTranscriptionQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranscriptionQuery/ResponseFormat.html">– ResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranscriptionQuery/FileType.html">– FileType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranscriptionResult.html">AudioTranscriptionResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranslationQuery.html">AudioTranslationQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranslationResult.html">AudioTranslationResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery.html">ChatQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/ChatCompletionMessageParam.html">– ChatCompletionMessageParam</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/Stop.html">– Stop</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/ResponseFormat.html">– ResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/ChatCompletionFunctionCallOptionParam.html">– ChatCompletionFunctionCallOptionParam</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/ChatCompletionToolParam.html">– ChatCompletionToolParam</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatResult.html">ChatResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatResult/CompletionUsage.html">– CompletionUsage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatResult/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatStreamResult.html">ChatStreamResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatStreamResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatStreamResult/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CompletionsQuery.html">CompletionsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CompletionsResult.html">CompletionsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CompletionsResult/Usage.html">– Usage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CompletionsResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EditsQuery.html">EditsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EditsResult.html">EditsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EditsResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EditsResult/Usage.html">– Usage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsQuery.html">EmbeddingsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsQuery/Input.html">– Input</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsQuery/EncodingFormat.html">– EncodingFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsResult.html">EmbeddingsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsResult/Embedding.html">– Embedding</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsResult/Usage.html">– Usage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImageEditsQuery.html">ImageEditsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImageEditsQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImageVariationsQuery.html">ImageVariationsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImageVariationsQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery.html">ImagesQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery/ResponseFormat.html">– ResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery/Style.html">– Style</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery/Quality.html">– Quality</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery/Size.html">– Size</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesResult.html">ImagesResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesResult/Image.html">– Image</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModelQuery.html">ModelQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModelResult.html">ModelResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModelResult/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModelsResult.html">ModelsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModerationsQuery.html">ModerationsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModerationsResult.html">ModerationsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModerationsResult/Moderation.html">– Moderation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/Vector.html">Vector</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Typealiases.html">Type Aliases</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Typealiases.html#/s:6OpenAI5Modela">Model</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>OpenAIProtocol</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">OpenAIProtocol</span></code></pre>
+
+                </div>
+              </div>
+            
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolP11completions5query10completionyAA16CompletionsQueryV_ys6ResultOyAA0gI0Vs5Error_pGctF"></a>
+                    <a name="//apple_ref/swift/Method/completions(query:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolP11completions5query10completionyAA16CompletionsQueryV_ys6ResultOyAA0gI0Vs5Error_pGctF">completions(query:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This function sends a completions query to the OpenAI API and retrieves generated completions in response. The Completions API enables you to build applications using OpenAI&rsquo;s language models, like the powerful GPT-3.</p>
+
+<p>Example:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">query</span> <span class="o">=</span> <span class="kt">CompletionsQuery</span><span class="p">(</span><span class="nv">model</span><span class="p">:</span> <span class="o">.</span><span class="n">textDavinci_003</span><span class="p">,</span> <span class="nv">prompt</span><span class="p">:</span> <span class="s">"What is 42?"</span><span class="p">)</span>
+<span class="n">openAI</span><span class="o">.</span><span class="nf">completions</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+  <span class="c1">//Handle result here</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">completions</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/CompletionsQuery.html">CompletionsQuery</a></span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/CompletionsResult.html">CompletionsResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>query</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A <code><a href="../Structs/CompletionsQuery.html">CompletionsQuery</a></code> object containing the input parameters for the API request. This includes the prompt, model, temperature, max tokens, and other settings.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure which receives the result when the API request finishes. The closure&rsquo;s parameter, <code>Result&lt;CompletionsResult, Error&gt;</code>, will contain either the <code><a href="../Structs/CompletionsResult.html">CompletionsResult</a></code> object with the generated completions, or an error if the request failed.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolP17completionsStream5query8onResult10completionyAA16CompletionsQueryV_ys0H0OyAA0jH0Vs5Error_pGcysAN_pSgcSgtF"></a>
+                    <a name="//apple_ref/swift/Method/completionsStream(query:onResult:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolP17completionsStream5query8onResult10completionyAA16CompletionsQueryV_ys0H0OyAA0jH0Vs5Error_pGcysAN_pSgcSgtF">completionsStream(query:<wbr>onResult:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This function sends a completions query to the OpenAI API and retrieves generated completions in response. The Completions API enables you to build applications using OpenAI&rsquo;s language models, like the powerful GPT-3. The result is returned by chunks.</p>
+
+<p>Example:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">query</span> <span class="o">=</span> <span class="kt">CompletionsQuery</span><span class="p">(</span><span class="nv">model</span><span class="p">:</span> <span class="o">.</span><span class="n">textDavinci_003</span><span class="p">,</span> <span class="nv">prompt</span><span class="p">:</span> <span class="s">"What is 42?"</span><span class="p">)</span>
+<span class="n">openAI</span><span class="o">.</span><span class="nf">completions</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+  <span class="c1">//Handle result here</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">completionsStream</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/CompletionsQuery.html">CompletionsQuery</a></span><span class="p">,</span> <span class="nv">onResult</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/CompletionsResult.html">CompletionsResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="p">((</span><span class="kt">Error</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)?)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>query</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A <code><a href="../Structs/CompletionsQuery.html">CompletionsQuery</a></code> object containing the input parameters for the API request. This includes the prompt, model, temperature, max tokens, and other settings.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>onResult</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure which receives the result when the API request finishes. The closure&rsquo;s parameter, <code>Result&lt;CompletionsResult, Error&gt;</code>, will contain either the <code><a href="../Structs/CompletionsResult.html">CompletionsResult</a></code> object with the generated completions, or an error if the request failed.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure that is being called when all chunks are delivered or uncrecoverable error occured</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolP6images5query10completionyAA11ImagesQueryV_ys6ResultOyAA0gI0Vs5Error_pGctF"></a>
+                    <a name="//apple_ref/swift/Method/images(query:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolP6images5query10completionyAA11ImagesQueryV_ys6ResultOyAA0gI0Vs5Error_pGctF">images(query:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This function sends an images query to the OpenAI API and retrieves generated images in response. The Images Generation API enables you to create various images or graphics using OpenAI&rsquo;s powerful deep learning models.</p>
+
+<p>Example:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">query</span> <span class="o">=</span> <span class="kt">ImagesQuery</span><span class="p">(</span><span class="nv">prompt</span><span class="p">:</span> <span class="s">"White cat with heterochromia sitting on the kitchen table"</span><span class="p">,</span> <span class="nv">n</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nv">size</span><span class="p">:</span> <span class="kt">ImagesQuery</span><span class="o">.</span><span class="kt">Size</span><span class="o">.</span><span class="n">_1024</span><span class="p">)</span>
+<span class="n">openAI</span><span class="o">.</span><span class="nf">images</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+  <span class="c1">//Handle result here</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">images</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ImagesQuery.html">ImagesQuery</a></span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ImagesResult.html">ImagesResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>query</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>An <code><a href="../Structs/ImagesQuery.html">ImagesQuery</a></code> object containing the input parameters for the API request. This includes the query parameters such as the text prompt, image size, and other settings.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure which receives the result when the API request finishes. The closure&rsquo;s parameter, <code>Result&lt;ImagesResult, Error&gt;</code>, will contain either the <code><a href="../Structs/ImagesResult.html">ImagesResult</a></code> object with the generated images, or an error if the request failed.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolP10imageEdits5query10completionyAA05ImageE5QueryV_ys6ResultOyAA06ImagesJ0Vs5Error_pGctF"></a>
+                    <a name="//apple_ref/swift/Method/imageEdits(query:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolP10imageEdits5query10completionyAA05ImageE5QueryV_ys6ResultOyAA06ImagesJ0Vs5Error_pGctF">imageEdits(query:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This function sends an image edit query to the OpenAI API and retrieves generated images in response. The Images Edit API enables you to edit images or graphics using OpenAI&rsquo;s powerful deep learning models.</p>
+
+<p>Example:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">query</span> <span class="o">=</span> <span class="kt">ImagesEditQuery</span><span class="p">(</span><span class="nv">image</span><span class="p">:</span> <span class="s">"@whitecat.png"</span><span class="p">,</span> <span class="nv">prompt</span><span class="p">:</span> <span class="s">"White cat with heterochromia sitting on the kitchen table with a bowl of food"</span><span class="p">,</span> <span class="nv">n</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nv">size</span><span class="p">:</span> <span class="kt">ImagesQuery</span><span class="o">.</span><span class="kt">Size</span><span class="o">.</span><span class="n">_1024</span><span class="p">)</span>
+<span class="n">openAI</span><span class="o">.</span><span class="nf">imageEdits</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+  <span class="c1">//Handle result here</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">imageEdits</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ImageEditsQuery.html">ImageEditsQuery</a></span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ImagesResult.html">ImagesResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>query</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>An <code>ImagesEditQuery</code> object containing the input parameters for the API request. This includes the query parameters such as the image to be edited, an image to be used a mask if applicable, text prompt, image size, and other settings.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure which receives the result when the API request finishes. The closure&rsquo;s parameter, <code>Result&lt;ImagesResult, Error&gt;</code>, will contain either the <code><a href="../Structs/ImagesResult.html">ImagesResult</a></code> object with the generated images, or an error if the request failed.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolP15imageVariations5query10completionyAA05ImageE5QueryV_ys6ResultOyAA06ImagesJ0Vs5Error_pGctF"></a>
+                    <a name="//apple_ref/swift/Method/imageVariations(query:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolP15imageVariations5query10completionyAA05ImageE5QueryV_ys6ResultOyAA06ImagesJ0Vs5Error_pGctF">imageVariations(query:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This function sends an image variation query to the OpenAI API and retrieves generated images in response. The Images Variations API enables you to create a variation of a given image using OpenAI&rsquo;s powerful deep learning models.</p>
+
+<p>Example:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">query</span> <span class="o">=</span> <span class="kt">ImagesVariationQuery</span><span class="p">(</span><span class="nv">image</span><span class="p">:</span> <span class="s">"@whitecat.png"</span><span class="p">,</span> <span class="nv">n</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nv">size</span><span class="p">:</span> <span class="kt">ImagesQuery</span><span class="o">.</span><span class="kt">Size</span><span class="o">.</span><span class="n">_1024</span><span class="p">)</span>
+<span class="n">openAI</span><span class="o">.</span><span class="nf">imageVariations</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+  <span class="c1">//Handle result here</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">imageVariations</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ImageVariationsQuery.html">ImageVariationsQuery</a></span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ImagesResult.html">ImagesResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>query</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>An <code>ImagesVariationQuery</code> object containing the input parameters for the API request. This includes the query parameters such as the image to use as a basis for the variation(s), image size, and other settings.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure which receives the result when the API request finishes. The closure&rsquo;s parameter, <code>Result&lt;ImagesResult, Error&gt;</code>, will contain either the <code><a href="../Structs/ImagesResult.html">ImagesResult</a></code> object with the generated images, or an error if the request failed.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolP10embeddings5query10completionyAA15EmbeddingsQueryV_ys6ResultOyAA0gI0Vs5Error_pGctF"></a>
+                    <a name="//apple_ref/swift/Method/embeddings(query:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolP10embeddings5query10completionyAA15EmbeddingsQueryV_ys6ResultOyAA0gI0Vs5Error_pGctF">embeddings(query:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This function sends an embeddings query to the OpenAI API and retrieves embeddings in response. The Embeddings API enables you to generate high-dimensional vector representations of texts, which can be used for various natural language processing tasks such as semantic similarity, clustering, and classification.</p>
+
+<p>Example:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">query</span> <span class="o">=</span> <span class="kt">EmbeddingsQuery</span><span class="p">(</span><span class="nv">model</span><span class="p">:</span> <span class="o">.</span><span class="n">textSearchBabbageDoc</span><span class="p">,</span> <span class="nv">input</span><span class="p">:</span> <span class="s">"The food was delicious and the waiter..."</span><span class="p">)</span>
+<span class="n">openAI</span><span class="o">.</span><span class="nf">embeddings</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+  <span class="c1">//Handle response here</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">embeddings</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/EmbeddingsQuery.html">EmbeddingsQuery</a></span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/EmbeddingsResult.html">EmbeddingsResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>query</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>An <code><a href="../Structs/EmbeddingsQuery.html">EmbeddingsQuery</a></code> object containing the input parameters for the API request. This includes the list of text prompts to be converted into embeddings, the model to be used, and other settings.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure which receives the result when the API request finishes. The closure&rsquo;s parameter, <code>Result&lt;EmbeddingsResult, Error&gt;</code>, will contain either the <code><a href="../Structs/EmbeddingsResult.html">EmbeddingsResult</a></code> object with the generated embeddings, or an error if the request failed.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolP5chats5query10completionyAA9ChatQueryV_ys6ResultOyAA0gI0Vs5Error_pGctF"></a>
+                    <a name="//apple_ref/swift/Method/chats(query:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolP5chats5query10completionyAA9ChatQueryV_ys6ResultOyAA0gI0Vs5Error_pGctF">chats(query:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This function sends a chat query to the OpenAI API and retrieves chat conversation responses. The Chat API enables you to build chatbots or conversational applications using OpenAI&rsquo;s powerful natural language models, like GPT-3.</p>
+
+<p>Example:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">query</span> <span class="o">=</span> <span class="kt">ChatQuery</span><span class="p">(</span><span class="nv">model</span><span class="p">:</span> <span class="o">.</span><span class="n">gpt3_5Turbo</span><span class="p">,</span> <span class="nv">messages</span><span class="p">:</span> <span class="p">[</span><span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">role</span><span class="p">:</span> <span class="s">"user"</span><span class="p">,</span> <span class="nv">content</span><span class="p">:</span> <span class="s">"who are you"</span><span class="p">)])</span>
+<span class="n">openAI</span><span class="o">.</span><span class="nf">chats</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+  <span class="c1">//Handle response here</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">chats</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ChatQuery.html">ChatQuery</a></span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ChatResult.html">ChatResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>query</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A <code><a href="../Structs/ChatQuery.html">ChatQuery</a></code> object containing the input parameters for the API request. This includes the lists of message objects for the conversation, the model to be used, and other settings.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure which receives the result when the API request finishes. The closure&rsquo;s parameter, <code>Result&lt;ChatResult, Error&gt;</code>, will contain either the <code><a href="../Structs/ChatResult.html">ChatResult</a></code> object with the model&rsquo;s response to the conversation, or an error if the request failed.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolP11chatsStream5query8onResult10completionyAA9ChatQueryV_ys0H0OyAA0jeH0Vs5Error_pGcysAN_pSgcSgtF"></a>
+                    <a name="//apple_ref/swift/Method/chatsStream(query:onResult:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolP11chatsStream5query8onResult10completionyAA9ChatQueryV_ys0H0OyAA0jeH0Vs5Error_pGcysAN_pSgcSgtF">chatsStream(query:<wbr>onResult:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This function sends a chat query to the OpenAI API and retrieves chat stream conversation responses. The Chat API enables you to build chatbots or conversational applications using OpenAI&rsquo;s powerful natural language models, like GPT-3. The result is returned by chunks.</p>
+
+<p>Example:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">query</span> <span class="o">=</span> <span class="kt">ChatQuery</span><span class="p">(</span><span class="nv">model</span><span class="p">:</span> <span class="o">.</span><span class="n">gpt3_5Turbo</span><span class="p">,</span> <span class="nv">messages</span><span class="p">:</span> <span class="p">[</span><span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">role</span><span class="p">:</span> <span class="s">"user"</span><span class="p">,</span> <span class="nv">content</span><span class="p">:</span> <span class="s">"who are you"</span><span class="p">)])</span>
+<span class="n">openAI</span><span class="o">.</span><span class="nf">chats</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+  <span class="c1">//Handle response here</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">chatsStream</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ChatQuery.html">ChatQuery</a></span><span class="p">,</span> <span class="nv">onResult</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ChatStreamResult.html">ChatStreamResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="p">((</span><span class="kt">Error</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)?)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>query</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A <code><a href="../Structs/ChatQuery.html">ChatQuery</a></code> object containing the input parameters for the API request. This includes the lists of message objects for the conversation, the model to be used, and other settings.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>onResult</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure which receives the result when the API request finishes. The closure&rsquo;s parameter, <code>Result&lt;ChatStreamResult, Error&gt;</code>, will contain either the <code><a href="../Structs/ChatStreamResult.html">ChatStreamResult</a></code> object with the model&rsquo;s response to the conversation, or an error if the request failed.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure that is being called when all chunks are delivered or uncrecoverable error occured</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolP5edits5query10completionyAA10EditsQueryV_ys6ResultOyAA0gI0Vs5Error_pGctF"></a>
+                    <a name="//apple_ref/swift/Method/edits(query:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolP5edits5query10completionyAA10EditsQueryV_ys6ResultOyAA0gI0Vs5Error_pGctF">edits(query:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This function sends an edits query to the OpenAI API and retrieves an edited version of the prompt based on the instruction given.</p>
+
+<p>Example:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">query</span> <span class="o">=</span> <span class="kt">EditsQuery</span><span class="p">(</span><span class="nv">model</span><span class="p">:</span> <span class="o">.</span><span class="n">gpt4</span><span class="p">,</span> <span class="nv">input</span><span class="p">:</span> <span class="s">"What day of the wek is it?"</span><span class="p">,</span> <span class="nv">instruction</span><span class="p">:</span> <span class="s">"Fix the spelling mistakes"</span><span class="p">)</span>
+<span class="n">openAI</span><span class="o">.</span><span class="nf">edits</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+  <span class="c1">//Handle response here</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">edits</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/EditsQuery.html">EditsQuery</a></span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/EditsResult.html">EditsResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>query</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>An <code><a href="../Structs/EditsQuery.html">EditsQuery</a></code> object containing the input parameters for the API request. This includes the input to be edited, the instruction specifying how it should be edited, and other settings.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure which receives the result when the API request finishes. The closure&rsquo;s parameter, <code>Result&lt;EditsResult, Error&gt;</code>, will contain either the <code><a href="../Structs/EditsResult.html">EditsResult</a></code> object with the model&rsquo;s response to the queried edit, or an error if the request failed.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolP5model5query10completionyAA10ModelQueryV_ys6ResultOyAA0gI0Vs5Error_pGctF"></a>
+                    <a name="//apple_ref/swift/Method/model(query:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolP5model5query10completionyAA10ModelQueryV_ys6ResultOyAA0gI0Vs5Error_pGctF">model(query:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This function sends a model query to the OpenAI API and retrieves a model instance, providing owner information. The Models API in this usage enables you to gather detailed information on the model in question, like GPT-3.</p>
+
+<p>Example:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">query</span> <span class="o">=</span> <span class="kt">ModelQuery</span><span class="p">(</span><span class="nv">model</span><span class="p">:</span> <span class="o">.</span><span class="n">gpt3_5Turbo</span><span class="p">)</span>
+<span class="n">openAI</span><span class="o">.</span><span class="nf">model</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+  <span class="c1">//Handle response here</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">model</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ModelQuery.html">ModelQuery</a></span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ModelResult.html">ModelResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>query</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A <code><a href="../Structs/ModelQuery.html">ModelQuery</a></code> object containing the input parameters for the API request, which is only the model to be queried.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure which receives the result when the API request finishes. The closure&rsquo;s parameter, <code>Result&lt;ModelResult, Error&gt;</code>, will contain either the <code><a href="../Structs/ModelResult.html">ModelResult</a></code> object with more information about the model, or an error if the request failed.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolP6models10completionyys6ResultOyAA06ModelsF0Vs5Error_pGc_tF"></a>
+                    <a name="//apple_ref/swift/Method/models(completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolP6models10completionyys6ResultOyAA06ModelsF0Vs5Error_pGc_tF">models(completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This function sends a models query to the OpenAI API and retrieves a list of models. The Models API in this usage enables you to list all the available models.</p>
+
+<p>Example:</p>
+<pre class="highlight swift"><code><span class="n">openAI</span><span class="o">.</span><span class="nf">models</span><span class="p">()</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+  <span class="c1">//Handle response here</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">models</span><span class="p">(</span><span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ModelsResult.html">ModelsResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure which receives the result when the API request finishes. The closure&rsquo;s parameter, <code>Result&lt;ModelsResult, Error&gt;</code>, will contain either the <code><a href="../Structs/ModelsResult.html">ModelsResult</a></code> object with the list of model types, or an error if the request failed.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolP11moderations5query10completionyAA16ModerationsQueryV_ys6ResultOyAA0gI0Vs5Error_pGctF"></a>
+                    <a name="//apple_ref/swift/Method/moderations(query:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolP11moderations5query10completionyAA16ModerationsQueryV_ys6ResultOyAA0gI0Vs5Error_pGctF">moderations(query:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This function sends a moderations query to the OpenAI API and retrieves a list of category results to classify how text may violate OpenAI&rsquo;s Content Policy.</p>
+
+<p>Example:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">query</span> <span class="o">=</span> <span class="kt">ModerationsQuery</span><span class="p">(</span><span class="nv">input</span><span class="p">:</span> <span class="s">"I want to kill them."</span><span class="p">)</span>
+<span class="n">openAI</span><span class="o">.</span><span class="nf">moderations</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+  <span class="c1">//Handle response here</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@available</span><span class="p">(</span><span class="n">iOS</span> <span class="mf">13.0</span><span class="p">,</span> <span class="o">*</span><span class="p">)</span>
+<span class="kd">func</span> <span class="nf">moderations</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ModerationsQuery.html">ModerationsQuery</a></span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ModerationsResult.html">ModerationsResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>query</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A <code><a href="../Structs/ModerationsQuery.html">ModerationsQuery</a></code> object containing the input parameters for the API request. This includes the input text and optionally the model to be used.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure which receives the result when the API request finishes. The closure&rsquo;s parameter, <code>Result&lt;ModerationsResult, Error&gt;</code>, will contain either the <code><a href="../Structs/ModerationsResult.html">ModerationsResult</a></code> object with the list of category results, or an error if the request failed.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolP17audioCreateSpeech5query10completionyAA05AudioF5QueryV_ys6ResultOyAA0ifK0Vs5Error_pGctF"></a>
+                    <a name="//apple_ref/swift/Method/audioCreateSpeech(query:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolP17audioCreateSpeech5query10completionyAA05AudioF5QueryV_ys6ResultOyAA0ifK0Vs5Error_pGctF">audioCreateSpeech(query:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This function sends an <code><a href="../Structs/AudioSpeechQuery.html">AudioSpeechQuery</a></code> to the OpenAI API to create audio speech from text using a specific voice and format.</p>
+
+<p>Example:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">query</span> <span class="o">=</span> <span class="kt">AudioSpeechQuery</span><span class="p">(</span><span class="nv">model</span><span class="p">:</span> <span class="o">.</span><span class="n">tts_1</span><span class="p">,</span> <span class="nv">input</span><span class="p">:</span> <span class="s">"Hello, world!"</span><span class="p">,</span> <span class="nv">voice</span><span class="p">:</span> <span class="o">.</span><span class="n">alloy</span><span class="p">,</span> <span class="nv">responseFormat</span><span class="p">:</span> <span class="o">.</span><span class="n">mp3</span><span class="p">,</span> <span class="nv">speed</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">openAI</span><span class="o">.</span><span class="nf">audioCreateSpeech</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="n">query</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+   <span class="c1">// Handle response here</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">audioCreateSpeech</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/AudioSpeechQuery.html">AudioSpeechQuery</a></span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/AudioSpeechResult.html">AudioSpeechResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>query</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>An <code><a href="../Structs/AudioSpeechQuery.html">AudioSpeechQuery</a></code> object containing the parameters for the API request. This includes the Text-to-Speech model to be used, input text, voice to be used for generating the audio, the desired audio format, and the speed of the generated audio.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure which receives the result. The closure&rsquo;s parameter, <code>Result&lt;AudioSpeechResult, Error&gt;</code>, will either contain the <code><a href="../Structs/AudioSpeechResult.html">AudioSpeechResult</a></code> object with the audio data or an error if the request failed.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolP19audioTranscriptions5query10completionyAA23AudioTranscriptionQueryV_ys6ResultOyAA0hiK0Vs5Error_pGctF"></a>
+                    <a name="//apple_ref/swift/Method/audioTranscriptions(query:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolP19audioTranscriptions5query10completionyAA23AudioTranscriptionQueryV_ys6ResultOyAA0hiK0Vs5Error_pGctF">audioTranscriptions(query:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Transcribes audio data using OpenAI&rsquo;s audio transcription API and completes the operation asynchronously.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">audioTranscriptions</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/AudioTranscriptionQuery.html">AudioTranscriptionQuery</a></span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/AudioTranscriptionResult.html">AudioTranscriptionResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>query</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The <code><a href="../Structs/AudioTranscriptionQuery.html">AudioTranscriptionQuery</a></code> instance, containing the information required for the transcription request.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The completion handler to be executed upon completion of the transcription request.
+                  Returns a <code>Result</code> of type <code><a href="../Structs/AudioTranscriptionResult.html">AudioTranscriptionResult</a></code> if successful, or an <code>Error</code> if an error occurs.
+*</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolP17audioTranslations5query10completionyAA21AudioTranslationQueryV_ys6ResultOyAA0hiK0Vs5Error_pGctF"></a>
+                    <a name="//apple_ref/swift/Method/audioTranslations(query:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolP17audioTranslations5query10completionyAA21AudioTranslationQueryV_ys6ResultOyAA0hiK0Vs5Error_pGctF">audioTranslations(query:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Translates audio data using OpenAI&rsquo;s audio translation API and completes the operation asynchronously.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">audioTranslations</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/AudioTranslationQuery.html">AudioTranslationQuery</a></span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/AudioTranslationResult.html">AudioTranslationResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>query</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The <code><a href="../Structs/AudioTranslationQuery.html">AudioTranslationQuery</a></code> instance, containing the information required for the translation request.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The completion handler to be executed upon completion of the translation request.
+                 Returns a <code>Result</code> of type <code><a href="../Structs/AudioTranslationResult.html">AudioTranslationResult</a></code> if successful, or an <code>Error</code> if an error occurs.
+*</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE11completions5queryAA17CompletionsResultVAA0F5QueryV_tYaKF"></a>
+                    <a name="//apple_ref/swift/Method/completions(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE11completions5queryAA17CompletionsResultVAA0F5QueryV_tYaKF">completions(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method, asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">completions</span><span class="p">(</span>
+    <span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/CompletionsQuery.html">CompletionsQuery</a></span>
+<span class="p">)</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/CompletionsResult.html">CompletionsResult</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE17completionsStream5queryScsyAA17CompletionsResultVs5Error_pGAA0G5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/completionsStream(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE17completionsStream5queryScsyAA17CompletionsResultVs5Error_pGAA0G5QueryV_tF">completionsStream(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">completionsStream</span><span class="p">(</span>
+    <span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/CompletionsQuery.html">CompletionsQuery</a></span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AsyncThrowingStream</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/CompletionsResult.html">CompletionsResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE6images5queryAA12ImagesResultVAA0F5QueryV_tYaKF"></a>
+                    <a name="//apple_ref/swift/Method/images(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE6images5queryAA12ImagesResultVAA0F5QueryV_tYaKF">images(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method, asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">images</span><span class="p">(</span>
+    <span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ImagesQuery.html">ImagesQuery</a></span>
+<span class="p">)</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/ImagesResult.html">ImagesResult</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE10imageEdits5queryAA12ImagesResultVAA05ImageE5QueryV_tYaKF"></a>
+                    <a name="//apple_ref/swift/Method/imageEdits(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE10imageEdits5queryAA12ImagesResultVAA05ImageE5QueryV_tYaKF">imageEdits(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method, asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">imageEdits</span><span class="p">(</span>
+    <span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ImageEditsQuery.html">ImageEditsQuery</a></span>
+<span class="p">)</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/ImagesResult.html">ImagesResult</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE15imageVariations5queryAA12ImagesResultVAA05ImageE5QueryV_tYaKF"></a>
+                    <a name="//apple_ref/swift/Method/imageVariations(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE15imageVariations5queryAA12ImagesResultVAA05ImageE5QueryV_tYaKF">imageVariations(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method, asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">imageVariations</span><span class="p">(</span>
+    <span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ImageVariationsQuery.html">ImageVariationsQuery</a></span>
+<span class="p">)</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/ImagesResult.html">ImagesResult</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE10embeddings5queryAA16EmbeddingsResultVAA0F5QueryV_tYaKF"></a>
+                    <a name="//apple_ref/swift/Method/embeddings(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE10embeddings5queryAA16EmbeddingsResultVAA0F5QueryV_tYaKF">embeddings(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method, asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">embeddings</span><span class="p">(</span>
+    <span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/EmbeddingsQuery.html">EmbeddingsQuery</a></span>
+<span class="p">)</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/EmbeddingsResult.html">EmbeddingsResult</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE5chats5queryAA10ChatResultVAA0F5QueryV_tYaKF"></a>
+                    <a name="//apple_ref/swift/Method/chats(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE5chats5queryAA10ChatResultVAA0F5QueryV_tYaKF">chats(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method, asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">chats</span><span class="p">(</span>
+    <span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ChatQuery.html">ChatQuery</a></span>
+<span class="p">)</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/ChatResult.html">ChatResult</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE11chatsStream5queryScsyAA04ChatE6ResultVs5Error_pGAA0G5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/chatsStream(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE11chatsStream5queryScsyAA04ChatE6ResultVs5Error_pGAA0G5QueryV_tF">chatsStream(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">chatsStream</span><span class="p">(</span>
+    <span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ChatQuery.html">ChatQuery</a></span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AsyncThrowingStream</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ChatStreamResult.html">ChatStreamResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE5edits5queryAA11EditsResultVAA0F5QueryV_tYaKF"></a>
+                    <a name="//apple_ref/swift/Method/edits(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE5edits5queryAA11EditsResultVAA0F5QueryV_tYaKF">edits(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method, asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">edits</span><span class="p">(</span>
+    <span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/EditsQuery.html">EditsQuery</a></span>
+<span class="p">)</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/EditsResult.html">EditsResult</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE5model5queryAA11ModelResultVAA0F5QueryV_tYaKF"></a>
+                    <a name="//apple_ref/swift/Method/model(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE5model5queryAA11ModelResultVAA0F5QueryV_tYaKF">model(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method, asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">model</span><span class="p">(</span>
+    <span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ModelQuery.html">ModelQuery</a></span>
+<span class="p">)</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/ModelResult.html">ModelResult</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE6modelsAA12ModelsResultVyYaKF"></a>
+                    <a name="//apple_ref/swift/Method/models()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE6modelsAA12ModelsResultVyYaKF">models()</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method, asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">models</span><span class="p">()</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/ModelsResult.html">ModelsResult</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE11moderations5queryAA17ModerationsResultVAA0F5QueryV_tYaKF"></a>
+                    <a name="//apple_ref/swift/Method/moderations(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE11moderations5queryAA17ModerationsResultVAA0F5QueryV_tYaKF">moderations(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method, asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">moderations</span><span class="p">(</span>
+    <span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ModerationsQuery.html">ModerationsQuery</a></span>
+<span class="p">)</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/ModerationsResult.html">ModerationsResult</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE17audioCreateSpeech5queryAA05AudioF6ResultVAA0hF5QueryV_tYaKF"></a>
+                    <a name="//apple_ref/swift/Method/audioCreateSpeech(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE17audioCreateSpeech5queryAA05AudioF6ResultVAA0hF5QueryV_tYaKF">audioCreateSpeech(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method, asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">audioCreateSpeech</span><span class="p">(</span>
+    <span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/AudioSpeechQuery.html">AudioSpeechQuery</a></span>
+<span class="p">)</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/AudioSpeechResult.html">AudioSpeechResult</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE19audioTranscriptions5queryAA24AudioTranscriptionResultVAA0gH5QueryV_tYaKF"></a>
+                    <a name="//apple_ref/swift/Method/audioTranscriptions(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE19audioTranscriptions5queryAA24AudioTranscriptionResultVAA0gH5QueryV_tYaKF">audioTranscriptions(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method, asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">audioTranscriptions</span><span class="p">(</span>
+    <span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/AudioTranscriptionQuery.html">AudioTranscriptionQuery</a></span>
+<span class="p">)</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/AudioTranscriptionResult.html">AudioTranscriptionResult</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE17audioTranslations5queryAA22AudioTranslationResultVAA0gH5QueryV_tYaKF"></a>
+                    <a name="//apple_ref/swift/Method/audioTranslations(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE17audioTranslations5queryAA22AudioTranslationResultVAA0gH5QueryV_tYaKF">audioTranslations(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method, asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">audioTranslations</span><span class="p">(</span>
+    <span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/AudioTranslationQuery.html">AudioTranslationQuery</a></span>
+<span class="p">)</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/AudioTranslationResult.html">AudioTranslationResult</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE11completions5query7Combine12AnyPublisherVyAA17CompletionsResultVs5Error_pGAA0I5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/completions(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE11completions5query7Combine12AnyPublisherVyAA17CompletionsResultVs5Error_pGAA0I5QueryV_tF">completions(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">completions</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/CompletionsQuery.html">CompletionsQuery</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AnyPublisher</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/CompletionsResult.html">CompletionsResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE17completionsStream5query7Combine12AnyPublisherVys6ResultOyAA011CompletionsJ0Vs5Error_pGsAM_pGAA0K5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/completionsStream(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE17completionsStream5query7Combine12AnyPublisherVys6ResultOyAA011CompletionsJ0Vs5Error_pGsAM_pGAA0K5QueryV_tF">completionsStream(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">completionsStream</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/CompletionsQuery.html">CompletionsQuery</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AnyPublisher</span><span class="o">&lt;</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/CompletionsResult.html">CompletionsResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE6images5query7Combine12AnyPublisherVyAA12ImagesResultVs5Error_pGAA0I5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/images(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE6images5query7Combine12AnyPublisherVyAA12ImagesResultVs5Error_pGAA0I5QueryV_tF">images(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">images</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ImagesQuery.html">ImagesQuery</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AnyPublisher</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ImagesResult.html">ImagesResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE10imageEdits5query7Combine12AnyPublisherVyAA12ImagesResultVs5Error_pGAA05ImageE5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/imageEdits(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE10imageEdits5query7Combine12AnyPublisherVyAA12ImagesResultVs5Error_pGAA05ImageE5QueryV_tF">imageEdits(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">imageEdits</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ImageEditsQuery.html">ImageEditsQuery</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AnyPublisher</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ImagesResult.html">ImagesResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE15imageVariations5query7Combine12AnyPublisherVyAA12ImagesResultVs5Error_pGAA05ImageE5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/imageVariations(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE15imageVariations5query7Combine12AnyPublisherVyAA12ImagesResultVs5Error_pGAA05ImageE5QueryV_tF">imageVariations(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">imageVariations</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ImageVariationsQuery.html">ImageVariationsQuery</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AnyPublisher</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ImagesResult.html">ImagesResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE10embeddings5query7Combine12AnyPublisherVyAA16EmbeddingsResultVs5Error_pGAA0I5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/embeddings(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE10embeddings5query7Combine12AnyPublisherVyAA16EmbeddingsResultVs5Error_pGAA0I5QueryV_tF">embeddings(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">embeddings</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/EmbeddingsQuery.html">EmbeddingsQuery</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AnyPublisher</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/EmbeddingsResult.html">EmbeddingsResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE5chats5query7Combine12AnyPublisherVyAA10ChatResultVs5Error_pGAA0I5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/chats(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE5chats5query7Combine12AnyPublisherVyAA10ChatResultVs5Error_pGAA0I5QueryV_tF">chats(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">chats</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ChatQuery.html">ChatQuery</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AnyPublisher</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ChatResult.html">ChatResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE11chatsStream5query7Combine12AnyPublisherVys6ResultOyAA04ChateJ0Vs5Error_pGsAM_pGAA0K5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/chatsStream(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE11chatsStream5query7Combine12AnyPublisherVys6ResultOyAA04ChateJ0Vs5Error_pGsAM_pGAA0K5QueryV_tF">chatsStream(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">chatsStream</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ChatQuery.html">ChatQuery</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AnyPublisher</span><span class="o">&lt;</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ChatStreamResult.html">ChatStreamResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE5edits5query7Combine12AnyPublisherVyAA11EditsResultVs5Error_pGAA0I5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/edits(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE5edits5query7Combine12AnyPublisherVyAA11EditsResultVs5Error_pGAA0I5QueryV_tF">edits(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">edits</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/EditsQuery.html">EditsQuery</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AnyPublisher</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/EditsResult.html">EditsResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE5model5query7Combine12AnyPublisherVyAA11ModelResultVs5Error_pGAA0I5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/model(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE5model5query7Combine12AnyPublisherVyAA11ModelResultVs5Error_pGAA0I5QueryV_tF">model(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">model</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ModelQuery.html">ModelQuery</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AnyPublisher</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ModelResult.html">ModelResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE6models7Combine12AnyPublisherVyAA12ModelsResultVs5Error_pGyF"></a>
+                    <a name="//apple_ref/swift/Method/models()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE6models7Combine12AnyPublisherVyAA12ModelsResultVs5Error_pGyF">models()</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">models</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">AnyPublisher</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ModelsResult.html">ModelsResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE11moderations5query7Combine12AnyPublisherVyAA17ModerationsResultVs5Error_pGAA0I5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/moderations(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE11moderations5query7Combine12AnyPublisherVyAA17ModerationsResultVs5Error_pGAA0I5QueryV_tF">moderations(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">moderations</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/ModerationsQuery.html">ModerationsQuery</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AnyPublisher</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/ModerationsResult.html">ModerationsResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE17audioCreateSpeech5query7Combine12AnyPublisherVyAA05AudioF6ResultVs5Error_pGAA0kF5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/audioCreateSpeech(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE17audioCreateSpeech5query7Combine12AnyPublisherVyAA05AudioF6ResultVs5Error_pGAA0kF5QueryV_tF">audioCreateSpeech(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">audioCreateSpeech</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/AudioSpeechQuery.html">AudioSpeechQuery</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AnyPublisher</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/AudioSpeechResult.html">AudioSpeechResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE19audioTranscriptions5query7Combine12AnyPublisherVyAA24AudioTranscriptionResultVs5Error_pGAA0jK5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/audioTranscriptions(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE19audioTranscriptions5query7Combine12AnyPublisherVyAA24AudioTranscriptionResultVs5Error_pGAA0jK5QueryV_tF">audioTranscriptions(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">audioTranscriptions</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/AudioTranscriptionQuery.html">AudioTranscriptionQuery</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AnyPublisher</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/AudioTranscriptionResult.html">AudioTranscriptionResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI0A10AIProtocolPAAE17audioTranslations5query7Combine12AnyPublisherVyAA22AudioTranslationResultVs5Error_pGAA0jK5QueryV_tF"></a>
+                    <a name="//apple_ref/swift/Method/audioTranslations(query:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI0A10AIProtocolPAAE17audioTranslations5query7Combine12AnyPublisherVyAA22AudioTranslationResultVs5Error_pGAA0jK5QueryV_tF">audioTranslations(query:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Extension method
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">audioTranslations</span><span class="p">(</span><span class="nv">query</span><span class="p">:</span> <span class="kt"><a href="../Structs/AudioTranslationQuery.html">AudioTranslationQuery</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">AnyPublisher</span><span class="o">&lt;</span><span class="kt"><a href="../Structs/AudioTranslationResult.html">AudioTranslationResult</a></span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2024 <a class="link" href="" target="_blank" rel="external noopener"></a>. All rights reserved. (Last updated: 2024-10-17)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>
