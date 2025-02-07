@@ -10,7 +10,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-final public class OpenAI: OpenAIClosureBased {
+final public class OpenAI {
 
     public struct Configuration {
         
