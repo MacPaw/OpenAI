@@ -14,6 +14,8 @@ public struct ChatView: View {
 
     @Environment(\.dateProviderValue) var dateProvider
     @Environment(\.idProviderValue) var idProvider
+    
+    @State private var sendMessageTask: Task<Void, Never>?
 
     public init(store: ChatStore, assistantStore: AssistantStore) {
         self.store = store
@@ -52,7 +54,7 @@ public struct ChatView: View {
                         availableAssistants: assistantStore.availableAssistants, conversation: conversation,
                         error: store.conversationErrors[conversation.id],
                         sendMessage: { message, selectedModel in
-                            Task {
+                            self.sendMessageTask = Task {
                                 await store.sendMessage(
                                     Message(
                                         id: idProvider(),
@@ -68,6 +70,9 @@ public struct ChatView: View {
                     )
                 }
             }
+        }.onDisappear {
+            // It may not produce an ideal behavior, but it's here for demonstrating that cancellation works as expected
+            sendMessageTask?.cancel()
         }
     }
 }

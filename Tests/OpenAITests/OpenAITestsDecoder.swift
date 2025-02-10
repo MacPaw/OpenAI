@@ -8,9 +8,7 @@
 import XCTest
 @testable import OpenAI
 
-@available(iOS 13.0, *)
-@available(watchOS 6.0, *)
-@available(tvOS 13.0, *)
+@available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
 class OpenAITestsDecoder: XCTestCase {
     
     override func setUp() {

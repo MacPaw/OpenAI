@@ -49,10 +49,17 @@ struct AssistantsURLBuilder: URLBuilder {
 }
 
 struct RunsURLBuilder: URLBuilder {
-    let configuration: OpenAI.Configuration
-    let path: APIPath.Assistants
-    let threadId: String
-    let before: String? = nil
+    private let configuration: OpenAI.Configuration
+    private let path: APIPath.Assistants
+    private let threadId: String
+    private let before: String?
+    
+    init(configuration: OpenAI.Configuration, path: APIPath.Assistants, threadId: String, before: String? = nil) {
+        self.configuration = configuration
+        self.path = path
+        self.threadId = threadId
+        self.before = before
+    }
     
     func buildURL() -> URL {
         var components = URLComponents.components(perConfiguration: configuration, path: path.stringValue)

@@ -8,19 +8,18 @@
 import XCTest
 @testable import OpenAI
 
-@available(iOS 13.0, *)
-@available(watchOS 6.0, *)
-@available(tvOS 13.0, *)
+@available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
 class OpenAITests: XCTestCase {
 
-    var openAI: OpenAIProtocol!
-    var urlSession: URLSessionMock!
+    private var openAI: OpenAIProtocol!
+    private let urlSession = URLSessionMock()
+    private let cancellablesFactory = MockCancellablesFactory()
     
     override func setUp() {
         super.setUp()
-        self.urlSession = URLSessionMock()
+        
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        self.openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        self.openAI = OpenAI(configuration: configuration, session: self.urlSession, cancellablesFactory: cancellablesFactory)
     }
 
     func testImages() async throws {
@@ -81,15 +80,8 @@ class OpenAITests: XCTestCase {
     }
     
     func testChats() async throws {
-       let query = ChatQuery(messages: [
-           .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
-           .user(.init(content: .string("Who wrote Harry Potter?")))
-       ], model: .gpt3_5Turbo)
-        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-            .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
-            .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
-            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
-        ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
+        let query = makeChatQuery()
+        let chatResult = makeChatResult()
        try self.stub(result: chatResult)
         
        let result = try await openAI.chats(query: query)
@@ -468,8 +460,7 @@ class OpenAITests: XCTestCase {
         let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
         XCTAssertEqual(openAI.buildURL(path: "/foo"), URL(string: "https://bizbaz.com:443/openai/foo"))
     }
-
-    // 1106
+    
     func testAssistantCreateQuery() async throws {
         let query = assistantsQuery()
         let expectedResult = AssistantResult.makeMock()
@@ -703,10 +694,53 @@ class OpenAITests: XCTestCase {
         let completionsURL = openAI.buildRunRetrieveURL(path: APIPath.Assistants.runRetrieveSteps.stringValue, threadId: "thread_4321", runId: "run_1234")
         XCTAssertEqual(completionsURL, URL(string: "https://my.host.com:443/v1/threads/thread_4321/runs/run_1234/steps"))
     }
-    // 1106 end
+    
+    func testCancelRequest() async throws {
+        try stub(result: makeChatResult())
+        
+        let task = Task {
+            try await openAI.chats(query: makeChatQuery())
+        }
+        
+        task.cancel()
+        _ = try await task.value
+        XCTAssertTrue(urlSession.dataTaskIsCancelled)
+    }
+    
+    func testCancelStreamingRequest() async throws {
+        let sessionCanceller = MockSessionCanceller()
+        cancellablesFactory.sessionCanceller = sessionCanceller
+        
+        try stub(result: makeChatResult())
+        
+        let task = Task {
+            let stream: AsyncThrowingStream<ChatStreamResult, Error> = openAI.chatsStream(query: makeChatQuery())
+            for try await _ in stream {
+            }
+        }
+        
+        task.cancel()
+        _ = try await task.value
+        XCTAssertEqual(sessionCanceller.cancelCallCount, 1)
+    }
     
     private func assistantsQuery() -> AssistantsQuery {
         .makeMock()
+    }
+    
+    private func makeChatQuery() -> ChatQuery {
+        .init(messages: [
+            .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
+            .user(.init(content: .string("Who wrote Harry Potter?")))
+        ], model: .gpt3_5Turbo)
+    }
+    
+    private func makeChatResult() -> ChatResult {
+        .init(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
+            .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
+            .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
+            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
+        ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
     }
 }
 

@@ -10,7 +10,11 @@ import Foundation
 import FoundationNetworking
 #endif
 
-protocol URLSessionDataTaskProtocol {
+protocol URLSessionTaskProtocol {
+    func cancel()
+}
+
+protocol URLSessionDataTaskProtocol: URLSessionTaskProtocol {
     
     func resume()
 }

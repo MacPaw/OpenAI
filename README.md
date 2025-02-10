@@ -49,6 +49,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
           - [Submit Tool Outputs for Run](#submit-tool-outputs-for-run)
         - [Files](#files)
           - [Upload File](#upload-file)
+  - [Cancelling requests](#cancelling-requests)
 - [Example Project](#example-project)
 - [Contribution Guidelines](#contribution-guidelines)
 - [Links](#links)
@@ -1041,6 +1042,39 @@ let query = FilesQuery(purpose: "assistants", file: fileData, fileName: url.last
 openAI.files(query: query) { result in
   //Handle response here
 }
+```
+
+### Cancelling requests
+#### Closure based API
+When you call any of the closure-based API methods, it returns discardable `CancellableRequest`. Hold a reference to it to be able to cancel the request later.
+```swift
+let cancellableRequest = object.chats(query: query, completion: { _ in })
+cancellableReques
+```
+
+#### Swift Concurrency
+For Swift Concurrency calls, you can simply cancel the calling task, and corresponding `URLSessionDataTask` would get cancelled automatically.
+```swift
+let task = Task {
+    do {
+        let chatResult = try await openAIClient.chats(query: .init(messages: [], model: "asd"))
+    } catch {
+        // Handle cancellation or error
+    }
+}
+            
+task.cancel()
+```
+
+#### Combine
+In Combine, use a default cancellation mechanism. Just discard the reference to a subscription, or call `cancel()` on it.
+
+```swift
+let subscription = openAIClient
+    .images(query: query)
+    .sink(receiveCompletion: { completion in }, receiveValue: { imagesResult in })
+    
+subscription.cancel()
 ```
 
 ## Example Project

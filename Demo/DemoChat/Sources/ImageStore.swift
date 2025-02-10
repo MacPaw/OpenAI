@@ -7,11 +7,15 @@
 
 import Foundation
 import OpenAI
+import Combine
 
 public final class ImageStore: ObservableObject {
     public var openAIClient: OpenAIProtocol
     
+    @Published var imagesQueryInProgress = false
     @Published var images: [ImagesResult.Image] = []
+    
+    private var subscription: AnyCancellable?
     
     public init(
         openAIClient: OpenAIProtocol
@@ -20,14 +24,33 @@ public final class ImageStore: ObservableObject {
     }
     
     @MainActor
-    func images(query: ImagesQuery) async {
+    func images(query: ImagesQuery) {
+        imagesQueryInProgress = true
         images.removeAll()
-        do {
-            let response = try await openAIClient.images(query: query)
-            images = response.data
-        } catch {
-            // TODO: Better error handling
-            print(error.localizedDescription)
-        }
+        
+        subscription = openAIClient
+            .images(query: query)
+            .receive(on: DispatchQueue.main)
+            .handleEvents(receiveCancel: {
+                self.imagesQueryInProgress = false
+            })
+            .sink(receiveCompletion: { completion in
+                self.imagesQueryInProgress = false
+                
+                switch completion {
+                case .finished:
+                    break
+                case .failure(let failure):
+                    // TODO: Better error handling
+                    print(failure)
+                }
+            }, receiveValue: { imagesResult in
+                self.images = imagesResult.data
+            })
+    }
+    
+    func cancelImagesQuery() {
+        subscription?.cancel()
+        subscription = nil
     }
 }
