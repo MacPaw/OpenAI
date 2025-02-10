@@ -7,7 +7,13 @@
 
 import Foundation
 
-final class URLSessionTaskCanceller: CancellableRequest {
+protocol URLSessionTaskCancelling: CancellableRequest {
+    var task: URLSessionTaskProtocol? { get set }
+    
+    func cancelRequest()
+}
+
+final class URLSessionTaskCanceller: URLSessionTaskCancelling {
     var task: URLSessionTaskProtocol?
     
     func cancelRequest() {

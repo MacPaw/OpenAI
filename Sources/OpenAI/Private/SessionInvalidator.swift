@@ -7,7 +7,13 @@
 
 import Foundation
 
-final class SessionInvalidator: CancellableRequest {
+protocol SessionInvalidating: CancellableRequest {
+    var session: InvalidatableSession? { get set }
+    
+    func cancelRequest()
+}
+
+final class SessionInvalidator: SessionInvalidating {
     var session: InvalidatableSession?
     
     func cancelRequest() {

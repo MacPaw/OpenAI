@@ -24,7 +24,9 @@ class DataTaskMock: URLSessionDataTaskProtocol {
         completion?(data, response, error)
     }
     
+    var cancelCallCount = 0
     func cancel() {
+        cancelCallCount += 1
     }
 }
 

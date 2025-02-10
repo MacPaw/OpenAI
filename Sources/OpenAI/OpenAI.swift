@@ -45,6 +45,7 @@ final public class OpenAI {
     
     let session: URLSessionProtocol
     var streamingSessions = ArrayWithThreadSafety<NSObject>()
+    private let cancellablesFactory: CancellablesFactory
     
     public let configuration: Configuration
 
@@ -56,13 +57,17 @@ final public class OpenAI {
         self.init(configuration: configuration, session: URLSession.shared)
     }
 
-    init(configuration: Configuration, session: URLSessionProtocol) {
+    init(configuration: Configuration, session: URLSessionProtocol, cancellablesFactory: CancellablesFactory = DefaultCancellablesFactory()) {
         self.configuration = configuration
         self.session = session
+        self.cancellablesFactory = cancellablesFactory
     }
 
     public convenience init(configuration: Configuration, session: URLSession = URLSession.shared) {
-        self.init(configuration: configuration, session: session as URLSessionProtocol)
+        self.init(
+            configuration: configuration,
+            session: session as URLSessionProtocol
+        )
     }
     
     public func threadsAddMessage(threadId: String, query: MessageQuery, completion: @escaping (Result<ThreadAddMessageResult, Error>) -> Void) -> CancellableRequest {
@@ -201,12 +206,11 @@ final public class OpenAI {
     public func audioCreateSpeech(query: AudioSpeechQuery, completion: @escaping (Result<AudioSpeechResult, Error>) -> Void) -> CancellableRequest {
         performSpeechRequest(request: makeAudioCreateSpeechRequest(query: query), completion: completion)
     }
-    
 }
 
 extension OpenAI {
     func performRequest<ResultType: Codable>(request: any URLRequestBuildable, completion: @escaping (Result<ResultType, Error>) -> Void) -> CancellableRequest {
-        let cancellable = URLSessionTaskCanceller()
+        var cancellable = cancellablesFactory.makeTaskCanceller()
         do {
             let request = try request.build(token: configuration.token, 
                                             organizationIdentifier: configuration.organizationIdentifier,
@@ -221,7 +225,7 @@ extension OpenAI {
     }
     
     func performStreamingRequest<ResultType: Codable>(request: any URLRequestBuildable, onResult: @escaping (Result<ResultType, Error>) -> Void, completion: ((Error?) -> Void)?) -> CancellableRequest {
-        let cancellable = SessionInvalidator()
+        var cancellable = cancellablesFactory.makeSessionCanceller()
         do {
             let request = try request.build(token: configuration.token, 
                                             organizationIdentifier: configuration.organizationIdentifier,
@@ -247,7 +251,7 @@ extension OpenAI {
     }
     
     func performSpeechRequest(request: any URLRequestBuildable, completion: @escaping (Result<AudioSpeechResult, Error>) -> Void) -> CancellableRequest {
-        let cancellable = URLSessionTaskCanceller()
+        var cancellable = cancellablesFactory.makeTaskCanceller()
         do {
             let request = try request.build(token: configuration.token, 
                                             organizationIdentifier: configuration.organizationIdentifier,
