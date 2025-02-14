@@ -111,7 +111,7 @@ final public class OpenAI {
             completion: completion
         )
     }
-    
+
     public func threads(query: ThreadsQuery, completion: @escaping (Result<ThreadsResult, Error>) -> Void) -> CancellableRequest {
         performRequest(
             request: makeThreadsRequest(query),
@@ -171,7 +171,7 @@ final public class OpenAI {
     }
     
     public func chats(query: ChatQuery, completion: @escaping (Result<ChatResult, Error>) -> Void) -> CancellableRequest {
-        performRequest(request: makeChatsRequest(query: query), completion: completion)
+        performRequest(request: makeChatsRequest(query: query.makeNonStreamable()), completion: completion)
     }
     
     public func chatsStream(query: ChatQuery, onResult: @escaping (Result<ChatStreamResult, Error>) -> Void, completion: ((Error?) -> Void)?) -> CancellableRequest {
