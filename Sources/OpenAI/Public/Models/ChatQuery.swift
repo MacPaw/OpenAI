@@ -16,6 +16,9 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     /// ID of the model to use. See the model endpoint compatibility table for details on which models work with the Chat API.
     /// https://platform.openai.com/docs/models/model-endpoint-compatibility
     public let model: Model
+    /// Constrains effort on reasoning for reasoning models. Currently supported values are low, medium, and high. Reducing reasoning effort can result in faster responses and fewer tokens used on reasoning in a response.
+    /// Applies only to reasoning models (o1, o3-mini, etc)
+    public let reasoningEffort: ReasoningEffort?
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
     /// Defaults to 0
     /// https://platform.openai.com/docs/guides/text-generation/parameter-details
@@ -31,6 +34,10 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     /// The total length of input tokens and generated tokens is limited by the model's context length.
     /// https://platform.openai.com/tokenizer
     public let maxTokens: Int?
+    /// An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and reasoning tokens.
+    /// https://platform.openai.com/docs/api-reference/chat/create#chat-create-max_completion_tokens
+    /// See more about reasoning tokens: https://platform.openai.com/docs/guides/reasoning
+    public let maxCompletionTokens: Int?
     /// How many chat completion choices to generate for each input message. Note that you will be charged based on the number of generated tokens across all of the choices. Keep n as 1 to minimize costs.
     /// Defaults to 1
     public let n: Int?
@@ -71,10 +78,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     public init(
         messages: [Self.ChatCompletionMessageParam],
         model: Model,
+        reasoningEffort: ReasoningEffort? = nil,
         frequencyPenalty: Double? = nil,
         logitBias: [String : Int]? = nil,
         logprobs: Bool? = nil,
         maxTokens: Int? = nil,
+        maxCompletionTokens: Int? = nil,
         n: Int? = nil,
         presencePenalty: Double? = nil,
         responseFormat: Self.ResponseFormat? = nil,
@@ -90,10 +99,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     ) {
         self.messages = messages
         self.model = model
+        self.reasoningEffort = reasoningEffort
         self.frequencyPenalty = frequencyPenalty
         self.logitBias = logitBias
         self.logprobs = logprobs
         self.maxTokens = maxTokens
+        self.maxCompletionTokens = maxCompletionTokens
         self.n = n
         self.presencePenalty = presencePenalty
         self.responseFormat = responseFormat
@@ -110,24 +121,27 @@ public struct ChatQuery: Equatable, Codable, Streamable {
 
     public enum ChatCompletionMessageParam: Codable, Equatable {
 
-        case system(Self.ChatCompletionSystemMessageParam)
-        case user(Self.ChatCompletionUserMessageParam)
-        case assistant(Self.ChatCompletionAssistantMessageParam)
-        case tool(Self.ChatCompletionToolMessageParam)
+        case system(Self.SystemMessageParam)
+        case developer(Self.DeveloperMessageParam)
+        case user(Self.UserMessageParam)
+        case assistant(Self.AssistantMessageParam)
+        case tool(Self.ToolMessageParam)
 
-        public var content: Self.ChatCompletionUserMessageParam.Content? { get { // TODO: String type except for .user
+        public var content: Self.UserMessageParam.Content? { get {
             switch self {
             case .system(let systemMessage):
-                return Self.ChatCompletionUserMessageParam.Content.string(systemMessage.content)
+                return Self.UserMessageParam.Content.string(systemMessage.content)
+            case .developer(let developerMessage):
+                return Self.UserMessageParam.Content.string(developerMessage.content)
             case .user(let userMessage):
-                return userMessage.content // TODO: Content type
+                return userMessage.content
             case .assistant(let assistantMessage):
                 if let content = assistantMessage.content {
-                    return Self.ChatCompletionUserMessageParam.Content.string(content)
+                    return Self.UserMessageParam.Content.string(content)
                 }
                 return nil
             case .tool(let toolMessage):
-                return Self.ChatCompletionUserMessageParam.Content.string(toolMessage.content)
+                return Self.UserMessageParam.Content.string(toolMessage.content)
             }
         }}
 
@@ -135,6 +149,8 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             switch self {
             case .system(let systemMessage):
                 return systemMessage.role
+            case .developer(let developerMessage):
+                return developerMessage.role
             case .user(let userMessage):
                 return userMessage.role
             case .assistant(let assistantMessage):
@@ -148,6 +164,8 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             switch self {
             case .system(let systemMessage):
                 return systemMessage.name
+            case .developer(let developerMessage):
+                return developerMessage.name
             case .user(let userMessage):
                 return userMessage.name
             case .assistant(let assistantMessage):
@@ -166,7 +184,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }}
 
-        public var toolCalls: [Self.ChatCompletionAssistantMessageParam.ChatCompletionMessageToolCallParam]? { get {
+        public var toolCalls: [Self.AssistantMessageParam.ToolCallParam]? { get {
             switch self {
             case .assistant(let assistantMessage):
                 return assistantMessage.toolCalls
@@ -178,9 +196,8 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         public init?(
             role: Role,
             content: String? = nil,
-            imageUrl: URL? = nil,
             name: String? = nil,
-            toolCalls: [Self.ChatCompletionAssistantMessageParam.ChatCompletionMessageToolCallParam]? = nil,
+            toolCalls: [Self.AssistantMessageParam.ToolCallParam]? = nil,
             toolCallId: String? = nil
         ) {
             switch role {
@@ -190,11 +207,15 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 } else {
                     return nil
                 }
+            case .developer:
+                if let content {
+                    self = .developer(.init(content: content, name: name))
+                } else {
+                    return nil
+                }
             case .user:
                 if let content {
                     self = .user(.init(content: .init(string: content), name: name))
-                } else if let imageUrl {
-                    self = .user(.init(content: .init(chatCompletionContentPartImageParam: .init(imageUrl: .init(url: imageUrl.absoluteString, detail: .auto))), name: name))
                 } else {
                     return nil
                 }
@@ -209,6 +230,20 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }
 
+        public init?(
+            role: Role,
+            content: [UserMessageParam.Content.VisionContent],
+            name: String? = nil
+        ) {
+            switch role {
+            case .user:
+                self = .user(.init(content: .vision(content), name: name))
+            default:
+                return nil
+            }
+
+        }
+
         private init?(
             content: String,
             role: Role,
@@ -216,13 +251,15 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         ) {
             if role == .system {
                 self = .system(.init(content: content, name: name))
+            } else if role == .developer {
+                self = .developer(.init(content: content, name: name))
             } else {
                 return nil
             }
         }
 
         private init?(
-            content: Self.ChatCompletionUserMessageParam.Content,
+            content: Self.UserMessageParam.Content,
             role: Role,
             name: String? = nil
         ) {
@@ -237,7 +274,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             role: Role,
             content: String? = nil,
             name: String? = nil,
-            toolCalls: [Self.ChatCompletionAssistantMessageParam.ChatCompletionMessageToolCallParam]? = nil
+            toolCalls: [Self.AssistantMessageParam.ToolCallParam]? = nil
         ) {
             if role == .assistant {
                 self = .assistant(.init(content: content, name: name, toolCalls: toolCalls))
@@ -263,6 +300,8 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             switch self {
             case .system(let a0):
                 try container.encode(a0)
+            case .developer(let a0):
+                try container.encode(a0)
             case .user(let a0):
                 try container.encode(a0)
             case .assistant(let a0):
@@ -274,12 +313,13 @@ public struct ChatQuery: Equatable, Codable, Streamable {
 
         enum CodingKeys: CodingKey {
             case system
+            case developer
             case user
             case assistant
             case tool
         }
 
-        public struct ChatCompletionSystemMessageParam: Codable, Equatable {
+        public struct SystemMessageParam: Codable, Equatable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             /// The contents of the system message.
@@ -303,8 +343,33 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 case name
             }
         }
+        
+        public struct DeveloperMessageParam: Codable, Equatable {
+            public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
-        public struct ChatCompletionUserMessageParam: Codable, Equatable {
+            /// The contents of the developer message.
+            public let content: String
+            /// The role of the messages author, in this case developer.
+            public let role: Self.Role = .developer
+            /// An optional name for the participant. Provides the model information to differentiate between participants of the same role.
+            public let name: String?
+
+            public init(
+                content: String,
+                name: String? = nil
+            ) {
+                self.content = content
+                self.name = name
+            }
+
+            enum CodingKeys: CodingKey {
+                case content
+                case role
+                case name
+            }
+        }
+
+        public struct UserMessageParam: Codable, Equatable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             /// The contents of the user message.
@@ -330,8 +395,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
 
             public enum Content: Codable, Equatable {
                 case string(String)
-                case chatCompletionContentPartTextParam(ChatCompletionContentPartTextParam)
-                case chatCompletionContentPartImageParam(ChatCompletionContentPartImageParam)
+                case vision([VisionContent])
 
                 public var string: String? { get {
                     switch self {
@@ -341,6 +405,33 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                         return nil
                     }
                 }}
+
+                public init(string: String) {
+                    self = .string(string)
+                }
+
+                public init(vision: [VisionContent]) {
+                    self = .vision(vision)
+                }
+
+                public enum CodingKeys: CodingKey {
+                    case string
+                    case vision
+                }
+
+                public func encode(to encoder: Encoder) throws {
+                    var container = encoder.singleValueContainer()
+                    switch self {
+                    case .string(let a0):
+                        try container.encode(a0)
+                    case .vision(let a0):
+                        try container.encode(a0)
+                    }
+                }
+
+            public enum VisionContent: Codable, Equatable {
+                case chatCompletionContentPartTextParam(ChatCompletionContentPartTextParam)
+                case chatCompletionContentPartImageParam(ChatCompletionContentPartImageParam)
 
                 public var text: String? { get {
                     switch self {
@@ -360,10 +451,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     }
                 }}
 
-                public init(string: String) {
-                    self = .string(string)
-                }
-
                 public init(chatCompletionContentPartTextParam: ChatCompletionContentPartTextParam) {
                     self = .chatCompletionContentPartTextParam(chatCompletionContentPartTextParam)
                 }
@@ -375,8 +462,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 public func encode(to encoder: Encoder) throws {
                     var container = encoder.singleValueContainer()
                     switch self {
-                    case .string(let a0):
-                        try container.encode(a0)
                     case .chatCompletionContentPartTextParam(let a0):
                         try container.encode(a0)
                     case .chatCompletionContentPartImageParam(let a0):
@@ -385,7 +470,6 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 }
 
                 enum CodingKeys: CodingKey {
-                    case string
                     case chatCompletionContentPartTextParam
                     case chatCompletionContentPartImageParam
                 }
@@ -409,7 +493,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
 
                     public init(imageUrl: ImageURL) {
                         self.imageUrl = imageUrl
-                        self.type = "imageUrl"
+                        self.type = "image_url"
                     }
 
                     public struct ImageURL: Codable, Equatable {
@@ -422,6 +506,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                         public init(url: String, detail: Detail) {
                             self.url = url
                             self.detail = detail
+                        }
+
+                        public init(url: Data, detail: Detail) {
+                            self.init(
+                                url: "data:image/jpeg;base64,\(url.base64EncodedString())",
+                                detail: detail)
                         }
 
                         public enum Detail: String, Codable, Equatable, CaseIterable {
@@ -438,6 +528,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 }
             }
         }
+        }
 
         internal struct ChatCompletionMessageParam: Codable, Equatable {
             typealias Role = ChatQuery.ChatCompletionMessageParam.Role
@@ -449,7 +540,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }
 
-        public struct ChatCompletionAssistantMessageParam: Codable, Equatable {
+        public struct AssistantMessageParam: Codable, Equatable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             //// The role of the messages author, in this case assistant.
@@ -459,12 +550,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             /// The name of the author of this message. `name` is required if role is `function`, and it should be the name of the function whose response is in the `content`. May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
             public let name: String?
             /// The tool calls generated by the model, such as function calls.
-            public let toolCalls: [Self.ChatCompletionMessageToolCallParam]?
+            public let toolCalls: [Self.ToolCallParam]?
 
             public init(
                 content: String? = nil,
                 name: String? = nil,
-                toolCalls: [Self.ChatCompletionMessageToolCallParam]? = nil
+                toolCalls: [Self.ToolCallParam]? = nil
             ) {
                 self.content = content
                 self.name = name
@@ -478,7 +569,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 case toolCalls = "tool_calls"
             }
 
-            public struct ChatCompletionMessageToolCallParam: Codable, Equatable {
+            public struct ToolCallParam: Codable, Equatable {
                 public typealias ToolsType = ChatQuery.ChatCompletionToolParam.ToolsType
 
                 /// The ID of the tool call.
@@ -502,11 +593,19 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     public let arguments: String
                     /// The name of the function to call.
                     public let name: String
+
+                    public init(
+                        arguments: String,
+                        name: String
+                    ) {
+                        self.arguments = arguments
+                        self.name = name
+                    }
                 }
             }
         }
 
-        public struct ChatCompletionToolMessageParam: Codable, Equatable {
+        public struct ToolMessageParam: Codable, Equatable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             /// The contents of the tool message.
@@ -533,6 +632,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
 
         public enum Role: String, Codable, Equatable, CaseIterable {
             case system
+            case developer
             case user
             case assistant
             case tool
@@ -561,15 +661,270 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             self = .stringList(stringList)
         }
     }
+    
+    public enum ReasoningEffort: String, Codable, Equatable {
+        case low
+        case medium
+        case high
+    }
 
-    // See more https://platform.openai.com/docs/guides/text-generation/json-mode
-    public enum ResponseFormat: String, Codable, Equatable {
-        case jsonObject = "json_object"
+    // See more https://platform.openai.com/docs/guides/structured-outputs/introduction
+    public enum ResponseFormat: Codable, Equatable {
+        
         case text
-
-        public func encode(to encoder: Encoder) throws {
-            var container = encoder.singleValueContainer()
-            try container.encode(["type": self.rawValue])
+        case jsonObject
+        case jsonSchema(name: String, type: StructuredOutput.Type)
+        
+        enum CodingKeys: String, CodingKey {
+            case type
+            case jsonSchema = "json_schema"
+        }
+        
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            switch self {
+            case .text:
+                try container.encode("text", forKey: .type)
+            case .jsonObject:
+                try container.encode("json_object", forKey: .type)
+            case .jsonSchema(let name, let type):
+                try container.encode("json_schema", forKey: .type)
+                let schema = JSONSchema(name: name, schema: type.example)
+                try container.encode(schema, forKey: .jsonSchema)
+            }
+        }
+        
+        public static func == (lhs: ResponseFormat, rhs: ResponseFormat) -> Bool {
+            switch (lhs, rhs) {
+            case (.text, .text): return true
+            case (.jsonObject, .jsonObject): return true
+            case (.jsonSchema(let lhsName, let lhsType), .jsonSchema(let rhsName, let rhsType)):
+                return lhsName == rhsName && lhsType == rhsType
+            default:
+                return false
+            }
+        }
+        
+        /// A formal initializer reqluired for the inherited Decodable conformance.
+        /// This type is never returned from the server and is never decoded into.
+        public init(from decoder: any Decoder) throws {
+            self = .text
+        }
+    }
+    
+    private struct JSONSchema: Encodable {
+        
+        let name: String
+        let schema: StructuredOutput
+        
+        enum CodingKeys: String, CodingKey {
+            case name
+            case schema
+            case strict
+        }
+        
+        init(name: String, schema: StructuredOutput) {
+            
+            func format(_ name: String) -> String {
+                var formattedName = name.replacingOccurrences(of: " ", with: "_")
+                let regex = try! NSRegularExpression(pattern: "[^a-zA-Z0-9_-]", options: [])
+                let range = NSRange(location: 0, length: formattedName.utf16.count)
+                formattedName = regex.stringByReplacingMatches(in: formattedName, options: [], range: range, withTemplate: "")
+                formattedName = formattedName.isEmpty ? "sample" : formattedName
+                formattedName = String(formattedName.prefix(64))
+                return formattedName
+            }
+            
+            self.name = format(name)
+            self.schema = schema
+            
+            if self.name != name {
+                print("The name was changed to \(self.name) to satisfy the API requirements. See more: https://platform.openai.com/docs/api-reference/chat/create")
+            }
+        }
+        
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(name, forKey: .name)
+            try container.encode(true, forKey: .strict)
+            try container.encode(try PropertyValue(from: schema), forKey: .schema)
+        }
+    }
+    
+    private indirect enum PropertyValue: Codable {
+        
+        enum SimpleType: String, Codable {
+            case string, integer, number, boolean
+        }
+        
+        enum ComplexType: String, Codable {
+            case object, array, date
+        }
+        
+        enum SpecialType: String, Codable {
+            case null
+        }
+        
+        case simple(SimpleType, isOptional: Bool)
+        case date(isOptional: Bool)
+        case `enum`(cases: [String], isOptional: Bool)
+        case object([String: PropertyValue], isOptional: Bool)
+        case array(PropertyValue, isOptional: Bool)
+        
+        enum CodingKeys: String, CodingKey {
+            case type
+            case description
+            case properties
+            case items
+            case additionalProperties
+            case required
+            case `enum`
+        }
+        
+        enum ValueType: String, Codable {
+            case string
+            case date
+            case integer
+            case number
+            case boolean
+            case object
+            case array
+        }
+        
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            
+            switch self {
+            case .simple(let type, let isOptional):
+                if isOptional {
+                    try container.encode([type.rawValue, SpecialType.null.rawValue], forKey: .type)
+                } else {
+                    try container.encode(type.rawValue, forKey: .type)
+                }
+            case .date(let isOptional):
+                if isOptional {
+                    try container.encode([SimpleType.string.rawValue, SpecialType.null.rawValue], forKey: .type)
+                } else {
+                    try container.encode(SimpleType.string.rawValue, forKey: .type)
+                }
+                try container.encode("String that represents a date formatted in iso8601", forKey: .description)
+            case .enum(let cases, let isOptional):
+                if isOptional {
+                    try container.encode([SimpleType.string.rawValue, SpecialType.null.rawValue], forKey: .type)
+                } else {
+                    try container.encode(SimpleType.string.rawValue, forKey: .type)
+                }
+                try container.encode(cases, forKey: .enum)
+            case .object(let object, let isOptional):
+                if isOptional {
+                    try container.encode([ComplexType.object.rawValue, SpecialType.null.rawValue], forKey: .type)
+                } else {
+                    try container.encode(ComplexType.object.rawValue, forKey: .type)
+                }
+                try container.encode(false, forKey: .additionalProperties)
+                try container.encode(object, forKey: .properties)
+                let fields = object.map { key, value in key }
+                try container.encode(fields, forKey: .required)
+            case .array(let items, let isOptional):
+                if isOptional {
+                    try container.encode([ComplexType.array.rawValue, SpecialType.null.rawValue], forKey: .type)
+                } else {
+                    try container.encode(ComplexType.array.rawValue, forKey: .type)
+                }
+                try container.encode(items, forKey: .items)
+            }
+        }
+        
+        init<T: Any>(from value: T) throws {
+            let mirror = Mirror(reflecting: value)
+            let isOptional = mirror.displayStyle == .optional
+            
+            switch value {
+            case _ as String:
+                self = .simple(.string, isOptional: isOptional)
+                return
+            case _ as Bool:
+                self = .simple(.boolean, isOptional: isOptional)
+                return
+            case _ as Int, _ as Int8, _ as Int16, _ as Int32, _ as Int64, _ as UInt, _ as UInt8, _ as UInt16, _ as UInt32, _ as UInt64:
+                self = .simple(.integer, isOptional: isOptional)
+                return
+            case _ as Double, _ as Float, _ as CGFloat:
+                self = .simple(.number, isOptional: isOptional)
+                return
+            case _ as Date:
+                self = .date(isOptional: isOptional)
+                return
+            default:
+                
+                var unwrappedMirror: Mirror!
+                if isOptional {
+                    guard let child = mirror.children.first else {
+                        throw StructuredOutputError.nilFoundInExample
+                    }
+                    unwrappedMirror = Mirror(reflecting: child.value)
+                } else {
+                    unwrappedMirror = mirror
+                }
+                
+                if let displayStyle = unwrappedMirror.displayStyle {
+                    
+                    switch displayStyle {
+                        
+                    case .struct, .class:
+                        var dict = [String: PropertyValue]()
+                        for child in unwrappedMirror.children {
+                            dict[child.label!] = try Self(from: child.value)
+                        }
+                        self = .object(dict, isOptional: isOptional)
+                        return
+                        
+                    case .collection:
+                        if let child = unwrappedMirror.children.first {
+                            self = .array(try Self(from: child.value), isOptional: isOptional)
+                            return
+                        } else {
+                            throw StructuredOutputError.typeUnsupported
+                        }
+                        
+                    case .enum:
+                        if let structuredEnum = value as? any StructuredOutputEnum {
+                            self = .enum(cases: structuredEnum.caseNames, isOptional: isOptional)
+                            return
+                        } else {
+                            throw StructuredOutputError.enumsConformance
+                        }
+                        
+                    default:
+                        throw StructuredOutputError.typeUnsupported
+                    }
+                }
+                throw StructuredOutputError.typeUnsupported
+            }
+        }
+        
+        
+        /// A formal initializer reqluired for the inherited Decodable conformance.
+        /// This type is never returned from the server and is never decoded into.
+        init(from decoder: Decoder) throws {
+            self = .simple(.boolean, isOptional: false)
+        }
+    }
+    
+    public enum StructuredOutputError: LocalizedError {
+        case enumsConformance
+        case typeUnsupported
+        case nilFoundInExample
+        
+        public var errorDescription: String? {
+            switch self {
+            case .enumsConformance:
+                return "Conform the enum types to StructuredOutputEnum and provide the `caseNames` property with a list of available cases."
+            case .typeUnsupported:
+                return "Unsupported type. Supported types: String, Bool, Int, Double, Array, and Codable struct/class instances."
+            case .nilFoundInExample:
+                return "Found nils when serializing the StructuredOutput‘s example. Provide values for all optional properties in the example."
+            }
         }
     }
 
@@ -798,10 +1153,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     public enum CodingKeys: String, CodingKey {
         case messages
         case model
+        case reasoningEffort = "reasoning_effort"
         case frequencyPenalty = "frequency_penalty"
         case logitBias = "logit_bias"
         case logprobs
         case maxTokens = "max_tokens"
+        case maxCompletionTokens = "max_completion_tokens"
         case n
         case presencePenalty = "presence_penalty"
         case responseFormat = "response_format"
@@ -814,5 +1171,149 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         case topP = "top_p"
         case user
         case stream
+    }
+}
+
+/// See the [guide](/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
+public struct JSONSchema: Codable, Hashable {
+    public let type: JSONType
+    public let properties: [String: Property]?
+    public let required: [String]?
+    public let pattern: String?
+    public let const: String?
+    public let enumValues: [String]?
+    public let multipleOf: Int?
+    public let minimum: Int?
+    public let maximum: Int?
+
+    private enum CodingKeys: String, CodingKey {
+        case type, properties, required, pattern, const
+        case enumValues = "enum"
+        case multipleOf, minimum, maximum
+    }
+
+    public struct Property: Codable, Hashable {
+        public let type: JSONType
+        public let description: String?
+        public let format: String?
+        public let items: Items?
+        public let required: [String]?
+        public let pattern: String?
+        public let const: String?
+        public let enumValues: [String]?
+        public let multipleOf: Int?
+        public let minimum: Double?
+        public let maximum: Double?
+        public let minItems: Int?
+        public let maxItems: Int?
+        public let uniqueItems: Bool?
+
+        private enum CodingKeys: String, CodingKey {
+            case type, description, format, items, required, pattern, const
+            case enumValues = "enum"
+            case multipleOf, minimum, maximum
+            case minItems, maxItems, uniqueItems
+        }
+
+        public init(type: JSONType, description: String? = nil, format: String? = nil, items: Items? = nil, required: [String]? = nil, pattern: String? = nil, const: String? = nil, enumValues: [String]? = nil, multipleOf: Int? = nil, minimum: Double? = nil, maximum: Double? = nil, minItems: Int? = nil, maxItems: Int? = nil, uniqueItems: Bool? = nil) {
+            self.type = type
+            self.description = description
+            self.format = format
+            self.items = items
+            self.required = required
+            self.pattern = pattern
+            self.const = const
+            self.enumValues = enumValues
+            self.multipleOf = multipleOf
+            self.minimum = minimum
+            self.maximum = maximum
+            self.minItems = minItems
+            self.maxItems = maxItems
+            self.uniqueItems = uniqueItems
+        }
+    }
+
+    public enum JSONType: String, Codable {
+        case integer = "integer"
+        case string = "string"
+        case boolean = "boolean"
+        case array = "array"
+        case object = "object"
+        case number = "number"
+        case `null` = "null"
+    }
+
+    public struct Items: Codable, Hashable {
+        public let type: JSONType
+        public let properties: [String: Property]?
+        public let pattern: String?
+        public let const: String?
+        public let enumValues: [String]?
+        public let multipleOf: Int?
+        public let minimum: Double?
+        public let maximum: Double?
+        public let minItems: Int?
+        public let maxItems: Int?
+        public let uniqueItems: Bool?
+
+        private enum CodingKeys: String, CodingKey {
+            case type, properties, pattern, const
+            case enumValues = "enum"
+            case multipleOf, minimum, maximum, minItems, maxItems, uniqueItems
+        }
+
+        public init(type: JSONType, properties: [String : Property]? = nil, pattern: String? = nil, const: String? = nil, enumValues: [String]? = nil, multipleOf: Int? = nil, minimum: Double? = nil, maximum: Double? = nil, minItems: Int? = nil, maxItems: Int? = nil, uniqueItems: Bool? = nil) {
+            self.type = type
+            self.properties = properties
+            self.pattern = pattern
+            self.const = const
+            self.enumValues = enumValues
+            self.multipleOf = multipleOf
+            self.minimum = minimum
+            self.maximum = maximum
+            self.minItems = minItems
+            self.maxItems = maxItems
+            self.uniqueItems = uniqueItems
+        }
+    }
+
+    public init(type: JSONType, properties: [String : Property]? = nil, required: [String]? = nil, pattern: String? = nil, const: String? = nil, enumValues: [String]? = nil, multipleOf: Int? = nil, minimum: Int? = nil, maximum: Int? = nil) {
+        self.type = type
+        self.properties = properties
+        self.required = required
+        self.pattern = pattern
+        self.const = const
+        self.enumValues = enumValues
+        self.multipleOf = multipleOf
+        self.minimum = minimum
+        self.maximum = maximum
+    }
+}
+
+public struct ChatFunctionCall: Codable, Equatable {
+    /// The name of the function to call.
+    public let name: String
+    /// The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.
+    public let arguments: String
+
+    public init(name: String, arguments: String) {
+        self.name = name
+        self.arguments = arguments
+    }
+}
+
+public struct ChatToolCall: Codable, Equatable {
+    public enum ToolType: String, Codable, Equatable {
+        case function
+    }
+
+    public let id: String
+    public let type: ToolType
+    public let function: ChatFunctionCall
+
+    public init(id: String, type: ToolType = .function, function: ChatFunctionCall) {
+        self.id = id
+        self.type = type
+        self.function = function
     }
 }

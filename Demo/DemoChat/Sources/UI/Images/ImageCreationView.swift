@@ -13,9 +13,9 @@ public struct ImageCreationView: View {
     
     @State private var prompt: String = ""
     @State private var n: Int = 1
-    @State private var size = ImagesQuery.Size.allCases.first!
+    @State private var size = ImagesQuery.Size._1024
 
-    private var sizes = ImagesQuery.Size.allCases
+    private var sizes = ImagesQuery.Size.allCases.dropLast(2)
     
     public init(store: ImageStore) {
         self.store = store
@@ -44,12 +44,7 @@ public struct ImageCreationView: View {
             }
             Section {
                 HStack {
-                    Button("Create Image" + (n == 1 ? "" : "s")) {
-                        Task {
-                            let query = ImagesQuery(prompt: prompt, n: n, size: size)
-                            await store.images(query: query)
-                        }
-                    }
+                    actionButton
                     .foregroundColor(.accentColor)
                     Spacer()
                 }
@@ -71,5 +66,18 @@ public struct ImageCreationView: View {
         }
         .listStyle(.insetGrouped)
         .navigationTitle("Create Image")
+    }
+    
+    private var actionButton: some View {
+        if store.imagesQueryInProgress {
+            Button("Cancel") {
+                store.cancelImagesQuery()
+            }
+        } else {
+            Button("Create Image" + (n == 1 ? "" : "s")) {
+                let query = ImagesQuery(prompt: prompt, n: n, size: size)
+                store.images(query: query)
+            }
+        }
     }
 }
