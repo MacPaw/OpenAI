@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Model Extension Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Extension/Model" class="dashAnchor"></a>
+    <a title="Model Extension Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html"> Docs</a> (100% documented)</p>
+        <div class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">Index</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        <a href="../Extensions.html">Extensions</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        OpenAI.Model Extension Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/OpenAI.html">OpenAI</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/OpenAI/Configuration.html">– Configuration</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/OpenAIError.html">OpenAIError</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Extensions/Model.html">Model</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/OpenAIProtocol.html">OpenAIProtocol</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/APIError.html">APIError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/APIErrorResponse.html">APIErrorResponse</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechQuery.html">AudioSpeechQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechQuery/AudioSpeechVoice.html">– AudioSpeechVoice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechQuery/AudioSpeechResponseFormat.html">– AudioSpeechResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechQuery/Speed.html">– Speed</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioSpeechResult.html">AudioSpeechResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranscriptionQuery.html">AudioTranscriptionQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranscriptionQuery/ResponseFormat.html">– ResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranscriptionQuery/FileType.html">– FileType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranscriptionResult.html">AudioTranscriptionResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranslationQuery.html">AudioTranslationQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/AudioTranslationResult.html">AudioTranslationResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery.html">ChatQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/ChatCompletionMessageParam.html">– ChatCompletionMessageParam</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/Stop.html">– Stop</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/ResponseFormat.html">– ResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/ChatCompletionFunctionCallOptionParam.html">– ChatCompletionFunctionCallOptionParam</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/ChatCompletionToolParam.html">– ChatCompletionToolParam</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatResult.html">ChatResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatResult/CompletionUsage.html">– CompletionUsage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatResult/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatStreamResult.html">ChatStreamResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatStreamResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ChatStreamResult/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CompletionsQuery.html">CompletionsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CompletionsResult.html">CompletionsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CompletionsResult/Usage.html">– Usage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CompletionsResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EditsQuery.html">EditsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EditsResult.html">EditsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EditsResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EditsResult/Usage.html">– Usage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsQuery.html">EmbeddingsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsQuery/Input.html">– Input</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsQuery/EncodingFormat.html">– EncodingFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsResult.html">EmbeddingsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsResult/Embedding.html">– Embedding</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/EmbeddingsResult/Usage.html">– Usage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImageEditsQuery.html">ImageEditsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImageEditsQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImageVariationsQuery.html">ImageVariationsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImageVariationsQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery.html">ImagesQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery/ResponseFormat.html">– ResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery/Style.html">– Style</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery/Quality.html">– Quality</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesQuery/Size.html">– Size</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesResult.html">ImagesResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ImagesResult/Image.html">– Image</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModelQuery.html">ModelQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModelResult.html">ModelResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModelResult/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModelsResult.html">ModelsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModerationsQuery.html">ModerationsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModerationsResult.html">ModerationsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/ModerationsResult/Moderation.html">– Moderation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/Vector.html">Vector</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Typealiases.html">Type Aliases</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Typealiases.html#/s:6OpenAI5Modela">Model</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>Model</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">extension</span> <span class="kt"><a href="../Typealiases.html#/s:6OpenAI5Modela">Model</a></span></code></pre>
+
+                </div>
+              </div>
+            
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE6gpt4_oSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt4_o" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE6gpt4_oSSvpZ">gpt4_o</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>gpt-4o</code>, currently the most advanced, multimodal flagship model that&rsquo;s cheaper and faster than GPT-4 Turbo.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt4_o</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE11gpt4_o_miniSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt4_o_mini" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE11gpt4_o_miniSSvpZ">gpt4_o_mini</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>gpt-4o-mini</code>, currently the most affordable and intelligent model for fast and lightweight requests.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt4_o_mini</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE10gpt4_turboSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt4_turbo" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE10gpt4_turboSSvpZ">gpt4_turbo</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>gpt-4-turbo</code>, The latest GPT-4 Turbo model with vision capabilities. Vision requests can now use JSON mode and function calling and more. Context window: 128,000 tokens</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt4_turbo</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE18gpt4_turbo_previewSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt4_turbo_preview" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE18gpt4_turbo_previewSSvpZ">gpt4_turbo_preview</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>gpt-4-turbo</code>, gpt-4 model with improved instruction following, JSON mode, reproducible outputs, parallel function calling and more. Maximum of 4096 output tokens</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@available</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">deprecated</span><span class="p">,</span> <span class="nv">message</span><span class="p">:</span> <span class="s">"Please upgrade to the newer model"</span><span class="p">)</span>
+<span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt4_turbo_preview</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE19gpt4_vision_previewSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt4_vision_preview" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE19gpt4_vision_previewSSvpZ">gpt4_vision_preview</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><code>gpt-4-vision-preview</code>, able to understand images, in addition to all other GPT-4 Turbo capabilities.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt4_vision_preview</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE17gpt4_0125_previewSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt4_0125_preview" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE17gpt4_0125_previewSSvpZ">gpt4_0125_preview</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Snapshot of <code>gpt-4-turbo-preview</code> from January 25th 2024. This model reduces cases of “laziness” where the model doesn’t complete a task. Also fixes the bug impacting non-English UTF-8 generations. Maximum of 4096 output tokens</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt4_0125_preview</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE17gpt4_1106_previewSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt4_1106_preview" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE17gpt4_1106_previewSSvpZ">gpt4_1106_preview</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Snapshot of <code>gpt-4-turbo-preview</code> from November 6th 2023. Improved instruction following, JSON mode, reproducible outputs, parallel function calling and more. Maximum of 4096 output tokens</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@available</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">deprecated</span><span class="p">,</span> <span class="nv">message</span><span class="p">:</span> <span class="s">"Please upgrade to the newer model"</span><span class="p">)</span>
+<span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt4_1106_preview</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE4gpt4SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt4" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE4gpt4SSvpZ">gpt4</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Most capable <code>gpt-4</code> model, outperforms any GPT-3.5 model, able to do more complex tasks, and optimized for chat.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt4</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE9gpt4_0613SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt4_0613" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE9gpt4_0613SSvpZ">gpt4_0613</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Snapshot of <code>gpt-4</code> from June 13th 2023 with function calling data. Unlike <code>gpt-4</code>, this model will not receive updates, and will be deprecated 3 months after a new version is released.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt4_0613</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE9gpt4_0314SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt4_0314" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE9gpt4_0314SSvpZ">gpt4_0314</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Snapshot of <code>gpt-4</code> from March 14th 2023. Unlike gpt-4, this model will not receive updates, and will only be supported for a three month period ending on June 14th 2023.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@available</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">deprecated</span><span class="p">,</span> <span class="nv">message</span><span class="p">:</span> <span class="s">"Please upgrade to the newer model"</span><span class="p">)</span>
+<span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt4_0314</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE8gpt4_32kSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt4_32k" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE8gpt4_32kSSvpZ">gpt4_32k</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Same capabilities as the base <code>gpt-4</code> model but with 4x the context length. Will be updated with our latest model iteration.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt4_32k</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE13gpt4_32k_0613SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt4_32k_0613" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE13gpt4_32k_0613SSvpZ">gpt4_32k_0613</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Snapshot of <code>gpt-4-32k</code> from June 13th 2023. Unlike <code>gpt-4-32k</code>, this model will not receive updates, and will be deprecated 3 months after a new version is released.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt4_32k_0613</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE13gpt4_32k_0314SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt4_32k_0314" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE13gpt4_32k_0314SSvpZ">gpt4_32k_0314</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Snapshot of <code>gpt-4-32k</code> from March 14th 2023. Unlike <code>gpt-4-32k</code>, this model will not receive updates, and will only be supported for a three month period ending on June 14th 2023.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@available</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">deprecated</span><span class="p">,</span> <span class="nv">message</span><span class="p">:</span> <span class="s">"Please upgrade to the newer model"</span><span class="p">)</span>
+<span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt4_32k_0314</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE11gpt3_5TurboSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt3_5Turbo" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE11gpt3_5TurboSSvpZ">gpt3_5Turbo</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Most capable <code>gpt-3.5-turbo</code> model and optimized for chat. Will be updated with our latest model iteration.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt3_5Turbo</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE16gpt3_5Turbo_0125SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt3_5Turbo_0125" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE16gpt3_5Turbo_0125SSvpZ">gpt3_5Turbo_0125</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Snapshot of <code>gpt-3.5-turbo</code> from January 25th 2024. Decreased prices by 50%. Various improvements including higher accuracy at responding in requested formats and a fix for a bug which caused a text encoding issue for non-English language function calls.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt3_5Turbo_0125</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE16gpt3_5Turbo_1106SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt3_5Turbo_1106" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE16gpt3_5Turbo_1106SSvpZ">gpt3_5Turbo_1106</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Snapshot of <code>gpt-3.5-turbo</code> from November 6th 2023. The latest <code>gpt-3.5-turbo</code> model with improved instruction following, JSON mode, reproducible outputs, parallel function calling and more.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@available</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">deprecated</span><span class="p">,</span> <span class="nv">message</span><span class="p">:</span> <span class="s">"Please upgrade to the newer model"</span><span class="p">)</span>
+<span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt3_5Turbo_1106</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE16gpt3_5Turbo_0613SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt3_5Turbo_0613" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE16gpt3_5Turbo_0613SSvpZ">gpt3_5Turbo_0613</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Snapshot of <code>gpt-3.5-turbo</code> from June 13th 2023 with function calling data. Unlike <code>gpt-3.5-turbo</code>, this model will not receive updates, and will be deprecated 3 months after a new version is released.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@available</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">deprecated</span><span class="p">,</span> <span class="nv">message</span><span class="p">:</span> <span class="s">"Please upgrade to the newer model"</span><span class="p">)</span>
+<span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt3_5Turbo_0613</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE16gpt3_5Turbo_0301SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt3_5Turbo_0301" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE16gpt3_5Turbo_0301SSvpZ">gpt3_5Turbo_0301</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Snapshot of <code>gpt-3.5-turbo</code> from March 1st 2023. Unlike <code>gpt-3.5-turbo</code>, this model will not receive updates, and will only be supported for a three month period ending on June 1st 2023.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@available</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">deprecated</span><span class="p">,</span> <span class="nv">message</span><span class="p">:</span> <span class="s">"Please upgrade to the newer model"</span><span class="p">)</span>
+<span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt3_5Turbo_0301</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE15gpt3_5Turbo_16kSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt3_5Turbo_16k" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE15gpt3_5Turbo_16kSSvpZ">gpt3_5Turbo_16k</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Same capabilities as the standard <code>gpt-3.5-turbo</code> model but with 4 times the context.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt3_5Turbo_16k</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE20gpt3_5Turbo_16k_0613SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/gpt3_5Turbo_16k_0613" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE20gpt3_5Turbo_16k_0613SSvpZ">gpt3_5Turbo_16k_0613</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Snapshot of <code>gpt-3.5-turbo-16k</code> from June 13th 2023. Unlike <code>gpt-3.5-turbo-16k</code>, this model will not receive updates, and will be deprecated 3 months after a new version is released.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">gpt3_5Turbo_16k_0613</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE15textDavinci_003SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/textDavinci_003" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE15textDavinci_003SSvpZ">textDavinci_003</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Can do any language task with better quality, longer output, and consistent instruction-following than the curie, babbage, or ada models. Also supports inserting completions within text.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">textDavinci_003</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE15textDavinci_002SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/textDavinci_002" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE15textDavinci_002SSvpZ">textDavinci_002</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Similar capabilities to text-davinci-003 but trained with supervised fine-tuning instead of reinforcement learning.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">textDavinci_002</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE9textCurieSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/textCurie" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE9textCurieSSvpZ">textCurie</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Very capable, faster and lower cost than Davinci.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">textCurie</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE11textBabbageSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/textBabbage" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE11textBabbageSSvpZ">textBabbage</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Capable of straightforward tasks, very fast, and lower cost.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">textBabbage</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE7textAdaSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/textAda" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE7textAdaSSvpZ">textAda</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Capable of very simple tasks, usually the fastest model in the GPT-3 series, and lowest cost.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">textAda</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE15textDavinci_001SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/textDavinci_001" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE15textDavinci_001SSvpZ">textDavinci_001</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">textDavinci_001</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE19codeDavinciEdit_001SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/codeDavinciEdit_001" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE19codeDavinciEdit_001SSvpZ">codeDavinciEdit_001</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">codeDavinciEdit_001</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE5tts_1SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/tts_1" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE5tts_1SSvpZ">tts_1</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The latest text to speech model, optimized for speed.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">tts_1</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE8tts_1_hdSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/tts_1_hd" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE8tts_1_hdSSvpZ">tts_1_hd</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The latest text to speech model, optimized for quality.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">tts_1_hd</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE9whisper_1SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/whisper_1" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE9whisper_1SSvpZ">whisper_1</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">whisper_1</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE8dall_e_2SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/dall_e_2" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE8dall_e_2SSvpZ">dall_e_2</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">dall_e_2</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE8dall_e_3SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/dall_e_3" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE8dall_e_3SSvpZ">dall_e_3</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">dall_e_3</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE7davinciSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/davinci" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE7davinciSSvpZ">davinci</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Most capable GPT-3 model. Can do any task the other models can do, often with higher quality.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">davinci</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE5curieSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/curie" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE5curieSSvpZ">curie</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Very capable, but faster and lower cost than Davinci.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">curie</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE7babbageSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/babbage" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE7babbageSSvpZ">babbage</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Capable of straightforward tasks, very fast, and lower cost.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">babbage</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE3adaSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/ada" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE3adaSSvpZ">ada</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Capable of very simple tasks, usually the fastest model in the GPT-3 series, and lowest cost.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">ada</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE16textEmbeddingAdaSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/textEmbeddingAda" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE16textEmbeddingAdaSSvpZ">textEmbeddingAda</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">textEmbeddingAda</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE13textSearchAdaSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/textSearchAda" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE13textSearchAdaSSvpZ">textSearchAda</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">textSearchAda</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE20textSearchBabbageDocSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/textSearchBabbageDoc" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE20textSearchBabbageDocSSvpZ">textSearchBabbageDoc</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">textSearchBabbageDoc</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE25textSearchBabbageQuery001SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/textSearchBabbageQuery001" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE25textSearchBabbageQuery001SSvpZ">textSearchBabbageQuery001</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">textSearchBabbageQuery001</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE14textEmbedding3SSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/textEmbedding3" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE14textEmbedding3SSvpZ">textEmbedding3</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">textEmbedding3</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE19textEmbedding3LargeSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/textEmbedding3Large" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE19textEmbedding3LargeSSvpZ">textEmbedding3Large</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">textEmbedding3Large</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE20textModerationStableSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/textModerationStable" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE20textModerationStableSSvpZ">textModerationStable</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Almost as capable as the latest model, but slightly older.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">textModerationStable</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE20textModerationLatestSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/textModerationLatest" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE20textModerationLatestSSvpZ">textModerationLatest</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Most capable moderation model. Accuracy will be slightly higher than the stable model.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">textModerationLatest</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SS6OpenAIE10moderationSSvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/moderation" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SS6OpenAIE10moderationSSvpZ">moderation</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">let</span> <span class="nv">moderation</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2024 <a class="link" href="" target="_blank" rel="external noopener"></a>. All rights reserved. (Last updated: 2024-10-17)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>
