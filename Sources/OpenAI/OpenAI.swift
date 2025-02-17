@@ -32,7 +32,16 @@ final public class OpenAI {
         /// Default request timeout
         public let timeoutInterval: TimeInterval
         
-        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", basePath: String = "", timeoutInterval: TimeInterval = 60.0) {
+        /// Headers to set on a request.
+        ///
+        /// Value from this dict would set on any request sent by SDK.
+        ///
+        /// These values are applied after all the default headers are set, so if names collide, values from this dict would override default values.
+        ///
+        /// Currently SDK sets such fields: Authorization, Content-Type, OpenAI-Organization.
+        public let customHeaders: [String: String]
+        
+        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", basePath: String = "", timeoutInterval: TimeInterval = 60.0, customHeaders: [String: String] = [:]) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host
@@ -40,6 +49,7 @@ final public class OpenAI {
             self.scheme = scheme
             self.basePath = basePath
             self.timeoutInterval = timeoutInterval
+            self.customHeaders = customHeaders
         }
     }
     
@@ -212,9 +222,7 @@ extension OpenAI {
     func performRequest<ResultType: Codable>(request: any URLRequestBuildable, completion: @escaping (Result<ResultType, Error>) -> Void) -> CancellableRequest {
         var cancellable = cancellablesFactory.makeTaskCanceller()
         do {
-            let request = try request.build(token: configuration.token, 
-                                            organizationIdentifier: configuration.organizationIdentifier,
-                                            timeoutInterval: configuration.timeoutInterval)
+            let request = try request.build(configuration: configuration)
             let task = makeDataTask(forRequest: request, completion: completion)
             cancellable.task = task
             task.resume()
@@ -227,9 +235,7 @@ extension OpenAI {
     func performStreamingRequest<ResultType: Codable>(request: any URLRequestBuildable, onResult: @escaping (Result<ResultType, Error>) -> Void, completion: ((Error?) -> Void)?) -> CancellableRequest {
         var cancellable = cancellablesFactory.makeSessionCanceller()
         do {
-            let request = try request.build(token: configuration.token, 
-                                            organizationIdentifier: configuration.organizationIdentifier,
-                                            timeoutInterval: configuration.timeoutInterval)
+            let request = try request.build(configuration: configuration)
             let session = StreamingSession<ResultType>(urlRequest: request)
             cancellable.session = session
             session.onReceiveContent = {_, object in
@@ -253,9 +259,7 @@ extension OpenAI {
     func performSpeechRequest(request: any URLRequestBuildable, completion: @escaping (Result<AudioSpeechResult, Error>) -> Void) -> CancellableRequest {
         var cancellable = cancellablesFactory.makeTaskCanceller()
         do {
-            let request = try request.build(token: configuration.token, 
-                                            organizationIdentifier: configuration.organizationIdentifier,
-                                            timeoutInterval: configuration.timeoutInterval)
+            let request = try request.build(configuration: configuration)
             
             let task = session.dataTask(with: request) { data, _, error in
                 if let error = error {
