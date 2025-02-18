@@ -6,9 +6,43 @@
 //
 
 import Foundation
-
+/// https://platform.openai.com/docs/api-reference/chat/object
+/// Example Completion object print
+/// ```
+/// {
+///  "id": "chatcmpl-123456",
+///  "object": "chat.completion",
+///  "created": 1728933352,
+///  "model": "gpt-4o-2024-08-06",
+///  "choices": [
+///    {
+///      "index": 0,
+///      "message": {
+///        "role": "assistant",
+///        "content": "Hi there! How can I assist you today?",
+///        "refusal": null
+///      },
+///      "logprobs": null,
+///      "finish_reason": "stop"
+///    }
+///  ],
+///  "usage": {
+///    "prompt_tokens": 19,
+///    "completion_tokens": 10,
+///    "total_tokens": 29,
+///    "prompt_tokens_details": {
+///      "cached_tokens": 0
+///    },
+///    "completion_tokens_details": {
+///      "reasoning_tokens": 0
+///    }
+///  },
+///  "system_fingerprint": "fp_6b68a8204b"
+/// }
+/// ```
 public struct ChatResult: Codable, Equatable {
 
+    /// mimic the choices array in the chat completion object
     public struct Choice: Codable, Equatable {
         public typealias ChatCompletionMessage = ChatQuery.ChatCompletionMessageParam
 
