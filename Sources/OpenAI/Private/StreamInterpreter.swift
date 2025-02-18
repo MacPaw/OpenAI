@@ -16,11 +16,6 @@ class StreamInterpreter<ResultType: Codable> {
     var onEventDispatched: ((ResultType) -> Void)?
     
     func processData(_ data: Data) throws {
-        let decoder = JSONDecoder()
-        if let decoded = try? decoder.decode(APIErrorResponse.self, from: data) {
-            throw decoded
-        }
-        
         guard let stringContent = String(data: data, encoding: .utf8) else {
             throw StreamingError.unknownContent
         }
@@ -37,6 +32,32 @@ class StreamInterpreter<ResultType: Codable> {
             .components(separatedBy: .newlines)
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { $0.isEmpty == false }
+        
+        /**
+         * When the server returns an error, it will return a JSON string like this:
+         *   {
+         *      "error":    {
+         *          "message": "The model `o3-mini` does not exist or you do not have access to it.",
+         *          "type": "invalid_request_error",
+         *          "param": null,
+         *          "code": "model_not_found"
+         *       }
+         *   }
+         * The error json will cause the following jsonObject fail and a new parsing error will be thrown to caller, which replaces the real error.
+         * So the error should be checked here and throw to the caller.
+        */
+        let fullContent = chunkLines.joined(separator: "\n")
+        if fullContent.contains("error") {
+            guard let data = fullContent.data(using: .utf8) else {
+                throw APIError(message: "Invalid JSON string", type: "parsing_error", param: nil, code: nil)
+            }
+            let apiErrorResponse = try JSONDecoder().decode([String: APIError].self, from: data)
+            if let apiError = apiErrorResponse["error"] {
+                throw apiError
+            } else {
+                throw APIError(message: fullContent, type: "api_error", param: nil, code: nil)
+            }
+        }
 
         var jsonObjects: [String] = []
         for line in chunkLines {
