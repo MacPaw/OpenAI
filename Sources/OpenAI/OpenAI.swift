@@ -25,6 +25,9 @@ final public class OpenAI {
 
         /// Optional base path if you set up OpenAI API proxy on a custom path on your own host. Default is ""
         public let basePath: String
+        
+        /// API version if you want to use a specific version of the API. Default is "v1"
+        public let apiVersion: String
 
         public let port: Int
         public let scheme: String
@@ -41,13 +44,14 @@ final public class OpenAI {
         /// Currently SDK sets such fields: Authorization, Content-Type, OpenAI-Organization.
         public let customHeaders: [String: String]
         
-        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", basePath: String = "", timeoutInterval: TimeInterval = 60.0, customHeaders: [String: String] = [:]) {
+        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", basePath: String = "", apiVersion: String = "v1", timeoutInterval: TimeInterval = 60.0, customHeaders: [String: String] = [:]) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host
             self.port = port
             self.scheme = scheme
             self.basePath = basePath
+            self.apiVersion = apiVersion
             self.timeoutInterval = timeoutInterval
             self.customHeaders = customHeaders
         }
@@ -322,34 +326,34 @@ extension OpenAI {
 typealias APIPath = String
 extension APIPath {
     struct Assistants {
-        static let assistants = Assistants(stringValue: "/v1/assistants")
-        static let assistantsModify = Assistants(stringValue: "/v1/assistants/ASST_ID")
-        static let threads = Assistants(stringValue: "/v1/threads")
-        static let threadRun = Assistants(stringValue: "/v1/threads/runs")
-        static let runs = Assistants(stringValue: "/v1/threads/THREAD_ID/runs")
-        static let runRetrieve = Assistants(stringValue: "/v1/threads/THREAD_ID/runs/RUN_ID")
-        static let runRetrieveSteps = Assistants(stringValue: "/v1/threads/THREAD_ID/runs/RUN_ID/steps")
+        static let assistants = Assistants(stringValue: "/assistants")
+        static let assistantsModify = Assistants(stringValue: "/assistants/ASST_ID")
+        static let threads = Assistants(stringValue: "/threads")
+        static let threadRun = Assistants(stringValue: "/threads/runs")
+        static let runs = Assistants(stringValue: "/threads/THREAD_ID/runs")
+        static let runRetrieve = Assistants(stringValue: "/threads/THREAD_ID/runs/RUN_ID")
+        static let runRetrieveSteps = Assistants(stringValue: "/threads/THREAD_ID/runs/RUN_ID/steps")
         static func runSubmitToolOutputs(threadId: String, runId: String) -> Assistants {
-            Assistants(stringValue: "/v1/threads/\(threadId)/runs/\(runId)/submit_tool_outputs")
+            Assistants(stringValue: "/threads/\(threadId)/runs/\(runId)/submit_tool_outputs")
         }
-        static let threadsMessages = Assistants(stringValue: "/v1/threads/THREAD_ID/messages")
-        static let files = Assistants(stringValue: "/v1/files")
+        static let threadsMessages = Assistants(stringValue: "/threads/THREAD_ID/messages")
+        static let files = Assistants(stringValue: "/files")
         
         let stringValue: String
     }
 
-    static let embeddings = "/v1/embeddings"
-    static let chats = "/v1/chat/completions"
-    static let models = "/v1/models"
-    static let moderations = "/v1/moderations"
+    static let embeddings = "/embeddings"
+    static let chats = "/chat/completions"
+    static let models = "/models"
+    static let moderations = "/moderations"
     
-    static let audioSpeech = "/v1/audio/speech"
-    static let audioTranscriptions = "/v1/audio/transcriptions"
-    static let audioTranslations = "/v1/audio/translations"
+    static let audioSpeech = "/audio/speech"
+    static let audioTranscriptions = "/audio/transcriptions"
+    static let audioTranslations = "/audio/translations"
     
-    static let images = "/v1/images/generations"
-    static let imageEdits = "/v1/images/edits"
-    static let imageVariations = "/v1/images/variations"
+    static let images = "/images/generations"
+    static let imageEdits = "/images/edits"
+    static let imageVariations = "/images/variations"
     
     func withPath(_ path: String) -> String {
         self + "/" + path
