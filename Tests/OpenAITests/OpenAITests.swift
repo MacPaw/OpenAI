@@ -447,11 +447,19 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(chatsURL, URL(string: "https://my.host.com:443/v1/chat/completions"))
     }
     
+    func testCustomApiVersionBuilt() {
+        let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", apiVersion: "v123", timeoutInterval: 14)
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        let chatsURL = openAI.buildURL(path: .chats)
+        XCTAssertEqual(chatsURL, URL(string: "https://my.host.com:443/v123/chat/completions"))
+    }
+    
     func testCustomURLBuiltWithCustomPath() {
         let configuration = OpenAI.Configuration(
             token: "foo",
             organizationIdentifier: "bar",
             host: "bizbaz.com",
+            apiVersion: "",
             timeoutInterval: 14
         )
         let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
@@ -464,6 +472,7 @@ class OpenAITests: XCTestCase {
             organizationIdentifier: "bar",
             host: "bizbaz.com",
             basePath: "/openai",
+            apiVersion: "",
             timeoutInterval: 14
         )
         let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
@@ -476,6 +485,7 @@ class OpenAITests: XCTestCase {
             organizationIdentifier: "bar",
             host: "bizbaz.com",
             basePath: "/openai/",
+            apiVersion: "",
             timeoutInterval: 14
         )
         let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
