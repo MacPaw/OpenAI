@@ -23,11 +23,8 @@ final public class OpenAI {
         /// API host. Set this property if you use some kind of proxy or your own server. Default is api.openai.com
         public let host: String
 
-        /// Optional base path if you set up OpenAI API proxy on a custom path on your own host. Default is ""
+        /// Optional base path if you set up OpenAI API proxy on a custom path on your own host. Default is "/v1"
         public let basePath: String
-        
-        /// API version if you want to use a specific version of the API. Default is "v1"
-        public let apiVersion: String
 
         public let port: Int
         public let scheme: String
@@ -44,14 +41,13 @@ final public class OpenAI {
         /// Currently SDK sets such fields: Authorization, Content-Type, OpenAI-Organization.
         public let customHeaders: [String: String]
         
-        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", basePath: String = "", apiVersion: String = "v1", timeoutInterval: TimeInterval = 60.0, customHeaders: [String: String] = [:]) {
+        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", basePath: String = "/v1", timeoutInterval: TimeInterval = 60.0, customHeaders: [String: String] = [:]) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host
             self.port = port
             self.scheme = scheme
             self.basePath = basePath
-            self.apiVersion = apiVersion
             self.timeoutInterval = timeoutInterval
             self.customHeaders = customHeaders
         }

@@ -17,7 +17,7 @@ extension URLComponents {
         components.host = configuration.host
         components.port = configuration.port
         
-        let pathComponents = [configuration.basePath, configuration.apiVersion, path]
+        let pathComponents = [configuration.basePath, path]
             .filter { !$0.isEmpty }
             .map { $0.trimmingCharacters(in: ["/"]) }
         

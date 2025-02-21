@@ -440,6 +440,13 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(chatsURL, URL(string: "https://api.openai.com:443/v1/chat/completions"))
     }
     
+    func testDefaultHostURLBuiltWithCustomBasePath() {
+        let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", basePath: "/api/v9527", timeoutInterval: 14)
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        let chatsURL = openAI.buildURL(path: .chats)
+        XCTAssertEqual(chatsURL, URL(string: "https://api.openai.com:443/api/v9527/chat/completions"))
+    }
+    
     func testCustomURLBuiltWithPredefinedPath() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", timeoutInterval: 14)
         let openAI = OpenAI(configuration: configuration, session: self.urlSession)
@@ -447,23 +454,15 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(chatsURL, URL(string: "https://my.host.com:443/v1/chat/completions"))
     }
     
-    func testCustomApiVersionBuilt() {
-        let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", apiVersion: "v123", timeoutInterval: 14)
-        let openAI = OpenAI(configuration: configuration, session: self.urlSession)
-        let chatsURL = openAI.buildURL(path: .chats)
-        XCTAssertEqual(chatsURL, URL(string: "https://my.host.com:443/v123/chat/completions"))
-    }
-    
     func testCustomURLBuiltWithCustomPath() {
         let configuration = OpenAI.Configuration(
             token: "foo",
             organizationIdentifier: "bar",
             host: "bizbaz.com",
-            apiVersion: "",
             timeoutInterval: 14
         )
         let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
-        XCTAssertEqual(openAI.buildURL(path: "foo"), URL(string: "https://bizbaz.com:443/foo"))
+        XCTAssertEqual(openAI.buildURL(path: "foo"), URL(string: "https://bizbaz.com:443/v1/foo"))
     }
     
     func testCustomURLBuiltWithCustomBasePath() {
@@ -472,7 +471,6 @@ class OpenAITests: XCTestCase {
             organizationIdentifier: "bar",
             host: "bizbaz.com",
             basePath: "/openai",
-            apiVersion: "",
             timeoutInterval: 14
         )
         let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
@@ -485,7 +483,6 @@ class OpenAITests: XCTestCase {
             organizationIdentifier: "bar",
             host: "bizbaz.com",
             basePath: "/openai/",
-            apiVersion: "",
             timeoutInterval: 14
         )
         let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
