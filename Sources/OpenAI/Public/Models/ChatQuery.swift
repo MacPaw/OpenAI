@@ -74,6 +74,8 @@ public struct ChatQuery: Equatable, Codable, Streamable {
     /// If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only server-sent events as they become available, with the stream terminated by a data: [DONE] message.
     /// https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format
     public var stream: Bool
+    /// Options for streaming response. Only set this when you set stream: true.
+    public var streamOptions: Self.StreamOptions?
 
     public init(
         messages: [Self.ChatCompletionMessageParam],
@@ -95,7 +97,8 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         topLogprobs: Int? = nil,
         topP: Double? = nil,
         user: String? = nil,
-        stream: Bool = false
+        stream: Bool = false,
+        streamOptions: StreamOptions? = nil
     ) {
         self.messages = messages
         self.model = model
@@ -117,6 +120,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         self.topP = topP
         self.user = user
         self.stream = stream
+        self.streamOptions = streamOptions
     }
 
     public enum ChatCompletionMessageParam: Codable, Equatable {
@@ -1149,6 +1153,24 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             case function
         }
     }
+    
+    public struct StreamOptions: Codable, Equatable {
+        
+        /// If set, an additional chunk will be streamed before the data: [DONE] message.
+        /// The usage field on this chunk shows the token usage statistics for the entire request,
+        /// and the choices field will always be an empty array. All other chunks will also
+        /// include a usage field, but with a null value.
+        public let includeUsage: Bool
+        
+        public init(includeUsage: Bool) {
+            self.includeUsage = includeUsage
+        }
+        
+        public enum CodingKeys: String, CodingKey {
+            case includeUsage = "include_usage"
+        }
+        
+    }
 
     public enum CodingKeys: String, CodingKey {
         case messages
@@ -1171,6 +1193,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         case topP = "top_p"
         case user
         case stream
+        case streamOptions = "stream_options"
     }
 }
 
