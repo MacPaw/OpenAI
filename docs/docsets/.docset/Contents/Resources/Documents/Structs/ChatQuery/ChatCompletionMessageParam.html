@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>ChatCompletionMessageParam Enumeration Reference</title>
+    <link rel="stylesheet" type="text/css" href="../../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../../js/jquery.min.js" defer></script>
+    <script src="../../js/jazzy.js" defer></script>
+    
+    <script src="../../js/lunr.min.js" defer></script>
+    <script src="../../js/typeahead.jquery.js" defer></script>
+    <script src="../../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Enum/ChatCompletionMessageParam" class="dashAnchor"></a>
+    <a title="ChatCompletionMessageParam Enumeration Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../../index.html"> Docs</a> (100% documented)</p>
+        <div class="header-right">
+          <form role="search" action="../../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../../index.html">Index</a>
+        <img id="carat" src="../../img/carat.png" alt=""/>
+        <a href="../../Structs.html">Structures</a>
+        <img id="carat" src="../../img/carat.png" alt=""/>
+        <a href="../../Structs/ChatQuery.html">OpenAI.ChatQuery</a>
+        <img id="carat" src="../../img/carat.png" alt=""/>
+        ChatCompletionMessageParam Enumeration Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Classes/OpenAI.html">OpenAI</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/OpenAI/Configuration.html">– Configuration</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Enums/OpenAIError.html">OpenAIError</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Extensions/Model.html">Model</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Protocols/OpenAIProtocol.html">OpenAIProtocol</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Structs/APIError.html">APIError</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/APIErrorResponse.html">APIErrorResponse</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioSpeechQuery.html">AudioSpeechQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioSpeechQuery/AudioSpeechVoice.html">– AudioSpeechVoice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioSpeechQuery/AudioSpeechResponseFormat.html">– AudioSpeechResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioSpeechQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioSpeechQuery/Speed.html">– Speed</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioSpeechResult.html">AudioSpeechResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioTranscriptionQuery.html">AudioTranscriptionQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioTranscriptionQuery/ResponseFormat.html">– ResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioTranscriptionQuery/FileType.html">– FileType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioTranscriptionResult.html">AudioTranscriptionResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioTranslationQuery.html">AudioTranslationQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/AudioTranslationResult.html">AudioTranslationResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatQuery.html">ChatQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatQuery/ChatCompletionMessageParam.html">– ChatCompletionMessageParam</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatQuery/Stop.html">– Stop</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatQuery/ResponseFormat.html">– ResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatQuery/ChatCompletionFunctionCallOptionParam.html">– ChatCompletionFunctionCallOptionParam</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatQuery/ChatCompletionToolParam.html">– ChatCompletionToolParam</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatResult.html">ChatResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatResult/CompletionUsage.html">– CompletionUsage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatResult/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatStreamResult.html">ChatStreamResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatStreamResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ChatStreamResult/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/CompletionsQuery.html">CompletionsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/CompletionsResult.html">CompletionsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/CompletionsResult/Usage.html">– Usage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/CompletionsResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EditsQuery.html">EditsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EditsResult.html">EditsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EditsResult/Choice.html">– Choice</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EditsResult/Usage.html">– Usage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EmbeddingsQuery.html">EmbeddingsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EmbeddingsQuery/Input.html">– Input</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EmbeddingsQuery/EncodingFormat.html">– EncodingFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EmbeddingsQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EmbeddingsResult.html">EmbeddingsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EmbeddingsResult/Embedding.html">– Embedding</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/EmbeddingsResult/Usage.html">– Usage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImageEditsQuery.html">ImageEditsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImageEditsQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImageVariationsQuery.html">ImageVariationsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImageVariationsQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesQuery.html">ImagesQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesQuery/ResponseFormat.html">– ResponseFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesQuery/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesQuery/Style.html">– Style</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesQuery/Quality.html">– Quality</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesQuery/Size.html">– Size</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesResult.html">ImagesResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ImagesResult/Image.html">– Image</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ModelQuery.html">ModelQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ModelResult.html">ModelResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ModelResult/CodingKeys.html">– CodingKeys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ModelsResult.html">ModelsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ModerationsQuery.html">ModerationsQuery</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ModerationsResult.html">ModerationsResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/ModerationsResult/Moderation.html">– Moderation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/Vector.html">Vector</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Typealiases.html">Type Aliases</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Typealiases.html#/s:6OpenAI5Modela">Model</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>ChatCompletionMessageParam</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">ChatCompletionMessageParam</span> <span class="p">:</span> <span class="kt">Codable</span><span class="p">,</span> <span class="kt">Equatable</span></code></pre>
+
+                </div>
+              </div>
+            
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO6systemyA2E0ce6SystemfG0VcAEmF"></a>
+                    <a name="//apple_ref/swift/Element/system(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO6systemyA2E0ce6SystemfG0VcAEmF">system(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">system</span><span class="p">(`</span><span class="nv">Self</span><span class="p">`</span><span class="o">.</span><span class="kt"><a href="../../Structs/ChatQuery/ChatCompletionMessageParam/ChatCompletionSystemMessageParam.html">ChatCompletionSystemMessageParam</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4useryA2E0ce4UserfG0VcAEmF"></a>
+                    <a name="//apple_ref/swift/Element/user(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4useryA2E0ce4UserfG0VcAEmF">user(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">user</span><span class="p">(`</span><span class="nv">Self</span><span class="p">`</span><span class="o">.</span><span class="kt"><a href="../../Structs/ChatQuery/ChatCompletionMessageParam/ChatCompletionUserMessageParam.html">ChatCompletionUserMessageParam</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO9assistantyA2E0ce9AssistantfG0VcAEmF"></a>
+                    <a name="//apple_ref/swift/Element/assistant(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO9assistantyA2E0ce9AssistantfG0VcAEmF">assistant(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">assistant</span><span class="p">(`</span><span class="nv">Self</span><span class="p">`</span><span class="o">.</span><span class="kt"><a href="../../Structs/ChatQuery/ChatCompletionMessageParam/ChatCompletionAssistantMessageParam.html">ChatCompletionAssistantMessageParam</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4toolyA2E0ce4ToolfG0VcAEmF"></a>
+                    <a name="//apple_ref/swift/Element/tool(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4toolyA2E0ce4ToolfG0VcAEmF">tool(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">tool</span><span class="p">(`</span><span class="nv">Self</span><span class="p">`</span><span class="o">.</span><span class="kt"><a href="../../Structs/ChatQuery/ChatCompletionMessageParam/ChatCompletionToolMessageParam.html">ChatCompletionToolMessageParam</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO7contentAE0ce4UserfG0V7ContentOSgvp"></a>
+                    <a name="//apple_ref/swift/Property/content" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO7contentAE0ce4UserfG0V7ContentOSgvp">content</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">content</span><span class="p">:</span> <span class="p">`</span><span class="nv">Self</span><span class="p">`</span><span class="o">.</span><span class="kt"><a href="../../Structs/ChatQuery/ChatCompletionMessageParam/ChatCompletionUserMessageParam.html">ChatCompletionUserMessageParam</a></span><span class="o">.</span><span class="kt">Content</span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4roleAE4RoleOvp"></a>
+                    <a name="//apple_ref/swift/Property/role" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4roleAE4RoleOvp">role</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">role</span><span class="p">:</span> <span class="kt"><a href="../../Structs/ChatQuery/ChatCompletionMessageParam/Role.html">Role</a></span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4nameSSSgvp"></a>
+                    <a name="//apple_ref/swift/Property/name" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4nameSSSgvp">name</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO10toolCallIdSSSgvp"></a>
+                    <a name="//apple_ref/swift/Property/toolCallId" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO10toolCallIdSSSgvp">toolCallId</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">toolCallId</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO9toolCallsSayAE0ce9AssistantfG0V0cef8ToolCallG0VGSgvp"></a>
+                    <a name="//apple_ref/swift/Property/toolCalls" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO9toolCallsSayAE0ce9AssistantfG0V0cef8ToolCallG0VGSgvp">toolCalls</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">toolCalls</span><span class="p">:</span> <span class="p">[`</span><span class="nv">Self</span><span class="p">`</span><span class="o">.</span><span class="kt"><a href="../../Structs/ChatQuery/ChatCompletionMessageParam/ChatCompletionAssistantMessageParam.html">ChatCompletionAssistantMessageParam</a></span><span class="o">.</span><span class="kt">ChatCompletionMessageToolCallParam</span><span class="p">]?</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4role7content4name9toolCalls0K6CallIdAESgAE4RoleO_SSSgANSayAE0ce9AssistantfG0V0cef4ToolmG0VGSgANtcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(role:content:name:toolCalls:toolCallId:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4role7content4name9toolCalls0K6CallIdAESgAE4RoleO_SSSgANSayAE0ce9AssistantfG0V0cef4ToolmG0VGSgANtcfc">init(role:<wbr>content:<wbr>name:<wbr>toolCalls:<wbr>toolCallId:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">?(</span>
+    <span class="nv">role</span><span class="p">:</span> <span class="kt"><a href="../../Structs/ChatQuery/ChatCompletionMessageParam/Role.html">Role</a></span><span class="p">,</span>
+    <span class="nv">content</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">toolCalls</span><span class="p">:</span> <span class="p">[</span><span class="k">Self</span><span class="o">.</span><span class="kt"><a href="../../Structs/ChatQuery/ChatCompletionMessageParam/ChatCompletionAssistantMessageParam.html">ChatCompletionAssistantMessageParam</a></span><span class="o">.</span><span class="kt">ChatCompletionMessageToolCallParam</span><span class="p">]?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="nv">toolCallId</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4role7content4nameAESgAE4RoleO_SayAE0ce4UserfG0V7ContentO06VisionM0OGSSSgtcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(role:content:name:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4role7content4nameAESgAE4RoleO_SayAE0ce4UserfG0V7ContentO06VisionM0OGSSSgtcfc">init(role:<wbr>content:<wbr>name:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">?(</span>
+    <span class="nv">role</span><span class="p">:</span> <span class="kt"><a href="../../Structs/ChatQuery/ChatCompletionMessageParam/Role.html">Role</a></span><span class="p">,</span>
+    <span class="nv">content</span><span class="p">:</span> <span class="p">[</span><span class="kt"><a href="../../Structs/ChatQuery/ChatCompletionMessageParam/ChatCompletionUserMessageParam.html">ChatCompletionUserMessageParam</a></span><span class="o">.</span><span class="kt">Content</span><span class="o">.</span><span class="kt">VisionContent</span><span class="p">],</span>
+    <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:SE6encode2toys7Encoder_p_tKF"></a>
+                    <a name="//apple_ref/swift/Method/encode(to:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:SE6encode2toys7Encoder_p_tKF">encode(to:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">encode</span><span class="p">(</span><span class="n">to</span> <span class="nv">encoder</span><span class="p">:</span> <span class="kt">Encoder</span><span class="p">)</span> <span class="k">throws</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO0ce6SystemfG0V"></a>
+                    <a name="//apple_ref/swift/Struct/ChatCompletionSystemMessageParam" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO0ce6SystemfG0V">ChatCompletionSystemMessageParam</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                        <a href="../../Structs/ChatQuery/ChatCompletionMessageParam/ChatCompletionSystemMessageParam.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">ChatCompletionSystemMessageParam</span> <span class="p">:</span> <span class="kt">Codable</span><span class="p">,</span> <span class="kt">Equatable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO0ce4UserfG0V"></a>
+                    <a name="//apple_ref/swift/Struct/ChatCompletionUserMessageParam" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO0ce4UserfG0V">ChatCompletionUserMessageParam</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                        <a href="../../Structs/ChatQuery/ChatCompletionMessageParam/ChatCompletionUserMessageParam.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">ChatCompletionUserMessageParam</span> <span class="p">:</span> <span class="kt">Codable</span><span class="p">,</span> <span class="kt">Equatable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO0ce9AssistantfG0V"></a>
+                    <a name="//apple_ref/swift/Struct/ChatCompletionAssistantMessageParam" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO0ce9AssistantfG0V">ChatCompletionAssistantMessageParam</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                        <a href="../../Structs/ChatQuery/ChatCompletionMessageParam/ChatCompletionAssistantMessageParam.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">ChatCompletionAssistantMessageParam</span> <span class="p">:</span> <span class="kt">Codable</span><span class="p">,</span> <span class="kt">Equatable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO0ce4ToolfG0V"></a>
+                    <a name="//apple_ref/swift/Struct/ChatCompletionToolMessageParam" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO0ce4ToolfG0V">ChatCompletionToolMessageParam</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                        <a href="../../Structs/ChatQuery/ChatCompletionMessageParam/ChatCompletionToolMessageParam.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">ChatCompletionToolMessageParam</span> <span class="p">:</span> <span class="kt">Codable</span><span class="p">,</span> <span class="kt">Equatable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4RoleO"></a>
+                    <a name="//apple_ref/swift/Enum/Role" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4RoleO">Role</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                        <a href="../../Structs/ChatQuery/ChatCompletionMessageParam/Role.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Role</span> <span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="kt">Codable</span><span class="p">,</span> <span class="kt">Equatable</span><span class="p">,</span> <span class="kt">CaseIterable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4fromAEs7Decoder_p_tKcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(from:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:6OpenAI9ChatQueryV0C22CompletionMessageParamO4fromAEs7Decoder_p_tKcfc">init(from:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="n">from</span> <span class="nv">decoder</span><span class="p">:</span> <span class="kt">Decoder</span><span class="p">)</span> <span class="k">throws</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2024 <a class="link" href="" target="_blank" rel="external noopener"></a>. All rights reserved. (Last updated: 2024-10-17)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.2</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>
