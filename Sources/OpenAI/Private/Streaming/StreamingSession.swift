@@ -51,7 +51,22 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
     func urlSession(_ session: any URLSessionProtocol, dataTask: any URLSessionDataTaskProtocol, didReceive data: Data) {
         interpreter.processData(data)
     }
-    
+
+    func urlSession(
+        _ session: URLSession,
+        dataTask: URLSessionDataTask,
+        didReceive response: URLResponse,
+        completionHandler: @escaping (URLSession.ResponseDisposition) -> Void
+    ) {
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode >= 400 {
+            let error = OpenAIError.statusError(response: httpResponse, statusCode: httpResponse.statusCode)
+            self.onProcessingError?(self, error)
+            completionHandler(.cancel)
+            return
+        }
+        completionHandler(.allow)
+    }
+
     private func subscribeToParser() {
         interpreter.setCallbackClosures { [weak self] content in
             guard let self else { return }
