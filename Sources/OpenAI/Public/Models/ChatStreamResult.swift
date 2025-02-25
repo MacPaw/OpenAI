@@ -17,9 +17,20 @@ public struct ChatStreamResult: Codable, Equatable {
 
             /// The contents of the chunk message.
             public let content: String?
+
+            /// The contents of the reasoning chunk message.
+            /// Only OpenRouter uses this field.
+            internal let openrouterReasoningContent: String?
+
             /// The reasoning content of the chunk message.
             /// Only some model are supported, like DeepSeek-R1.
-            public let reasoningContent: String?
+            internal let deepseekReasoningContent: String?
+
+            /// The reasoning content of the chunk message, if any.
+            public var reasoningContent: String? {
+                openrouterReasoningContent ?? deepseekReasoningContent
+            }
+
             /// The role of the author of this message.
             public let role: Self.Role?
             public let toolCalls: [Self.ChoiceDeltaToolCall]?
@@ -64,7 +75,8 @@ public struct ChatStreamResult: Codable, Equatable {
 
             public enum CodingKeys: String, CodingKey {
                 case content
-                case reasoningContent = "reasoning_content"
+                case openrouterReasoningContent = "reasoning"
+                case deepseekReasoningContent = "reasoning_content"
                 case role
                 case toolCalls = "tool_calls"
             }
