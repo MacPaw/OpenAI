@@ -98,7 +98,9 @@ let configuration = OpenAI.Configuration(token: "YOUR_TOKEN_HERE", organizationI
 let openAI = OpenAI(configuration: configuration)
 ```
 
-Once token you posses the token, and the instance is initialized you are ready to make requests.
+See `OpenAI.Configuration` for more values that can be passed on init for customization, like: `host`, `basePath`, `port`, `scheme` and `customHeaders`.
+
+Once you posses the token, and the instance is initialized you are ready to make requests.
 
 ### Chats
 

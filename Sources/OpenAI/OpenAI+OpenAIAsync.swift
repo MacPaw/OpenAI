@@ -79,7 +79,7 @@ extension OpenAI: OpenAIAsync {
     }
     
     public func audioCreateSpeech(query: AudioSpeechQuery) async throws -> AudioSpeechResult {
-        try await performRequestAsync(
+        try await performSpeechRequestAsync(
             request: makeAudioCreateSpeechRequest(query: query)
         )
     }
@@ -199,6 +199,38 @@ extension OpenAI: OpenAIAsync {
                 return try await withCheckedThrowingContinuation { continuation in
                     let dataTask = self.makeDataTask(forRequest: urlRequest) { (result: Result<ResultType, Error>) in
                         continuation.resume(with: result)
+                    }
+                    
+                    dataTask.resume()
+                    
+                    Task {
+                        await dataTaskStore.setDataTask(dataTask)
+                    }
+                }
+            } onCancel: {
+                Task {
+                    await dataTaskStore.getDataTask()?.cancel()
+                }
+            }
+        }
+    }
+    
+    func performSpeechRequestAsync(request: any URLRequestBuildable) async throws -> AudioSpeechResult {
+        let urlRequest = try request.build(configuration: configuration)
+        if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
+            let (data, _) = try await session.data(for: urlRequest, delegate: nil)
+            return .init(audio: data)
+        } else {
+            let dataTaskStore = URLSessionDataTaskStore()
+            return try await withTaskCancellationHandler {
+                return try await withCheckedThrowingContinuation { continuation in
+                    let dataTask = self.makeRawResponseDataTask(forRequest: urlRequest) { result in
+                        switch result {
+                        case .success(let success):
+                            continuation.resume(returning: .init(audio: success))
+                        case .failure(let failure):
+                            continuation.resume(throwing: failure)
+                        }
                     }
                     
                     dataTask.resume()

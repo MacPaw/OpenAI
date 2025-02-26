@@ -76,7 +76,7 @@ extension OpenAI: OpenAICombine {
     }
     
     public func audioCreateSpeech(query: AudioSpeechQuery) -> AnyPublisher<AudioSpeechResult, Error> {
-        performRequestCombine(
+        performSpeechRequestCombine(
             request: makeAudioCreateSpeechRequest(query: query)
         )
     }
@@ -193,6 +193,20 @@ extension OpenAI: OpenAICombine {
                 }.eraseToAnyPublisher()
         } catch {
             return Fail(outputType: ResultType.self, failure: error)
+                .eraseToAnyPublisher()
+        }
+    }
+    
+    func performSpeechRequestCombine(request: any URLRequestBuildable) -> AnyPublisher<AudioSpeechResult, Error> {
+        do {
+            let request = try request.build(configuration: configuration)
+            return session
+                .dataTaskPublisher(for: request)
+                .tryMap { (data, response) in
+                    return .init(audio: data)
+                }.eraseToAnyPublisher()
+        } catch {
+            return Fail(outputType: AudioSpeechResult.self, failure: error)
                 .eraseToAnyPublisher()
         }
     }
