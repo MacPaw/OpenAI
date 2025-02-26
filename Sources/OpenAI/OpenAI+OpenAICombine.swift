@@ -199,9 +199,7 @@ extension OpenAI: OpenAICombine {
     
     func performSpeechRequestCombine(request: any URLRequestBuildable) -> AnyPublisher<AudioSpeechResult, Error> {
         do {
-            let request = try request.build(token: configuration.token,
-                                            organizationIdentifier: configuration.organizationIdentifier,
-                                            timeoutInterval: configuration.timeoutInterval)
+            let request = try request.build(configuration: configuration)
             return session
                 .dataTaskPublisher(for: request)
                 .tryMap { (data, response) in
