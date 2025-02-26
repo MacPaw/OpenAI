@@ -183,9 +183,8 @@ extension OpenAI: OpenAIAsync {
     }
     
     func performRequestAsync<ResultType: Codable>(request: any URLRequestBuildable) async throws -> ResultType {
-        let urlRequest = try request.build(token: configuration.token,
-                                        organizationIdentifier: configuration.organizationIdentifier,
-                                        timeoutInterval: configuration.timeoutInterval)
+        let urlRequest = try request.build(configuration: configuration)
+        
         if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
             let (data, _) = try await session.data(for: urlRequest, delegate: nil)
             let decoder = JSONDecoder()
