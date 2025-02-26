@@ -294,6 +294,14 @@ class OpenAITests: XCTestCase {
 
         XCTAssertEqual(query.speed, "\(4.0)")
     }
+    
+    func testAudioCreateSpeech() async throws {
+        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, speed: nil)
+        let data = Data(repeating: 11, count: 11)
+        urlSession.dataTask = .successful(with: data)
+        let response = try await openAI.audioCreateSpeech(query: query)
+        XCTAssertEqual(response.audio, data)
+    }
 
     func testAudioSpeechError() async throws {
         let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 1.0)

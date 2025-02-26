@@ -98,7 +98,9 @@ let configuration = OpenAI.Configuration(token: "YOUR_TOKEN_HERE", organizationI
 let openAI = OpenAI(configuration: configuration)
 ```
 
-Once token you posses the token, and the instance is initialized you are ready to make requests.
+See `OpenAI.Configuration` for more values that can be passed on init for customization, like: `host`, `basePath`, `port`, `scheme` and `customHeaders`.
+
+Once you posses the token, and the instance is initialized you are ready to make requests.
 
 ### Chats
 
@@ -896,6 +898,7 @@ Read more about Cosine Similarity [here](https://en.wikipedia.org/wiki/Cosine_si
 ### Combine Extensions
 
 The library contains built-in [Combine](https://developer.apple.com/documentation/combine) extensions.
+> ⚠️ There is no guarantee that a
 
 ```swift
 func images(query: ImagesQuery) -> AnyPublisher<ImagesResult, Error>

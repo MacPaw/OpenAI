@@ -32,7 +32,15 @@ final public class OpenAI {
         /// Default request timeout
         public let timeoutInterval: TimeInterval
         
-        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", basePath: String = "", timeoutInterval: TimeInterval = 60.0) {
+        public init(
+            token: String,
+            organizationIdentifier: String? = nil,
+            host: String = "api.openai.com",
+            port: Int = 443,
+            scheme: String = "https",
+            basePath: String = "/v1",
+            timeoutInterval: TimeInterval = 60.0
+        ) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host
@@ -289,6 +297,19 @@ extension OpenAI {
             } catch {
                 completion(.failure((try? decoder.decode(APIErrorResponse.self, from: data)) ?? error))
             }
+        }
+    }
+    
+    func makeRawResponseDataTask(forRequest request: URLRequest, completion: @escaping (Result<Data, Error>) -> Void) -> URLSessionDataTaskProtocol {
+        session.dataTask(with: request) { data, _, error in
+            if let error = error {
+                return completion(.failure(error))
+            }
+            guard let data = data else {
+                return completion(.failure(OpenAIError.emptyData))
+            }
+            
+            completion(.success(data))
         }
     }
 }
