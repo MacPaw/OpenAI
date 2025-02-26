@@ -898,7 +898,6 @@ Read more about Cosine Similarity [here](https://en.wikipedia.org/wiki/Cosine_si
 ### Combine Extensions
 
 The library contains built-in [Combine](https://developer.apple.com/documentation/combine) extensions.
-> ⚠️ There is no guarantee that a
 
 ```swift
 func images(query: ImagesQuery) -> AnyPublisher<ImagesResult, Error>
