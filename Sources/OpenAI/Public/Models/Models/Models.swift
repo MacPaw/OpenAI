@@ -68,6 +68,9 @@ public extension Model {
     /// Snapshot of `gpt-4-32k` from March 14th 2023. Unlike `gpt-4-32k`, this model will not receive updates, and will only be supported for a three month period ending on June 14th 2023.
     @available(*, deprecated, message: "Please upgrade to the newer model")
     static let gpt4_32k_0314 = "gpt-4-32k-0314"
+    
+    /// Research preview of GPT-4.5, largest and most capable GPT model yet. As for Feb 28 2025 points to gpt-4.5-preview-2025-02-27
+    static let gpt4_5_preview = "gpt-4.5-preview"
 
     // GPT-3.5
     
