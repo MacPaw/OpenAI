@@ -12,32 +12,71 @@ import Foundation
 struct StreamInterpreterTests {
     let interpreter = StreamInterpreter<ChatStreamResult>()
     
-    @Test func testParseShortMessageResponseStream() throws {
+    @Test func testParseShortMessageResponseStream() async throws {
         var chatStreamResults: [ChatStreamResult] = []
-        interpreter.onEventDispatched = { chatStreamResults.append($0) }
         
-        try interpreter.processData(chatCompletionChunk())
-        try interpreter.processData(chatCompletionChunkTermination())
+        await withCheckedContinuation { continuation in
+            interpreter.setCallbackClosures { result in
+                Task {
+                    await MainActor.run {
+                        chatStreamResults.append(result)
+                        if chatStreamResults.count == 3 {
+                            continuation.resume()
+                        } else if chatStreamResults.count > 3 {
+                            assert(false)
+                        }
+                    }
+                }
+            } onError: { _ in
+            }
+            
+            interpreter.processData(chatCompletionChunk())
+            interpreter.processData(chatCompletionChunkTermination())
+        }
+        
         #expect(chatStreamResults.count == 3)
     }
     
     // https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation
     // If the line starts with a U+003A COLON character (:)
     // - Ignore the line.
-    @Test func testIgnoresLinesStartingWithColon() throws {
+    @Test func testIgnoresLinesStartingWithColon() async throws {
         var chatStreamResults: [ChatStreamResult] = []
-        interpreter.onEventDispatched = { chatStreamResults.append($0) }
+        await withCheckedContinuation { continuation in
+            interpreter.setCallbackClosures { result in
+                Task {
+                    await MainActor.run {
+                        chatStreamResults.append(result)
+                        continuation.resume()
+                    }
+                }
+            } onError: { _ in
+            }
+            
+            interpreter.processData(chatCompletionChunkWithComment())
+        }
         
-        try interpreter.processData(chatCompletionChunkWithComment())
         #expect(chatStreamResults.count == 1)
     }
     
-    @Test func parseApiError() throws {
-        do {
-            try interpreter.processData(chatCompletionError())
-        } catch {
-            #expect(error is APIErrorResponse)
+    @Test func parseApiError() async throws {
+        var error: Error!
+        
+        await withCheckedContinuation { continuation in
+            interpreter.setCallbackClosures { result in
+            } onError: { apiError in
+                Task {
+                    await MainActor.run {
+                        error = apiError
+                        continuation.resume()
+                    }
+                }
+            }
+            
+            interpreter.processData(chatCompletionError())
         }
+        
+        #expect(error is APIErrorResponse)
     }
     
     // Chunk with 3 objects. I captured it from a real response. It's a very short response that contains just "Hi"
@@ -57,4 +96,8 @@ struct StreamInterpreterTests {
     private func chatCompletionError() -> Data {
         "{\n    \"error\": {\n        \"message\": \"The model `o3-mini` does not exist or you do not have access to it.\",\n        \"type\": \"invalid_request_error\",\n        \"param\": null,\n        \"code\": \"model_not_found\"\n    }\n}\n".data(using: .utf8)!
     }
+}
+
+private actor ChatStreamResultsActor {
+    var chatStreamResults: [ChatStreamResult] = []
 }

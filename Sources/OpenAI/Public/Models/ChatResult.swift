@@ -7,9 +7,9 @@
 
 import Foundation
 
-public struct ChatResult: Codable, Equatable {
+public struct ChatResult: Codable, Equatable, Sendable {
 
-    public struct Choice: Codable, Equatable {
+    public struct Choice: Codable, Equatable, Sendable {
         public typealias ChatCompletionMessage = ChatQuery.ChatCompletionMessageParam
 
         /// The index of the choice in the list of choices.
@@ -21,11 +21,11 @@ public struct ChatResult: Codable, Equatable {
         /// The reason the model stopped generating tokens. This will be stop if the model hit a natural stop point or a provided stop sequence, length if the maximum number of tokens specified in the request was reached, content_filter if content was omitted due to a flag from our content filters, tool_calls if the model called a tool, or function_call (deprecated) if the model called a function.
         public let finishReason: String?
 
-        public struct ChoiceLogprobs: Codable, Equatable {
+        public struct ChoiceLogprobs: Codable, Equatable, Sendable {
 
             public let content: [Self.ChatCompletionTokenLogprob]?
 
-            public struct ChatCompletionTokenLogprob: Codable, Equatable {
+            public struct ChatCompletionTokenLogprob: Codable, Equatable, Sendable {
 
                 /// The token.
                 public let token: String
@@ -40,7 +40,7 @@ public struct ChatResult: Codable, Equatable {
                 /// In rare cases, there may be fewer than the number of requested `top_logprobs` returned.
                 public let topLogprobs: [TopLogprob]
 
-                public struct TopLogprob: Codable, Equatable {
+                public struct TopLogprob: Codable, Equatable, Sendable {
 
                     /// The token.
                     public let token: String
@@ -67,7 +67,7 @@ public struct ChatResult: Codable, Equatable {
             case finishReason = "finish_reason"
         }
 
-        public enum FinishReason: String, Codable, Equatable {
+        public enum FinishReason: String, Codable, Equatable, Sendable {
             case stop
             case length
             case toolCalls = "tool_calls"
@@ -76,7 +76,7 @@ public struct ChatResult: Codable, Equatable {
         }
     }
 
-    public struct CompletionUsage: Codable, Equatable {
+    public struct CompletionUsage: Codable, Equatable, Sendable {
 
         /// Number of tokens in the generated completion.
         public let completionTokens: Int

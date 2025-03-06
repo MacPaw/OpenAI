@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ThreadsResult: Codable, Equatable {
+public struct ThreadsResult: Codable, Equatable, Sendable {
 
     public let id: String
 }

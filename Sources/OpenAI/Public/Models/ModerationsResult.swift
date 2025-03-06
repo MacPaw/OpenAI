@@ -7,11 +7,11 @@
 
 import Foundation
 
-public struct ModerationsResult: Codable, Equatable {
+public struct ModerationsResult: Codable, Equatable, Sendable {
     
-    public struct Moderation: Codable, Equatable {
+    public struct Moderation: Codable, Equatable, Sendable {
         
-        public struct Categories: Codable, Equatable, Sequence {
+        public struct Categories: Codable, Equatable, Sequence, Sendable {
 
             /// Content that expresses, incites, or promotes harassing language towards any target.
             public let harassment: Bool
@@ -57,7 +57,7 @@ public struct ModerationsResult: Codable, Equatable {
             }
         }
 
-        public struct CategoryScores: Codable, Equatable, Sequence {
+        public struct CategoryScores: Codable, Equatable, Sequence, Sendable {
 
             /// Content that expresses, incites, or promotes harassing language towards any target.
             public let harassment: Double

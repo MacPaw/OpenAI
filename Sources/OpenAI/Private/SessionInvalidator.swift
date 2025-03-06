@@ -7,16 +7,14 @@
 
 import Foundation
 
-protocol SessionInvalidating: CancellableRequest {
-    var session: InvalidatableSession? { get set }
+final class SessionInvalidator: CancellableRequest {
+    private let session: InvalidatableSession
     
-    func cancelRequest()
-}
-
-final class SessionInvalidator: SessionInvalidating {
-    var session: InvalidatableSession?
+    init(session: InvalidatableSession) {
+        self.session = session
+    }
     
     func cancelRequest() {
-        session?.invalidateAndCancel()
+        session.invalidateAndCancel()
     }
 }

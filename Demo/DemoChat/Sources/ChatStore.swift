@@ -357,7 +357,7 @@ public final class ChatStore: ObservableObject {
         var toolOutputs = [RunToolOutputsQuery.ToolOutput]()
 
         for toolCall in toolCalls {
-            let msgContent = "function\nname: \(toolCall.function.name ?? "")\nargs: \(toolCall.function.arguments ?? "{}")"
+            let msgContent = "function\nname: \(toolCall.function.name)\nargs: \(toolCall.function.arguments)"
 
             let runStepMessage = Message(
                 id: toolCall.id,
@@ -378,12 +378,7 @@ public final class ChatStore: ObservableObject {
     
     // The run retrieval steps are fetched in a separate task. This request is fetched, checking for new run steps, each time the run is fetched.
     private func handleRunRetrieveSteps() async throws {
-        var before: String?
-//            if let lastRunStepMessage = self.conversations[conversationIndex].messages.last(where: { $0.isRunStep == true }) {
-//                before = lastRunStepMessage.id
-//            }
-
-        let stepsResult = try await openAIClient.runRetrieveSteps(threadId: currentThreadId ?? "", runId: currentRunId ?? "", before: before)
+        let stepsResult = try await openAIClient.runRetrieveSteps(threadId: currentThreadId ?? "", runId: currentRunId ?? "", before: nil)
 
         for item in stepsResult.data.reversed() {
             let toolCalls = item.stepDetails.toolCalls?.reversed() ?? []

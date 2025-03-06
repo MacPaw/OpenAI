@@ -9,7 +9,7 @@ import Foundation
 
 /// Creates a model response for the given chat conversation
 /// https://platform.openai.com/docs/guides/text-generation
-public struct ChatQuery: Equatable, Codable, Streamable {
+public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
 
     /// A list of messages comprising the conversation so far
     public let messages: [Self.ChatCompletionMessageParam]
@@ -123,7 +123,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         self.streamOptions = streamOptions
     }
 
-    public enum ChatCompletionMessageParam: Codable, Equatable {
+    public enum ChatCompletionMessageParam: Codable, Equatable, Sendable {
 
         case system(Self.SystemMessageParam)
         case developer(Self.DeveloperMessageParam)
@@ -323,7 +323,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             case tool
         }
 
-        public struct SystemMessageParam: Codable, Equatable {
+        public struct SystemMessageParam: Codable, Equatable, Sendable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             /// The contents of the system message.
@@ -348,7 +348,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }
         
-        public struct DeveloperMessageParam: Codable, Equatable {
+        public struct DeveloperMessageParam: Codable, Equatable, Sendable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             /// The contents of the developer message.
@@ -373,7 +373,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }
 
-        public struct UserMessageParam: Codable, Equatable {
+        public struct UserMessageParam: Codable, Equatable, Sendable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             /// The contents of the user message.
@@ -397,7 +397,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 case name
             }
 
-            public enum Content: Codable, Equatable {
+            public enum Content: Codable, Equatable, Sendable {
                 case string(String)
                 case vision([VisionContent])
 
@@ -433,7 +433,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     }
                 }
 
-            public enum VisionContent: Codable, Equatable {
+            public enum VisionContent: Codable, Equatable, Sendable {
                 case chatCompletionContentPartTextParam(ChatCompletionContentPartTextParam)
                 case chatCompletionContentPartImageParam(ChatCompletionContentPartImageParam)
 
@@ -478,7 +478,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     case chatCompletionContentPartImageParam
                 }
 
-                public struct ChatCompletionContentPartTextParam: Codable, Equatable {
+                public struct ChatCompletionContentPartTextParam: Codable, Equatable, Sendable {
                     /// The text content.
                     public let text: String
                     /// The type of the content part.
@@ -490,7 +490,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     }
                 }
 
-                public struct ChatCompletionContentPartImageParam: Codable, Equatable {
+                public struct ChatCompletionContentPartImageParam: Codable, Equatable, Sendable {
                     public let imageUrl: ImageURL
                     /// The type of the content part.
                     public let type: String
@@ -500,7 +500,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                         self.type = "image_url"
                     }
 
-                    public struct ImageURL: Codable, Equatable {
+                    public struct ImageURL: Codable, Equatable, Sendable {
                         /// Either a URL of the image or the base64 encoded image data.
                         public let url: String
                         /// Specifies the detail level of the image. Learn more in the
@@ -518,7 +518,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                                 detail: detail)
                         }
 
-                        public enum Detail: String, Codable, Equatable, CaseIterable {
+                        public enum Detail: String, Codable, Equatable, CaseIterable, Sendable {
                             case auto
                             case low
                             case high
@@ -544,7 +544,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }
 
-        public struct AssistantMessageParam: Codable, Equatable {
+        public struct AssistantMessageParam: Codable, Equatable, Sendable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             //// The role of the messages author, in this case assistant.
@@ -573,7 +573,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 case toolCalls = "tool_calls"
             }
 
-            public struct ToolCallParam: Codable, Equatable {
+            public struct ToolCallParam: Codable, Equatable, Sendable {
                 public typealias ToolsType = ChatQuery.ChatCompletionToolParam.ToolsType
 
                 /// The ID of the tool call.
@@ -592,7 +592,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     self.type = .function
                 }
 
-                public struct FunctionCall: Codable, Equatable {
+                public struct FunctionCall: Codable, Equatable, Sendable {
                     /// The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.
                     public let arguments: String
                     /// The name of the function to call.
@@ -609,7 +609,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }
 
-        public struct ToolMessageParam: Codable, Equatable {
+        public struct ToolMessageParam: Codable, Equatable, Sendable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             /// The contents of the tool message.
@@ -634,7 +634,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }
 
-        public enum Role: String, Codable, Equatable, CaseIterable {
+        public enum Role: String, Codable, Equatable, CaseIterable, Sendable {
             case system
             case developer
             case user
@@ -643,7 +643,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
     }
 
-    public enum Stop: Codable, Equatable {
+    public enum Stop: Codable, Equatable, Sendable {
         case string(String)
         case stringList([String])
 
@@ -666,14 +666,14 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
     }
     
-    public enum ReasoningEffort: String, Codable, Equatable {
+    public enum ReasoningEffort: String, Codable, Equatable, Sendable {
         case low
         case medium
         case high
     }
 
     // See more https://platform.openai.com/docs/guides/structured-outputs/introduction
-    public enum ResponseFormat: Codable, Equatable {
+    public enum ResponseFormat: Codable, Equatable, Sendable {
         
         case text
         case jsonObject
@@ -932,7 +932,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
     }
 
-    public enum ChatCompletionFunctionCallOptionParam: Codable, Equatable {
+    public enum ChatCompletionFunctionCallOptionParam: Codable, Equatable, Sendable {
         case none
         case auto
         case function(String)
@@ -973,7 +973,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
         }
     }
 
-    public struct ChatCompletionToolParam: Codable, Equatable {
+    public struct ChatCompletionToolParam: Codable, Equatable, Sendable {
 
         public let function: Self.FunctionDefinition
         public let type: Self.ToolsType
@@ -985,7 +985,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             self.type = .function
         }
 
-        public struct FunctionDefinition: Codable, Equatable {
+        public struct FunctionDefinition: Codable, Equatable, Sendable {
             /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
             public let name: String
 
@@ -1009,7 +1009,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
 
             /// See the [guide](/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
-            public struct FunctionParameters: Codable, Equatable {
+            public struct FunctionParameters: Codable, Equatable, Sendable {
 
                 public let type: Self.JSONType
                 public let properties: [String: Property]?
@@ -1043,7 +1043,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                     self.maximum = maximum
                 }
 
-                public struct Property: Codable, Equatable {
+                public struct Property: Codable, Equatable, Sendable {
                     public typealias JSONType = ChatQuery.ChatCompletionToolParam.FunctionDefinition.FunctionParameters.JSONType
 
                     public let type: Self.JSONType
@@ -1093,7 +1093,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                         self.uniqueItems = uniqueItems
                     }
 
-                    public struct Items: Codable, Equatable {
+                    public struct Items: Codable, Equatable, Sendable {
                         public typealias JSONType = ChatQuery.ChatCompletionToolParam.FunctionDefinition.FunctionParameters.JSONType
 
                         public let type: Self.JSONType
@@ -1137,7 +1137,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
                 }
 
 
-                public enum JSONType: String, Codable {
+                public enum JSONType: String, Codable, Sendable {
                     case integer
                     case string
                     case boolean
@@ -1149,12 +1149,12 @@ public struct ChatQuery: Equatable, Codable, Streamable {
             }
         }
 
-        public enum ToolsType: String, Codable, Equatable {
+        public enum ToolsType: String, Codable, Equatable, Sendable {
             case function
         }
     }
     
-    public struct StreamOptions: Codable, Equatable {
+    public struct StreamOptions: Codable, Equatable, Sendable {
         
         /// If set, an additional chunk will be streamed before the data: [DONE] message.
         /// The usage field on this chunk shows the token usage statistics for the entire request,
@@ -1198,7 +1198,7 @@ public struct ChatQuery: Equatable, Codable, Streamable {
 }
 
 /// See the [guide](/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
-public struct JSONSchema: Codable, Hashable {
+public struct JSONSchema: Codable, Hashable, Sendable {
     public let type: JSONType
     public let properties: [String: Property]?
     public let required: [String]?
@@ -1215,7 +1215,7 @@ public struct JSONSchema: Codable, Hashable {
         case multipleOf, minimum, maximum
     }
 
-    public struct Property: Codable, Hashable {
+    public struct Property: Codable, Hashable, Sendable {
         public let type: JSONType
         public let description: String?
         public let format: String?
@@ -1256,7 +1256,7 @@ public struct JSONSchema: Codable, Hashable {
         }
     }
 
-    public enum JSONType: String, Codable {
+    public enum JSONType: String, Codable, Sendable {
         case integer = "integer"
         case string = "string"
         case boolean = "boolean"
@@ -1266,7 +1266,7 @@ public struct JSONSchema: Codable, Hashable {
         case `null` = "null"
     }
 
-    public struct Items: Codable, Hashable {
+    public struct Items: Codable, Hashable, Sendable {
         public let type: JSONType
         public let properties: [String: Property]?
         public let pattern: String?
@@ -1313,7 +1313,7 @@ public struct JSONSchema: Codable, Hashable {
     }
 }
 
-public struct ChatFunctionCall: Codable, Equatable {
+public struct ChatFunctionCall: Codable, Equatable, Sendable {
     /// The name of the function to call.
     public let name: String
     /// The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.

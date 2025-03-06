@@ -10,7 +10,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-protocol InvalidatableSession {
+protocol InvalidatableSession: Sendable {
     func invalidateAndCancel()
     func finishTasksAndInvalidate()
 }

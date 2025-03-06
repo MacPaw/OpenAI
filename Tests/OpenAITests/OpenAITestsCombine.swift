@@ -12,14 +12,13 @@ import XCTest
 import Combine
 
 @available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
-final class OpenAITestsCombine: XCTestCase {
+@MainActor final class OpenAITestsCombine: XCTestCase {
     
     private var openAI: OpenAIProtocol!
     private let urlSession: URLSessionMockCombine = URLSessionMockCombine()
     private let cancellablesFactory = MockCancellablesFactory()
     
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         self.openAI = OpenAI(configuration: configuration, session: self.urlSession, cancellablesFactory: cancellablesFactory)
     }

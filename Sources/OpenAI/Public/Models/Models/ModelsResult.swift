@@ -8,7 +8,7 @@
 import Foundation
 
 /// A list of model objects.
-public struct ModelsResult: Codable, Equatable {
+public struct ModelsResult: Codable, Equatable, Sendable {
 
     /// A list of model objects.
     public let data: [ModelResult]

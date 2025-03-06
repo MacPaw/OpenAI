@@ -9,25 +9,46 @@ import Foundation
 
 /// https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation
 /// 9.2.6 Interpreting an event stream
-class StreamInterpreter<ResultType: Codable> {
+final class StreamInterpreter<ResultType: Codable & Sendable>: @unchecked Sendable {
     private let streamingCompletionMarker = "[DONE]"
     private var previousChunkBuffer = ""
+    private var onEventDispatched: ((ResultType) -> Void)?
+    private var onError: ((Error) -> Void)?
     
-    var onEventDispatched: ((ResultType) -> Void)?
+    private var queue: DispatchQueue {
+        .userInitiated
+    }
     
-    func processData(_ data: Data) throws {
+    /// Sets closures an instance of type in a thread safe manner
+    ///
+    /// - Parameters:
+    ///     - onEventDispatched: Can be called multiple times per `processData`
+    ///     - onError: Will only be called once per `processData`
+    func setCallbackClosures(onEventDispatched: @escaping @Sendable (ResultType) -> Void, onError: @escaping @Sendable (Error) -> Void) {
+        queue.async {
+            self.onEventDispatched = onEventDispatched
+            self.onError = onError
+        }
+    }
+    
+    func processData(_ data: Data) {
         let decoder = JSONDecoder()
         if let decoded = try? decoder.decode(APIErrorResponse.self, from: data) {
-            throw decoded
+            onError?(decoded)
+            return
         }
         
         guard let stringContent = String(data: data, encoding: .utf8) else {
-            throw StreamingError.unknownContent
+            onError?(StreamingError.unknownContent)
+            return
         }
-        try processJSON(from: stringContent)
+        
+        queue.async {
+            self.processJSON(from: stringContent)
+        }
     }
     
-    private func processJSON(from stringContent: String) throws {
+    private func processJSON(from stringContent: String) {
         if stringContent.isEmpty {
             return
         }
@@ -58,12 +79,13 @@ class StreamInterpreter<ResultType: Codable> {
             return
         }
         
-        try jsonObjects.enumerated().forEach { (index, jsonContent)  in
+        jsonObjects.enumerated().forEach { (index, jsonContent)  in
             guard jsonContent != streamingCompletionMarker && !jsonContent.isEmpty else {
                 return
             }
             guard let jsonData = jsonContent.data(using: .utf8) else {
-                throw StreamingError.unknownContent
+                onError?(StreamingError.unknownContent)
+                return
             }
             let decoder = JSONDecoder()
             do {
@@ -71,11 +93,12 @@ class StreamInterpreter<ResultType: Codable> {
                 onEventDispatched?(object)
             } catch {
                 if let decoded = try? decoder.decode(APIErrorResponse.self, from: jsonData) {
-                    throw decoded
+                    onError?(decoded)
+                    return
                 } else if index == jsonObjects.count - 1 {
                     previousChunkBuffer = "data: \(jsonContent)" // Chunk ends in a partial JSON
                 } else {
-                    throw error
+                    onError?(error)
                 }
             }
         }

@@ -8,16 +8,21 @@
 import Foundation
 
 protocol CancellablesFactory {
-    func makeTaskCanceller() -> URLSessionTaskCancelling
-    func makeSessionCanceller() -> SessionInvalidating
+    func makeTaskCanceller(task: URLSessionTaskProtocol) -> any CancellableRequest    
+    func makeSessionCanceller(session: InvalidatableSession) -> any CancellableRequest
 }
 
 struct DefaultCancellablesFactory: CancellablesFactory {
-    func makeTaskCanceller() -> URLSessionTaskCancelling {
-        URLSessionTaskCanceller()
+    func makeTaskCanceller(task: any URLSessionTaskProtocol) -> any CancellableRequest {
+        URLSessionTaskCanceller(task: task)
     }
     
-    func makeSessionCanceller() -> SessionInvalidating {
-        SessionInvalidator()
+    func makeSessionCanceller(session: any InvalidatableSession) -> any CancellableRequest {
+        SessionInvalidator(session: session)
+    }
+}
+
+struct NoOpCancellableRequest: CancellableRequest {
+    func cancelRequest() {
     }
 }

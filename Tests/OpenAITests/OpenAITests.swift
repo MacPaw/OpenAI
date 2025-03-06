@@ -15,9 +15,7 @@ class OpenAITests: XCTestCase {
     private let urlSession = URLSessionMock()
     private let cancellablesFactory = MockCancellablesFactory()
     
-    override func setUp() {
-        super.setUp()
-        
+    override func setUp() async throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         self.openAI = OpenAI(configuration: configuration, session: self.urlSession, cancellablesFactory: cancellablesFactory)
     }
@@ -731,6 +729,7 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(completionsURL, URL(string: "https://my.host.com:443/v1/threads/thread_4321/runs/run_1234/steps"))
     }
     
+    @MainActor
     func testCancelRequest() async throws {
         try stub(result: makeChatResult())
         
@@ -743,6 +742,7 @@ class OpenAITests: XCTestCase {
         XCTAssertTrue(urlSession.dataTaskIsCancelled)
     }
     
+    @MainActor
     func testCancelStreamingRequest() async throws {
         let sessionCanceller = MockSessionCanceller()
         cancellablesFactory.sessionCanceller = sessionCanceller
@@ -809,7 +809,7 @@ extension OpenAITests {
         case typeMismatch(String)
     }
     
-    func XCTExpectError<ErrorType: Error>(execute: () async throws -> Any) async throws -> ErrorType {
+    func XCTExpectError<ErrorType: Error>(execute: () async throws -> Sendable) async throws -> ErrorType {
         do {
             let result = try await execute()
             throw TypeError.unexpectedResult("Error expected, but result is returned \(result)")

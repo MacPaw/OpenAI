@@ -15,11 +15,11 @@ import Combine
 @available(tvOS 13.0, *)
 @available(iOS 13.0, *)
 extension XCTestCase {
-    
+    @MainActor
     func awaitPublisher<T: Publisher>(
         _ publisher: T,
         timeout: TimeInterval = 10,
-        file: StaticString = #file,
+        file: StaticString = #filePath,
         line: UInt = #line
     ) throws -> T.Output {
         // This time, we use Swift's Result type to keep track

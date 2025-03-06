@@ -9,13 +9,13 @@ import Foundation
 
 /// Generates audio from the input text.
 /// Learn more: [OpenAI Speech – Documentation](https://platform.openai.com/docs/api-reference/audio/createSpeech)
-public struct AudioSpeechQuery: Codable {
+public struct AudioSpeechQuery: Codable, Sendable {
     
     /// Encapsulates the voices available for audio generation.
     ///
     /// To get aquinted with each of the voices and listen to the samples visit:
     /// [OpenAI Text-to-Speech – Voice Options](https://platform.openai.com/docs/guides/text-to-speech/voice-options)
-    public enum AudioSpeechVoice: String, Codable, CaseIterable {
+    public enum AudioSpeechVoice: String, Codable, CaseIterable, Sendable {
         case alloy
         case echo
         case fable
@@ -32,7 +32,7 @@ public struct AudioSpeechQuery: Codable {
     /// -  aac
     /// -  flac
     /// -  pcm
-    public enum AudioSpeechResponseFormat: String, Codable, CaseIterable {
+    public enum AudioSpeechResponseFormat: String, Codable, CaseIterable, Sendable {
         case mp3
         case opus
         case aac
