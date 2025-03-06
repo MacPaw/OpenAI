@@ -1,10 +1,11 @@
 //
-//  File.swift
+//  SendablePassthroughSubject.swift
 //  OpenAI
 //
 //  Created by Oleksii Nezhyborets on 04.03.2025.
 //
 
+#if canImport(Combine)
 import Foundation
 import Combine
 
@@ -32,3 +33,4 @@ final class SendablePassthroughSubject<Output: Sendable, Failure: Error>: @unche
         passthroughSubject.eraseToAnyPublisher()
     }
 }
+#endif
