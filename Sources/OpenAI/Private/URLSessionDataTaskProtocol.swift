@@ -10,7 +10,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-protocol URLSessionTaskProtocol {
+protocol URLSessionTaskProtocol: Sendable {
     func cancel()
 }
 

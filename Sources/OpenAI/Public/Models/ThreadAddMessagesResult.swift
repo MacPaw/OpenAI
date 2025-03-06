@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ThreadAddMessageResult: Codable, Equatable {
+public struct ThreadAddMessageResult: Codable, Equatable, Sendable {
     public let id: String
 
 }

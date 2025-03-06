@@ -10,7 +10,7 @@ import Foundation
 /// The type of tool
 ///
 /// Refer to the [documentation](https://platform.openai.com/docs/assistants/tools/tools-beta) for  more information on tools.
-public enum Tool: Codable, Equatable {
+public enum Tool: Codable, Equatable, Sendable {
     /// Code Interpreter allows the Assistants API to write and run Python code in a sandboxed execution environment.
     case codeInterpreter
     /// Function calling allows you to describe functions to the Assistants and have it intelligently return the functions that need to be called along with their arguments.

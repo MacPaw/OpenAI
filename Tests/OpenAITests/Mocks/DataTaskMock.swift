@@ -11,7 +11,7 @@ import FoundationNetworking
 #endif
 @testable import OpenAI
 
-class DataTaskMock: URLSessionDataTaskProtocol {
+class DataTaskMock: URLSessionDataTaskProtocol, @unchecked Sendable {
     
     var data: Data?
     var response: URLResponse?

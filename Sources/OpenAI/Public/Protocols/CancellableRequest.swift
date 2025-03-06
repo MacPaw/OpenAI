@@ -7,6 +7,6 @@
 
 import Foundation
 
-public protocol CancellableRequest {
+public protocol CancellableRequest: Sendable {
     func cancelRequest()
 }

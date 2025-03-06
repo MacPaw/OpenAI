@@ -40,7 +40,10 @@ extension OpenAI: OpenAICombine {
     }
     
     public func chatsStream(query: ChatQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
-        let progress = PassthroughSubject<Result<ChatStreamResult, Error>, Error>()
+        let progress = SendablePassthroughSubject(
+            passthroughSubject: PassthroughSubject<Result<ChatStreamResult, Error>, Error>()
+        )
+        
         let cancellable = chatsStream(query: query) { result in
             progress.send(result)
         } completion: { error in
@@ -51,6 +54,7 @@ extension OpenAI: OpenAICombine {
             }
         }
         return progress
+            .publisher()
             .handleEvents(receiveCancel: {
                 cancellable.cancelRequest()
             })

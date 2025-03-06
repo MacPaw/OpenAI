@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct MessageQuery: Equatable, Codable {
+public struct MessageQuery: Equatable, Codable, Sendable {
     public let role: ChatQuery.ChatCompletionMessageParam.Role
     public let content: String
     public let fileIds: [String]?

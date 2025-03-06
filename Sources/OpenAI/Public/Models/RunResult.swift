@@ -7,8 +7,8 @@
 
 import Foundation
 
-public struct RunResult: Codable, Equatable {
-    public enum Status: String, Codable {
+public struct RunResult: Codable, Equatable, Sendable {
+    public enum Status: String, Codable, Sendable {
         case queued
         case inProgress = "in_progress"
         case requiresAction = "requires_action"
@@ -19,7 +19,7 @@ public struct RunResult: Codable, Equatable {
         case expired
     }
 
-    public struct RequiredAction: Codable, Equatable {
+    public struct RequiredAction: Codable, Equatable, Sendable {
         public let submitToolOutputs: SubmitToolOutputs
         
         enum CodingKeys: String, CodingKey {
@@ -27,7 +27,7 @@ public struct RunResult: Codable, Equatable {
         }
     }
 
-    public struct SubmitToolOutputs: Codable, Equatable {
+    public struct SubmitToolOutputs: Codable, Equatable, Sendable {
         public let toolCalls: [ToolCall]
         
         enum CodingKeys: String, CodingKey {
@@ -35,7 +35,7 @@ public struct RunResult: Codable, Equatable {
         }
     }
 
-    public struct ToolCall: Codable, Equatable {
+    public struct ToolCall: Codable, Equatable, Sendable {
         public let id: String
         public let type: String
         public let function: ChatFunctionCall
