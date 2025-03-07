@@ -244,7 +244,7 @@ extension OpenAI {
         var cancellable = cancellablesFactory.makeSessionCanceller()
         do {
             let request = try request.build(configuration: configuration)
-            let session = StreamingSession<ResultType>(urlRequest: request)
+            let session = StreamingSession<ResultType, ServerSentEventsStreamInterpreter>(urlRequest: request, interpreter: .init())
             cancellable.session = session
             session.onReceiveContent = {_, object in
                 onResult(.success(object))
@@ -319,10 +319,11 @@ extension OpenAI {
 
     func performSpeechStreamingRequest(request: any URLRequestBuildable, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
         do {
-            let request = try request.build(token: configuration.token,
-                                            organizationIdentifier: configuration.organizationIdentifier,
-                                            timeoutInterval: configuration.timeoutInterval)
-            let session = StreamingSession<AudioSpeechResult>(urlRequest: request)
+            let request = try request.build(configuration: configuration)
+            let session = StreamingSession<AudioSpeechResult, AudioSpeechStreamInterpreter>(
+                urlRequest: request,
+                interpreter: .init()
+            )
             session.onReceiveContent = { _, object in
                 onResult(.success(object))
             }

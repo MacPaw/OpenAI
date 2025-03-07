@@ -9,10 +9,10 @@ import Testing
 import Foundation
 @testable import OpenAI
 
-struct StreamInterpreterTests {
-    let interpreter = StreamInterpreter<ChatStreamResult>()
+struct ServerSentEventsStreamInterpreterTests {
+    let interpreter = ServerSentEventsStreamInterpreter<ChatStreamResult>()
     
-    @Test func testParseShortMessageResponseStream() throws {
+    @Test func parseShortMessageResponseStream() throws {
         var chatStreamResults: [ChatStreamResult] = []
         interpreter.onEventDispatched = { chatStreamResults.append($0) }
         
@@ -24,7 +24,7 @@ struct StreamInterpreterTests {
     // https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation
     // If the line starts with a U+003A COLON character (:)
     // - Ignore the line.
-    @Test func testIgnoresLinesStartingWithColon() throws {
+    @Test func ignoresLinesStartingWithColon() throws {
         var chatStreamResults: [ChatStreamResult] = []
         interpreter.onEventDispatched = { chatStreamResults.append($0) }
         
