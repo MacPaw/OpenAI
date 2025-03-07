@@ -126,6 +126,8 @@ extension ChatQuery.ChatCompletionMessageParam {
         switch try messageContainer.decode(Role.self, forKey: .role) {
         case .system:
             self = try .system(.init(from: decoder))
+        case .developer:
+            self = try .developer(.init(from: decoder))
         case .user:
             self = try .user(.init(from: decoder))
         case .assistant:
@@ -136,7 +138,7 @@ extension ChatQuery.ChatCompletionMessageParam {
     }
 }
 
-extension ChatQuery.ChatCompletionMessageParam.ChatCompletionUserMessageParam.Content {
+extension ChatQuery.ChatCompletionMessageParam.UserMessageParam.Content {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         do {
@@ -145,15 +147,10 @@ extension ChatQuery.ChatCompletionMessageParam.ChatCompletionUserMessageParam.Co
             return
         } catch {}
         do {
-            let text = try container.decode(ChatCompletionContentPartTextParam.self)
-            self = .chatCompletionContentPartTextParam(text)
+            let vision = try container.decode([VisionContent].self)
+            self = .vision(vision)
             return
         } catch {}
-        do {
-            let image = try container.decode(ChatCompletionContentPartImageParam.self)
-            self = .chatCompletionContentPartImageParam(image)
-            return
-        } catch {}
-        throw DecodingError.typeMismatch(Self.self, .init(codingPath: [Self.CodingKeys.string, CodingKeys.chatCompletionContentPartTextParam, CodingKeys.chatCompletionContentPartImageParam], debugDescription: "Content: expected String, ChatCompletionContentPartTextParam, ChatCompletionContentPartImageParam"))
+        throw DecodingError.typeMismatch(Self.self, .init(codingPath: [Self.CodingKeys.string, Self.CodingKeys.vision], debugDescription: "Content: expected String || Vision"))
     }
 }

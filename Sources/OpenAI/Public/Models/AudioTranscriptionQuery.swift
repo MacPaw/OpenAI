@@ -58,8 +58,6 @@ public enum ResponseFormat: String, Codable, Equatable, CaseIterable {
             switch self {
             case .mpga:
                 fileName += Self.mp3.rawValue
-            case .m4a:
-                fileName += Self.mp4.rawValue
             default:
                 fileName += self.rawValue
             }
@@ -72,8 +70,6 @@ public enum ResponseFormat: String, Codable, Equatable, CaseIterable {
             switch self {
             case .mpga:
                 contentType += Self.mp3.rawValue
-            case .m4a:
-                contentType += Self.mp4.rawValue
             default:
                 contentType += self.rawValue
             }
@@ -92,7 +88,7 @@ extension AudioTranscriptionQuery: MultipartFormDataBodyEncodable {
             .string(paramName: "prompt", value: prompt),
             .string(paramName: "temperature", value: temperature),
             .string(paramName: "language", value: language),
-            .string(paramName: "response_format", value: responseFormat)
+            .string(paramName: "response_format", value: responseFormat?.rawValue)
         ])
         return bodyBuilder.build()
     }
