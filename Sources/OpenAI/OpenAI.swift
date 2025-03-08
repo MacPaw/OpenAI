@@ -216,14 +216,14 @@ final public class OpenAI {
     public func audioCreateSpeech(query: AudioSpeechQuery, completion: @escaping (Result<AudioSpeechResult, Error>) -> Void) -> CancellableRequest {
         performSpeechRequest(request: makeAudioCreateSpeechRequest(query: query), completion: completion)
     }
-
-public func audioCreateSpeechStream(query: AudioSpeechQuery, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
-performSpeechStreamingRequest(
-request: JSONRequest<AudioSpeechResult>(body: query, url: buildURL(path: .audioSpeech)),
-onResult: onResult,
-completion: completion
-)
-}
+    
+    public func audioCreateSpeechStream(query: AudioSpeechQuery, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        performSpeechStreamingRequest(
+            request: JSONRequest<AudioSpeechResult>(body: query, url: buildURL(path: .audioSpeech)),
+            onResult: onResult,
+            completion: completion
+        )
+    }
 }
 
 extension OpenAI {
