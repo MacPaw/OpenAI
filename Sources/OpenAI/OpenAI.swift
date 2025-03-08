@@ -216,6 +216,14 @@ final public class OpenAI {
     public func audioCreateSpeech(query: AudioSpeechQuery, completion: @escaping (Result<AudioSpeechResult, Error>) -> Void) -> CancellableRequest {
         performSpeechRequest(request: makeAudioCreateSpeechRequest(query: query), completion: completion)
     }
+    
+    public func audioCreateSpeechStream(query: AudioSpeechQuery, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        performSpeechStreamingRequest(
+            request: JSONRequest<AudioSpeechResult>(body: query, url: buildURL(path: .audioSpeech)),
+            onResult: onResult,
+            completion: completion
+        )
+    }
 }
 
 extension OpenAI {
@@ -236,12 +244,12 @@ extension OpenAI {
         var cancellable = cancellablesFactory.makeSessionCanceller()
         do {
             let request = try request.build(configuration: configuration)
-            let session = StreamingSession<ResultType>(urlRequest: request)
+            let session = StreamingSession<ResultType, ServerSentEventsStreamInterpreter>(urlRequest: request, interpreter: .init())
             cancellable.session = session
             session.onReceiveContent = {_, object in
                 onResult(.success(object))
             }
-            session.onProcessingError = {_, error in
+            session.onProcessingError = { _, error in
                 onResult(.failure(error))
             }
             session.onComplete = { [weak self] object, error in
@@ -306,6 +314,30 @@ extension OpenAI {
             }
             
             completion(.success(data))
+        }
+    }
+
+    func performSpeechStreamingRequest(request: any URLRequestBuildable, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        do {
+            let request = try request.build(configuration: configuration)
+            let session = StreamingSession<AudioSpeechResult, AudioSpeechStreamInterpreter>(
+                urlRequest: request,
+                interpreter: .init()
+            )
+            session.onReceiveContent = { _, object in
+                onResult(.success(object))
+            }
+            session.onProcessingError = { _, error in
+                onResult(.failure(error))
+            }
+            session.onComplete = { [weak self] object, error in
+                self?.streamingSessions.removeAll(where: { $0 == object })
+                completion?(error)
+            }
+            session.perform()
+            streamingSessions.append(session)
+        } catch {
+            completion?(error)
         }
     }
 }

@@ -7,9 +7,17 @@
 
 import Foundation
 
+protocol StreamInterpreter: AnyObject {
+    associatedtype ResultType: Codable
+    
+    var onEventDispatched: ((ResultType) -> Void)? { get set }
+    
+    func processData(_ data: Data) throws
+}
+
 /// https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation
 /// 9.2.6 Interpreting an event stream
-class StreamInterpreter<ResultType: Codable> {
+class ServerSentEventsStreamInterpreter<ResultType: Codable>: StreamInterpreter {
     private let streamingCompletionMarker = "[DONE]"
     private var previousChunkBuffer = ""
     
