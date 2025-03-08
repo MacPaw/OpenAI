@@ -12,7 +12,7 @@ import FoundationNetworking
 
 protocol URLRequestBuildable {
     func build(
-        token: String,
+        token: String?,
         organizationIdentifier: String?,
         timeoutInterval: TimeInterval,
         customHeaders: [String: String]

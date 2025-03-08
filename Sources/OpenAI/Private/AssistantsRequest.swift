@@ -34,7 +34,7 @@ struct AssistantsRequest<ResultType>: URLRequestBuildable {
         self.method = method
     }
     
-    func build(token: String, organizationIdentifier: String?, timeoutInterval: TimeInterval, customHeaders: [String: String]) throws -> URLRequest {
+    func build(token: String?, organizationIdentifier: String?, timeoutInterval: TimeInterval, customHeaders: [String: String]) throws -> URLRequest {
         let customHeaders = customHeaders
             .merging(["OpenAI-Beta": "assistants=v2"], uniquingKeysWith: { first, _ in first })
         
