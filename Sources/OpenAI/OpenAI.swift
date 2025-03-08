@@ -15,7 +15,11 @@ final public class OpenAI {
     public struct Configuration {
         
         /// OpenAI API token. See https://platform.openai.com/docs/api-reference/authentication
-        public let token: String
+        ///
+        /// Set the token when the app works directly with OpenAI API. This approach is generally unsafe and should not be used in production.
+        /// Default value is nil. It would work when you have a proxy server that manages authentication.
+        /// See https://github.com/MacPaw/OpenAI/discussions/116 for more info
+        public let token: String?
         
         /// Optional OpenAI organization identifier. See https://platform.openai.com/docs/api-reference/authentication
         public let organizationIdentifier: String?
@@ -41,7 +45,7 @@ final public class OpenAI {
         /// Currently SDK sets such fields: Authorization, Content-Type, OpenAI-Organization.
         public let customHeaders: [String: String]
         
-        public init(token: String, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", basePath: String = "/v1", timeoutInterval: TimeInterval = 60.0, customHeaders: [String: String] = [:]) {
+        public init(token: String? = nil, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", basePath: String = "/v1", timeoutInterval: TimeInterval = 60.0, customHeaders: [String: String] = [:]) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host

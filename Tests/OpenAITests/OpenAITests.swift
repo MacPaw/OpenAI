@@ -403,7 +403,7 @@ class OpenAITests: XCTestCase {
         let jsonRequest = JSONRequest<ChatResult>(body: completionQuery, url: URL(string: "http://google.com")!)
         let urlRequest = try jsonRequest.build(configuration: configuration)
         
-        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token!)")
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Content-Type"), "application/json")
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "OpenAI-Organization"), configuration.organizationIdentifier)
         XCTAssertEqual(urlRequest.timeoutInterval, configuration.timeoutInterval)
@@ -415,7 +415,7 @@ class OpenAITests: XCTestCase {
         let multipartFormDataRequest = MultipartFormDataRequest<ChatResult>(body: completionQuery, url: URL(string: "http://google.com")!)
         let urlRequest = try multipartFormDataRequest.build(configuration: configuration)
         
-        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token!)")
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "OpenAI-Organization"), configuration.organizationIdentifier)
         XCTAssertEqual(urlRequest.timeoutInterval, configuration.timeoutInterval)
     }
