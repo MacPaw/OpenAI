@@ -129,6 +129,8 @@ public struct ChatStreamResult: Codable, Equatable {
     public let created: TimeInterval
     /// The model to generate the completion.
     public let model: String
+    /// A list of citations for the completion.
+    public let citations: [String]?
     /// A list of chat completion choices.
     /// Can be more than one if `n` is greater than 1.
     public let choices: [Choice]
@@ -142,6 +144,7 @@ public struct ChatStreamResult: Codable, Equatable {
         case object
         case created
         case model
+        case citations
         case choices
         case systemFingerprint = "system_fingerprint"
         case usage
