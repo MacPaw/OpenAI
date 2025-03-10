@@ -85,6 +85,20 @@ extension OpenAI: OpenAICombine {
         )
     }
     
+    func audioCreateSpeechStream(query: AudioSpeechQuery) -> AnyPublisher<Result<AudioSpeechResult, Error>, Error> {
+        let progress = PassthroughSubject<Result<AudioSpeechResult, Error>, Error>()
+        audioCreateSpeechStream(query: query) { result in
+            progress.send(result)
+        } completion: { error in
+            if let error {
+                progress.send(completion: .failure(error))
+            } else {
+                progress.send(completion: .finished)
+            }
+        }
+        return progress.eraseToAnyPublisher()
+    }
+    
     public func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error> {
         performRequestCombine(
             request: makeAudioTranscriptionsRequest(query: query)

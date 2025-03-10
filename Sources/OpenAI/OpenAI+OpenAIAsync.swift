@@ -84,6 +84,18 @@ extension OpenAI: OpenAIAsync {
         )
     }
     
+    func audioCreateSpeechStream(
+        query: AudioSpeechQuery
+    ) -> AsyncThrowingStream<AudioSpeechResult, Error> {
+        return AsyncThrowingStream { continuation in
+            return audioCreateSpeechStream(query: query) { result in
+                continuation.yield(with: result)
+            } completion: { error in
+                continuation.finish(throwing: error)
+            }
+        }
+    }
+    
     public func audioTranscriptions(query: AudioTranscriptionQuery) async throws -> AudioTranscriptionResult {
         try await performRequestAsync(
             request: makeAudioTranscriptionsRequest(query: query)
