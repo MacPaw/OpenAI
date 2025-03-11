@@ -58,7 +58,7 @@ final public class OpenAI: @unchecked Sendable {
     private let streamingSessionFactory: StreamingSessionFactory
     private let cancellablesFactory: CancellablesFactory
     private let executionSerializer: ExecutionSerializer
-    private var streamingSessions: [NSObject] = []
+    private var streamingSessions: [NSObject: InvalidatableSession] = [:]
     
     public let configuration: Configuration
 
@@ -246,7 +246,7 @@ final public class OpenAI: @unchecked Sendable {
         performSpeechRequest(request: makeAudioCreateSpeechRequest(query: query), completion: completion)
     }
     
-    public func audioCreateSpeechStream(query: AudioSpeechQuery, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
+    public func audioCreateSpeechStream(query: AudioSpeechQuery, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) -> CancellableRequest {
         performSpeechStreamingRequest(
             request: JSONRequest<AudioSpeechResult>(body: query, url: buildURL(path: .audioSpeech)),
             onResult: onResult,
@@ -288,19 +288,21 @@ extension OpenAI {
                 }
                 
                 self.executionSerializer.dispatch {
-                    self.streamingSessions.removeAll(where: { $0 === session })
-                    session.invalidateAndCancel()
+                    let invalidatableSession = self.streamingSessions.removeValue(forKey: session)
+                    invalidatableSession?.invalidateAndCancel()
                 }
             }
             
+            let performableSession = session.makeSession()
+            
             executionSerializer.dispatch {
-                self.streamingSessions.append(session)
+                self.streamingSessions[session] = performableSession
             }
             
-            session.perform()
+            performableSession.performSession()
             
             return cancellablesFactory.makeSessionCanceller(
-                session: session
+                session: performableSession
             )
         } catch {
             completion?(error)
@@ -330,32 +332,41 @@ extension OpenAI {
         }
     }
     
-    func performSpeechStreamingRequest(request: any URLRequestBuildable, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
+    func performSpeechStreamingRequest(request: any URLRequestBuildable, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) -> CancellableRequest {
         do {
-            let request = try request.build(configuration: configuration)
+            let urlRequest = try request.build(configuration: configuration)
             
-            let session = StreamingSession(urlRequest: request, interpreter: AudioSpeechStreamInterpreter()) { _, object in
+            let session = streamingSessionFactory.makeAudioSpeechStreamingSession(urlRequest: urlRequest) { _, object in
                 onResult(.success(object))
             } onProcessingError: { _, error in
                 onResult(.failure(error))
             } onComplete: { [weak self] session, error in
                 completion?(error)
+                
                 guard let self else {
                     return
                 }
+                
                 self.executionSerializer.dispatch {
-                    self.streamingSessions.removeAll(where: { $0 == session })
-                    session.invalidateAndCancel()
+                    let invalidatableSession = self.streamingSessions.removeValue(forKey: session)
+                    invalidatableSession?.invalidateAndCancel()
                 }
             }
             
-            session.perform()
+            let performableSession = session.makeSession()
             
-            self.executionSerializer.dispatch {
-                self.streamingSessions.append(session)
+            executionSerializer.dispatch {
+                self.streamingSessions[session] = performableSession
             }
+            
+            performableSession.performSession()
+            
+            return cancellablesFactory.makeSessionCanceller(
+                session: performableSession
+            )
         } catch {
             completion?(error)
+            return NoOpCancellableRequest()
         }
     }
     

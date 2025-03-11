@@ -10,17 +10,11 @@ import Foundation
 import FoundationNetworking
 #endif
 
-final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifiable, URLSessionDataDelegateProtocol, InvalidatableSession {
+final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifiable, URLSessionDataDelegateProtocol {
     typealias ResultType = Interpreter.ResultType
     
     private let urlSessionFactory: URLSessionFactory
     private let urlRequest: URLRequest
-    
-    // Important: URLSession holds strong reference to it's delegate (self)
-    // So there is a reference cycle here
-    // Without refactoring the cycle, to fix the issue,
-    //  URLSession should be explicitly invalidated (at the moment of writing it happens in OpenAI.swift
-    private lazy var urlSession: URLSessionProtocol = urlSessionFactory.makeUrlSession(delegate: self)
     private let onReceiveContent: (@Sendable (StreamingSession, ResultType) -> Void)?
     private let onProcessingError: (@Sendable (StreamingSession, Error) -> Void)?
     private let onComplete: (@Sendable (StreamingSession, Error?) -> Void)?
@@ -42,10 +36,9 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
         self.onComplete = onComplete
     }
     
-    func perform() {
-        urlSession
-            .dataTask(with: urlRequest)
-            .resume()
+    func makeSession() -> PerformableSession & InvalidatableSession {
+        let urlSession = urlSessionFactory.makeUrlSession(delegate: self)
+        return DataTaskPerformingURLSession(urlRequest: urlRequest, urlSession: urlSession)
     }
     
     func urlSession(_ session: any URLSessionProtocol, task: any URLSessionTaskProtocol, didCompleteWithError error: (any Error)?) {
@@ -54,14 +47,6 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
     
     func urlSession(_ session: any URLSessionProtocol, dataTask: any URLSessionDataTaskProtocol, didReceive data: Data) {
         interpreter.processData(data)
-    }
-    
-    func invalidateAndCancel() {
-        urlSession.invalidateAndCancel()
-    }
-    
-    func finishTasksAndInvalidate() {
-        urlSession.finishTasksAndInvalidate()
     }
     
     private func subscribeToParser() {

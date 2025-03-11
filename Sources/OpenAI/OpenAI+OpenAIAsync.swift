@@ -88,10 +88,21 @@ extension OpenAI: OpenAIAsync {
         query: AudioSpeechQuery
     ) -> AsyncThrowingStream<AudioSpeechResult, Error> {
         return AsyncThrowingStream { continuation in
-            return audioCreateSpeechStream(query: query) { result in
+            let cancellableRequest = audioCreateSpeechStream(query: query)  { result in
                 continuation.yield(with: result)
             } completion: { error in
                 continuation.finish(throwing: error)
+            }
+            
+            continuation.onTermination = { termination in
+                switch termination {
+                case .cancelled:
+                    cancellableRequest.cancelRequest()
+                case .finished:
+                    break
+                @unknown default:
+                    break
+                }
             }
         }
     }

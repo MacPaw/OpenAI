@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol URLSessionFactory {
+protocol URLSessionFactory: Sendable {
     func makeUrlSession(delegate: URLSessionDataDelegateProtocol) -> URLSessionProtocol
 }
 

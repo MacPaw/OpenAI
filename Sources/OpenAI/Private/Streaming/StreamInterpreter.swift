@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol StreamInterpreter: AnyObject {
+protocol StreamInterpreter: AnyObject, Sendable {
     associatedtype ResultType: Codable
     
     func setCallbackClosures(onEventDispatched: @escaping @Sendable (ResultType) -> Void, onError: @escaping @Sendable (Error) -> Void)

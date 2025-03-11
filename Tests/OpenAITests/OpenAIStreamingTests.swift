@@ -68,6 +68,32 @@ class OpenAIStreamingTests: XCTestCase {
         XCTAssertTrue(finished || canceled)
     }
     
+    func testAudioSpeechSessionInvalidated() throws {
+        try stub(result: Data())
+        urlSession.dataTask.completion = { data, _, error in
+            let dataDelegate = self.urlSession.delegate
+            dataDelegate?.urlSession(self.urlSession, task: self.urlSession.dataTask, didCompleteWithError: error)
+        }
+        
+        var completionCallCount = 0
+        let completionCalledClosure = UncheckedSendableClosure {
+            dispatchPrecondition(condition: .onQueue(.main))
+            completionCallCount += 1
+        }
+        
+        _ = openAI.audioCreateSpeechStream(query: .mock) { result in
+        } completion: { error in
+            dispatchPrecondition(condition: .onQueue(.main))
+            completionCalledClosure.closure()
+        }
+        
+        XCTAssertEqual(completionCallCount, 1)
+        
+        let finished = urlSession.finishTasksAndInvalidateCallCount == 1 && urlSession.invalidateAndCancelCallCount == 0
+        let canceled = urlSession.finishTasksAndInvalidateCallCount == 0 && urlSession.invalidateAndCancelCallCount == 1
+        XCTAssertTrue(finished || canceled)
+    }
+    
     private func makeChatQuery() -> ChatQuery {
         .init(messages: [
             .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
