@@ -8,7 +8,7 @@
 import Foundation
 @testable import OpenAI
 
-class MockURLSessionFactory: URLSessionFactory {
+class MockURLSessionFactory: URLSessionFactory, @unchecked Sendable {
     var urlSession: URLSessionMock = .init()
     
     func makeUrlSession(delegate: any URLSessionDataDelegateProtocol) -> any URLSessionProtocol {

@@ -44,32 +44,33 @@ class OpenAIStreamingTests: XCTestCase {
     
     func testImplicitlyCreatedUrlSessionIsInvalidatedToBreakRetainCycle() throws {
         try stub(result: makeChatResult())
-        urlSession.dataTask.completion = { data, _, error in
-            let dataDelegate = self.urlSession.delegate
-            dataDelegate?.urlSession(self.urlSession, task: self.urlSession.dataTask, didCompleteWithError: error)
+        
+        var assertedInAnotherFunction = false
+        performStreamAndAssertInvalidation { completion in
+            _ = openAI.chatsStream(query: makeChatQuery()) { result in
+            } completion: { error in
+                completion(error)
+            }
+            assertedInAnotherFunction = true
         }
-        
-        var completionCallCount = 0
-        let completionCalledClosure = UncheckedSendableClosure {
-            dispatchPrecondition(condition: .onQueue(.main))
-            completionCallCount += 1
-        }
-        
-        _ = openAI.chatsStream(query: makeChatQuery()) { result in
-        } completion: { error in
-            dispatchPrecondition(condition: .onQueue(.main))
-            completionCalledClosure.closure()
-        }
-        
-        XCTAssertEqual(completionCallCount, 1)
-        
-        let finished = urlSession.finishTasksAndInvalidateCallCount == 1 && urlSession.invalidateAndCancelCallCount == 0
-        let canceled = urlSession.finishTasksAndInvalidateCallCount == 0 && urlSession.invalidateAndCancelCallCount == 1
-        XCTAssertTrue(finished || canceled)
+        XCTAssertTrue(assertedInAnotherFunction)
     }
     
     func testAudioSpeechSessionInvalidated() throws {
         try stub(result: Data())
+        
+        var asserted = false
+        performStreamAndAssertInvalidation { completion in
+            _ = openAI.audioCreateSpeechStream(query: .mock) { result in
+            } completion: { error in
+                completion(error)
+            }
+            asserted = true
+        }
+        XCTAssertTrue(asserted)
+    }
+    
+    private func performStreamAndAssertInvalidation(performStream: (_ completion: @escaping (Error?) -> Void) -> Void) {
         urlSession.dataTask.completion = { data, _, error in
             let dataDelegate = self.urlSession.delegate
             dataDelegate?.urlSession(self.urlSession, task: self.urlSession.dataTask, didCompleteWithError: error)
@@ -81,8 +82,7 @@ class OpenAIStreamingTests: XCTestCase {
             completionCallCount += 1
         }
         
-        _ = openAI.audioCreateSpeechStream(query: .mock) { result in
-        } completion: { error in
+        performStream { error in
             dispatchPrecondition(condition: .onQueue(.main))
             completionCalledClosure.closure()
         }

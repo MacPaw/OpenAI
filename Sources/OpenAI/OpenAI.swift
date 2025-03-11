@@ -282,28 +282,10 @@ extension OpenAI {
                 onResult(.failure(error))
             } onComplete: { [weak self] session, error in
                 completion?(error)
-                
-                guard let self else {
-                    return
-                }
-                
-                self.executionSerializer.dispatch {
-                    let invalidatableSession = self.streamingSessions.removeValue(forKey: session)
-                    invalidatableSession?.invalidateAndCancel()
-                }
+                self?.invalidateSession(session)
             }
             
-            let performableSession = session.makeSession()
-            
-            executionSerializer.dispatch {
-                self.streamingSessions[session] = performableSession
-            }
-            
-            performableSession.performSession()
-            
-            return cancellablesFactory.makeSessionCanceller(
-                session: performableSession
-            )
+            return runSession(session)
         } catch {
             completion?(error)
             return NoOpCancellableRequest()
@@ -342,28 +324,10 @@ extension OpenAI {
                 onResult(.failure(error))
             } onComplete: { [weak self] session, error in
                 completion?(error)
-                
-                guard let self else {
-                    return
-                }
-                
-                self.executionSerializer.dispatch {
-                    let invalidatableSession = self.streamingSessions.removeValue(forKey: session)
-                    invalidatableSession?.invalidateAndCancel()
-                }
+                self?.invalidateSession(session)
             }
             
-            let performableSession = session.makeSession()
-            
-            executionSerializer.dispatch {
-                self.streamingSessions[session] = performableSession
-            }
-            
-            performableSession.performSession()
-            
-            return cancellablesFactory.makeSessionCanceller(
-                session: performableSession
-            )
+            return runSession(session)
         } catch {
             completion?(error)
             return NoOpCancellableRequest()
@@ -397,6 +361,27 @@ extension OpenAI {
             }
             
             completion(.success(data))
+        }
+    }
+    
+    private func runSession<I>(_ session: StreamingSession<I>) -> CancellableRequest {
+        let performableSession = session.makeSession()
+        
+        executionSerializer.dispatch {
+            self.streamingSessions[session] = performableSession
+        }
+        
+        performableSession.performSession()
+        
+        return cancellablesFactory.makeSessionCanceller(
+            session: performableSession
+        )
+    }
+    
+    private func invalidateSession(_ object: NSObject) {
+        self.executionSerializer.dispatch {
+            let invalidatableSession = self.streamingSessions.removeValue(forKey: object)
+            invalidatableSession?.invalidateAndCancel()
         }
     }
 }

@@ -9,8 +9,9 @@ import Testing
 import Foundation
 @testable import OpenAI
 
+@MainActor
 struct ServerSentEventsStreamInterpreterTests {
-    let interpreter = ServerSentEventsStreamInterpreter<ChatStreamResult>()
+    let interpreter = ServerSentEventsStreamInterpreter<ChatStreamResult>(executionSerializer: NoDispatchExecutionSerializer())
     
     @Test func parseShortMessageResponseStream() async throws {
         var chatStreamResults: [ChatStreamResult] = []
