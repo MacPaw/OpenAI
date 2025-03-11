@@ -10,26 +10,24 @@ import Foundation
 
 class MockCancellablesFactory: CancellablesFactory {
     var taskCanceller: MockTaskCanceller!
-    func makeTaskCanceller() -> any URLSessionTaskCancelling {
+    
+    func makeTaskCanceller(task: any URLSessionTaskProtocol) -> any CancellableRequest {
         taskCanceller
     }
     
-    var sessionCanceller: MockSessionCanceller!
-    func makeSessionCanceller() -> any SessionInvalidating {
+    var sessionCanceller = MockSessionCanceller()
+    
+    func makeSessionCanceller(session: any InvalidatableSession) -> any CancellableRequest {
         sessionCanceller
     }
 }
 
-class MockTaskCanceller: URLSessionTaskCancelling {
-    var task: (any URLSessionTaskProtocol)?
-    
+class MockTaskCanceller: CancellableRequest, @unchecked Sendable {
     func cancelRequest() {
     }
 }
 
-class MockSessionCanceller: SessionInvalidating {
-    var session: (any InvalidatableSession)?
-    
+class MockSessionCanceller: CancellableRequest, @unchecked Sendable {
     var cancelCallCount = 0
     func cancelRequest() {
         cancelCallCount += 1

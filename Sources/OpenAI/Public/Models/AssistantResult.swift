@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AssistantResult: Codable, Equatable {
+public struct AssistantResult: Codable, Equatable, Sendable {
     public let id: String
     public let name: String?
     public let description: String?
@@ -25,7 +25,7 @@ public struct AssistantResult: Codable, Equatable {
     }
 }
 
-public struct ToolResources: Codable, Equatable {
+public struct ToolResources: Codable, Equatable, Sendable {
     public let fileSearch: FileSearchResources?
     public let codeInterpreter: CodeInterpreterResources?
     
@@ -40,7 +40,7 @@ public struct ToolResources: Codable, Equatable {
     }
 }
 
-public struct FileSearchResources: Codable, Equatable {
+public struct FileSearchResources: Codable, Equatable, Sendable {
     public let vectorStoreIds: [String]
     
     enum CodingKeys: String, CodingKey {
@@ -48,7 +48,7 @@ public struct FileSearchResources: Codable, Equatable {
     }
 }
 
-public struct CodeInterpreterResources: Codable, Equatable {
+public struct CodeInterpreterResources: Codable, Equatable, Sendable {
     public let fileIds: [String]
     
     public init(fileIds: [String]) {

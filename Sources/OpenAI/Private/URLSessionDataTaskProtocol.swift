@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  URLSessionDataTaskProtocol.swift
 //  
 //
 //  Created by Sergii Kryvoblotskyi on 02/04/2023.
@@ -10,12 +10,13 @@ import Foundation
 import FoundationNetworking
 #endif
 
-protocol URLSessionTaskProtocol {
+protocol URLSessionTaskProtocol: Sendable {
     func cancel()
 }
 
+extension URLSessionTask: URLSessionTaskProtocol {}
+
 protocol URLSessionDataTaskProtocol: URLSessionTaskProtocol {
-    
     func resume()
 }
 

@@ -33,16 +33,18 @@ class MockDataTaskPublisher: Publisher {
         subscriber.receive(subscription: subscription)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
-            subscription.trigger()
+            MainActor.assumeIsolated {
+                subscription.trigger()
+            }
         })
     }
 }
 
-protocol CancellableMock {
+protocol CancellableMock: Sendable {
     var cancelCallCount: Int { get }
 }
                                       
-class MockDataTaskSubscription<Target: Subscriber>: Subscription, CancellableMock
+class MockDataTaskSubscription<Target: Subscriber>: Subscription, CancellableMock, @unchecked Sendable
 where Target.Input == (data: Data, response: URLResponse) {
     
     var target: Target?

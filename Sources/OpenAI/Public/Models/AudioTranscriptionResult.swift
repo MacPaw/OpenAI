@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AudioTranscriptionResult: Codable, Equatable {
+public struct AudioTranscriptionResult: Codable, Equatable, Sendable {
     /// The task type (always "transcribe" for transcriptions)
     public let task: String?
     /// The detected language
@@ -33,7 +33,7 @@ public struct AudioTranscriptionResult: Codable, Equatable {
         self.segments = segments
     }
         
-    public struct Segment: Codable, Equatable {
+    public struct Segment: Codable, Equatable, Sendable {
         public let id: Int
         public let seek: Int
         public let start: Double

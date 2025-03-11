@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FilesQuery: Codable {
+public struct FilesQuery: Codable, Sendable {
 
     public let purpose: String
 

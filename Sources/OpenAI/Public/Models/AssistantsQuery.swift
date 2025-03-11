@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AssistantsQuery: Codable, Equatable {
+public struct AssistantsQuery: Codable, Equatable, Sendable {
     public let model: Model
     public let name: String?
     public let description: String?

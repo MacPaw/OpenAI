@@ -7,9 +7,9 @@
 
 import Foundation
 
-public struct EmbeddingsResult: Codable, Equatable {
+public struct EmbeddingsResult: Codable, Equatable, Sendable {
 
-    public struct Embedding: Codable, Equatable {
+    public struct Embedding: Codable, Equatable, Sendable {
         /// The object type, which is always "embedding".
         public let object: String
         /// The embedding vector, which is a list of floats. The length of vector depends on the model as listed in the embedding guide.
@@ -19,7 +19,7 @@ public struct EmbeddingsResult: Codable, Equatable {
         public let index: Int
     }
     
-    public struct Usage: Codable, Equatable {
+    public struct Usage: Codable, Equatable, Sendable {
         public let promptTokens: Int
         public let totalTokens: Int
         
