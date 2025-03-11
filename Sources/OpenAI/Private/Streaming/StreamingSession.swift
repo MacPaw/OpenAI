@@ -35,6 +35,8 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
         self.onReceiveContent = onReceiveContent
         self.onProcessingError = onProcessingError
         self.onComplete = onComplete
+        super.init()
+        subscribeToParser()
     }
     
     func makeSession() -> PerformableSession & InvalidatableSession {
