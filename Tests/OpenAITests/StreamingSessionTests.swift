@@ -15,7 +15,7 @@ final class StreamingSessionTests: XCTestCase {
     
     private lazy var streamingSession = StreamingSession(
         urlSessionFactory: MockURLSessionFactory(),
-        urlRequest: .init(url: .applicationDirectory),
+        urlRequest: .init(url: .init(string: "/")!),
         interpreter: streamInterpreter,
         onReceiveContent: { _, _ in
             Task {
