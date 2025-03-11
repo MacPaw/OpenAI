@@ -8,6 +8,10 @@
 import Foundation
 @testable import OpenAI
 
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+
 class MockStreamingSessionFactory: StreamingSessionFactory {
     var urlSessionFactory = MockURLSessionFactory()
     

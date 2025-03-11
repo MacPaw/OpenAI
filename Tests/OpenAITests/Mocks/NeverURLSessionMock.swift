@@ -8,6 +8,10 @@
 import Foundation
 @testable import OpenAI
 
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+
 struct NeverURLSessionMock: URLSessionProtocol {
     func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void) -> any URLSessionDataTaskProtocol {
         fatalError()
