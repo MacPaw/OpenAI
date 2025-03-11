@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  StreamingError.swift
 //  OpenAI
 //
 //  Created by Oleksii Nezhyborets on 03.02.2025.

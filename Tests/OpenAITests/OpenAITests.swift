@@ -13,11 +13,10 @@ class OpenAITests: XCTestCase {
 
     private var openAI: OpenAIProtocol!
     private let urlSession = URLSessionMock()
-    private let cancellablesFactory = MockCancellablesFactory()
     
     override func setUp() async throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        self.openAI = OpenAI(configuration: configuration, session: self.urlSession, cancellablesFactory: cancellablesFactory)
+        self.openAI = OpenAI(configuration: configuration, session: self.urlSession)
     }
 
     func testImages() async throws {
@@ -740,24 +739,6 @@ class OpenAITests: XCTestCase {
         task.cancel()
         _ = try await task.value
         XCTAssertTrue(urlSession.dataTaskIsCancelled)
-    }
-    
-    @MainActor
-    func testCancelStreamingRequest() async throws {
-        let sessionCanceller = MockSessionCanceller()
-        cancellablesFactory.sessionCanceller = sessionCanceller
-        
-        try stub(result: makeChatResult())
-        
-        let task = Task {
-            let stream: AsyncThrowingStream<ChatStreamResult, Error> = openAI.chatsStream(query: makeChatQuery())
-            for try await _ in stream {
-            }
-        }
-        
-        task.cancel()
-        _ = try await task.value
-        XCTAssertEqual(sessionCanceller.cancelCallCount, 1)
     }
     
     private func assistantsQuery() -> AssistantsQuery {

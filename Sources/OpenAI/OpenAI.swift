@@ -10,7 +10,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-final public class OpenAI {
+final public class OpenAI: @unchecked Sendable {
 
     public struct Configuration {
         
@@ -54,7 +54,11 @@ final public class OpenAI {
     }
     
     let session: URLSessionProtocol
+    
+    private let streamingSessionFactory: StreamingSessionFactory
     private let cancellablesFactory: CancellablesFactory
+    private let executionSerializer: ExecutionSerializer
+    private var streamingSessions: [NSObject] = []
     
     public let configuration: Configuration
 
@@ -66,10 +70,18 @@ final public class OpenAI {
         self.init(configuration: configuration, session: URLSession.shared)
     }
 
-    init(configuration: Configuration, session: URLSessionProtocol, cancellablesFactory: CancellablesFactory = DefaultCancellablesFactory()) {
+    init(
+        configuration: Configuration,
+        session: URLSessionProtocol,
+        streamingSessionFactory: StreamingSessionFactory = ImplicitURLSessionStreamingSessionFactory(),
+        cancellablesFactory: CancellablesFactory = DefaultCancellablesFactory(),
+        executionSerializer: ExecutionSerializer = GCDQueueAsyncExecutionSerializer(queue: .userInitiated)
+    ) {
         self.configuration = configuration
         self.session = session
+        self.streamingSessionFactory = streamingSessionFactory
         self.cancellablesFactory = cancellablesFactory
+        self.executionSerializer = executionSerializer
     }
 
     public convenience init(configuration: Configuration, session: URLSession = URLSession.shared) {
@@ -263,16 +275,32 @@ extension OpenAI {
     ) -> CancellableRequest {
         do {
             let urlRequest = try request.build(configuration: configuration)
-            let session = StreamingSession<ResultType, ServerSentEventsStreamInterpreter>(urlRequest: request, interpreter: .init()) { _, object in
+            
+            let session = streamingSessionFactory.makeServerSentEventsStreamingSession(urlRequest: urlRequest) { _, object in
                 onResult(.success(object))
             } onProcessingError: { _, error in
                 onResult(.failure(error))
-            } onComplete: { _, error in
+            } onComplete: { [weak self] session, error in
                 completion?(error)
+                
+                guard let self else {
+                    return
+                }
+                
+                self.executionSerializer.dispatch {
+                    self.streamingSessions.removeAll(where: { $0 === session })
+                    session.invalidateAndCancel()
+                }
             }
             
+            executionSerializer.dispatch {
+                self.streamingSessions.append(session)
+            }
+            
+            session.perform()
+            
             return cancellablesFactory.makeSessionCanceller(
-                session: session.perform()
+                session: session
             )
         } catch {
             completion?(error)
@@ -299,6 +327,35 @@ extension OpenAI {
         } catch {
             completion(.failure(error))
             return NoOpCancellableRequest()
+        }
+    }
+    
+    func performSpeechStreamingRequest(request: any URLRequestBuildable, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
+        do {
+            let request = try request.build(configuration: configuration)
+            
+            let session = StreamingSession(urlRequest: request, interpreter: AudioSpeechStreamInterpreter()) { _, object in
+                onResult(.success(object))
+            } onProcessingError: { _, error in
+                onResult(.failure(error))
+            } onComplete: { [weak self] session, error in
+                completion?(error)
+                guard let self else {
+                    return
+                }
+                self.executionSerializer.dispatch {
+                    self.streamingSessions.removeAll(where: { $0 == session })
+                    session.invalidateAndCancel()
+                }
+            }
+            
+            session.perform()
+            
+            self.executionSerializer.dispatch {
+                self.streamingSessions.append(session)
+            }
+        } catch {
+            completion?(error)
         }
     }
     
@@ -329,30 +386,6 @@ extension OpenAI {
             }
             
             completion(.success(data))
-        }
-    }
-
-    func performSpeechStreamingRequest(request: any URLRequestBuildable, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) {
-        do {
-            let request = try request.build(configuration: configuration)
-            let session = StreamingSession<AudioSpeechResult, AudioSpeechStreamInterpreter>(
-                urlRequest: request,
-                interpreter: .init()
-            )
-            session.onReceiveContent = { _, object in
-                onResult(.success(object))
-            }
-            session.onProcessingError = { _, error in
-                onResult(.failure(error))
-            }
-            session.onComplete = { [weak self] object, error in
-                self?.streamingSessions.removeAll(where: { $0 == object })
-                completion?(error)
-            }
-            session.perform()
-            streamingSessions.append(session)
-        } catch {
-            completion?(error)
         }
     }
 }

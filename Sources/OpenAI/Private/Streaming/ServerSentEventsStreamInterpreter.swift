@@ -1,30 +1,24 @@
 //
-//  StreamInterpreter.swift
+//  ServerSentEventsStreamInterpreter.swift
 //  OpenAI
 //
-//  Created by Oleksii Nezhyborets on 03.02.2025.
+//  Created by Oleksii Nezhyborets on 11.03.2025.
 //
 
 import Foundation
-
-protocol StreamInterpreter: AnyObject {
-    associatedtype ResultType: Codable
-    
-    var onEventDispatched: ((ResultType) -> Void)? { get set }
-    
-    func processData(_ data: Data) throws
-}
 
 /// https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation
 /// 9.2.6 Interpreting an event stream
 final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: @unchecked Sendable, StreamInterpreter {
     private let streamingCompletionMarker = "[DONE]"
     private var previousChunkBuffer = ""
+    
     private var onEventDispatched: ((ResultType) -> Void)?
     private var onError: ((Error) -> Void)?
+    private let executionSerializer: ExecutionSerializer
     
-    private var queue: DispatchQueue {
-        .userInitiated
+    init(executionSerializer: ExecutionSerializer = GCDQueueAsyncExecutionSerializer(queue: .userInitiated)) {
+        self.executionSerializer = executionSerializer
     }
     
     /// Sets closures an instance of type in a thread safe manner
@@ -33,7 +27,7 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
     ///     - onEventDispatched: Can be called multiple times per `processData`
     ///     - onError: Will only be called once per `processData`
     func setCallbackClosures(onEventDispatched: @escaping @Sendable (ResultType) -> Void, onError: @escaping @Sendable (Error) -> Void) {
-        queue.async {
+        executionSerializer.dispatch {
             self.onEventDispatched = onEventDispatched
             self.onError = onError
         }
@@ -51,7 +45,7 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
             return
         }
         
-        queue.async {
+        executionSerializer.dispatch {
             self.processJSON(from: stringContent)
         }
     }

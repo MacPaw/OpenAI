@@ -10,24 +10,31 @@ import Foundation
 import FoundationNetworking
 #endif
 
-final class StreamingSession<ResultType: Codable & Sendable, Interpreter: StreamInterpreter>: NSObject, Identifiable, URLSessionDelegate, URLSessionDataDelegate, , InvalidatableSession where Interpreter.ResultType == ResultType {
+final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifiable, URLSessionDataDelegateProtocol, InvalidatableSession {
+    typealias ResultType = Interpreter.ResultType
+    
+    private let urlSessionFactory: URLSessionFactory
     private let urlRequest: URLRequest
-    private lazy var urlSession: URLSession = {
-        let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
-        return session
-    }()
+    
+    // Important: URLSession holds strong reference to it's delegate (self)
+    // So there is a reference cycle here
+    // Without refactoring the cycle, to fix the issue,
+    //  URLSession should be explicitly invalidated (at the moment of writing it happens in OpenAI.swift
+    private lazy var urlSession: URLSessionProtocol = urlSessionFactory.makeUrlSession(delegate: self)
     private let onReceiveContent: (@Sendable (StreamingSession, ResultType) -> Void)?
     private let onProcessingError: (@Sendable (StreamingSession, Error) -> Void)?
     private let onComplete: (@Sendable (StreamingSession, Error?) -> Void)?
     private let interpreter: Interpreter
     
     init(
+        urlSessionFactory: URLSessionFactory = FoundationURLSessionFactory(),
         urlRequest: URLRequest,
         interpreter: Interpreter,
         onReceiveContent: @escaping @Sendable (StreamingSession, ResultType) -> Void,
         onProcessingError: @escaping @Sendable (StreamingSession, Error) -> Void,
         onComplete: @escaping @Sendable (StreamingSession, Error?) -> Void
     ) {
+        self.urlSessionFactory = urlSessionFactory
         self.urlRequest = urlRequest
         self.interpreter = interpreter
         self.onReceiveContent = onReceiveContent
@@ -35,20 +42,26 @@ final class StreamingSession<ResultType: Codable & Sendable, Interpreter: Stream
         self.onComplete = onComplete
     }
     
-    func perform() -> InvalidatableSession {
-        let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
-        session
+    func perform() {
+        urlSession
             .dataTask(with: urlRequest)
             .resume()
-        return session
     }
     
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    func urlSession(_ session: any URLSessionProtocol, task: any URLSessionTaskProtocol, didCompleteWithError error: (any Error)?) {
         onComplete?(self, error)
     }
     
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+    func urlSession(_ session: any URLSessionProtocol, dataTask: any URLSessionDataTaskProtocol, didReceive data: Data) {
         interpreter.processData(data)
+    }
+    
+    func invalidateAndCancel() {
+        urlSession.invalidateAndCancel()
+    }
+    
+    func finishTasksAndInvalidate() {
+        urlSession.finishTasksAndInvalidate()
     }
     
     private func subscribeToParser() {

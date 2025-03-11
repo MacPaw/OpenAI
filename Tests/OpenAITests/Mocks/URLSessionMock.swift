@@ -15,6 +15,11 @@ class URLSessionMock: URLSessionProtocol, @unchecked Sendable {
     var dataTask: DataTaskMock!
     var dataTaskIsCancelled = false
     
+    var delegate: URLSessionDataDelegateProtocol?
+    
+    var invalidateAndCancelCallCount = 0
+    var finishTasksAndInvalidateCallCount = 0
+    
     func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTaskProtocol {
         dataTask.completion = completionHandler
         return dataTask
@@ -37,9 +42,11 @@ class URLSessionMock: URLSessionProtocol, @unchecked Sendable {
     }
     
     func invalidateAndCancel() {
+        invalidateAndCancelCallCount += 1
     }
     
     func finishTasksAndInvalidate() {
+        finishTasksAndInvalidateCallCount += 1
     }
     
 #if canImport(Combine)

@@ -15,7 +15,7 @@ class MockCancellablesFactory: CancellablesFactory {
         taskCanceller
     }
     
-    var sessionCanceller: MockSessionCanceller!
+    var sessionCanceller = MockSessionCanceller()
     
     func makeSessionCanceller(session: any InvalidatableSession) -> any CancellableRequest {
         sessionCanceller

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  URLSessionDataTaskProtocol.swift
 //  
 //
 //  Created by Sergii Kryvoblotskyi on 02/04/2023.
@@ -14,8 +14,9 @@ protocol URLSessionTaskProtocol: Sendable {
     func cancel()
 }
 
+extension URLSessionTask: URLSessionTaskProtocol {}
+
 protocol URLSessionDataTaskProtocol: URLSessionTaskProtocol {
-    
     func resume()
 }
 
