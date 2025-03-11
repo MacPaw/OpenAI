@@ -7,6 +7,10 @@
 
 import Foundation
 
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+
 final class DataTaskPerformingURLSession: Sendable, PerformableSession, InvalidatableSession {
     private let urlRequest: URLRequest
     private let urlSession: URLSessionProtocol

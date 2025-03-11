@@ -7,6 +7,10 @@
 
 import Foundation
 
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+
 class URLSessionDataDelegateForwarder: NSObject, URLSessionDataDelegate {
     let target: URLSessionDataDelegateProtocol
     

@@ -10,9 +10,6 @@ import Foundation
 import FoundationNetworking
 #endif
 
-
-
-
 protocol URLSessionProtocol: InvalidatableSession, URLSessionCombine {
     func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTaskProtocol
     func dataTask(with request: URLRequest) -> URLSessionDataTaskProtocol

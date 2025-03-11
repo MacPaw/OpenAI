@@ -6,6 +6,9 @@
 //
 
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 protocol URLSessionFactory: Sendable {
     func makeUrlSession(delegate: URLSessionDataDelegateProtocol) -> URLSessionProtocol
