@@ -16,6 +16,11 @@ class StreamInterpreter<ResultType: Codable> {
     var onEventDispatched: ((ResultType) -> Void)?
     
     func processData(_ data: Data) throws {
+        let decoder = JSONDecoder()
+        if let decoded = try? decoder.decode(APIErrorResponse.self, from: data) {
+            throw decoded
+        }
+        
         guard let stringContent = String(data: data, encoding: .utf8) else {
             throw StreamingError.unknownContent
         }

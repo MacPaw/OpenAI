@@ -9,32 +9,24 @@
 
 import XCTest
 @testable import OpenAI
+import Combine
 
-@available(iOS 13.0, *)
-@available(watchOS 6.0, *)
-@available(tvOS 13.0, *)
+@available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
 final class OpenAITestsCombine: XCTestCase {
     
-    var openAI: OpenAIProtocol!
-    var urlSession: URLSessionMock!
+    private var openAI: OpenAIProtocol!
+    private let urlSession: URLSessionMockCombine = URLSessionMockCombine()
+    private let cancellablesFactory = MockCancellablesFactory()
     
     override func setUp() {
         super.setUp()
-        self.urlSession = URLSessionMock()
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        self.openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        self.openAI = OpenAI(configuration: configuration, session: self.urlSession, cancellablesFactory: cancellablesFactory)
     }
     
     func testChats() throws {
-        let query = ChatQuery(messages: [
-            .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
-            .user(.init(content: .string("Who wrote Harry Potter?")))
-       ], model: .gpt3_5Turbo)
-        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-            .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
-            .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
-            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
-        ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
+        let query = makeChatsQuery()
+        let chatResult = makeChatsResult()
        try self.stub(result: chatResult)
        let result = try awaitPublisher(openAI.chats(query: query))
        XCTAssertEqual(result, chatResult)
@@ -102,13 +94,12 @@ final class OpenAITestsCombine: XCTestCase {
         let result = try awaitPublisher(openAI.audioTranslations(query: query))
         XCTAssertEqual(result, transcriptionResult)
     }
-
-    // 1106
+    
     func testAssistantsQuery() throws {
         let expectedAssistant = AssistantResult.makeMock()
         let expectedResult = AssistantsResult(data: [expectedAssistant], firstId: expectedAssistant.id, lastId: expectedAssistant.id, hasMore: false)
         try self.stub(result: expectedResult)
-
+        
         let result = try awaitPublisher(openAI.assistants())
         XCTAssertEqual(result, expectedResult)
     }
@@ -213,8 +204,46 @@ final class OpenAITestsCombine: XCTestCase {
       let result = try awaitPublisher(openAI.files(query: query))
       XCTAssertEqual(result, expectedResult)
    }
-    // 1106 end
-
+    
+    func testCancelRequest() {
+        let query = makeChatsQuery()
+        
+        let publisher = MockDataTaskPublisher()
+        urlSession.dataTaskPublisher = publisher.eraseToAnyPublisher()
+        let subscription: AnyCancellable = openAI.chats(query: query).sink(receiveCompletion: { _ in }, receiveValue: { _ in })
+        subscription.cancel()
+        XCTAssertEqual(publisher.subscription?.cancelCallCount, 1)
+    }
+    
+    func testCancelStreamingRequest() throws {
+        let query = makeChatsQuery()
+        let sessionCanceller = MockSessionCanceller()
+        cancellablesFactory.sessionCanceller = sessionCanceller
+        try stub(result: makeChatsResult())
+        let subscription = openAI.chatsStream(query: query).sink { _ in } receiveValue: { _ in }
+        subscription.cancel()
+        XCTAssertEqual(sessionCanceller.cancelCallCount, 1)
+    }
+    
+    private func makeChatsQuery() -> ChatQuery {
+        .init(messages: [
+            .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
+            .user(.init(content: .string("Who wrote Harry Potter?")))
+       ], model: .gpt3_5Turbo)
+    }
+    
+    private func makeChatsResult() -> ChatResult {
+        .init(
+            id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo,
+            choices: [
+                .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
+                .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
+                .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
+            ],
+            usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300),
+            systemFingerprint: nil
+        )
+    }
 }
 
 @available(tvOS 13.0, *)
@@ -222,8 +251,7 @@ final class OpenAITestsCombine: XCTestCase {
 @available(watchOS 6.0, *)
 extension OpenAITestsCombine {
     
-    func stub(error: Error) {
-        let error = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+    func stub(error: URLError) {
         let task = DataTaskMock.failed(with: error)
         self.urlSession.dataTask = task
     }

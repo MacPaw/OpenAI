@@ -8,19 +8,18 @@
 import XCTest
 @testable import OpenAI
 
-@available(iOS 13.0, *)
-@available(watchOS 6.0, *)
-@available(tvOS 13.0, *)
+@available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
 class OpenAITests: XCTestCase {
 
-    var openAI: OpenAIProtocol!
-    var urlSession: URLSessionMock!
+    private var openAI: OpenAIProtocol!
+    private let urlSession = URLSessionMock()
+    private let cancellablesFactory = MockCancellablesFactory()
     
     override func setUp() {
         super.setUp()
-        self.urlSession = URLSessionMock()
+        
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        self.openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        self.openAI = OpenAI(configuration: configuration, session: self.urlSession, cancellablesFactory: cancellablesFactory)
     }
 
     func testImages() async throws {
@@ -81,15 +80,8 @@ class OpenAITests: XCTestCase {
     }
     
     func testChats() async throws {
-       let query = ChatQuery(messages: [
-           .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
-           .user(.init(content: .string("Who wrote Harry Potter?")))
-       ], model: .gpt3_5Turbo)
-        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-            .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
-            .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
-            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
-        ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
+        let query = makeChatQuery()
+        let chatResult = makeChatResult()
        try self.stub(result: chatResult)
         
        let result = try await openAI.chats(query: query)
@@ -401,7 +393,7 @@ class OpenAITests: XCTestCase {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         let completionQuery = ChatQuery(messages: [.user(.init(content: .string("how are you?")))], model: .gpt3_5Turbo_16k)
         let jsonRequest = JSONRequest<ChatResult>(body: completionQuery, url: URL(string: "http://google.com")!)
-        let urlRequest = try jsonRequest.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
+        let urlRequest = try jsonRequest.build(configuration: configuration)
         
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Content-Type"), "application/json")
@@ -412,12 +404,33 @@ class OpenAITests: XCTestCase {
     func testMultipartRequestCreation() throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         let completionQuery = AudioTranslationQuery(file: Data(), fileType: .mp3, model: .whisper_1)
-        let jsonRequest = MultipartFormDataRequest<ChatResult>(body: completionQuery, url: URL(string: "http://google.com")!)
-        let urlRequest = try jsonRequest.build(token: configuration.token, organizationIdentifier: configuration.organizationIdentifier, timeoutInterval: configuration.timeoutInterval)
+        let multipartFormDataRequest = MultipartFormDataRequest<ChatResult>(body: completionQuery, url: URL(string: "http://google.com")!)
+        let urlRequest = try multipartFormDataRequest.build(configuration: configuration)
         
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "OpenAI-Organization"), configuration.organizationIdentifier)
         XCTAssertEqual(urlRequest.timeoutInterval, configuration.timeoutInterval)
+    }
+    
+    func testAssistantRequestCreationSetsHeader() throws {
+        let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
+        let jsonRequest = AssistantsRequest<AssistantResult>.jsonRequest(
+            urlBuilder: DefaultURLBuilder(configuration: configuration, path: .Assistants.assistants.stringValue),
+            body: assistantsQuery()
+        )
+        let urlRequest = try jsonRequest.build(configuration: configuration)
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "OpenAI-Beta"), "assistants=v2")
+    }
+    
+    func testCustomHeadersOverrideDefault() throws {
+        let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14, customHeaders: ["Authorization": "auth", "Content-Type": "ctype", "OpenAI-Organization": "org"])
+        let completionQuery = ChatQuery(messages: [.user(.init(content: .string("how are you?")))], model: .gpt3_5Turbo_16k)
+        let jsonRequest = JSONRequest<ChatResult>(body: completionQuery, url: URL(string: "http://google.com")!)
+        let urlRequest = try jsonRequest.build(configuration: configuration)
+        
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "auth")
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Content-Type"), "ctype")
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "OpenAI-Organization"), "org")
     }
     
     func testDefaultHostURLBuilt() {
@@ -425,6 +438,13 @@ class OpenAITests: XCTestCase {
         let openAI = OpenAI(configuration: configuration, session: self.urlSession)
         let chatsURL = openAI.buildURL(path: .chats)
         XCTAssertEqual(chatsURL, URL(string: "https://api.openai.com:443/v1/chat/completions"))
+    }
+    
+    func testDefaultHostURLBuiltWithCustomBasePath() {
+        let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", basePath: "/api/v9527", timeoutInterval: 14)
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        let chatsURL = openAI.buildURL(path: .chats)
+        XCTAssertEqual(chatsURL, URL(string: "https://api.openai.com:443/api/v9527/chat/completions"))
     }
     
     func testCustomURLBuiltWithPredefinedPath() {
@@ -442,7 +462,7 @@ class OpenAITests: XCTestCase {
             timeoutInterval: 14
         )
         let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
-        XCTAssertEqual(openAI.buildURL(path: "foo"), URL(string: "https://bizbaz.com:443/foo"))
+        XCTAssertEqual(openAI.buildURL(path: "foo"), URL(string: "https://bizbaz.com:443/v1/foo"))
     }
     
     func testCustomURLBuiltWithCustomBasePath() {
@@ -468,8 +488,7 @@ class OpenAITests: XCTestCase {
         let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
         XCTAssertEqual(openAI.buildURL(path: "/foo"), URL(string: "https://bizbaz.com:443/openai/foo"))
     }
-
-    // 1106
+    
     func testAssistantCreateQuery() async throws {
         let query = assistantsQuery()
         let expectedResult = AssistantResult.makeMock()
@@ -703,10 +722,53 @@ class OpenAITests: XCTestCase {
         let completionsURL = openAI.buildRunRetrieveURL(path: APIPath.Assistants.runRetrieveSteps.stringValue, threadId: "thread_4321", runId: "run_1234")
         XCTAssertEqual(completionsURL, URL(string: "https://my.host.com:443/v1/threads/thread_4321/runs/run_1234/steps"))
     }
-    // 1106 end
+    
+    func testCancelRequest() async throws {
+        try stub(result: makeChatResult())
+        
+        let task = Task {
+            try await openAI.chats(query: makeChatQuery())
+        }
+        
+        task.cancel()
+        _ = try await task.value
+        XCTAssertTrue(urlSession.dataTaskIsCancelled)
+    }
+    
+    func testCancelStreamingRequest() async throws {
+        let sessionCanceller = MockSessionCanceller()
+        cancellablesFactory.sessionCanceller = sessionCanceller
+        
+        try stub(result: makeChatResult())
+        
+        let task = Task {
+            let stream: AsyncThrowingStream<ChatStreamResult, Error> = openAI.chatsStream(query: makeChatQuery())
+            for try await _ in stream {
+            }
+        }
+        
+        task.cancel()
+        _ = try await task.value
+        XCTAssertEqual(sessionCanceller.cancelCallCount, 1)
+    }
     
     private func assistantsQuery() -> AssistantsQuery {
         .makeMock()
+    }
+    
+    private func makeChatQuery() -> ChatQuery {
+        .init(messages: [
+            .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
+            .user(.init(content: .string("Who wrote Harry Potter?")))
+        ], model: .gpt3_5Turbo)
+    }
+    
+    private func makeChatResult() -> ChatResult {
+        .init(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
+            .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
+            .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
+            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
+        ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
     }
 }
 
