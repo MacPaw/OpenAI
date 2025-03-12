@@ -50,6 +50,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
         - [Files](#files)
           - [Upload File](#upload-file)
   - [Cancelling requests](#cancelling-requests)
+- [Support for other providers: Gemini, Perplexity, ...](#providers-support)
 - [Example Project](#example-project)
 - [Contribution Guidelines](#contribution-guidelines)
 - [Links](#links)
@@ -1114,6 +1115,16 @@ let subscription = openAIClient
     
 subscription.cancel()
 ```
+
+## Support for other providers
+This SDK has a limited support for other providers like Gemini, Perplexity etc.
+
+The top priority of this SDK is OpenAI, and the main rule is for all the main types to be fully compatible with [OpenAI's API Reference](https://platform.openai.com/docs/api-reference/introduction). If it says a field should be optional, it must be optional in main subset of Query/Result types of this SDK. The same goes for other info declared in the reference, like default values.
+
+That said we still want to give a support for other providers. For the time being, we'll cover the requests case by case.
+
+#### Perplexity - Chat Completions Response
+[citations](https://docs.perplexity.ai/api-reference/chat-completions#response-citations) - added to `ChatResult` as optional field to enable parsing of Perplexity responses
 
 ## Example Project
 

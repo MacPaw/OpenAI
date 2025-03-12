@@ -100,6 +100,8 @@ public struct ChatResult: Codable, Equatable {
     public let created: TimeInterval
     /// The model used for the chat completion.
     public let model: String
+    /// A list of citations for the completion.
+    public let citations: [String]?
     /// A list of chat completion choices. Can be more than one if n is greater than 1.
     public let choices: [Choice]
     /// Usage statistics for the completion request.
@@ -113,6 +115,7 @@ public struct ChatResult: Codable, Equatable {
         case object
         case created
         case model
+        case citations
         case choices
         case usage
         case systemFingerprint = "system_fingerprint"
