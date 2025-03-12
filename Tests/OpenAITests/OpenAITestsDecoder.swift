@@ -81,7 +81,7 @@ class OpenAITestsDecoder: XCTestCase {
         }
         """
         
-        let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, choices: [
+        let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, citations: nil, choices: [
             .init(index: 0, logprobs: nil, message: .assistant(.init(content: "Hello, world!")), finishReason: "stop")
         ], usage: .init(completionTokens: 12, promptTokens: 9, totalTokens: 21), systemFingerprint: nil)
         try decode(data, expectedValue)
@@ -313,7 +313,7 @@ class OpenAITestsDecoder: XCTestCase {
             id: "chatcmpl-1234",
             object: "chat.completion",
             created: 1677652288,
-            model: .gpt3_5Turbo,
+            model: .gpt3_5Turbo, citations: nil,
             choices: [
                 .init(index: 0,
                       logprobs: nil, message:

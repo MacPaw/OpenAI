@@ -234,7 +234,7 @@ final class OpenAITestsCombine: XCTestCase {
     
     private func makeChatsResult() -> ChatResult {
         .init(
-            id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo,
+            id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, citations: nil,
             choices: [
                 .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
                 .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
