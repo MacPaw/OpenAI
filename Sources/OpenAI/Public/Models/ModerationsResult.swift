@@ -7,7 +7,6 @@
 
 import Foundation
 
-@available(iOS 13.0, *)
 public struct ModerationsResult: Codable, Equatable {
     
     public struct Moderation: Codable, Equatable {
@@ -123,5 +122,4 @@ public struct ModerationsResult: Codable, Equatable {
     public let results: [Self.Moderation]
 }
 
-@available(iOS 13.0, *)
 extension ModerationsResult: Identifiable {}

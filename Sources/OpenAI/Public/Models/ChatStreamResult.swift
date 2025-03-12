@@ -17,6 +17,9 @@ public struct ChatStreamResult: Codable, Equatable {
 
             /// The contents of the chunk message.
             public let content: String?
+            /// The reasoning content of the chunk message.
+            /// Only some model are supported, like DeepSeek-R1.
+            public let reasoningContent: String?
             /// The role of the author of this message.
             public let role: Self.Role?
             public let toolCalls: [Self.ChoiceDeltaToolCall]?
@@ -61,6 +64,7 @@ public struct ChatStreamResult: Codable, Equatable {
 
             public enum CodingKeys: String, CodingKey {
                 case content
+                case reasoningContent = "reasoning_content"
                 case role
                 case toolCalls = "tool_calls"
             }
@@ -130,6 +134,8 @@ public struct ChatStreamResult: Codable, Equatable {
     public let choices: [Choice]
     /// This fingerprint represents the backend configuration that the model runs with. Can be used in conjunction with the `seed` request parameter to understand when backend changes have been made that might impact determinism.
     public let systemFingerprint: String?
+    /// Usage statistics for the completion request.
+    public let usage: ChatResult.CompletionUsage?
 
     public enum CodingKeys: String, CodingKey {
         case id
@@ -138,5 +144,6 @@ public struct ChatStreamResult: Codable, Equatable {
         case model
         case choices
         case systemFingerprint = "system_fingerprint"
+        case usage
     }
 }

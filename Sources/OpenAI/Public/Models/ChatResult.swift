@@ -126,6 +126,8 @@ extension ChatQuery.ChatCompletionMessageParam {
         switch try messageContainer.decode(Role.self, forKey: .role) {
         case .system:
             self = try .system(.init(from: decoder))
+        case .developer:
+            self = try .developer(.init(from: decoder))
         case .user:
             self = try .user(.init(from: decoder))
         case .assistant:
@@ -136,7 +138,7 @@ extension ChatQuery.ChatCompletionMessageParam {
     }
 }
 
-extension ChatQuery.ChatCompletionMessageParam.ChatCompletionUserMessageParam.Content {
+extension ChatQuery.ChatCompletionMessageParam.UserMessageParam.Content {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         do {
