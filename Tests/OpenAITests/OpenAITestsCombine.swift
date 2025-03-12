@@ -76,7 +76,7 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testAudioCreateSpeech() throws {
-        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, speed: nil)
+        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy)
         let data = Data(repeating: 10, count: 10)
         urlSession.dataTask = .successful(with: data)
         let response = try awaitPublisher(openAI.audioCreateSpeech(query: query), timeout: 1)

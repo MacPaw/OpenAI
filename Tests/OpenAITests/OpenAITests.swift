@@ -274,29 +274,29 @@ class OpenAITests: XCTestCase {
     func testAudioSpeechDoesNotNormalize() async throws {
         let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 2.0)
 
-        XCTAssertEqual(query.speed, "\(2.0)")
+        XCTAssertEqual(query.speed, 2.0)
     }
 
-    func testAudioSpeechNormalizeNil() async throws {
-        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: nil)
+    func testAudioSpeechNormalizeDefaultSpeed() async throws {
+        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3)
 
-        XCTAssertEqual(query.speed, "\(1.0)")
+        XCTAssertEqual(query.speed, 1.0)
     }
 
     func testAudioSpeechNormalizeLow() async throws {
         let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 0.0)
 
-        XCTAssertEqual(query.speed, "\(0.25)")
+        XCTAssertEqual(query.speed, 0.25)
     }
 
     func testAudioSpeechNormalizeHigh() async throws {
         let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 10.0)
 
-        XCTAssertEqual(query.speed, "\(4.0)")
+        XCTAssertEqual(query.speed, 4.0)
     }
     
     func testAudioCreateSpeech() async throws {
-        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, speed: nil)
+        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy)
         let data = Data(repeating: 11, count: 11)
         urlSession.dataTask = .successful(with: data)
         let response = try await openAI.audioCreateSpeech(query: query)
