@@ -49,6 +49,8 @@ This repository contains Swift community-maintained implementation over [OpenAI]
           - [Submit Tool Outputs for Run](#submit-tool-outputs-for-run)
         - [Files](#files)
           - [Upload File](#upload-file)
+  - [Cancelling requests](#cancelling-requests)
+- [Support for other providers: Gemini, Perplexity, ...](#providers-support)
 - [Example Project](#example-project)
 - [Contribution Guidelines](#contribution-guidelines)
 - [Links](#links)
@@ -1042,6 +1044,49 @@ openAI.files(query: query) { result in
   //Handle response here
 }
 ```
+
+### Cancelling requests
+#### Closure based API
+When you call any of the closure-based API methods, it returns discardable `CancellableRequest`. Hold a reference to it to be able to cancel the request later.
+```swift
+let cancellableRequest = object.chats(query: query, completion: { _ in })
+cancellableReques
+```
+
+#### Swift Concurrency
+For Swift Concurrency calls, you can simply cancel the calling task, and corresponding `URLSessionDataTask` would get cancelled automatically.
+```swift
+let task = Task {
+    do {
+        let chatResult = try await openAIClient.chats(query: .init(messages: [], model: "asd"))
+    } catch {
+        // Handle cancellation or error
+    }
+}
+            
+task.cancel()
+```
+
+#### Combine
+In Combine, use a default cancellation mechanism. Just discard the reference to a subscription, or call `cancel()` on it.
+
+```swift
+let subscription = openAIClient
+    .images(query: query)
+    .sink(receiveCompletion: { completion in }, receiveValue: { imagesResult in })
+    
+subscription.cancel()
+```
+
+## Support for other providers
+This SDK has a limited support for other providers like Gemini, Perplexity etc.
+
+The top priority of this SDK is OpenAI, and the main rule is for all the main types to be fully compatible with [OpenAI's API Reference](https://platform.openai.com/docs/api-reference/introduction). If it says a field should be optional, it must be optional in main subset of Query/Result types of this SDK. The same goes for other info declared in the reference, like default values.
+
+That said we still want to give a support for other providers. For the time being, we'll cover the requests case by case.
+
+#### Perplexity - Chat Completions Response
+[citations](https://docs.perplexity.ai/api-reference/chat-completions#response-citations) - added to `ChatResult` as optional field to enable parsing of Perplexity responses
 
 ## Example Project
 

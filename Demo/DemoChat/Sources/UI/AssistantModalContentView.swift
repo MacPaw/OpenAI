@@ -138,7 +138,7 @@ struct AssistantModalContentView: View {
                     Button("Upload File") {
                         isPickerPresented = true
                     }
-                    .sheet(isPresented: $isPickerPresented) {
+                    .fullScreenCover(isPresented: $isPickerPresented) {
                         DocumentPicker { url in
                             selectedFileURL = url
                             onFileUpload()

@@ -10,7 +10,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSessionDelegate, URLSessionDataDelegate {
+final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSessionDelegate, URLSessionDataDelegate, InvalidatableSession {
     var onReceiveContent: ((StreamingSession, ResultType) -> Void)?
     var onProcessingError: ((StreamingSession, Error) -> Void)?
     var onComplete: ((StreamingSession, Error?) -> Void)?
@@ -33,6 +33,14 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
         self.urlSession
             .dataTask(with: self.urlRequest)
             .resume()
+    }
+    
+    func invalidateAndCancel() {
+        urlSession.invalidateAndCancel()
+    }
+    
+    func finishTasksAndInvalidate() {
+        urlSession.finishTasksAndInvalidate()
     }
     
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {

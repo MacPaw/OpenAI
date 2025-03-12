@@ -8,9 +8,7 @@
 import XCTest
 @testable import OpenAI
 
-@available(iOS 13.0, *)
-@available(watchOS 6.0, *)
-@available(tvOS 13.0, *)
+@available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
 class OpenAITestsDecoder: XCTestCase {
     
     override func setUp() {
@@ -83,7 +81,7 @@ class OpenAITestsDecoder: XCTestCase {
         }
         """
         
-        let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, choices: [
+        let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, citations: nil, choices: [
             .init(index: 0, logprobs: nil, message: .assistant(.init(content: "Hello, world!")), finishReason: "stop")
         ], usage: .init(completionTokens: 12, promptTokens: 9, totalTokens: 21), systemFingerprint: nil)
         try decode(data, expectedValue)
@@ -153,6 +151,55 @@ class OpenAITestsDecoder: XCTestCase {
         """
 
         // To compare serialized JSONs we first convert them both into NSDictionary which are comparable (unline native swift dictionaries)
+        let chatQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(chatQuery))
+        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
+
+        XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
+    }
+    
+    func testChatQueryWithStreamOptions() async throws {
+        let chatQuery = ChatQuery(messages: [
+            .init(role: .user, content: "Who are you?")!
+        ], model: .gpt4, stream: true, streamOptions: .init(includeUsage: true))
+        let expectedValue = """
+        {
+            "model": "gpt-4",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "Who are you?"
+                }
+            ],
+            "stream": true,
+            "stream_options": {
+                "include_usage" : true
+            }
+        }
+        """
+        
+        let chatQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(chatQuery))
+        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
+
+        XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
+    }
+    
+    func testChatQueryWithoutStreamOptions() async throws {
+        let chatQuery = ChatQuery(messages: [
+            .init(role: .user, content: "Who are you?")!
+        ], model: .gpt4, stream: true)
+        let expectedValue = """
+        {
+            "model": "gpt-4",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "Who are you?"
+                }
+            ],
+            "stream": true
+        }
+        """
+        
         let chatQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(chatQuery))
         let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
 
@@ -266,7 +313,7 @@ class OpenAITestsDecoder: XCTestCase {
             id: "chatcmpl-1234",
             object: "chat.completion",
             created: 1677652288,
-            model: .gpt3_5Turbo,
+            model: .gpt3_5Turbo, citations: nil,
             choices: [
                 .init(index: 0,
                       logprobs: nil, message:
