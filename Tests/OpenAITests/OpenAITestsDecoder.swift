@@ -70,6 +70,8 @@ class OpenAITestsDecoder: XCTestCase {
             "message": {
               "role": "assistant",
               "content": "Hello, world!",
+              "annotations": [],
+              "tool_calls": []
             },
             "finish_reason": "stop"
           }],
@@ -77,13 +79,24 @@ class OpenAITestsDecoder: XCTestCase {
             "prompt_tokens": 9,
             "completion_tokens": 12,
             "total_tokens": 21
-          }
+          },
+          "system_fingerprint": "fp_fc9f1d7035"
         }
         """
         
-        let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, citations: nil, choices: [
-            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "Hello, world!")), finishReason: "stop")
-        ], usage: .init(completionTokens: 12, promptTokens: 9, totalTokens: 21), systemFingerprint: nil)
+        let expectedValue = ChatResult(
+            id: "chatcmpl-123", created: 1677652288, model: .gpt4, object: "chat.completion", serviceTier: nil, systemFingerprint: "fp_fc9f1d7035",
+            choices: [
+                .init(
+                    index: 0,
+                    logprobs: nil,
+                    message: .init(content: "Hello, world!", refusal: nil, role: "assistant", annotations: [], audio: nil, toolCalls: []),
+                    finishReason: "stop"
+                )
+            ],
+            usage: .init(completionTokens: 12, promptTokens: 9, totalTokens: 21),
+            citations: nil
+        )
         try decode(data, expectedValue)
     }
     
@@ -286,6 +299,7 @@ class OpenAITestsDecoder: XCTestCase {
               "index": 0,
               "message": {
                 "role": "assistant",
+                "annotations": [],
                 "tool_calls": [
                   {
                     "type": "function",
@@ -305,22 +319,36 @@ class OpenAITestsDecoder: XCTestCase {
             "prompt_tokens": 82,
             "completion_tokens": 18,
             "total_tokens": 100
-          }
+          },
+          "system_fingerprint": "fp_fc9f1d7035"
         }
         """
         
         let expectedValue = ChatResult(
             id: "chatcmpl-1234",
-            object: "chat.completion",
             created: 1677652288,
-            model: .gpt3_5Turbo, citations: nil,
+            model: .gpt3_5Turbo,
+            object: "chat.completion",
+            serviceTier: nil,
+            systemFingerprint: "fp_fc9f1d7035",
             choices: [
-                .init(index: 0,
-                      logprobs: nil, message:
-                        .assistant(.init(toolCalls: [.init(id: "chatcmpl-1234", function: .init(arguments: "", name: "get_current_weather"))])), finishReason: "tool_calls")
+                .init(
+                    index: 0,
+                    logprobs: nil,
+                    message: .init(
+                        content: nil,
+                        refusal: nil,
+                        role: "assistant",
+                        annotations: [],
+                        audio: nil,
+                        toolCalls: [.init(id: "chatcmpl-1234", function: .init(arguments: "", name: "get_current_weather"))]
+                    ),
+                    finishReason: "tool_calls"
+                )
             ],
             usage: .init(completionTokens: 18, promptTokens: 82, totalTokens: 100),
-            systemFingerprint: nil)
+            citations: nil
+        )
         try decode(data, expectedValue)
     }
     
