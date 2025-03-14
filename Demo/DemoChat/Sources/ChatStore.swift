@@ -208,36 +208,41 @@ public final class ChatStore: ObservableObject {
     }
     
     private func completeConversationStreaming(conversationIndex: Int, model: Model, query: ChatQuery) async throws {
-        let chatsStream: AsyncThrowingStream<ChatStreamResult, Error> = openAIClient.chatsStream(
-            query: query
-        )
-
-        var functionCalls = [(name: String, argument: String?)]()
+        let chatsStream: AsyncThrowingStream<ChatStreamResult, Error> = openAIClient.chatsStream(query: query)
+        
+        var functionCalls = [Int: (name: String?, arguments: String)]()
+        
         for try await partialChatResult in chatsStream {
             for choice in partialChatResult.choices {
                 let existingMessages = conversations[conversationIndex].messages
                 // Function calls are also streamed, so we need to accumulate.
                 choice.delta.toolCalls?.forEach { toolCallDelta in
+                    let index = toolCallDelta.index
+                    
                     if let functionCallDelta = toolCallDelta.function {
-                        if let nameDelta = functionCallDelta.name {
-                            functionCalls.append((nameDelta, functionCallDelta.arguments))
+                        if functionCalls[index] == nil {
+                            functionCalls[index] = (functionCallDelta.name, "")
+                        }
+                        if let argumentDelta = functionCallDelta.arguments {
+                            functionCalls[index]?.arguments += argumentDelta
                         }
                     }
                 }
+                
                 var messageText = choice.delta.content ?? ""
-                if let finishReason = choice.finishReason,
-                   finishReason == .toolCalls
-                {
-                    functionCalls.forEach { (name: String, argument: String?) in
-                        messageText += "Function call: name=\(name) arguments=\(argument ?? "")\n"
+                if let finishReason = choice.finishReason, finishReason == .toolCalls {
+                    for (_, functionCall) in functionCalls {
+                        messageText += "Function call: name=\(functionCall.name ?? "") arguments=\(functionCall.arguments)\n"
                     }
                 }
+                
                 let message = Message(
                     id: partialChatResult.id,
                     role: choice.delta.role ?? .assistant,
                     content: messageText,
                     createdAt: Date(timeIntervalSince1970: TimeInterval(partialChatResult.created))
                 )
+                
                 if let existingMessageIndex = existingMessages.firstIndex(where: { $0.id == partialChatResult.id }) {
                     // Meld into previous message
                     let previousMessage = existingMessages[existingMessageIndex]
