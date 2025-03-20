@@ -87,8 +87,12 @@ class OpenAITests: XCTestCase {
     
     func testChatQueryWithStructuredOutput() async throws {
         
-        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-            ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
+        let chatResult = ChatResult(
+            id: "id-12312", created: 100, model: .gpt3_5Turbo, object: "foo", serviceTier: nil, systemFingerprint: "fing",
+            choices: [],
+            usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300),
+            citations: nil
+        )
         try self.stub(result: chatResult)
         
         enum MovieGenre: String, Codable, StructuredOutputEnum {
@@ -136,11 +140,7 @@ class OpenAITests: XCTestCase {
             ], required: ["location"])))
         ])
 
-        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-         .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
-         .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
-         .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
-         ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
+        let chatResult = makeChatResult()
         try self.stub(result: chatResult)
         
         let result = try await openAI.chats(query: query)
@@ -271,29 +271,29 @@ class OpenAITests: XCTestCase {
     func testAudioSpeechDoesNotNormalize() async throws {
         let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 2.0)
 
-        XCTAssertEqual(query.speed, "\(2.0)")
+        XCTAssertEqual(query.speed, 2.0)
     }
 
-    func testAudioSpeechNormalizeNil() async throws {
-        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: nil)
+    func testAudioSpeechNormalizeDefaultSpeed() async throws {
+        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3)
 
-        XCTAssertEqual(query.speed, "\(1.0)")
+        XCTAssertEqual(query.speed, 1.0)
     }
 
     func testAudioSpeechNormalizeLow() async throws {
         let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 0.0)
 
-        XCTAssertEqual(query.speed, "\(0.25)")
+        XCTAssertEqual(query.speed, 0.25)
     }
 
     func testAudioSpeechNormalizeHigh() async throws {
         let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 10.0)
 
-        XCTAssertEqual(query.speed, "\(4.0)")
+        XCTAssertEqual(query.speed, 4.0)
     }
     
     func testAudioCreateSpeech() async throws {
-        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, speed: nil)
+        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy)
         let data = Data(repeating: 11, count: 11)
         urlSession.dataTask = .successful(with: data)
         let response = try await openAI.audioCreateSpeech(query: query)
@@ -400,7 +400,7 @@ class OpenAITests: XCTestCase {
         let jsonRequest = JSONRequest<ChatResult>(body: completionQuery, url: URL(string: "http://google.com")!)
         let urlRequest = try jsonRequest.build(configuration: configuration)
         
-        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token!)")
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Content-Type"), "application/json")
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "OpenAI-Organization"), configuration.organizationIdentifier)
         XCTAssertEqual(urlRequest.timeoutInterval, configuration.timeoutInterval)
@@ -412,7 +412,7 @@ class OpenAITests: XCTestCase {
         let multipartFormDataRequest = MultipartFormDataRequest<ChatResult>(body: completionQuery, url: URL(string: "http://google.com")!)
         let urlRequest = try multipartFormDataRequest.build(configuration: configuration)
         
-        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token)")
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer \(configuration.token!)")
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "OpenAI-Organization"), configuration.organizationIdentifier)
         XCTAssertEqual(urlRequest.timeoutInterval, configuration.timeoutInterval)
     }
@@ -753,11 +753,7 @@ class OpenAITests: XCTestCase {
     }
     
     private func makeChatResult() -> ChatResult {
-        .init(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-            .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
-            .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
-            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
-        ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
+        .mock
     }
 }
 

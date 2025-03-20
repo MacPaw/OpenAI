@@ -240,16 +240,7 @@ import Combine
     }
     
     private func makeChatsResult() -> ChatResult {
-        .init(
-            id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo,
-            choices: [
-                .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
-                .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
-                .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
-            ],
-            usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300),
-            systemFingerprint: nil
-        )
+        .mock
     }
 }
 

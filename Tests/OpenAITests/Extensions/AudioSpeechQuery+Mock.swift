@@ -9,5 +9,5 @@ import Foundation
 @testable import OpenAI
 
 extension AudioSpeechQuery {
-    static let mock: AudioSpeechQuery = .init(model: .tts_1, input: "Hello, world!", voice: .alloy, speed: nil)
+    static let mock: AudioSpeechQuery = .init(model: .tts_1, input: "Hello, world!", voice: .alloy)
 }
