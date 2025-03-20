@@ -7,9 +7,9 @@
 
 import Foundation
 
-public struct RunRetrieveStepsResult: Codable, Equatable {
+public struct RunRetrieveStepsResult: Codable, Equatable, Sendable {
     
-    public struct StepDetailsTopLevel: Codable, Equatable {
+    public struct StepDetailsTopLevel: Codable, Equatable, Sendable {
         public let id: String
         public let stepDetails: StepDetailsSecondLevel
 
@@ -18,7 +18,7 @@ public struct RunRetrieveStepsResult: Codable, Equatable {
             case stepDetails = "step_details"
         }
 
-        public struct StepDetailsSecondLevel: Codable, Equatable {
+        public struct StepDetailsSecondLevel: Codable, Equatable, Sendable {
 
             public let toolCalls: [ToolCall]?
 
@@ -26,8 +26,8 @@ public struct RunRetrieveStepsResult: Codable, Equatable {
                 case toolCalls = "tool_calls"
             }
 
-            public struct ToolCall: Codable, Equatable {
-                public enum ToolType: String, Codable {
+            public struct ToolCall: Codable, Equatable, Sendable {
+                public enum ToolType: String, Codable, Sendable {
                     case codeInterpreter = "code_interpreter"
                     case function
                     case fileSearch = "file_search"
@@ -45,17 +45,17 @@ public struct RunRetrieveStepsResult: Codable, Equatable {
                     case function
                 }
 
-                public struct CodeInterpreterCall: Codable, Equatable {
+                public struct CodeInterpreterCall: Codable, Equatable, Sendable {
                     public let input: String
                     public let outputs: [CodeInterpreterCallOutput]?
 
-                    public struct CodeInterpreterCallOutput: Codable, Equatable {
+                    public struct CodeInterpreterCallOutput: Codable, Equatable, Sendable {
                         public let type: String
                         public let logs: String?
                     }
                 }
                 
-                public struct FunctionCall: Codable, Equatable {
+                public struct FunctionCall: Codable, Equatable, Sendable {
                     public let name: String
                     public let arguments: String
                     public let output: String?

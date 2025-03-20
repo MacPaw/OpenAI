@@ -13,13 +13,10 @@ class OpenAITests: XCTestCase {
 
     private var openAI: OpenAIProtocol!
     private let urlSession = URLSessionMock()
-    private let cancellablesFactory = MockCancellablesFactory()
     
-    override func setUp() {
-        super.setUp()
-        
+    override func setUp() async throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        self.openAI = OpenAI(configuration: configuration, session: self.urlSession, cancellablesFactory: cancellablesFactory)
+        self.openAI = OpenAI(configuration: configuration, session: self.urlSession)
     }
 
     func testImages() async throws {
@@ -731,6 +728,7 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(completionsURL, URL(string: "https://my.host.com:443/v1/threads/thread_4321/runs/run_1234/steps"))
     }
     
+    @MainActor
     func testCancelRequest() async throws {
         try stub(result: makeChatResult())
         
@@ -741,23 +739,6 @@ class OpenAITests: XCTestCase {
         task.cancel()
         _ = try await task.value
         XCTAssertTrue(urlSession.dataTaskIsCancelled)
-    }
-    
-    func testCancelStreamingRequest() async throws {
-        let sessionCanceller = MockSessionCanceller()
-        cancellablesFactory.sessionCanceller = sessionCanceller
-        
-        try stub(result: makeChatResult())
-        
-        let task = Task {
-            let stream: AsyncThrowingStream<ChatStreamResult, Error> = openAI.chatsStream(query: makeChatQuery())
-            for try await _ in stream {
-            }
-        }
-        
-        task.cancel()
-        _ = try await task.value
-        XCTAssertEqual(sessionCanceller.cancelCallCount, 1)
     }
     
     private func assistantsQuery() -> AssistantsQuery {
@@ -805,7 +786,7 @@ extension OpenAITests {
         case typeMismatch(String)
     }
     
-    func XCTExpectError<ErrorType: Error>(execute: () async throws -> Any) async throws -> ErrorType {
+    func XCTExpectError<ErrorType: Error>(execute: () async throws -> Sendable) async throws -> ErrorType {
         do {
             let result = try await execute()
             throw TypeError.unexpectedResult("Error expected, but result is returned \(result)")

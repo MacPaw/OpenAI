@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AssistantsResult: Codable, Equatable {
+public struct AssistantsResult: Codable, Equatable, Sendable {
 
     public let data: [AssistantResult]?
     public let firstId: String?

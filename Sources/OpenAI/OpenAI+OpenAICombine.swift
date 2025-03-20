@@ -40,7 +40,10 @@ extension OpenAI: OpenAICombine {
     }
     
     public func chatsStream(query: ChatQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
-        let progress = PassthroughSubject<Result<ChatStreamResult, Error>, Error>()
+        let progress = SendablePassthroughSubject(
+            passthroughSubject: PassthroughSubject<Result<ChatStreamResult, Error>, Error>()
+        )
+        
         let cancellable = chatsStream(query: query) { result in
             progress.send(result)
         } completion: { error in
@@ -51,6 +54,7 @@ extension OpenAI: OpenAICombine {
             }
         }
         return progress
+            .publisher()
             .handleEvents(receiveCancel: {
                 cancellable.cancelRequest()
             })
@@ -82,8 +86,11 @@ extension OpenAI: OpenAICombine {
     }
     
     func audioCreateSpeechStream(query: AudioSpeechQuery) -> AnyPublisher<Result<AudioSpeechResult, Error>, Error> {
-        let progress = PassthroughSubject<Result<AudioSpeechResult, Error>, Error>()
-        audioCreateSpeechStream(query: query) { result in
+        let progress = SendablePassthroughSubject(
+            passthroughSubject: PassthroughSubject<Result<AudioSpeechResult, Error>, Error>()
+        )
+        
+        let cancellable = audioCreateSpeechStream(query: query) { result in
             progress.send(result)
         } completion: { error in
             if let error {
@@ -92,7 +99,12 @@ extension OpenAI: OpenAICombine {
                 progress.send(completion: .finished)
             }
         }
-        return progress.eraseToAnyPublisher()
+        return progress
+            .publisher()
+            .handleEvents(receiveCancel: {
+                cancellable.cancelRequest()
+            })
+            .eraseToAnyPublisher()
     }
     
     public func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error> {

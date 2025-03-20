@@ -12,14 +12,13 @@ import XCTest
 import Combine
 
 @available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
-final class OpenAITestsCombine: XCTestCase {
+@MainActor final class OpenAITestsCombine: XCTestCase {
     
     private var openAI: OpenAIProtocol!
     private let urlSession: URLSessionMockCombine = URLSessionMockCombine()
     private let cancellablesFactory = MockCancellablesFactory()
     
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         self.openAI = OpenAI(configuration: configuration, session: self.urlSession, cancellablesFactory: cancellablesFactory)
     }
@@ -76,7 +75,7 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testAudioCreateSpeech() throws {
-        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy)
+        let query = AudioSpeechQuery.mock
         let data = Data(repeating: 10, count: 10)
         urlSession.dataTask = .successful(with: data)
         let response = try awaitPublisher(openAI.audioCreateSpeech(query: query), timeout: 1)

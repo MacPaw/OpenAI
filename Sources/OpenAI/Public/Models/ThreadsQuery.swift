@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ThreadsQuery: Equatable, Codable {
+public struct ThreadsQuery: Equatable, Codable, Sendable {
     public let messages: [ChatQuery.ChatCompletionMessageParam]
 
     enum CodingKeys: String, CodingKey {

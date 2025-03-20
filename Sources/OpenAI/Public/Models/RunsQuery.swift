@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct RunsQuery: Codable {
+public struct RunsQuery: Codable, Sendable {
 
     public let assistantId: String
 

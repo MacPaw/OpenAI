@@ -7,8 +7,8 @@
 
 import Foundation
 
-public struct RunToolOutputsQuery: Codable, Equatable {
-    public struct ToolOutput: Codable, Equatable {
+public struct RunToolOutputsQuery: Codable, Equatable, Sendable {
+    public struct ToolOutput: Codable, Equatable, Sendable {
         public let toolCallId: String?
         public let output: String?
         
