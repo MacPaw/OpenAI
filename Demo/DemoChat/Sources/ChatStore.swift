@@ -196,10 +196,14 @@ public final class ChatStore: ObservableObject {
         let chatResult: ChatResult = try await openAIClient.chats(query: query)
         chatResult.choices
             .map {
-                Message(
+                guard let role = ChatQuery.ChatCompletionMessageParam.Role.init(rawValue: $0.message.role) else {
+                    fatalError()
+                }
+                
+                return Message(
                     id: chatResult.id,
-                    role: $0.message.role,
-                    content: $0.message.content?.string ?? "",
+                    role: role,
+                    content: $0.message.content ?? "",
                     createdAt: Date(timeIntervalSince1970: TimeInterval(chatResult.created))
                 )
             }.forEach { message in

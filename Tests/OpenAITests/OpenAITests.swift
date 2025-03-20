@@ -90,8 +90,12 @@ class OpenAITests: XCTestCase {
     
     func testChatQueryWithStructuredOutput() async throws {
         
-        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, citations: nil, choices: [
-            ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
+        let chatResult = ChatResult(
+            id: "id-12312", created: 100, model: .gpt3_5Turbo, object: "foo", serviceTier: nil, systemFingerprint: "fing",
+            choices: [],
+            usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300),
+            citations: nil
+        )
         try self.stub(result: chatResult)
         
         enum MovieGenre: String, Codable, StructuredOutputEnum {
@@ -768,12 +772,7 @@ class OpenAITests: XCTestCase {
     }
     
     private func makeChatResult() -> ChatResult {
-        .init(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, citations: nil, choices: [
-            .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
-            .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
-            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
-        ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
-        
+        .mock
     }
 }
 
