@@ -25,6 +25,7 @@ class MockStreamingSessionFactory: StreamingSessionFactory {
             urlSessionFactory: urlSessionFactory,
             urlRequest: urlRequest,
             interpreter: .init(executionSerializer: NoDispatchExecutionSerializer()),
+            sslDelegate: nil,
             onReceiveContent: onReceiveContent,
             onProcessingError: onProcessingError,
             onComplete: onComplete
@@ -41,6 +42,7 @@ class MockStreamingSessionFactory: StreamingSessionFactory {
             urlSessionFactory: urlSessionFactory,
             urlRequest: urlRequest,
             interpreter: .init(),
+            sslDelegate: nil,
             onReceiveContent: onReceiveContent,
             onProcessingError: onProcessingError,
             onComplete: onComplete

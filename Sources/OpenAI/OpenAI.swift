@@ -63,7 +63,6 @@ final public class OpenAI: @unchecked Sendable {
     private let cancellablesFactory: CancellablesFactory
     private let executionSerializer: ExecutionSerializer
     private var streamingSessions: [NSObject: InvalidatableSession] = [:]
-    private let sslStreamingDelegate: SSLDelegateProtocol?
     
     public let configuration: Configuration
 
@@ -74,29 +73,29 @@ final public class OpenAI: @unchecked Sendable {
     public convenience init(configuration: Configuration) {
         self.init(configuration: configuration, session: URLSession.shared, sslStreamingDelegate: nil)
     }
+    
+    public convenience init(configuration: Configuration, session: URLSession = URLSession.shared, sslStreamingDelegate: SSLDelegateProtocol? = nil) {
+        let streamingSessionFactory = ImplicitURLSessionStreamingSessionFactory(sslDelegate: sslStreamingDelegate)
+        
+        self.init(
+            configuration: configuration,
+            session: session,
+            streamingSessionFactory: streamingSessionFactory
+        )
+    }
 
     init(
         configuration: Configuration,
         session: URLSessionProtocol,
-        streamingSessionFactory: StreamingSessionFactory = ImplicitURLSessionStreamingSessionFactory(),
-        sslStreamingDelegate: SSLDelegateProtocol?,
+        streamingSessionFactory: StreamingSessionFactory,
         cancellablesFactory: CancellablesFactory = DefaultCancellablesFactory(),
         executionSerializer: ExecutionSerializer = GCDQueueAsyncExecutionSerializer(queue: .userInitiated)
     ) {
         self.configuration = configuration
         self.session = session
         self.streamingSessionFactory = streamingSessionFactory
-        self.sslStreamingDelegate = sslStreamingDelegate
         self.cancellablesFactory = cancellablesFactory
         self.executionSerializer = executionSerializer
-    }
-
-    public convenience init(configuration: Configuration, session: URLSession = URLSession.shared, sslStreamingDelegate: SSLDelegateProtocol? = nil) {
-        self.init(
-            configuration: configuration,
-            session: session as URLSessionProtocol
-            sslStreamingDelegate: sslStreamingDelegate
-        )
     }
     
     public func threadsAddMessage(
@@ -284,7 +283,7 @@ extension OpenAI {
         do {
             let urlRequest = try request.build(configuration: configuration)
             
-            let session = streamingSessionFactory.makeServerSentEventsStreamingSession(urlRequest: urlRequest, sslDelegate: sslStreamingDelegate) { _, object in
+            let session = streamingSessionFactory.makeServerSentEventsStreamingSession(urlRequest: urlRequest) { _, object in
                 onResult(.success(object))
             } onProcessingError: { _, error in
                 onResult(.failure(error))

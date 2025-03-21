@@ -17,6 +17,7 @@ final class StreamingSessionTests: XCTestCase {
         urlSessionFactory: MockURLSessionFactory(),
         urlRequest: .init(url: .init(string: "/")!),
         interpreter: streamInterpreter,
+        sslDelegate: nil,
         onReceiveContent: { _, _ in
             Task {
                 await MainActor.run {
