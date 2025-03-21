@@ -36,12 +36,14 @@ public struct AudioSpeechQuery: Codable, Sendable {
     /// -  opus
     /// -  aac
     /// -  flac
+    /// -  wav
     /// -  pcm
     public enum AudioSpeechResponseFormat: String, Codable, CaseIterable, Sendable {
         case mp3
         case opus
         case aac
         case flac
+        case wav
         case pcm
     }
     /// The text to generate audio for. The maximum length is 4096 characters.
@@ -57,30 +59,34 @@ public struct AudioSpeechQuery: Codable, Sendable {
     /// The speed of the generated audio. Select a value from **0.25** to **4.0**. **1.0** is the default.
     /// Defaults to 1
     public let speed: Double?
-    
+    ///  Control the voice of your generated audio with additional instructions. Does not work with tts-1 or tts-1-hd.
+    public let instructions: String?
+
     public enum CodingKeys: String, CodingKey {
         case model
         case input
         case voice
         case responseFormat = "response_format"
         case speed
+        case instructions
     }
 
-    public init(model: Model, input: String, voice: AudioSpeechVoice, responseFormat: AudioSpeechResponseFormat = .mp3, speed: Double = 1.0) {
+    public init(model: Model, input: String, voice: AudioSpeechVoice, instructions: String = "", responseFormat: AudioSpeechResponseFormat = .mp3, speed: Double = 1.0) {
         self.model = AudioSpeechQuery.validateSpeechModel(model)
         self.speed = AudioSpeechQuery.normalizeSpeechSpeed(speed)
         self.input = input
         self.voice = voice
         self.responseFormat = responseFormat
+        self.instructions = instructions
     }
 }
 
 private extension AudioSpeechQuery {
     
     static func validateSpeechModel(_ inputModel: Model) -> Model {
-        let isModelOfIncorrentFormat = inputModel != .tts_1 && inputModel != .tts_1_hd
+        let isModelOfIncorrentFormat = inputModel != .tts_1 && inputModel != .tts_1_hd && inputModel != .gpt_4o_mini_tts
         guard !isModelOfIncorrentFormat else {
-            print("[AudioSpeech] 'AudioSpeechQuery' must have a valid Text-To-Speech model, 'tts-1' or 'tts-1-hd'. Setting model to 'tts-1'.")
+            print("[AudioSpeech] 'AudioSpeechQuery' must have a valid Text-To-Speech model, 'tts-1' or 'tts-1-hd', or 'gpt-4o-mini-tts'. Setting model to 'tts-1'.")
             return .tts_1
         }
         return inputModel
