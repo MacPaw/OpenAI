@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol URLSessionDelegateProtocol {
+protocol URLSessionDelegateProtocol: Sendable { // Sendable to make a better match with URLSessionDelegate, it's sendable too
     func urlSession(_ session: URLSessionProtocol, task: URLSessionTaskProtocol, didCompleteWithError error: Error?)
 }
 

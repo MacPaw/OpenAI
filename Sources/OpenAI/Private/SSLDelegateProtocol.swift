@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol SSLDelegateProtocol {
+public protocol SSLDelegateProtocol: Sendable {
     func urlSession(
         _ session: URLSession,
         didReceive challenge: URLAuthenticationChallenge,

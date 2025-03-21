@@ -209,7 +209,7 @@ public protocol OpenAIProtocol: OpenAIModern {
        - onResult: A closure which receives the result when the API request finishes. The closure's parameter, `Result<AudioSpeechResult, Error>`, will contain either the `AudioSpeechResult` object with the generated Audio chunk, or an error if the request failed.
        - completion: A closure that is being called when all chunks are delivered or uncrecoverable error occured
     */
-    func audioCreateSpeechStream(query: AudioSpeechQuery, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) -> CancellableRequest
+    func audioCreateSpeechStream(query: AudioSpeechQuery, onResult: @escaping @Sendable (Result<AudioSpeechResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest
 
     /**
      Transcribes audio data using OpenAI's audio transcription API and completes the operation asynchronously.
