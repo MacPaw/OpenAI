@@ -16,11 +16,17 @@ import Combine
     
     private var openAI: OpenAIProtocol!
     private let urlSession: URLSessionMockCombine = URLSessionMockCombine()
+    private let streamingSessionFactory = MockStreamingSessionFactory()
     private let cancellablesFactory = MockCancellablesFactory()
     
     override func setUp() async throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        self.openAI = OpenAI(configuration: configuration, session: self.urlSession, cancellablesFactory: cancellablesFactory)
+        self.openAI = OpenAI(
+            configuration: configuration,
+            session: self.urlSession,
+            streamingSessionFactory: streamingSessionFactory,
+            cancellablesFactory: cancellablesFactory
+        )
     }
     
     func testChats() throws {
@@ -252,6 +258,7 @@ extension OpenAITestsCombine {
     func stub(error: URLError) {
         let task = DataTaskMock.failed(with: error)
         self.urlSession.dataTask = task
+        self.streamingSessionFactory.urlSessionFactory.urlSession.dataTask = task
     }
     
     func stub(result: Codable) throws {
@@ -259,6 +266,7 @@ extension OpenAITestsCombine {
         let data = try encoder.encode(result)
         let task = DataTaskMock.successful(with: data)
         self.urlSession.dataTask = task
+        self.streamingSessionFactory.urlSessionFactory.urlSession.dataTask = task
     }
 }
 

@@ -11,7 +11,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-class URLSessionDataDelegateForwarder: NSObject, URLSessionDataDelegate {
+final class URLSessionDataDelegateForwarder: NSObject, URLSessionDataDelegate {
     let target: URLSessionDataDelegateProtocol
     
     init(target: URLSessionDataDelegateProtocol) {

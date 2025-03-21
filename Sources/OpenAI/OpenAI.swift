@@ -67,17 +67,27 @@ final public class OpenAI: @unchecked Sendable {
     public let configuration: Configuration
 
     public convenience init(apiToken: String) {
-        self.init(configuration: Configuration(token: apiToken), session: URLSession.shared)
+        self.init(configuration: Configuration(token: apiToken), session: URLSession.shared, sslStreamingDelegate: nil)
     }
     
     public convenience init(configuration: Configuration) {
-        self.init(configuration: configuration, session: URLSession.shared)
+        self.init(configuration: configuration, session: URLSession.shared, sslStreamingDelegate: nil)
+    }
+    
+    public convenience init(configuration: Configuration, session: URLSession = URLSession.shared, sslStreamingDelegate: SSLDelegateProtocol? = nil) {
+        let streamingSessionFactory = ImplicitURLSessionStreamingSessionFactory(sslDelegate: sslStreamingDelegate)
+        
+        self.init(
+            configuration: configuration,
+            session: session,
+            streamingSessionFactory: streamingSessionFactory
+        )
     }
 
     init(
         configuration: Configuration,
         session: URLSessionProtocol,
-        streamingSessionFactory: StreamingSessionFactory = ImplicitURLSessionStreamingSessionFactory(),
+        streamingSessionFactory: StreamingSessionFactory,
         cancellablesFactory: CancellablesFactory = DefaultCancellablesFactory(),
         executionSerializer: ExecutionSerializer = GCDQueueAsyncExecutionSerializer(queue: .userInitiated)
     ) {
@@ -86,13 +96,6 @@ final public class OpenAI: @unchecked Sendable {
         self.streamingSessionFactory = streamingSessionFactory
         self.cancellablesFactory = cancellablesFactory
         self.executionSerializer = executionSerializer
-    }
-
-    public convenience init(configuration: Configuration, session: URLSession = URLSession.shared) {
-        self.init(
-            configuration: configuration,
-            session: session as URLSessionProtocol
-        )
     }
     
     public func threadsAddMessage(
@@ -250,7 +253,7 @@ final public class OpenAI: @unchecked Sendable {
         performSpeechRequest(request: makeAudioCreateSpeechRequest(query: query), completion: completion)
     }
     
-    public func audioCreateSpeechStream(query: AudioSpeechQuery, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) -> CancellableRequest {
+    public func audioCreateSpeechStream(query: AudioSpeechQuery, onResult: @escaping @Sendable (Result<AudioSpeechResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest {
         performSpeechStreamingRequest(
             request: JSONRequest<AudioSpeechResult>(body: query, url: buildURL(path: .audioSpeech)),
             onResult: onResult,
@@ -318,7 +321,11 @@ extension OpenAI {
         }
     }
     
-    func performSpeechStreamingRequest(request: any URLRequestBuildable, onResult: @escaping (Result<AudioSpeechResult, Error>) -> Void, completion: ((Error?) -> Void)?) -> CancellableRequest {
+    func performSpeechStreamingRequest(
+        request: any URLRequestBuildable,
+        onResult: @escaping @Sendable (Result<AudioSpeechResult, Error>) -> Void,
+        completion: (@Sendable (Error?) -> Void)?
+    ) -> CancellableRequest {
         do {
             let urlRequest = try request.build(configuration: configuration)
             

@@ -16,7 +16,7 @@ class OpenAITests: XCTestCase {
     
     override func setUp() async throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        self.openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        self.openAI = OpenAI(configuration: configuration, session: self.urlSession, streamingSessionFactory: MockStreamingSessionFactory())
     }
 
     func testImages() async throws {
@@ -440,21 +440,21 @@ class OpenAITests: XCTestCase {
     
     func testDefaultHostURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        let openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession, streamingSessionFactory: MockStreamingSessionFactory())
         let chatsURL = openAI.buildURL(path: .chats)
         XCTAssertEqual(chatsURL, URL(string: "https://api.openai.com:443/v1/chat/completions"))
     }
     
     func testDefaultHostURLBuiltWithCustomBasePath() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", basePath: "/api/v9527", timeoutInterval: 14)
-        let openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession, streamingSessionFactory: MockStreamingSessionFactory())
         let chatsURL = openAI.buildURL(path: .chats)
         XCTAssertEqual(chatsURL, URL(string: "https://api.openai.com:443/api/v9527/chat/completions"))
     }
     
     func testCustomURLBuiltWithPredefinedPath() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", timeoutInterval: 14)
-        let openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession, streamingSessionFactory: MockStreamingSessionFactory())
         let chatsURL = openAI.buildURL(path: .chats)
         XCTAssertEqual(chatsURL, URL(string: "https://my.host.com:443/v1/chat/completions"))
     }
@@ -466,7 +466,7 @@ class OpenAITests: XCTestCase {
             host: "bizbaz.com",
             timeoutInterval: 14
         )
-        let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
+        let openAI = OpenAI(configuration: configuration, session: URLSessionMock(), streamingSessionFactory: MockStreamingSessionFactory())
         XCTAssertEqual(openAI.buildURL(path: "foo"), URL(string: "https://bizbaz.com:443/v1/foo"))
     }
     
@@ -478,7 +478,7 @@ class OpenAITests: XCTestCase {
             basePath: "/openai",
             timeoutInterval: 14
         )
-        let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
+        let openAI = OpenAI(configuration: configuration, session: URLSessionMock(), streamingSessionFactory: MockStreamingSessionFactory())
         XCTAssertEqual(openAI.buildURL(path: "foo"), URL(string:"https://bizbaz.com:443/openai/foo"))
     }
     
@@ -490,7 +490,7 @@ class OpenAITests: XCTestCase {
             basePath: "/openai/",
             timeoutInterval: 14
         )
-        let openAI = OpenAI(configuration: configuration, session: URLSessionMock())
+        let openAI = OpenAI(configuration: configuration, session: URLSessionMock(), streamingSessionFactory: MockStreamingSessionFactory())
         XCTAssertEqual(openAI.buildURL(path: "/foo"), URL(string: "https://bizbaz.com:443/openai/foo"))
     }
     
@@ -709,21 +709,21 @@ class OpenAITests: XCTestCase {
     
     func testCustomRunsURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", timeoutInterval: 14)
-        let openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession, streamingSessionFactory: MockStreamingSessionFactory())
         let completionsURL = openAI.buildRunsURL(path: APIPath.Assistants.runs.stringValue, threadId: "thread_4321")
         XCTAssertEqual(completionsURL, URL(string: "https://my.host.com:443/v1/threads/thread_4321/runs"))
     }
 
     func testCustomRunsRetrieveURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", timeoutInterval: 14)
-        let openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession, streamingSessionFactory: MockStreamingSessionFactory())
         let completionsURL = openAI.buildRunRetrieveURL(path: APIPath.Assistants.runRetrieve.stringValue, threadId: "thread_4321", runId: "run_1234")
         XCTAssertEqual(completionsURL, URL(string: "https://my.host.com:443/v1/threads/thread_4321/runs/run_1234"))
     }
 
     func testCustomRunRetrieveStepsURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", host: "my.host.com", timeoutInterval: 14)
-        let openAI = OpenAI(configuration: configuration, session: self.urlSession)
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession, streamingSessionFactory: MockStreamingSessionFactory())
         let completionsURL = openAI.buildRunRetrieveURL(path: APIPath.Assistants.runRetrieveSteps.stringValue, threadId: "thread_4321", runId: "run_1234")
         XCTAssertEqual(completionsURL, URL(string: "https://my.host.com:443/v1/threads/thread_4321/runs/run_1234/steps"))
     }

@@ -28,6 +28,8 @@ protocol StreamingSessionFactory {
 }
 
 struct ImplicitURLSessionStreamingSessionFactory: StreamingSessionFactory {
+    let sslDelegate: SSLDelegateProtocol?
+    
     func makeServerSentEventsStreamingSession<ResultType>(
         urlRequest: URLRequest,
         onReceiveContent: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, ResultType) -> Void,
@@ -37,6 +39,7 @@ struct ImplicitURLSessionStreamingSessionFactory: StreamingSessionFactory {
         .init(
             urlRequest: urlRequest,
             interpreter: .init(),
+            sslDelegate: sslDelegate,
             onReceiveContent: onReceiveContent,
             onProcessingError: onProcessingError,
             onComplete: onComplete
@@ -52,6 +55,7 @@ struct ImplicitURLSessionStreamingSessionFactory: StreamingSessionFactory {
         .init(
             urlRequest: urlRequest,
             interpreter: .init(),
+            sslDelegate: sslDelegate,
             onReceiveContent: onReceiveContent,
             onProcessingError: onProcessingError,
             onComplete: onComplete

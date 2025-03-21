@@ -20,11 +20,13 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
     private let onProcessingError: (@Sendable (StreamingSession, Error) -> Void)?
     private let onComplete: (@Sendable (StreamingSession, Error?) -> Void)?
     private let interpreter: Interpreter
+    private let sslDelegate: SSLDelegateProtocol?
     
     init(
         urlSessionFactory: URLSessionFactory = FoundationURLSessionFactory(),
         urlRequest: URLRequest,
         interpreter: Interpreter,
+        sslDelegate: SSLDelegateProtocol?,
         onReceiveContent: @escaping @Sendable (StreamingSession, ResultType) -> Void,
         onProcessingError: @escaping @Sendable (StreamingSession, Error) -> Void,
         onComplete: @escaping @Sendable (StreamingSession, Error?) -> Void
@@ -32,6 +34,7 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
         self.urlSessionFactory = urlSessionFactory
         self.urlRequest = urlRequest
         self.interpreter = interpreter
+        self.sslDelegate = sslDelegate
         self.onReceiveContent = onReceiveContent
         self.onProcessingError = onProcessingError
         self.onComplete = onComplete
@@ -65,6 +68,15 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
             return
         }
         completionHandler(.allow)
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        guard let sslDelegate else { return completionHandler(.performDefaultHandling, nil) }
+        sslDelegate.urlSession(session, didReceive: challenge, completionHandler: completionHandler)
     }
 
     private func subscribeToParser() {
