@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AudioTranscriptionResult: Codable, Equatable {
+public struct AudioTranscriptionResult: Codable, Equatable, Sendable {
     
     public struct Word: Codable, Equatable {
         /// The text content of the word.
@@ -72,4 +72,17 @@ public struct AudioTranscriptionResult: Codable, Equatable {
     /// Segments of the transcribed text and their corresponding details.
     public let segments: [Segment]?
     
+    public init(
+        task: String? = nil,
+        language: String? = nil,
+        duration: Double? = nil,
+        text: String,
+        segments: [Segment]? = nil
+    ) {
+        self.task = task
+        self.language = language
+        self.duration = duration
+        self.text = text
+        self.segments = segments
+    }
 }

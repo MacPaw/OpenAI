@@ -18,10 +18,8 @@ public struct ListModelsView: View {
             .listStyle(.insetGrouped)
             .navigationTitle("Models")
         }
-        .onAppear {
-            Task {
-                await store.getModels()
-            }
+        .task {
+            await store.getModels()
         }
     }
 }
