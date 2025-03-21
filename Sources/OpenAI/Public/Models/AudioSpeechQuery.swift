@@ -15,12 +15,17 @@ public struct AudioSpeechQuery: Codable, Sendable {
     ///
     /// To get aquinted with each of the voices and listen to the samples visit:
     /// [OpenAI Text-to-Speech – Voice Options](https://platform.openai.com/docs/guides/text-to-speech/voice-options)
+    /// Hear and play with these voices in https://openai.fm/
     public enum AudioSpeechVoice: String, Codable, CaseIterable, Sendable {
         case alloy
+        case ash
+        case ballad
+        case coral
         case echo
         case fable
         case onyx
         case nova
+        case sage
         case shimmer
     }
     
