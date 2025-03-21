@@ -17,10 +17,10 @@ struct DetailView: View {
     @State var inputText: String = ""
     @FocusState private var isFocused: Bool
     @State private var showsModelSelectionSheet = false
-    @State private var selectedChatModel: Model = .gpt4_0613
+    @State private var selectedChatModel: Model = .gpt4_o_mini
     var availableAssistants: [Assistant]
 
-    private static let availableChatModels: [Model] = [.gpt3_5Turbo, .gpt4]
+    private static let availableChatModels: [Model] = [.gpt4_o_mini]
 
     let conversation: Conversation
     let error: Error?
