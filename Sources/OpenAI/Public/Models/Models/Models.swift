@@ -99,10 +99,11 @@ public extension Model {
     static let gpt3_5Turbo_16k_0613 = "gpt-3.5-turbo-16k-0613"
     
     // Speech
-    
-    /// The latest text to speech model, optimized for speed.
+    /// A text-to-speech model built on GPT-4o mini, a fast and powerful language model.
+    static let gpt_4o_mini_tts = "gpt-4o-mini-tts"
+    /// tts-1 model is optimized for realtime text-to-speech use cases
     static let tts_1 = "tts-1"
-    /// The latest text to speech model, optimized for quality.
+    /// tts-1-hd model is optimized for high quality text-to-speech use cases.
     static let tts_1_hd = "tts-1-hd"
     
     // Transcriptions / Translations
