@@ -57,7 +57,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
     /// We generally recommend altering this or top_p but not both.
     /// Defaults to 1
     public let temperature: Double?
-    /// Controls which (if any) function is called by the model. none means the model will not call a function and instead generates a message. auto means the model can pick between generating a message or calling a function. Specifying a particular function via {"type": "function", "function": {"name": "my_function"}} forces the model to call that function.
+    /// Controls which (if any) function is called by the model. none means the model will not call a function and instead generates a message. auto means the model can pick between generating a message or calling a function. required means the model must call one or more tools. Specifying a particular function via {"type": "function", "function": {"name": "my_function"}} forces the model to call that function.
     /// none is the default when no functions are present. auto is the default if functions are present
     public let toolChoice: Self.ChatCompletionFunctionCallOptionParam?
     /// A list of tools the model may call. Currently, only functions are supported as a tool. Use this to provide a list of functions the model may generate JSON inputs for.
@@ -936,6 +936,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         case none
         case auto
         case function(String)
+        case required
 
         public func encode(to encoder: Encoder) throws {
             switch self {
@@ -949,6 +950,9 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
                 var container = encoder.container(keyedBy: Self.ChatCompletionFunctionCallNameParam.CodingKeys.self)
                 try container.encode("function", forKey: .type)
                 try container.encode(["name": name], forKey: .function)
+            case .required:
+                var container = encoder.singleValueContainer()
+                try container.encode(CodingKeys.required.rawValue)
             }
         }
 
@@ -960,6 +964,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             case none = "none"
             case auto = "auto"
             case function = "name"
+            case required = "required"
         }
 
         private enum ChatCompletionFunctionCallNameParam: Codable, Equatable {
