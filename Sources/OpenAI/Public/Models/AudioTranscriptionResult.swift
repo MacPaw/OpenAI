@@ -9,7 +9,7 @@ import Foundation
 
 public struct AudioTranscriptionResult: Codable, Equatable, Sendable {
     
-    public struct Word: Codable, Equatable {
+    public struct Word: Codable, Equatable, Sendable {
         /// The text content of the word.
         public let word: String
         /// Start time of the word in seconds.
@@ -18,7 +18,7 @@ public struct AudioTranscriptionResult: Codable, Equatable, Sendable {
         public let end: Float
     }
     
-    public struct Segment: Codable, Equatable {
+    public struct Segment: Codable, Equatable, Sendable {
         /// Unique identifier of the segment.
         public let id: Int
         /// Seek offset of the segment.
@@ -75,14 +75,16 @@ public struct AudioTranscriptionResult: Codable, Equatable, Sendable {
     public init(
         task: String? = nil,
         language: String? = nil,
-        duration: Double? = nil,
+        duration: Float? = nil,
         text: String,
+        words: [Word]? = nil,
         segments: [Segment]? = nil
     ) {
         self.task = task
         self.language = language
         self.duration = duration
         self.text = text
+        self.words = words
         self.segments = segments
     }
 }

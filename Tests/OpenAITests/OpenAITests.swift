@@ -337,9 +337,9 @@ class OpenAITests: XCTestCase {
                     text: " This is a test.",
                     tokens: [50364, 639, 307, 257, 1500, 13, 50552],
                     temperature: 0,
-                    avg_logprob: -0.5153926610946655,
-                    compression_ratio: 0.7142857313156128,
-                    no_speech_prob: 0.08552933484315872
+                    avgLogprob: -0.5153926610946655,
+                    compressionRatio: 0.7142857313156128,
+                    noSpeechProb: 0.08552933484315872
                 )
             ]
         )
