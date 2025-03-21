@@ -8,52 +8,28 @@
 import XCTest
 @testable import OpenAI
 
-@available(iOS 13.0, *)
-@available(watchOS 6.0, *)
-@available(tvOS 13.0, *)
+@available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
 class OpenAITestsDecoder: XCTestCase {
     
     override func setUp() {
         super.setUp()
     }
     
-    private func decode<T: Decodable & Equatable>(_ jsonString: String, _ expectedValue: T) throws {
+    private func decode<T: Decodable & Equatable>(_ jsonString: String, _ expectedValue: T, file: StaticString = #filePath, line: UInt = #line) throws {
         let data = jsonString.data(using: .utf8)!
         let decoded = try JSONDecoder().decode(T.self, from: data)
-        XCTAssertEqual(decoded, expectedValue)
+        XCTAssertEqual(decoded, expectedValue, file: file, line: line)
+    }
+
+    private func encode<T: Encodable & Equatable>(_ expectedValue: T, _ jsonString: String, file: StaticString = #filePath, line: UInt = #line) throws {
+        // To compare serialized JSONs we first convert them both into NSDictionary which are comparable (unlike native swift dictionaries)
+        let expectedValueAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(expectedValue))
+        let jsonStringAsDict = try jsonDataAsNSDictionary(jsonString.data(using: .utf8)!)
+        XCTAssertEqual(jsonStringAsDict, expectedValueAsDict, file: file, line: line)
     }
     
     func jsonDataAsNSDictionary(_ data: Data) throws -> NSDictionary {
         return NSDictionary(dictionary: try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any])
-    }
-    
-    func testCompletions() async throws {
-        let data = """
-        {
-          "id": "foo",
-          "object": "text_completion",
-          "created": 1589478378,
-          "model": "text-davinci-003",
-          "choices": [
-            {
-              "text": "Hello, world!",
-              "index": 0,
-              "logprobs": null,
-              "finish_reason": "length"
-            }
-          ],
-          "usage": {
-            "prompt_tokens": 5,
-            "completion_tokens": 7,
-            "total_tokens": 12
-          }
-        }
-        """
-        
-        let expectedValue = CompletionsResult(id: "foo", object: "text_completion", created: 1589478378, model: .textDavinci_003, choices: [
-            .init(text: "Hello, world!", index: 0, finishReason: "length")
-        ], usage: .init(promptTokens: 5, completionTokens: 7, totalTokens: 12))
-        try decode(data, expectedValue)
     }
     
     func testImages() async throws {
@@ -94,6 +70,8 @@ class OpenAITestsDecoder: XCTestCase {
             "message": {
               "role": "assistant",
               "content": "Hello, world!",
+              "annotations": [],
+              "tool_calls": []
             },
             "finish_reason": "stop"
           }],
@@ -101,13 +79,24 @@ class OpenAITestsDecoder: XCTestCase {
             "prompt_tokens": 9,
             "completion_tokens": 12,
             "total_tokens": 21
-          }
+          },
+          "system_fingerprint": "fp_fc9f1d7035"
         }
         """
         
-        let expectedValue = ChatResult(id: "chatcmpl-123", object: "chat.completion", created: 1677652288, model: .gpt4, choices: [
-            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "Hello, world!")), finishReason: "stop")
-        ], usage: .init(completionTokens: 12, promptTokens: 9, totalTokens: 21), systemFingerprint: nil)
+        let expectedValue = ChatResult(
+            id: "chatcmpl-123", created: 1677652288, model: .gpt4, object: "chat.completion", serviceTier: nil, systemFingerprint: "fp_fc9f1d7035",
+            choices: [
+                .init(
+                    index: 0,
+                    logprobs: nil,
+                    message: .init(content: "Hello, world!", refusal: nil, role: "assistant", annotations: [], audio: nil, toolCalls: [], reasoning: nil, reasoningContent: nil),
+                    finishReason: "stop"
+                )
+            ],
+            usage: .init(completionTokens: 12, promptTokens: 9, totalTokens: 21),
+            citations: nil
+        )
         try decode(data, expectedValue)
     }
     
@@ -134,11 +123,7 @@ class OpenAITestsDecoder: XCTestCase {
         }
         """
         
-        // To compare serialized JSONs we first convert them both into NSDictionary which are comparable (unline native swift dictionaries)
-        let imageQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(imageQuery))
-        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
-        
-        XCTAssertEqual(imageQueryAsDict, expectedValueAsDict)
+        try encode(imageQuery, expectedValue)
     }
 
     func testChatQueryWithVision() async throws {
@@ -184,6 +169,55 @@ class OpenAITestsDecoder: XCTestCase {
 
         XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
     }
+    
+    func testChatQueryWithStreamOptions() async throws {
+        let chatQuery = ChatQuery(messages: [
+            .init(role: .user, content: "Who are you?")!
+        ], model: .gpt4, stream: true, streamOptions: .init(includeUsage: true))
+        let expectedValue = """
+        {
+            "model": "gpt-4",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "Who are you?"
+                }
+            ],
+            "stream": true,
+            "stream_options": {
+                "include_usage" : true
+            }
+        }
+        """
+        
+        let chatQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(chatQuery))
+        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
+
+        XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
+    }
+    
+    func testChatQueryWithoutStreamOptions() async throws {
+        let chatQuery = ChatQuery(messages: [
+            .init(role: .user, content: "Who are you?")!
+        ], model: .gpt4, stream: true)
+        let expectedValue = """
+        {
+            "model": "gpt-4",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "Who are you?"
+                }
+            ],
+            "stream": true
+        }
+        """
+        
+        let chatQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(chatQuery))
+        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
+
+        XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
+    }
 
     func testChatQueryWithFunctionCall() async throws {
         let chatQuery = ChatQuery(
@@ -192,6 +226,7 @@ class OpenAITestsDecoder: XCTestCase {
             ],
             model: .gpt3_5Turbo,
             responseFormat: ChatQuery.ResponseFormat.jsonObject,
+            toolChoice: .function("get_current_weather"),
             tools: [
                 .init(function: .init(
                     name: "get_current_weather",
@@ -211,7 +246,10 @@ class OpenAITestsDecoder: XCTestCase {
         {
           "model": "gpt-3.5-turbo",
           "messages": [
-            { "role": "user", "content": "What's the weather like in Boston?" }
+            {
+              "role": "user",
+              "content": "What's the weather like in Boston?"
+            }
           ],
           "response_format": {
             "type": "json_object"
@@ -236,15 +274,17 @@ class OpenAITestsDecoder: XCTestCase {
               "type": "function"
             }
           ],
+          "tool_choice": {
+            "type": "function",
+            "function": {
+              "name": "get_current_weather"
+            }
+          },
           "stream": false
         }
         """
         
-        // To compare serialized JSONs we first convert them both into NSDictionary which are comparable (unline native swift dictionaries)
-        let chatQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(chatQuery))
-        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
-        
-        XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
+        try encode(chatQuery, expectedValue)
     }
 
     func testChatCompletionWithFunctionCall() async throws {
@@ -259,6 +299,7 @@ class OpenAITestsDecoder: XCTestCase {
               "index": 0,
               "message": {
                 "role": "assistant",
+                "annotations": [],
                 "tool_calls": [
                   {
                     "type": "function",
@@ -278,47 +319,38 @@ class OpenAITestsDecoder: XCTestCase {
             "prompt_tokens": 82,
             "completion_tokens": 18,
             "total_tokens": 100
-          }
+          },
+          "system_fingerprint": "fp_fc9f1d7035"
         }
         """
         
         let expectedValue = ChatResult(
             id: "chatcmpl-1234",
-            object: "chat.completion",
             created: 1677652288,
             model: .gpt3_5Turbo,
+            object: "chat.completion",
+            serviceTier: nil,
+            systemFingerprint: "fp_fc9f1d7035",
             choices: [
-                .init(index: 0,
-                      logprobs: nil, message:
-                        .assistant(.init(toolCalls: [.init(id: "chatcmpl-1234", function: .init(arguments: "", name: "get_current_weather"))])), finishReason: "tool_calls")
+                .init(
+                    index: 0,
+                    logprobs: nil,
+                    message: .init(
+                        content: nil,
+                        refusal: nil,
+                        role: "assistant",
+                        annotations: [],
+                        audio: nil,
+                        toolCalls: [.init(id: "chatcmpl-1234", function: .init(arguments: "", name: "get_current_weather"))],
+                        reasoning: nil,
+                        reasoningContent: nil
+                    ),
+                    finishReason: "tool_calls"
+                )
             ],
             usage: .init(completionTokens: 18, promptTokens: 82, totalTokens: 100),
-            systemFingerprint: nil)
-        try decode(data, expectedValue)
-    }
-
-    func testEdits() async throws {
-        let data = """
-        {
-          "object": "edit",
-          "created": 1589478378,
-          "choices": [
-            {
-              "text": "What day of the week is it?",
-              "index": 0,
-            }
-          ],
-          "usage": {
-            "prompt_tokens": 25,
-            "completion_tokens": 32,
-            "total_tokens": 57
-          }
-        }
-        """
-        
-        let expectedValue = EditsResult(object: "edit", created: 1589478378, choices: [
-            .init(text: "What day of the week is it?", index: 0)
-        ], usage: .init(promptTokens: 25, completionTokens: 32, totalTokens: 57))
+            citations: nil
+        )
         try decode(data, expectedValue)
     }
     
@@ -467,5 +499,199 @@ class OpenAITestsDecoder: XCTestCase {
         
         let expectedValue = AudioTranslationResult(text: "Hello, world!")
         try decode(data, expectedValue)
+    }
+    
+    func testAssistantResult() async throws {
+        let data = """
+        {
+          "id": "asst_abc123",
+          "object": "assistant",
+          "created_at": 1698984975,
+          "name": "Math Tutor",
+          "description": null,
+          "model": "gpt-4",
+          "instructions": "You are a personal math tutor. When asked a question, write and run Python code to answer the question.",
+          "tools": [
+            {
+              "type": "code_interpreter"
+            }
+          ],
+          "file_ids": [],
+          "metadata": {}
+        }
+        """
+        
+        let expectedValue = AssistantResult(id: "asst_abc123", name: "Math Tutor", description: nil, instructions: "You are a personal math tutor. When asked a question, write and run Python code to answer the question.", tools: [.codeInterpreter], toolResources: nil)
+        try decode(data, expectedValue)
+    }
+    
+    func testAssistantsQuery() async throws {
+        let assistantsQuery = AssistantsQuery(
+            model: .gpt4,
+            name: "Math Tutor",
+            description: nil,
+            instructions: "You are a personal math tutor. When asked a question, write and run Python code to answer the question.",
+            tools: [.codeInterpreter],
+            toolResources: nil
+        )
+        
+        let expectedValue = """
+        {
+            "instructions": "You are a personal math tutor. When asked a question, write and run Python code to answer the question.",
+            "name": "Math Tutor",
+            "tools": [
+                {"type": "code_interpreter"}
+            ],
+            "model": "gpt-4"
+        }
+        """
+        
+        try encode(assistantsQuery, expectedValue)
+    }
+    
+    func testAssistantsResult() async throws {
+        let data = """
+        {
+          "object": "list",
+          "data": [
+            {
+              "id": "asst_abc123",
+              "object": "assistant",
+              "created_at": 1698982736,
+              "name": "Coding Tutor",
+              "description": null,
+              "model": "gpt-4",
+              "instructions": "You are a helpful assistant designed to make me better at coding!",
+              "tools": [],
+              "file_ids": [],
+              "metadata": {}
+            },
+            {
+              "id": "asst_abc456",
+              "object": "assistant",
+              "created_at": 1698982718,
+              "name": "My Assistant",
+              "description": null,
+              "model": "gpt-4",
+              "instructions": "You are a helpful assistant designed to teach me about AI!",
+              "tools": [],
+              "file_ids": [],
+              "metadata": {}
+            }
+          ],
+          "first_id": "asst_abc123",
+          "last_id": "asst_abc789",
+          "has_more": false
+        }
+        """
+        
+        let expectedValue = AssistantsResult(
+            data: [
+                .init(id: "asst_abc123", name: "Coding Tutor", description: nil, instructions: "You are a helpful assistant designed to make me better at coding!", tools: [], toolResources: nil),
+                .init(id: "asst_abc456", name: "My Assistant", description: nil, instructions: "You are a helpful assistant designed to teach me about AI!", tools: [], toolResources: nil),
+            ],
+            firstId: "asst_abc123", 
+            lastId: "asst_abc789",
+            hasMore: false
+        )
+        
+        try decode(data, expectedValue)
+    }
+    
+    func testMessageQuery() async throws {
+        let messageQuery = MessageQuery(
+            role: .user,
+            content: "How does AI work? Explain it in simple terms.",
+            fileIds: ["file_abc123"]
+        )
+        
+        let expectedValue = """
+        {
+            "role": "user",
+            "content": "How does AI work? Explain it in simple terms.",
+            "file_ids": ["file_abc123"]
+        }
+        """
+
+        try encode(messageQuery, expectedValue)
+    }
+    
+    func testRunResult() async throws {
+        let data = """
+        {
+            "id": "run_1a",
+            "thread_id": "thread_2b",
+            "status": "requires_action",
+            "required_action": {
+                "type": "submit_tool_outputs",
+                "submit_tool_outputs": {
+                    "tool_calls": [
+                        {
+                            "id": "tool_abc890",
+                            "type": "function",
+                            "function": {
+                                "name": "print",
+                                "arguments": "{\\"text\\": \\"hello\\"}"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+        """
+        
+        let expectedValue = RunResult(
+            id: "run_1a",
+            threadId: "thread_2b",
+            status: .requiresAction,
+            requiredAction: .init(
+                submitToolOutputs: .init(toolCalls: [.init(id: "tool_abc890", type: "function", function: .init(name: "print", arguments: "{\"text\": \"hello\"}"))])
+            )
+        )
+        
+        try decode(data, expectedValue)
+    }
+    
+    func testRunToolOutputsQuery() async throws {
+        let runToolOutputsQuery = RunToolOutputsQuery(
+            toolOutputs: [
+                .init(toolCallId: "call_abc0", output: "success")
+            ]
+        )
+        
+        let expectedValue = """
+        {
+            "tool_outputs": [
+                {
+                    "tool_call_id": "call_abc0",
+                    "output": "success"
+                }
+            ]
+        }
+        """
+        
+        try encode(runToolOutputsQuery, expectedValue)
+    }
+    
+    func testThreadRunQuery() async throws {
+        let threadRunQuery = ThreadRunQuery(
+            assistantId: "asst_abc123",
+            thread: .init(
+                messages: [.init(role: .user, content: "Explain deep learning to a 5 year old.")!]
+            )
+        )
+        
+        let expectedValue = """
+        {
+            "assistant_id": "asst_abc123",
+            "thread": {
+                "messages": [
+                    {"role": "user", "content": "Explain deep learning to a 5 year old."}
+                ]
+            }
+        }
+        """
+        
+        try encode(threadRunQuery, expectedValue)
     }
 }

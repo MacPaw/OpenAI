@@ -25,16 +25,25 @@ final class MultipartFormDataRequest<ResultType> {
 
 extension MultipartFormDataRequest: URLRequestBuildable {
     
-    func build(token: String, organizationIdentifier: String?, timeoutInterval: TimeInterval) throws -> URLRequest {
+    func build(token: String?, organizationIdentifier: String?, timeoutInterval: TimeInterval, customHeaders: [String: String]) throws -> URLRequest {
         var request = URLRequest(url: url)
         let boundary: String = UUID().uuidString
         request.timeoutInterval = timeoutInterval
         request.httpMethod = method
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        if let token {        
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         if let organizationIdentifier {
             request.setValue(organizationIdentifier, forHTTPHeaderField: "OpenAI-Organization")
         }
+        
+        for (headerField, value) in customHeaders {
+            request.setValue(value, forHTTPHeaderField: headerField)
+        }
+        
         request.httpBody = body.encode(boundary: boundary)
         return request
     }

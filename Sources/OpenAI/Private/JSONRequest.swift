@@ -16,7 +16,7 @@ final class JSONRequest<ResultType> {
     let url: URL
     let method: String
     
-    init(body: Codable? = nil, url: URL, method: String = "POST") {
+    init(body: Codable? = nil, url: URL, method: String = "POST", customHeaders: [String: String] = [:]) {
         self.body = body
         self.url = url
         self.method = method
@@ -24,14 +24,27 @@ final class JSONRequest<ResultType> {
 }
 
 extension JSONRequest: URLRequestBuildable {
-    
-    func build(token: String, organizationIdentifier: String?, timeoutInterval: TimeInterval) throws -> URLRequest {
+    func build(
+        token: String?,
+        organizationIdentifier: String?,
+        timeoutInterval: TimeInterval,
+        customHeaders: [String: String]
+    ) throws -> URLRequest {
         var request = URLRequest(url: url, timeoutInterval: timeoutInterval)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        if let token {        
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
         if let organizationIdentifier {
             request.setValue(organizationIdentifier, forHTTPHeaderField: "OpenAI-Organization")
         }
+        
+        for (headerField, value) in customHeaders {
+            request.setValue(value, forHTTPHeaderField: headerField)
+        }
+        
         request.httpMethod = method
         if let body = body {
             request.httpBody = try JSONEncoder().encode(body)
