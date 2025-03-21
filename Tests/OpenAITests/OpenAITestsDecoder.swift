@@ -90,7 +90,7 @@ class OpenAITestsDecoder: XCTestCase {
                 .init(
                     index: 0,
                     logprobs: nil,
-                    message: .init(content: "Hello, world!", refusal: nil, role: "assistant", annotations: [], audio: nil, toolCalls: []),
+                    message: .init(content: "Hello, world!", refusal: nil, role: "assistant", annotations: [], audio: nil, toolCalls: [], reasoning: nil, reasoningContent: nil),
                     finishReason: "stop"
                 )
             ],
@@ -341,7 +341,9 @@ class OpenAITestsDecoder: XCTestCase {
                         role: "assistant",
                         annotations: [],
                         audio: nil,
-                        toolCalls: [.init(id: "chatcmpl-1234", function: .init(arguments: "", name: "get_current_weather"))]
+                        toolCalls: [.init(id: "chatcmpl-1234", function: .init(arguments: "", name: "get_current_weather"))],
+                        reasoning: nil,
+                        reasoningContent: nil
                     ),
                     finishReason: "tool_calls"
                 )
