@@ -66,7 +66,8 @@ public final class ChatStore: ObservableObject {
     func sendMessage(
         _ message: Message,
         conversationId: Conversation.ID,
-        model: Model
+        model: Model,
+        isStreamEnabled: Bool
     ) async {
         guard let conversationIndex = conversations.firstIndex(where: { $0.id == conversationId }) else {
             return
@@ -79,7 +80,7 @@ public final class ChatStore: ObservableObject {
             await completeChat(
                 conversationId: conversationId,
                 model: model,
-                stream: true
+                stream: isStreamEnabled
             )
             // For assistant case we send chats to thread and then poll, polling will receive sent chat + new assistant messages.
         case .assistant:

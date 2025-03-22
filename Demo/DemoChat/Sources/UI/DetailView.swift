@@ -18,13 +18,14 @@ struct DetailView: View {
     @FocusState private var isFocused: Bool
     @State private var showsModelSelectionSheet = false
     @State private var selectedChatModel: Model = .gpt4_o_mini
+    @State private var streamEnabled = true
     var availableAssistants: [Assistant]
 
     private static let availableChatModels: [Model] = [.gpt4_o_mini]
 
     let conversation: Conversation
     let error: Error?
-    let sendMessage: (String, Model) -> Void
+    let sendMessage: (String, Model, Bool) -> Void
 
     @Binding var isSendingMessage: Bool
 
@@ -76,7 +77,7 @@ struct DetailView: View {
                 .safeAreaInset(edge: .top) {
                     HStack {
                         Text(
-                            "Model: \(conversation.type == .assistant ? Model.gpt4_o_mini : selectedChatModel)"
+                            "Model: \(conversation.type == .assistant ? Model.gpt4_o_mini : selectedChatModel), stream: \(streamEnabled)"
                         )
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -122,6 +123,12 @@ struct DetailView: View {
                             } label: {
                                 Text(model)
                             }
+                        }
+                        
+                        Button {
+                            streamEnabled.toggle()
+                        } label: {
+                            Text(streamEnabled ? "Disable streaming" : "Enable streaming")
                         }
 
                         Button("Cancel", role: .cancel) {
@@ -219,7 +226,7 @@ struct DetailView: View {
             return
         }
         
-        sendMessage(message, selectedChatModel)
+        sendMessage(message, selectedChatModel, streamEnabled)
         inputText = ""
         
 //        if let lastMessage = conversation.messages.last {
@@ -317,7 +324,7 @@ struct DetailView_Previews: PreviewProvider {
                 ]
             ),
             error: nil,
-            sendMessage: { _, _ in }, isSendingMessage: Binding.constant(false)
+            sendMessage: { _, _, _ in }, isSendingMessage: Binding.constant(false)
         )
     }
 }
