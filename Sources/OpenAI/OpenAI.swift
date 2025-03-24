@@ -220,7 +220,23 @@ final public class OpenAI: @unchecked Sendable {
         performRequest(request: makeChatsRequest(query: query.makeNonStreamable()), completion: completion)
     }
     
+    public func chats<ResultType: Codable & Equatable & Sendable>(query: ChatQuery, completion: @escaping @Sendable (Result<ResultType, Error>) -> Void) -> CancellableRequest {
+        performRequest(request: makeChatsRequest(query: query.makeNonStreamable()), completion: completion)
+    }
+    
     public func chatsStream(query: ChatQuery, onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest {
+        performStreamingRequest(
+            request: JSONRequest<ChatStreamResult>(body: query.makeStreamable(), url: buildURL(path: .chats)),
+            onResult: onResult,
+            completion: completion
+        )
+    }
+    
+    public func chatsStream<ResultType: Codable & Equatable & Sendable>(
+        query: ChatQuery,
+        onResult: @escaping @Sendable (Result<ResultType, Error>) -> Void,
+        completion: (@Sendable (Error?) -> Void)?
+    ) -> CancellableRequest {
         performStreamingRequest(
             request: JSONRequest<ChatStreamResult>(body: query.makeStreamable(), url: buildURL(path: .chats)),
             onResult: onResult,
