@@ -218,9 +218,9 @@ extension OpenAI: OpenAIAsync {
             }
             let decoder = JSONDecoder()
             do {
-                return try decoder.decode(ResultType.self, from: interceptedData ?? Data())
+                return try decoder.decode(ResultType.self, from: interceptedData ?? data)
             } catch {
-                throw (try? decoder.decode(APIErrorResponse.self, from: interceptedData ?? Data())) ?? error
+                throw (try? decoder.decode(APIErrorResponse.self, from: interceptedData ?? data)) ?? error
             }
         } else {
             let dataTaskStore = URLSessionDataTaskStore()
@@ -254,7 +254,7 @@ extension OpenAI: OpenAIAsync {
             let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
                 middleware.intercept(response: current.response, data: current.data)
             }
-            return .init(audio: interceptedData ?? Data())
+            return .init(audio: interceptedData ?? data)
         } else {
             let dataTaskStore = URLSessionDataTaskStore()
             return try await withTaskCancellationHandler {
