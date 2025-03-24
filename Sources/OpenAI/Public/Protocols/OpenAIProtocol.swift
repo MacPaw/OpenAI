@@ -105,6 +105,8 @@ public protocol OpenAIProtocol: OpenAIModern {
      **/
     @discardableResult func chats(query: ChatQuery, completion: @escaping @Sendable (Result<ChatResult, Error>) -> Void) -> CancellableRequest
     
+    @discardableResult func chats<ResultType: Codable & Equatable & Sendable>(query: ChatQuery, completion: @escaping @Sendable (Result<ResultType, Error>) -> Void) -> CancellableRequest
+    
     /**
      This function sends a chat query to the OpenAI API and retrieves chat stream conversation responses. The Chat API enables you to build chatbots or conversational applications using OpenAI's powerful natural language models, like GPT-3. The result is returned by chunks.
      
@@ -128,6 +130,12 @@ public protocol OpenAIProtocol: OpenAIModern {
      - Note: This method creates and configures separate session object specifically for streaming. In order for it to work properly and don't leak memory you should hold a reference to the returned value, and when you're done - call cancel() on it.
      */
     @discardableResult func chatsStream(query: ChatQuery, onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest
+    
+    @discardableResult func chatsStream<ResultType: Codable & Equatable & Sendable>(
+        query: ChatQuery,
+        onResult: @escaping @Sendable (Result<ResultType, Error>) -> Void,
+        completion: (@Sendable (Error?) -> Void)?
+    ) -> CancellableRequest
     
     /**
      This function sends a model query to the OpenAI API and retrieves a model instance, providing owner information. The Models API in this usage enables you to gather detailed information on the model in question, like GPT-3.

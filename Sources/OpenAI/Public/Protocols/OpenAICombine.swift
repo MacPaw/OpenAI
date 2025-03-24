@@ -16,7 +16,9 @@ public protocol OpenAICombine {
     func imageVariations(query: ImageVariationsQuery) -> AnyPublisher<ImagesResult, Error>
     func embeddings(query: EmbeddingsQuery) -> AnyPublisher<EmbeddingsResult, Error>
     func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error>
+    func chats<ResultType: Codable & Equatable & Sendable>(query: ChatQuery) -> AnyPublisher<ResultType, Error>
     func chatsStream(query: ChatQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error>
+    func chatsStream<ResultType: Codable & Sendable & Equatable>(query: ChatQuery) -> AnyPublisher<Result<ResultType, Error>, Error>
     func model(query: ModelQuery) -> AnyPublisher<ModelResult, Error>
     func models() -> AnyPublisher<ModelsResult, Error>
     func moderations(query: ModerationsQuery) -> AnyPublisher<ModerationsResult, Error>
