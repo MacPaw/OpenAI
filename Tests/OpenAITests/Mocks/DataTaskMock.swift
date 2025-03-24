@@ -17,7 +17,8 @@ class DataTaskMock: URLSessionDataTaskProtocol, @unchecked Sendable {
     var response: URLResponse?
     var error: Error?
     var urlError: URLError? // Needed for mocking combine dataTaskPublisher
-    
+    var originalRequest: URLRequest?
+
     var completion: ((Data?, URLResponse?, Error?) -> Void)?
     
     func resume() {

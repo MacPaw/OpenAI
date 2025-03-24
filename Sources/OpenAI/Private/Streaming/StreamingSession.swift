@@ -56,7 +56,7 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
     
     func urlSession(_ session: any URLSessionProtocol, dataTask: any URLSessionDataTaskProtocol, didReceive data: Data) {
         let data = self.middlewares.reduce(data) { current, middleware in
-            middleware.interceptStreamingData(current)
+            middleware.interceptStreamingData(request: dataTask.originalRequest, current)
         }
         interpreter.processData(data)
     }
