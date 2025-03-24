@@ -34,14 +34,22 @@ extension OpenAI: OpenAICombine {
     }
     
     public func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error> {
+        chats<ChatResult>(query: query)
+    }
+    
+    public func chats<ResultType: Codable & Equatable & Sendable>(query: ChatQuery) -> AnyPublisher<ResultType, Error> {
         performRequestCombine(
             request: makeChatsRequest(query: query)
         )
     }
     
     public func chatsStream(query: ChatQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
+        chatsStream<ChatStreamResult>(query: query)
+    }
+    
+    public func chatsStream<ResultType: Codable & Sendable & Equatable>(query: ChatQuery) -> AnyPublisher<Result<ResultType, Error>, Error> {
         let progress = SendablePassthroughSubject(
-            passthroughSubject: PassthroughSubject<Result<ChatStreamResult, Error>, Error>()
+            passthroughSubject: PassthroughSubject<Result<ResultType, Error>, Error>()
         )
         
         let cancellable = chatsStream(query: query) { result in

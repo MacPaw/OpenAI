@@ -39,7 +39,17 @@ extension OpenAI: OpenAIAsync {
         )
     }
     
+    public func chats<ResultType: Codable & Equatable & Sendable>(query: ChatQuery) async throws -> ResultType {
+        try await performRequestAsync(
+            request: makeChatsRequest(query: query)
+        )
+    }
+    
     public func chatsStream(query: ChatQuery) -> AsyncThrowingStream<ChatStreamResult, Error> {
+        chatsStream<ChatStreamResult>(query: query)
+    }
+    
+    public func chatsStream<ResultType: Codable & Equatable & Sendable>(query: ChatQuery) -> AsyncThrowingStream<ResultType, Error> {
         return AsyncThrowingStream { continuation in
             let cancellableRequest = chatsStream(query: query)  { result in
                 continuation.yield(with: result)
