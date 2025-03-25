@@ -215,7 +215,7 @@ extension OpenAI: OpenAICombine {
                 .tryMap { (data, response) in
                     let decoder = JSONDecoder()
                     let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
-                        middleware.intercept(response: current.response, data: current.data)
+                        middleware.intercept(response: current.response, request: urlRequest, data: current.data)
                     }
                     do {
                         return try decoder.decode(ResultType.self, from: interceptedData ?? data)
@@ -239,7 +239,7 @@ extension OpenAI: OpenAICombine {
                 .dataTaskPublisher(for: interceptedRequest)
                 .tryMap { (data, response) in
                     let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
-                        middleware.intercept(response: current.response, data: current.data)
+                        middleware.intercept(response: current.response, request: urlRequest, data: current.data)
                     }
                     return .init(audio: interceptedData ?? data)
                 }.eraseToAnyPublisher()

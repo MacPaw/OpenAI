@@ -214,7 +214,7 @@ extension OpenAI: OpenAIAsync {
         if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
             let (data, response) = try await session.data(for: interceptedRequest, delegate: nil)
             let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
-                middleware.intercept(response: current.response, data: current.data)
+                middleware.intercept(response: current.response, request: urlRequest, data: current.data)
             }
             let decoder = JSONDecoder()
             do {
@@ -252,7 +252,7 @@ extension OpenAI: OpenAIAsync {
         if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
             let (data, response) = try await session.data(for: interceptedRequest, delegate: nil)
             let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
-                middleware.intercept(response: current.response, data: current.data)
+                middleware.intercept(response: current.response, request: urlRequest, data: current.data)
             }
             return .init(audio: interceptedData ?? data)
         } else {

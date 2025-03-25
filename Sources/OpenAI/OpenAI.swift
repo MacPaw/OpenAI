@@ -339,7 +339,7 @@ extension OpenAI {
                     return completion(.failure(error))
                 }
                 let (_, data) = self.middlewares.reduce((response, data)) { current, middleware in
-                    middleware.intercept(response: current.response, data: current.data)
+                    middleware.intercept(response: current.response, request: urlRequest, data: current.data)
                 }
                 guard let data else {
                     return completion(.failure(OpenAIError.emptyData))
@@ -391,7 +391,7 @@ extension OpenAI {
                 return completion(.failure(error))
             }
             let (_, data) = self.middlewares.reduce((response, data)) { current, middleware in
-                middleware.intercept(response: current.response, data: current.data)
+                middleware.intercept(response: current.response, request: request, data: current.data)
             }
             guard let data else {
                 return completion(.failure(OpenAIError.emptyData))
@@ -411,7 +411,7 @@ extension OpenAI {
                 return completion(.failure(error))
             }
             let (_, data) = self.middlewares.reduce((response, data)) { current, middleware in
-                middleware.intercept(response: current.response, data: current.data)
+                middleware.intercept(response: current.response, request: request, data: current.data)
             }
             guard let data else {
                 return completion(.failure(OpenAIError.emptyData))
