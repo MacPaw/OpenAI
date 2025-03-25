@@ -21,12 +21,14 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
     private let onComplete: (@Sendable (StreamingSession, Error?) -> Void)?
     private let interpreter: Interpreter
     private let sslDelegate: SSLDelegateProtocol?
-    
+    private let middlewares: [OpenAIMiddleware]
+
     init(
         urlSessionFactory: URLSessionFactory = FoundationURLSessionFactory(),
         urlRequest: URLRequest,
         interpreter: Interpreter,
         sslDelegate: SSLDelegateProtocol?,
+        middlewares: [OpenAIMiddleware],
         onReceiveContent: @escaping @Sendable (StreamingSession, ResultType) -> Void,
         onProcessingError: @escaping @Sendable (StreamingSession, Error) -> Void,
         onComplete: @escaping @Sendable (StreamingSession, Error?) -> Void
@@ -35,6 +37,7 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
         self.urlRequest = urlRequest
         self.interpreter = interpreter
         self.sslDelegate = sslDelegate
+        self.middlewares = middlewares
         self.onReceiveContent = onReceiveContent
         self.onProcessingError = onProcessingError
         self.onComplete = onComplete
@@ -52,6 +55,9 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
     }
     
     func urlSession(_ session: any URLSessionProtocol, dataTask: any URLSessionDataTaskProtocol, didReceive data: Data) {
+        let data = self.middlewares.reduce(data) { current, middleware in
+            middleware.interceptStreamingData(request: dataTask.originalRequest, current)
+        }
         interpreter.processData(data)
     }
 

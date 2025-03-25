@@ -17,6 +17,7 @@ class MockStreamingSessionFactory: StreamingSessionFactory {
     
     func makeServerSentEventsStreamingSession<ResultType>(
         urlRequest: URLRequest,
+        middlewares: [OpenAIMiddleware],
         onReceiveContent: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, ResultType) -> Void,
         onProcessingError: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, any Error) -> Void,
         onComplete: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, (any Error)?) -> Void
@@ -26,6 +27,7 @@ class MockStreamingSessionFactory: StreamingSessionFactory {
             urlRequest: urlRequest,
             interpreter: .init(executionSerializer: NoDispatchExecutionSerializer()),
             sslDelegate: nil,
+            middlewares: middlewares,
             onReceiveContent: onReceiveContent,
             onProcessingError: onProcessingError,
             onComplete: onComplete
@@ -34,6 +36,7 @@ class MockStreamingSessionFactory: StreamingSessionFactory {
     
     func makeAudioSpeechStreamingSession(
         urlRequest: URLRequest,
+        middlewares: [OpenAIMiddleware],
         onReceiveContent: @Sendable @escaping (StreamingSession<AudioSpeechStreamInterpreter>, AudioSpeechResult) -> Void,
         onProcessingError: @Sendable @escaping (StreamingSession<AudioSpeechStreamInterpreter>, any Error) -> Void,
         onComplete: @Sendable @escaping (StreamingSession<AudioSpeechStreamInterpreter>, (any Error)?) -> Void
@@ -43,6 +46,7 @@ class MockStreamingSessionFactory: StreamingSessionFactory {
             urlRequest: urlRequest,
             interpreter: .init(),
             sslDelegate: nil,
+            middlewares: middlewares,
             onReceiveContent: onReceiveContent,
             onProcessingError: onProcessingError,
             onComplete: onComplete

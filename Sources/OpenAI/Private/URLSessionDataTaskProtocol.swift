@@ -11,6 +11,7 @@ import FoundationNetworking
 #endif
 
 protocol URLSessionTaskProtocol: Sendable {
+    var originalRequest: URLRequest? { get }
     func cancel()
 }
 
