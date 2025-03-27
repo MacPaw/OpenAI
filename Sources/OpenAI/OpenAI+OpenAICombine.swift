@@ -210,10 +210,12 @@ extension OpenAI: OpenAICombine {
                 middleware.intercept(request: current)
             }
 
+            let parsingOptions = configuration.parsingOptions
             return session
                 .dataTaskPublisher(for: interceptedRequest)
                 .tryMap { (data, response) in
                     let decoder = JSONDecoder()
+                    decoder.userInfo[.parsingOptions] = parsingOptions
                     let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
                         middleware.intercept(response: current.response, request: urlRequest, data: current.data)
                     }

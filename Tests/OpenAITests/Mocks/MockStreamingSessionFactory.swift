@@ -17,7 +17,6 @@ class MockStreamingSessionFactory: StreamingSessionFactory {
     
     func makeServerSentEventsStreamingSession<ResultType>(
         urlRequest: URLRequest,
-        middlewares: [OpenAIMiddleware],
         onReceiveContent: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, ResultType) -> Void,
         onProcessingError: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, any Error) -> Void,
         onComplete: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, (any Error)?) -> Void
@@ -25,9 +24,9 @@ class MockStreamingSessionFactory: StreamingSessionFactory {
         .init(
             urlSessionFactory: urlSessionFactory,
             urlRequest: urlRequest,
-            interpreter: .init(executionSerializer: NoDispatchExecutionSerializer()),
+            interpreter: .init(executionSerializer: NoDispatchExecutionSerializer(), parsingOptions: []),
             sslDelegate: nil,
-            middlewares: middlewares,
+            middlewares: [],
             onReceiveContent: onReceiveContent,
             onProcessingError: onProcessingError,
             onComplete: onComplete
@@ -36,7 +35,6 @@ class MockStreamingSessionFactory: StreamingSessionFactory {
     
     func makeAudioSpeechStreamingSession(
         urlRequest: URLRequest,
-        middlewares: [OpenAIMiddleware],
         onReceiveContent: @Sendable @escaping (StreamingSession<AudioSpeechStreamInterpreter>, AudioSpeechResult) -> Void,
         onProcessingError: @Sendable @escaping (StreamingSession<AudioSpeechStreamInterpreter>, any Error) -> Void,
         onComplete: @Sendable @escaping (StreamingSession<AudioSpeechStreamInterpreter>, (any Error)?) -> Void
@@ -46,7 +44,7 @@ class MockStreamingSessionFactory: StreamingSessionFactory {
             urlRequest: urlRequest,
             interpreter: .init(),
             sslDelegate: nil,
-            middlewares: middlewares,
+            middlewares: [],
             onReceiveContent: onReceiveContent,
             onProcessingError: onProcessingError,
             onComplete: onComplete

@@ -8,7 +8,6 @@
 import Foundation
 
 public struct ChatStreamResult: Codable, Equatable, Sendable {
-    
     public struct Choice: Codable, Equatable, Sendable {
         public typealias FinishReason = ChatResult.Choice.FinishReason
 
@@ -135,7 +134,7 @@ public struct ChatStreamResult: Codable, Equatable, Sendable {
     /// Can be more than one if `n` is greater than 1.
     public let choices: [Choice]
     /// This fingerprint represents the backend configuration that the model runs with. Can be used in conjunction with the `seed` request parameter to understand when backend changes have been made that might impact determinism.
-    public let systemFingerprint: String?
+    public let systemFingerprint: String
     /// Usage statistics for the completion request.
     public let usage: ChatResult.CompletionUsage?
 
@@ -148,5 +147,19 @@ public struct ChatStreamResult: Codable, Equatable, Sendable {
         case choices
         case systemFingerprint = "system_fingerprint"
         case usage
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let parsingOptions = decoder.userInfo[.parsingOptions] as? ParsingOptions ?? []
+        
+        self.id = try container.decodeString(forKey: .id, parsingOptions: parsingOptions)
+        self.object = try container.decode(String.self, forKey: .object)
+        self.created = try container.decode(TimeInterval.self, forKey: .created)
+        self.model = try container.decode(String.self, forKey: .model)
+        self.citations = try container.decodeIfPresent([String].self, forKey: .citations)
+        self.choices = try container.decode([ChatStreamResult.Choice].self, forKey: .choices)
+        self.systemFingerprint = try container.decodeString(forKey: .systemFingerprint, parsingOptions: parsingOptions)
+        self.usage = try container.decodeIfPresent(ChatResult.CompletionUsage.self, forKey: .usage)
     }
 }
