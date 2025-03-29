@@ -56,6 +56,85 @@ class OpenAIStreamingTests: XCTestCase {
         XCTAssertTrue(assertedInAnotherFunction)
     }
     
+    
+    func testGeminiStyleChunkDecoding() throws {
+        let json = """
+        [
+          {
+            "object": "chat.completion.chunk",
+            "created": 1743249736,
+            "model": "gemini-2.0-flash",
+            "choices": [
+              {
+                "delta": {
+                  "content": "Hey",
+                  "role": "assistant"
+                },
+                "index": 0
+              }
+            ]
+          }
+        ]
+        """.data(using: .utf8)!
+
+        let decoder = JSONDecoder()
+        let result = try decoder.decode([ChatStreamResult].self, from: json)
+
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result[0].model, "gemini-2.0-flash")
+        XCTAssertEqual(result[0].choices.first?.delta.content, "Hey")
+        XCTAssertEqual(result[0].choices.first?.delta.role, .assistant)
+    }
+    
+    func testChatResultWithToolCallDecoding() throws {
+        let json = """
+        {
+          "choices": [
+            {
+              "finish_reason": "tool_calls",
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "tool_calls": [
+                  {
+                    "function": {
+                      "arguments": "{\\"query\\":\\"Lakers score\\"}",
+                      "name": "search_web"
+                    },
+                    "id": "",
+                    "type": "function"
+                  }
+                ]
+              }
+            }
+          ],
+          "created": 1743275155,
+          "model": "gemini-2.0-flash",
+          "object": "chat.completion",
+          "usage": {
+            "completion_tokens": 7,
+            "prompt_tokens": 266,
+            "total_tokens": 273
+          }
+        }
+        """.data(using: .utf8)!
+
+        let decoder = JSONDecoder()
+        let result = try decoder.decode(ChatResult.self, from: json)
+
+        XCTAssertEqual(result.model, "gemini-2.0-flash")
+        XCTAssertEqual(result.choices.count, 1)
+
+        let choice = result.choices[0]
+        XCTAssertEqual(choice.finishReason, "tool_calls")
+        XCTAssertEqual(choice.index, 0)
+        XCTAssertEqual(choice.message.toolCalls?.count, 1)
+
+        let toolCall = choice.message.toolCalls?.first
+        XCTAssertEqual(toolCall?.function.name, "search_web")
+        XCTAssertEqual(toolCall?.function.arguments, "{\"query\":\"Lakers score\"}")
+    }
+    
     func testAudioSpeechSessionInvalidated() throws {
         try stub(result: Data())
         
