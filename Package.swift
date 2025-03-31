@@ -19,7 +19,7 @@ let package = Package(
         .target(
             name: "OpenAI",
             dependencies: [
-                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime")
             ]
         ),
         .testTarget(
