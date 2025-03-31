@@ -11,13 +11,14 @@ import FoundationNetworking
 #endif
 @testable import OpenAI
 
-class DataTaskMock: URLSessionDataTaskProtocol {
+class DataTaskMock: URLSessionDataTaskProtocol, @unchecked Sendable {
     
     var data: Data?
     var response: URLResponse?
     var error: Error?
     var urlError: URLError? // Needed for mocking combine dataTaskPublisher
-    
+    var originalRequest: URLRequest?
+
     var completion: ((Data?, URLResponse?, Error?) -> Void)?
     
     func resume() {

@@ -53,7 +53,7 @@ public struct ChatView: View {
                     DetailView(
                         availableAssistants: assistantStore.availableAssistants, conversation: conversation,
                         error: store.conversationErrors[conversation.id],
-                        sendMessage: { message, selectedModel in
+                        sendMessage: { message, selectedModel, streamEnabled in
                             self.sendMessageTask = Task {
                                 await store.sendMessage(
                                     Message(
@@ -63,7 +63,8 @@ public struct ChatView: View {
                                         createdAt: dateProvider()
                                     ),
                                     conversationId: conversation.id,
-                                    model: selectedModel
+                                    model: selectedModel,
+                                    isStreamEnabled: streamEnabled
                                 )
                             }
                         }, isSendingMessage: $store.isSendingMessage

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FilesResult: Codable, Equatable {
+public struct FilesResult: Codable, Equatable, Sendable {
 
     public let id: String
     public let name: String?

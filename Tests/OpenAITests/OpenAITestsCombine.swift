@@ -12,16 +12,21 @@ import XCTest
 import Combine
 
 @available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
-final class OpenAITestsCombine: XCTestCase {
+@MainActor final class OpenAITestsCombine: XCTestCase {
     
     private var openAI: OpenAIProtocol!
     private let urlSession: URLSessionMockCombine = URLSessionMockCombine()
+    private let streamingSessionFactory = MockStreamingSessionFactory()
     private let cancellablesFactory = MockCancellablesFactory()
     
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        self.openAI = OpenAI(configuration: configuration, session: self.urlSession, cancellablesFactory: cancellablesFactory)
+        self.openAI = OpenAI(
+            configuration: configuration,
+            session: self.urlSession,
+            streamingSessionFactory: streamingSessionFactory,
+            cancellablesFactory: cancellablesFactory
+        )
     }
     
     func testChats() throws {
@@ -76,7 +81,7 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     func testAudioCreateSpeech() throws {
-        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, speed: nil)
+        let query = AudioSpeechQuery.mock
         let data = Data(repeating: 10, count: 10)
         urlSession.dataTask = .successful(with: data)
         let response = try awaitPublisher(openAI.audioCreateSpeech(query: query), timeout: 1)
@@ -241,16 +246,7 @@ final class OpenAITestsCombine: XCTestCase {
     }
     
     private func makeChatsResult() -> ChatResult {
-        .init(
-            id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo,
-            choices: [
-                .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
-                .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
-                .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
-            ],
-            usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300),
-            systemFingerprint: nil
-        )
+        .mock
     }
 }
 
@@ -262,6 +258,7 @@ extension OpenAITestsCombine {
     func stub(error: URLError) {
         let task = DataTaskMock.failed(with: error)
         self.urlSession.dataTask = task
+        self.streamingSessionFactory.urlSessionFactory.urlSession.dataTask = task
     }
     
     func stub(result: Codable) throws {
@@ -269,6 +266,7 @@ extension OpenAITestsCombine {
         let data = try encoder.encode(result)
         let task = DataTaskMock.successful(with: data)
         self.urlSession.dataTask = task
+        self.streamingSessionFactory.urlSessionFactory.urlSession.dataTask = task
     }
 }
 

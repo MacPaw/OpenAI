@@ -7,13 +7,13 @@
 
 import Foundation
 
-public struct ThreadsMessagesResult: Codable, Equatable {
+public struct ThreadsMessagesResult: Codable, Equatable, Sendable {
 
-    public struct ThreadsMessage: Codable, Equatable {
+    public struct ThreadsMessage: Codable, Equatable, Sendable {
 
-        public struct ThreadsMessageContent: Codable, Equatable {
+        public struct ThreadsMessageContent: Codable, Equatable, Sendable {
 
-            public struct ThreadsMessageContentText: Codable, Equatable {
+            public struct ThreadsMessageContentText: Codable, Equatable, Sendable {
 
                 public let value: String?
 
@@ -31,7 +31,7 @@ public struct ThreadsMessagesResult: Codable, Equatable {
                 }
             }
             
-            public enum ContentType: String, Codable {
+            public enum ContentType: String, Codable, Sendable {
                 case text
                 case imageFile = "image_file"
             }

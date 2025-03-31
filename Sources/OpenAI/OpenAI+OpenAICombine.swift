@@ -40,7 +40,10 @@ extension OpenAI: OpenAICombine {
     }
     
     public func chatsStream(query: ChatQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
-        let progress = PassthroughSubject<Result<ChatStreamResult, Error>, Error>()
+        let progress = SendablePassthroughSubject(
+            passthroughSubject: PassthroughSubject<Result<ChatStreamResult, Error>, Error>()
+        )
+        
         let cancellable = chatsStream(query: query) { result in
             progress.send(result)
         } completion: { error in
@@ -51,6 +54,7 @@ extension OpenAI: OpenAICombine {
             }
         }
         return progress
+            .publisher()
             .handleEvents(receiveCancel: {
                 cancellable.cancelRequest()
             })
@@ -82,8 +86,11 @@ extension OpenAI: OpenAICombine {
     }
     
     func audioCreateSpeechStream(query: AudioSpeechQuery) -> AnyPublisher<Result<AudioSpeechResult, Error>, Error> {
-        let progress = PassthroughSubject<Result<AudioSpeechResult, Error>, Error>()
-        audioCreateSpeechStream(query: query) { result in
+        let progress = SendablePassthroughSubject(
+            passthroughSubject: PassthroughSubject<Result<AudioSpeechResult, Error>, Error>()
+        )
+        
+        let cancellable = audioCreateSpeechStream(query: query) { result in
             progress.send(result)
         } completion: { error in
             if let error {
@@ -92,7 +99,12 @@ extension OpenAI: OpenAICombine {
                 progress.send(completion: .finished)
             }
         }
-        return progress.eraseToAnyPublisher()
+        return progress
+            .publisher()
+            .handleEvents(receiveCancel: {
+                cancellable.cancelRequest()
+            })
+            .eraseToAnyPublisher()
     }
     
     public func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error> {
@@ -193,16 +205,24 @@ extension OpenAI: OpenAICombine {
     
     func performRequestCombine<ResultType: Codable>(request: any URLRequestBuildable) -> AnyPublisher<ResultType, Error> {
         do {
-            let request = try request.build(configuration: configuration)
-            
+            let urlRequest = try request.build(configuration: configuration)
+            let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
+                middleware.intercept(request: current)
+            }
+
+            let parsingOptions = configuration.parsingOptions
             return session
-                .dataTaskPublisher(for: request)
+                .dataTaskPublisher(for: interceptedRequest)
                 .tryMap { (data, response) in
                     let decoder = JSONDecoder()
+                    decoder.userInfo[.parsingOptions] = parsingOptions
+                    let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
+                        middleware.intercept(response: current.response, request: urlRequest, data: current.data)
+                    }
                     do {
-                        return try decoder.decode(ResultType.self, from: data)
+                        return try decoder.decode(ResultType.self, from: interceptedData ?? data)
                     } catch {
-                        throw (try? decoder.decode(APIErrorResponse.self, from: data)) ?? error
+                        throw (try? decoder.decode(APIErrorResponse.self, from: interceptedData ?? data)) ?? error
                     }
                 }.eraseToAnyPublisher()
         } catch {
@@ -213,11 +233,17 @@ extension OpenAI: OpenAICombine {
     
     func performSpeechRequestCombine(request: any URLRequestBuildable) -> AnyPublisher<AudioSpeechResult, Error> {
         do {
-            let request = try request.build(configuration: configuration)
+            let urlRequest = try request.build(configuration: configuration)
+            let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
+                middleware.intercept(request: current)
+            }
             return session
-                .dataTaskPublisher(for: request)
+                .dataTaskPublisher(for: interceptedRequest)
                 .tryMap { (data, response) in
-                    return .init(audio: data)
+                    let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
+                        middleware.intercept(response: current.response, request: urlRequest, data: current.data)
+                    }
+                    return .init(audio: interceptedData ?? data)
                 }.eraseToAnyPublisher()
         } catch {
             return Fail(outputType: AudioSpeechResult.self, failure: error)

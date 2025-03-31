@@ -84,14 +84,25 @@ extension OpenAI: OpenAIAsync {
         )
     }
     
-    func audioCreateSpeechStream(
+    public func audioCreateSpeechStream(
         query: AudioSpeechQuery
     ) -> AsyncThrowingStream<AudioSpeechResult, Error> {
         return AsyncThrowingStream { continuation in
-            return audioCreateSpeechStream(query: query) { result in
+            let cancellableRequest = audioCreateSpeechStream(query: query)  { result in
                 continuation.yield(with: result)
             } completion: { error in
                 continuation.finish(throwing: error)
+            }
+            
+            continuation.onTermination = { termination in
+                switch termination {
+                case .cancelled:
+                    cancellableRequest.cancelRequest()
+                case .finished:
+                    break
+                @unknown default:
+                    break
+                }
             }
         }
     }
@@ -194,22 +205,33 @@ extension OpenAI: OpenAIAsync {
         )
     }
     
-    func performRequestAsync<ResultType: Codable>(request: any URLRequestBuildable) async throws -> ResultType {
+    func performRequestAsync<ResultType: Codable & Sendable>(request: any URLRequestBuildable) async throws -> ResultType {
         let urlRequest = try request.build(configuration: configuration)
-        
+        let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
+            middleware.intercept(request: current)
+        }
+
         if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
-            let (data, _) = try await session.data(for: urlRequest, delegate: nil)
+            let (data, response) = try await session.data(for: interceptedRequest, delegate: nil)
+            let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
+                middleware.intercept(response: current.response, request: urlRequest, data: current.data)
+            }
             let decoder = JSONDecoder()
+            decoder.userInfo[.parsingOptions] = configuration.parsingOptions
             do {
-                return try decoder.decode(ResultType.self, from: data)
+                return try decoder.decode(ResultType.self, from: interceptedData ?? data)
             } catch {
-                throw (try? decoder.decode(APIErrorResponse.self, from: data)) ?? error
+                if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: interceptedData ?? data) {
+                    throw decoded
+                } else {
+                    throw error
+                }
             }
         } else {
             let dataTaskStore = URLSessionDataTaskStore()
             return try await withTaskCancellationHandler {
                 return try await withCheckedThrowingContinuation { continuation in
-                    let dataTask = self.makeDataTask(forRequest: urlRequest) { (result: Result<ResultType, Error>) in
+                    let dataTask = self.makeDataTask(forRequest: interceptedRequest) { (result: Result<ResultType, Error>) in
                         continuation.resume(with: result)
                     }
                     
@@ -229,14 +251,20 @@ extension OpenAI: OpenAIAsync {
     
     func performSpeechRequestAsync(request: any URLRequestBuildable) async throws -> AudioSpeechResult {
         let urlRequest = try request.build(configuration: configuration)
+        let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
+            middleware.intercept(request: current)
+        }
         if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
-            let (data, _) = try await session.data(for: urlRequest, delegate: nil)
-            return .init(audio: data)
+            let (data, response) = try await session.data(for: interceptedRequest, delegate: nil)
+            let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
+                middleware.intercept(response: current.response, request: urlRequest, data: current.data)
+            }
+            return .init(audio: interceptedData ?? data)
         } else {
             let dataTaskStore = URLSessionDataTaskStore()
             return try await withTaskCancellationHandler {
                 return try await withCheckedThrowingContinuation { continuation in
-                    let dataTask = self.makeRawResponseDataTask(forRequest: urlRequest) { result in
+                    let dataTask = self.makeRawResponseDataTask(forRequest: interceptedRequest) { result in
                         switch result {
                         case .success(let success):
                             continuation.resume(returning: .init(audio: success))

@@ -11,9 +11,14 @@ import FoundationNetworking
 #endif
 @testable import OpenAI
 
-class URLSessionMock: URLSessionProtocol {
+class URLSessionMock: URLSessionProtocol, @unchecked Sendable {
     var dataTask: DataTaskMock!
     var dataTaskIsCancelled = false
+    
+    var delegate: URLSessionDataDelegateProtocol?
+    
+    var invalidateAndCancelCallCount = 0
+    var finishTasksAndInvalidateCallCount = 0
     
     func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTaskProtocol {
         dataTask.completion = completionHandler
@@ -37,9 +42,11 @@ class URLSessionMock: URLSessionProtocol {
     }
     
     func invalidateAndCancel() {
+        invalidateAndCancelCallCount += 1
     }
     
     func finishTasksAndInvalidate() {
+        finishTasksAndInvalidateCallCount += 1
     }
     
 #if canImport(Combine)
@@ -59,7 +66,7 @@ class URLSessionMock: URLSessionProtocol {
 #if canImport(Combine)
 import Combine
 
-class URLSessionMockCombine: URLSessionMock {
+class URLSessionMockCombine: URLSessionMock, @unchecked Sendable {
     var dataTaskPublisher: AnyPublisher<(data: Data, response: URLResponse), URLError>?
     
     override func dataTaskPublisher(for request: URLRequest) -> AnyPublisher<(data: Data, response: URLResponse), URLError> {
