@@ -84,7 +84,7 @@ extension OpenAI: OpenAIAsync {
         )
     }
     
-    func audioCreateSpeechStream(
+    public func audioCreateSpeechStream(
         query: AudioSpeechQuery
     ) -> AsyncThrowingStream<AudioSpeechResult, Error> {
         return AsyncThrowingStream { continuation in
