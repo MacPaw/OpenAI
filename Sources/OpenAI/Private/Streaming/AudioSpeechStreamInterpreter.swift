@@ -28,7 +28,7 @@ final class AudioSpeechStreamInterpreter: @unchecked Sendable, StreamInterpreter
     func processData(_ data: Data) {
         executionSerializer.dispatch {
             let decoder = JSONDecoder()
-            if let decoded = try? decoder.decode(APIErrorResponse.self, from: data) {
+            if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: data) {
                 self.onError?(decoded)
             }
             

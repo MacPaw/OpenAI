@@ -213,6 +213,32 @@ public struct ChatResult: Codable, Equatable, Sendable {
         case usage
         case citations
     }
+    
+    init(id: String, created: Int, model: String, object: String, serviceTier: String? = nil, systemFingerprint: String, choices: [Choice], usage: Self.CompletionUsage? = nil, citations: [String]? = nil) {
+        self.id = id
+        self.created = created
+        self.model = model
+        self.object = object
+        self.serviceTier = serviceTier
+        self.systemFingerprint = systemFingerprint
+        self.choices = choices
+        self.usage = usage
+        self.citations = citations
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let parsingOptions = decoder.userInfo[.parsingOptions] as? ParsingOptions ?? []
+        self.id = try container.decodeString(forKey: .id, parsingOptions: parsingOptions)
+        self.object = try container.decodeString(forKey: .object, parsingOptions: parsingOptions)
+        self.created = try container.decode(Int.self, forKey: .created)
+        self.model = try container.decodeString(forKey: .model, parsingOptions: parsingOptions)
+        self.choices = try container.decode([ChatResult.Choice].self, forKey: .choices)
+        self.serviceTier = try container.decodeIfPresent(String.self, forKey: .serviceTier)
+        self.systemFingerprint = try container.decodeString(forKey: .systemFingerprint, parsingOptions: parsingOptions)
+        self.usage = try container.decodeIfPresent(ChatResult.CompletionUsage.self, forKey: .usage)
+        self.citations = try container.decodeIfPresent([String].self, forKey: .citations)
+    }
 }
 
 extension ChatQuery.ChatCompletionMessageParam {

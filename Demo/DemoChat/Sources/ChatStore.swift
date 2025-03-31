@@ -175,25 +175,25 @@ public final class ChatStore: ObservableObject {
             let chatQuery = ChatQuery(
                 messages: conversation.messages.map { message in
                     ChatQuery.ChatCompletionMessageParam(role: message.role, content: message.content)!
-                }, model: model,
+                },
+                model: model,
                 tools: functions
             )
             
             if stream {
                 try await completeConversationStreaming(
                     conversationIndex: conversationIndex,
-                    model: model,
                     query: chatQuery
                 )
             } else {
-                try await completeConversation(conversationIndex: conversationIndex, model: model, query: chatQuery)
+                try await completeConversation(conversationIndex: conversationIndex, query: chatQuery)
             }
         } catch {
             conversationErrors[conversationId] = error
         }
     }
     
-    private func completeConversation(conversationIndex: Int, model: Model, query: ChatQuery) async throws {
+    private func completeConversation(conversationIndex: Int, query: ChatQuery) async throws {
         let chatResult: ChatResult = try await openAIClient.chats(query: query)
         chatResult.choices
             .map {
@@ -212,7 +212,7 @@ public final class ChatStore: ObservableObject {
             }
     }
     
-    private func completeConversationStreaming(conversationIndex: Int, model: Model, query: ChatQuery) async throws {
+    private func completeConversationStreaming(conversationIndex: Int, query: ChatQuery) async throws {
         let chatsStream: AsyncThrowingStream<ChatStreamResult, Error> = openAIClient.chatsStream(query: query)
         
         var functionCalls = [Int: (name: String?, arguments: String)]()

@@ -16,9 +16,11 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
     private var onEventDispatched: ((ResultType) -> Void)?
     private var onError: ((Error) -> Void)?
     private let executionSerializer: ExecutionSerializer
+    private let parsingOptions: ParsingOptions
     
-    init(executionSerializer: ExecutionSerializer = GCDQueueAsyncExecutionSerializer(queue: .userInitiated)) {
+    init(executionSerializer: ExecutionSerializer = GCDQueueAsyncExecutionSerializer(queue: .userInitiated), parsingOptions: ParsingOptions) {
         self.executionSerializer = executionSerializer
+        self.parsingOptions = parsingOptions
     }
     
     /// Sets closures an instance of type in a thread safe manner
@@ -35,7 +37,7 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
     
     func processData(_ data: Data) {
         let decoder = JSONDecoder()
-        if let decoded = try? decoder.decode(APIErrorResponse.self, from: data) {
+        if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: data) {
             onError?(decoded)
             return
         }
@@ -90,11 +92,12 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
                 return
             }
             let decoder = JSONDecoder()
+            decoder.userInfo[.parsingOptions] = parsingOptions
             do {
                 let object = try decoder.decode(ResultType.self, from: jsonData)
                 onEventDispatched?(object)
             } catch {
-                if let decoded = try? decoder.decode(APIErrorResponse.self, from: jsonData) {
+                if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: jsonData) {
                     onError?(decoded)
                     return
                 } else if index == jsonObjects.count - 1 {

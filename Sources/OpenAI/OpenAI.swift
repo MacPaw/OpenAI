@@ -45,7 +45,9 @@ final public class OpenAI: @unchecked Sendable {
         /// Currently SDK sets such fields: Authorization, Content-Type, OpenAI-Organization.
         public let customHeaders: [String: String]
         
-        public init(token: String?, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", basePath: String = "/v1", timeoutInterval: TimeInterval = 60.0, customHeaders: [String: String] = [:]) {
+        public let parsingOptions: ParsingOptions
+        
+        public init(token: String?, organizationIdentifier: String? = nil, host: String = "api.openai.com", port: Int = 443, scheme: String = "https", basePath: String = "/v1", timeoutInterval: TimeInterval = 60.0, customHeaders: [String: String] = [:], parsingOptions: ParsingOptions = []) {
             self.token = token
             self.organizationIdentifier = organizationIdentifier
             self.host = host
@@ -54,6 +56,7 @@ final public class OpenAI: @unchecked Sendable {
             self.basePath = basePath
             self.timeoutInterval = timeoutInterval
             self.customHeaders = customHeaders
+            self.parsingOptions = parsingOptions
         }
     }
     
@@ -91,7 +94,11 @@ final public class OpenAI: @unchecked Sendable {
         middlewares: [OpenAIMiddleware] = [],
         sslStreamingDelegate: SSLDelegateProtocol? = nil
     ) {
-        let streamingSessionFactory = ImplicitURLSessionStreamingSessionFactory(sslDelegate: sslStreamingDelegate)
+        let streamingSessionFactory = ImplicitURLSessionStreamingSessionFactory(
+            middlewares: middlewares,
+            parsingOptions: configuration.parsingOptions,
+            sslDelegate: sslStreamingDelegate
+        )
         
         self.init(
             configuration: configuration,
@@ -309,8 +316,7 @@ extension OpenAI {
             }
 
             let session = streamingSessionFactory.makeServerSentEventsStreamingSession(
-                urlRequest: interceptedRequest,
-                middlewares: middlewares
+                urlRequest: interceptedRequest
             ) { _, object in
                 onResult(.success(object))
             } onProcessingError: { _, error in
@@ -367,8 +373,7 @@ extension OpenAI {
             }
 
             let session = streamingSessionFactory.makeAudioSpeechStreamingSession(
-                urlRequest: interceptedRequest,
-                middlewares: middlewares
+                urlRequest: interceptedRequest
             ) { _, object in
                 onResult(.success(object))
             } onProcessingError: { _, error in
@@ -397,10 +402,15 @@ extension OpenAI {
                 return completion(.failure(OpenAIError.emptyData))
             }
             let decoder = JSONDecoder()
+            decoder.userInfo[.parsingOptions] = self.configuration.parsingOptions
             do {
                 completion(.success(try decoder.decode(ResultType.self, from: data)))
             } catch {
-                completion(.failure((try? decoder.decode(APIErrorResponse.self, from: data)) ?? error))
+                if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: data) {
+                    completion(.failure(decoded))
+                } else {
+                    completion(.failure(error))
+                }
             }
         }
     }
