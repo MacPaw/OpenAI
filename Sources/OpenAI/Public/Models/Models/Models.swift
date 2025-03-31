@@ -29,11 +29,11 @@ public extension Model {
     /// `gpt-4o`, currently the most advanced, multimodal flagship model that's cheaper and faster than GPT-4 Turbo.
     static let gpt4_o = "gpt-4o"
 
-    /// `gpt-4o-mini`, currently the most affordable and intelligent model for fast and lightweight requests.
-    static let gpt4_o_mini = "gpt-4o-mini"
-
-    /// `gpt_4o_audio_preview`, this is a preview release of the GPT-4o Audio models. These models accept audio inputs and outputs, and can be used in the Chat Completions REST API.
+    /// `gpt-4o-audio-preview`, this is a preview release of the GPT-4o Audio models. These models accept audio inputs and outputs, and can be used in the Chat Completions REST API.
     static let gpt_4o_audio_preview = "gpt-4o-audio-preview"
+
+    /// `gpt-4o-mini-audio-preview`, this is a preview release of the smaller GPT-4o Audio mini model. It's designed to input audio or create audio outputs via the REST API.
+    static let gpt_4o_mini_audio_preview = "gpt-4o-mini-audio-preview"
 
     /// `gpt-4-turbo`, The latest GPT-4 Turbo model with vision capabilities. Vision requests can now use JSON mode and function calling and more. Context window: 128,000 tokens
     static let gpt4_turbo = "gpt-4-turbo"

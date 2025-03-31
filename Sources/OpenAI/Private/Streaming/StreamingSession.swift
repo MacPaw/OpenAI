@@ -51,6 +51,7 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
     }
     
     func urlSession(_ session: any URLSessionProtocol, task: any URLSessionTaskProtocol, didCompleteWithError error: (any Error)?) {
+        guard let error else { return }
         onComplete?(self, error)
     }
     
@@ -92,6 +93,11 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
         } onError: { [weak self] error in
             guard let self else { return }
             onProcessingError?(self, error)
+        }
+
+        interpreter.setCompletionClosure { [weak self] in
+            guard let self else { return }
+            onComplete?(self, nil)
         }
     }
 }

@@ -14,6 +14,7 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
     private var previousChunkBuffer = ""
     
     private var onEventDispatched: ((ResultType) -> Void)?
+    private var onEventFinished: (() -> Void)?
     private var onError: ((Error) -> Void)?
     private let executionSerializer: ExecutionSerializer
     private let parsingOptions: ParsingOptions
@@ -34,7 +35,13 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
             self.onError = onError
         }
     }
-    
+
+    func setCompletionClosure(_ onFinishDispatched: @escaping () -> Void) {
+        executionSerializer.dispatch {
+            self.onEventFinished = onFinishDispatched
+        }
+    }
+
     func processData(_ data: Data) {
         let decoder = JSONDecoder()
         if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: data) {
@@ -85,6 +92,9 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
         
         jsonObjects.enumerated().forEach { (index, jsonContent)  in
             guard jsonContent != streamingCompletionMarker && !jsonContent.isEmpty else {
+                if jsonContent == streamingCompletionMarker {
+                    onEventFinished?()
+                }
                 return
             }
             guard let jsonData = jsonContent.data(using: .utf8) else {
