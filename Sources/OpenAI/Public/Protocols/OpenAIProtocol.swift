@@ -20,6 +20,8 @@ extension OpenAI: OpenAIProtocol {}
 
 @available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
 public protocol OpenAIProtocol: OpenAIModern {
+    var responses: ResponsesEndpoint { get }
+    
     /**
      This function sends an images query to the OpenAI API and retrieves generated images in response. The Images Generation API enables you to create various images or graphics using OpenAI's powerful deep learning models.
      

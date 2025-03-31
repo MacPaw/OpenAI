@@ -15,6 +15,7 @@ struct APIProvidedView: View {
     @StateObject var imageStore: ImageStore
     @StateObject var assistantStore: AssistantStore
     @StateObject var miscStore: MiscStore
+    @StateObject var responsesStore: ResponsesStore
 
     @State var isShowingAPIConfigModal: Bool = true
 
@@ -48,6 +49,11 @@ struct APIProvidedView: View {
                 openAIClient: OpenAI(apiToken: apiKey.wrappedValue)
             )
         )
+        self._responsesStore = StateObject(
+            wrappedValue: ResponsesStore(
+                client: OpenAI(apiToken: apiKey.wrappedValue).responses
+            )
+        )
     }
 
     var body: some View {
@@ -55,14 +61,16 @@ struct APIProvidedView: View {
             chatStore: chatStore,
             imageStore: imageStore,
             assistantStore: assistantStore,
-            miscStore: miscStore
+            miscStore: miscStore,
+            responsesStore: responsesStore
         )
-        .onChange(of: apiKey) { newApiKey in
+        .onChange(of: apiKey) { _, newApiKey in
             let client = OpenAI(apiToken: newApiKey)
             chatStore.openAIClient = client
             imageStore.openAIClient = client
             assistantStore.openAIClient = client
             miscStore.openAIClient = client
+            responsesStore.client = client.responses
         }
     }
 }

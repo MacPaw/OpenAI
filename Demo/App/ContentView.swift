@@ -14,6 +14,7 @@ struct ContentView: View {
     @ObservedObject var imageStore: ImageStore
     @ObservedObject var assistantStore: AssistantStore
     @ObservedObject var miscStore: MiscStore
+    @ObservedObject var responsesStore: ResponsesStore
     
     @State private var selectedTab = 0
     @Environment(\.idProviderValue) var idProvider
@@ -60,6 +61,10 @@ struct ContentView: View {
                 Label("Misc", systemImage: "ellipsis")
             }
             .tag(4)
+            
+            ResponsesChatDetailView(store: responsesStore).tabItem {
+                Label("Responses", systemImage: "message.circle")
+            }.tag(5)
         }
     }
 }

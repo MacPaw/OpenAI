@@ -57,6 +57,8 @@ final public class OpenAI: @unchecked Sendable {
         }
     }
     
+    public let responses: ResponsesEndpoint
+    
     let session: URLSessionProtocol
     let middlewares: [OpenAIMiddleware]
 
@@ -115,6 +117,10 @@ final public class OpenAI: @unchecked Sendable {
         self.cancellablesFactory = cancellablesFactory
         self.executionSerializer = executionSerializer
         self.middlewares = middlewares
+        self.responses = ResponsesEndpoint(
+            client: .init(configuration: configuration, middlewares: middlewares, session: session),
+            configuration: configuration
+        )
     }
     
     public func threadsAddMessage(
@@ -480,6 +486,24 @@ extension APIPath {
         }
         static let threadsMessages = Assistants(stringValue: "/threads/THREAD_ID/messages")
         static let files = Assistants(stringValue: "/files")
+        
+        let stringValue: String
+    }
+    
+    struct Responses {
+        static let createModelResponse = Responses(stringValue: "/responses")
+        
+        static func getModelResponse(responseId: String) -> Responses {
+            .init(stringValue: "/responses/\(responseId)")
+        }
+        
+        static func deleteModelResponse(responseId: String) -> Responses {
+            .init(stringValue: "/responses/\(responseId)")
+        }
+        
+        static func listInputItems(responseId: String) -> Responses {
+            .init(stringValue: "responses/\(responseId)/input_items")
+        }
         
         let stringValue: String
     }

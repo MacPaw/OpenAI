@@ -106,6 +106,46 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     /// [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids).
     public let user: String?
     
+    public init(
+        input: Input,
+        model: String,
+        include: [Schemas.Includable]? = nil,
+        instructions: String? = nil,
+        maxOutputTokens: Int? = nil,
+        metadata: Schemas.Metadata? = nil,
+        parallelToolCalls: Bool? = nil,
+        previousResponseId: String? = nil,
+        reasoning: Schemas.Reasoning? = nil,
+        store: Bool? = nil,
+        stream: Bool? = nil,
+        temperature: Double? = nil,
+        text: ResponseProperties.TextPayload? = nil,
+        toolChoice: ResponseProperties.ToolChoicePayload? = nil,
+        tools: [Schemas.Tool]? = nil,
+        topP: Double? = nil,
+        truncation: String? = nil,
+        user: String? = nil
+    ) {
+        self.input = input
+        self.model = model
+        self.include = include
+        self.instructions = instructions
+        self.maxOutputTokens = maxOutputTokens
+        self.metadata = metadata
+        self.parallelToolCalls = parallelToolCalls
+        self.previousResponseId = previousResponseId
+        self.reasoning = reasoning
+        self.store = store
+        self.stream = stream
+        self.temperature = temperature
+        self.text = text
+        self.toolChoice = toolChoice
+        self.tools = tools
+        self.topP = topP
+        self.truncation = truncation
+        self.user = user
+    }
+    
     private enum CodingKeys: String, CodingKey {
         case input
         case model

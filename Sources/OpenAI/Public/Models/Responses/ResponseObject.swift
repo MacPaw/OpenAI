@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ResponseObject.swift
 //  OpenAI
 //
 //  Created by Oleksii Nezhyborets on 27.03.2025.
@@ -9,7 +9,7 @@ import Foundation
 import OpenAPIRuntime
 
 /// Represents a model for querying the OpenAI API.
-public struct CreateModelResponseResult: Codable, Equatable, Sendable {
+public struct ResponseObject: Codable, Equatable, Sendable {
     public typealias Schemas = Components.Schemas
     public typealias ResponseProperties = Schemas.ResponseProperties
     public typealias IncompleteDetails = Schemas.Response.Value3Payload.IncompleteDetailsPayload?
@@ -97,7 +97,9 @@ public struct CreateModelResponseResult: Codable, Equatable, Sendable {
     public let usage: Schemas.ResponseUsage
     
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids).
-    public let user: String
+    ///
+    /// API reference declares that it's type is non-optional string, but the example they provide shows that it can be null
+    public let user: String?
 
     private enum CodingKeys: String, CodingKey {
         case createdAt = "created_at"
