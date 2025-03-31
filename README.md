@@ -1137,7 +1137,13 @@ Currently we handle such cases by simply adding additional fields to main model 
 
 `ChatResult`
 
-* [citations](https://docs.perplexity.ai/api-reference/chat-completions#response-citations) (Perplexity)
+* `citations` [Perplexity](https://docs.perplexity.ai/api-reference/chat-completions#response-citations)
+
+`ChatResult.Choice.Message`
+
+* `reasoningContent` [Grok](https://docs.x.ai/docs/api-reference#chat-completions), [DeepSeek](https://api-docs.deepseek.com/api/create-chat-completion#responses)
+* `reasoning` [OpenRouter](https://openrouter.ai/docs/use-cases/reasoning-tokens#basic-usage-with-reasoning-tokens)
+
 
 ## Example Project
 
