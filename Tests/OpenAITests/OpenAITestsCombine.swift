@@ -9,56 +9,32 @@
 
 import XCTest
 @testable import OpenAI
+import Combine
 
-@available(iOS 13.0, *)
-@available(watchOS 6.0, *)
-@available(tvOS 13.0, *)
-final class OpenAITestsCombine: XCTestCase {
+@available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
+@MainActor final class OpenAITestsCombine: XCTestCase {
     
-    var openAI: OpenAIProtocol!
-    var urlSession: URLSessionMock!
+    private var openAI: OpenAIProtocol!
+    private let urlSession: URLSessionMockCombine = URLSessionMockCombine()
+    private let streamingSessionFactory = MockStreamingSessionFactory()
+    private let cancellablesFactory = MockCancellablesFactory()
     
-    override func setUp() {
-        super.setUp()
-        self.urlSession = URLSessionMock()
+    override func setUp() async throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
-        self.openAI = OpenAI(configuration: configuration, session: self.urlSession)
-    }
-    
-    func testCompletions() throws {
-        let query = CompletionsQuery(model: .textDavinci_003, prompt: "What is 42?", temperature: 0, maxTokens: 100, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
-        let expectedResult = CompletionsResult(id: "foo", object: "bar", created: 100500, model: .babbage, choices: [
-            .init(text: "42 is the answer to everything", index: 0, finishReason: nil)
-        ], usage: .init(promptTokens: 10, completionTokens: 10, totalTokens: 20))
-        try self.stub(result: expectedResult)
-        
-        let result = try awaitPublisher(self.openAI.completions(query: query))
-        XCTAssertEqual(result, expectedResult)
+        self.openAI = OpenAI(
+            configuration: configuration,
+            session: self.urlSession,
+            streamingSessionFactory: streamingSessionFactory,
+            cancellablesFactory: cancellablesFactory
+        )
     }
     
     func testChats() throws {
-        let query = ChatQuery(messages: [
-            .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
-            .user(.init(content: .string("Who wrote Harry Potter?")))
-       ], model: .gpt3_5Turbo)
-        let chatResult = ChatResult(id: "id-12312", object: "foo", created: 100, model: .gpt3_5Turbo, choices: [
-            .init(index: 0, logprobs: nil, message: .system(.init(content: "bar")), finishReason: "baz"),
-            .init(index: 0, logprobs: nil, message: .user(.init(content: .string("bar1"))), finishReason: "baz1"),
-            .init(index: 0, logprobs: nil, message: .assistant(.init(content: "bar2")), finishReason: "baz2")
-        ], usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300), systemFingerprint: nil)
+        let query = makeChatsQuery()
+        let chatResult = makeChatsResult()
        try self.stub(result: chatResult)
        let result = try awaitPublisher(openAI.chats(query: query))
        XCTAssertEqual(result, chatResult)
-    }
-    
-    func testEdits() throws {
-        let query = EditsQuery(model: .gpt4, input: "What day of the wek is it?", instruction: "Fix the spelling mistakes")
-        let editsResult = EditsResult(object: "edit", created: 1589478378, choices: [
-            .init(text: "What day of the week is it?", index: 0)
-        ], usage: .init(promptTokens: 25, completionTokens: 32, totalTokens: 57))
-        try self.stub(result: editsResult)
-        let result = try awaitPublisher(openAI.edits(query: query))
-        XCTAssertEqual(result, editsResult)
     }
     
     func testEmbeddings() throws {
@@ -104,6 +80,14 @@ final class OpenAITestsCombine: XCTestCase {
         XCTAssertEqual(result, moderationsResult)
     }
     
+    func testAudioCreateSpeech() throws {
+        let query = AudioSpeechQuery.mock
+        let data = Data(repeating: 10, count: 10)
+        urlSession.dataTask = .successful(with: data)
+        let response = try awaitPublisher(openAI.audioCreateSpeech(query: query), timeout: 1)
+        XCTAssertEqual(data, response.audio)
+    }
+    
     func testAudioTranscriptions() throws {
         let data = Data()
         let query = AudioTranscriptionQuery(file: data, fileType: .m4a, model: .whisper_1)
@@ -123,6 +107,147 @@ final class OpenAITestsCombine: XCTestCase {
         let result = try awaitPublisher(openAI.audioTranslations(query: query))
         XCTAssertEqual(result, transcriptionResult)
     }
+    
+    func testAssistantsQuery() throws {
+        let expectedAssistant = AssistantResult.makeMock()
+        let expectedResult = AssistantsResult(data: [expectedAssistant], firstId: expectedAssistant.id, lastId: expectedAssistant.id, hasMore: false)
+        try self.stub(result: expectedResult)
+        
+        let result = try awaitPublisher(openAI.assistants())
+        XCTAssertEqual(result, expectedResult)
+    }
+
+    func testAssistantCreateQuery() throws {
+        let query = AssistantsQuery.makeMock()
+        let expectedResult = AssistantResult.makeMock()
+        try self.stub(result: expectedResult)
+
+        let result = try awaitPublisher(openAI.assistantCreate(query: query))
+        XCTAssertEqual(result, expectedResult)
+    }
+    
+    func testAssistantModifyQuery() throws {
+        let query = AssistantsQuery.makeMock()
+        let expectedResult = AssistantResult.makeMock()
+        try self.stub(result: expectedResult)
+        
+        let result = try awaitPublisher(openAI.assistantModify(query: query, assistantId: "asst_9876"))
+        XCTAssertEqual(result, expectedResult)
+    }
+
+    func testThreadsQuery() throws {
+        let query = ThreadsQuery(messages: [ ChatQuery.ChatCompletionMessageParam(role: .user, content: "Hello, What is AI?")!])
+        let expectedResult = ThreadsResult(id: "thread_1234")
+
+        try self.stub(result: expectedResult)
+        let result = try awaitPublisher(openAI.threads(query: query))
+
+        XCTAssertEqual(result, expectedResult)
+    }
+    
+    func testThreadRunQuery() throws {
+        let query = ThreadRunQuery(assistantId: "asst_7654321", thread: .init(messages: [.init(role: .user, content: "Hello, What is AI?")!]))
+        let expectedResult = RunResult(id: "run_1234", threadId: "thread_1234", status: .completed, requiredAction: nil)
+        try self.stub(result: expectedResult)
+        
+        let result = try awaitPublisher(openAI.threadRun(query: query))
+        XCTAssertEqual(result, expectedResult)
+    }
+
+    func testRunsQuery() throws {
+        let query = RunsQuery(assistantId: "asst_7654321")
+        let expectedResult = RunResult(id: "run_1234", threadId: "thread_1234", status: .inProgress, requiredAction: nil)
+
+        try self.stub(result: expectedResult)
+        let result = try awaitPublisher(openAI.runs(threadId: "thread_1234", query: query))
+        
+        XCTAssertEqual(result, expectedResult)
+    }
+
+    func testRunRetrieveQuery() throws {
+        let expectedResult = RunResult(id: "run_1234", threadId: "thread_1234", status: .inProgress, requiredAction: nil)
+        try self.stub(result: expectedResult)
+
+        let result = try awaitPublisher(openAI.runRetrieve(threadId: "thread_1234", runId: "run_1234"))
+
+        XCTAssertEqual(result, expectedResult)
+    }
+    
+    func testRunRetrieveStepsQuery() throws {
+        let expectedResult = RunRetrieveStepsResult(data: [.init(id: "step_1234", stepDetails: .init(toolCalls: [.init(id: "tool_456", type: .fileSearch, codeInterpreter: nil, function: nil)]))])
+        try self.stub(result: expectedResult)
+        
+        let result = try awaitPublisher(openAI.runRetrieveSteps(threadId: "thread_1234", runId: "run_1234"))
+        XCTAssertEqual(result, expectedResult)
+    }
+
+    func testRunSubmitToolOutputsQuery() throws {
+        let query = RunToolOutputsQuery(toolOutputs: [.init(toolCallId: "call_123", output: "Success")])
+        let expectedResult = RunResult(id: "run_123", threadId: "thread_456", status: .inProgress, requiredAction: nil)
+        try self.stub(result: expectedResult)
+        
+        let result = try awaitPublisher(openAI.runSubmitToolOutputs(threadId: "thread_456", runId: "run_123", query: query))
+        XCTAssertEqual(result, expectedResult)
+    }
+    
+    func testThreadAddMessageQuery() throws {
+        let query = MessageQuery(role: .user, content: "Hello, What is AI?", fileIds: ["file_123"])
+        let expectedResult = ThreadAddMessageResult(id: "message_1234")
+        try self.stub(result: expectedResult)
+        
+        let result = try awaitPublisher(openAI.threadsAddMessage(threadId: "thread_1234", query: query))
+        XCTAssertEqual(result, expectedResult)
+    }
+    
+    func testThreadsMessageQuery() throws {
+        let expectedResult = ThreadsMessagesResult(data: [ThreadsMessagesResult.ThreadsMessage(id: "thread_1234", role: ChatQuery.ChatCompletionMessageParam.Role.user, content: [ThreadsMessagesResult.ThreadsMessage.ThreadsMessageContent(type: .text, text: ThreadsMessagesResult.ThreadsMessage.ThreadsMessageContent.ThreadsMessageContentText(value: "Hello, What is AI?"), imageFile: nil)])])
+        try self.stub(result: expectedResult)
+
+        let result = try awaitPublisher(openAI.threadsMessages(threadId: "thread_1234", before: nil))
+
+        XCTAssertEqual(result, expectedResult)
+    }
+
+   func testFilesQuery() throws {
+      let data = try XCTUnwrap("{\"test\":\"data\"}".data(using: .utf8))
+      let query = FilesQuery(purpose: "assistant", file: data, fileName: "test.json", contentType: "application/json")
+      let expectedResult = FilesResult(id: "file_1234", name: "test.json")
+      try self.stub(result: expectedResult)
+
+      let result = try awaitPublisher(openAI.files(query: query))
+      XCTAssertEqual(result, expectedResult)
+   }
+    
+    func testCancelRequest() {
+        let query = makeChatsQuery()
+        
+        let publisher = MockDataTaskPublisher()
+        urlSession.dataTaskPublisher = publisher.eraseToAnyPublisher()
+        let subscription: AnyCancellable = openAI.chats(query: query).sink(receiveCompletion: { _ in }, receiveValue: { _ in })
+        subscription.cancel()
+        XCTAssertEqual(publisher.subscription?.cancelCallCount, 1)
+    }
+    
+    func testCancelStreamingRequest() throws {
+        let query = makeChatsQuery()
+        let sessionCanceller = MockSessionCanceller()
+        cancellablesFactory.sessionCanceller = sessionCanceller
+        try stub(result: makeChatsResult())
+        let subscription = openAI.chatsStream(query: query).sink { _ in } receiveValue: { _ in }
+        subscription.cancel()
+        XCTAssertEqual(sessionCanceller.cancelCallCount, 1)
+    }
+    
+    private func makeChatsQuery() -> ChatQuery {
+        .init(messages: [
+            .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
+            .user(.init(content: .string("Who wrote Harry Potter?")))
+       ], model: .gpt3_5Turbo)
+    }
+    
+    private func makeChatsResult() -> ChatResult {
+        .mock
+    }
 }
 
 @available(tvOS 13.0, *)
@@ -130,10 +255,10 @@ final class OpenAITestsCombine: XCTestCase {
 @available(watchOS 6.0, *)
 extension OpenAITestsCombine {
     
-    func stub(error: Error) {
-        let error = APIError(message: "foo", type: "bar", param: "baz", code: "100")
+    func stub(error: URLError) {
         let task = DataTaskMock.failed(with: error)
         self.urlSession.dataTask = task
+        self.streamingSessionFactory.urlSessionFactory.urlSession.dataTask = task
     }
     
     func stub(result: Codable) throws {
@@ -141,6 +266,7 @@ extension OpenAITestsCombine {
         let data = try encoder.encode(result)
         let task = DataTaskMock.successful(with: data)
         self.urlSession.dataTask = task
+        self.streamingSessionFactory.urlSessionFactory.urlSession.dataTask = task
     }
 }
 

@@ -17,13 +17,17 @@ struct DetailView: View {
     @State var inputText: String = ""
     @FocusState private var isFocused: Bool
     @State private var showsModelSelectionSheet = false
-    @State private var selectedChatModel: Model = .gpt4_0613
+    @State private var selectedChatModel: Model = .gpt4_o_mini
+    @State private var streamEnabled = true
+    var availableAssistants: [Assistant]
 
-    private static let availableChatModels: [Model] = [.gpt3_5Turbo, .gpt4]
+    private static let availableChatModels: [Model] = [.gpt4_o_mini]
 
     let conversation: Conversation
     let error: Error?
-    let sendMessage: (String, Model) -> Void
+    let sendMessage: (String, Model, Bool) -> Void
+
+    @Binding var isSendingMessage: Bool
 
     private var fillColor: Color {
         #if os(iOS)
@@ -51,6 +55,10 @@ struct DetailView: View {
                         }
                         .listRowSeparator(.hidden)
                     }
+                    // Tapping on the message bubble area should dismiss the keyboard.
+                    .onTapGesture {
+                        self.hideKeyboard()
+                    }
                     .listStyle(.plain)
                     .animation(.default, value: conversation.messages)
 //                    .onChange(of: conversation) { newValue in
@@ -65,8 +73,75 @@ struct DetailView: View {
 
                     inputBar(scrollViewProxy: scrollViewProxy)
                 }
-                .navigationTitle("Chat", selectedModel: $selectedChatModel)
-                .modelSelect(selectedModel: $selectedChatModel, models: Self.availableChatModels, showsModelSelectionSheet: $showsModelSelectionSheet, help: "https://platform.openai.com/docs/models/overview")
+                .navigationTitle(conversation.type == .assistant ? "Assistant: \(currentAssistantName())" : "Chat")
+                .safeAreaInset(edge: .top) {
+                    HStack {
+                        Text(
+                            "Model: \(conversation.type == .assistant ? Model.gpt4_o_mini : selectedChatModel), stream: \(streamEnabled)"
+                        )
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                }
+                .toolbar {
+                    if conversation.type == .assistant {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+
+                            Menu {
+                                ForEach(availableAssistants, id: \.self) { item in
+                                    Button(item.name) {
+                                        print("Select assistant")
+                                        //selectedItem = item
+                                    }
+                                }
+                            } label: {
+                                Image(systemName: "eyeglasses")
+                            }
+                        }
+                    }
+                    if conversation.type == .normal {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button(action: {
+                                showsModelSelectionSheet.toggle()
+                            }) {
+                                Image(systemName: "cpu")
+                            }
+                        }
+                    }
+                }
+                .confirmationDialog(
+                    "Select model",
+                    isPresented: $showsModelSelectionSheet,
+                    titleVisibility: .visible,
+                    actions: {
+                        ForEach(DetailView.availableChatModels, id: \.self) { model in
+                            Button {
+                                selectedChatModel = model
+                            } label: {
+                                Text(model)
+                            }
+                        }
+                        
+                        Button {
+                            streamEnabled.toggle()
+                        } label: {
+                            Text(streamEnabled ? "Disable streaming" : "Enable streaming")
+                        }
+
+                        Button("Cancel", role: .cancel) {
+                            showsModelSelectionSheet = false
+                        }
+                    },
+                    message: {
+                        Text(
+                            "View https://platform.openai.com/docs/models/overview for details"
+                        )
+                        .font(.caption)
+                    }
+                )
             }
         }
     }
@@ -121,18 +196,24 @@ struct DetailView: View {
             }
             .padding(.leading)
 
-            Button(action: {
-                withAnimation {
-                    tapSendMessage(scrollViewProxy: scrollViewProxy)
+            if isSendingMessage {
+                 ProgressView()
+                     .progressViewStyle(CircularProgressViewStyle())
+                     .padding(.trailing)
+            } else {
+                Button(action: {
+                    withAnimation {
+                        tapSendMessage(scrollViewProxy: scrollViewProxy)
+                    }
+                }) {
+                    Image(systemName: "paperplane")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 24, height: 24)
+                        .padding(.trailing)
                 }
-            }) {
-                Image(systemName: "paperplane")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 24, height: 24)
-                    .padding(.trailing)
+                .disabled(inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
-            .disabled(inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
         }
         .padding(.bottom)
     }
@@ -145,12 +226,19 @@ struct DetailView: View {
             return
         }
         
-        sendMessage(message, selectedChatModel)
+        sendMessage(message, selectedChatModel, streamEnabled)
         inputText = ""
         
 //        if let lastMessage = conversation.messages.last {
 //            scrollViewProxy.scrollTo(lastMessage.id, anchor: .bottom)
 //        }
+    }
+
+    func currentAssistantName() -> String {
+        availableAssistants.filter { conversation.assistantId == $0.id }.first?.name ?? ""
+    }
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 
@@ -209,6 +297,8 @@ struct ChatBubble: View {
               Spacer(minLength: 24)
             case .system:
                 EmptyView()
+            case .developer:
+                EmptyView()
             }
         }
     }
@@ -217,6 +307,7 @@ struct ChatBubble: View {
 struct DetailView_Previews: PreviewProvider {
     static var previews: some View {
         DetailView(
+            availableAssistants: [],
             conversation: Conversation(
                 id: "1",
                 messages: [
@@ -233,7 +324,7 @@ struct DetailView_Previews: PreviewProvider {
                 ]
             ),
             error: nil,
-            sendMessage: { _, _ in }
+            sendMessage: { _, _, _ in }, isSendingMessage: Binding.constant(false)
         )
     }
 }

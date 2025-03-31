@@ -7,8 +7,13 @@
 
 import Foundation
 
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+
 public enum OpenAIError: Error {
     case emptyData
+    case statusError(response: HTTPURLResponse, statusCode: Int)
 }
 
 public struct APIError: Error, Decodable, Equatable {
@@ -58,13 +63,17 @@ extension APIError: LocalizedError {
     }
 }
 
-public struct APIErrorResponse: Error, Decodable, Equatable {
+public struct APIErrorResponse: ErrorResponse {
     public let error: APIError
-}
-
-extension APIErrorResponse: LocalizedError {
     
     public var errorDescription: String? {
-        return error.errorDescription
+        error.errorDescription
     }
+}
+
+public protocol ErrorResponse: Error, Decodable, Equatable, LocalizedError {
+    associatedtype Err: Error, Decodable, Equatable, LocalizedError
+    
+    var error: Err { get }
+    var errorDescription: String? { get }
 }

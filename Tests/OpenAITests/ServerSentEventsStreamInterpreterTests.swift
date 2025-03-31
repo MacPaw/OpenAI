@@ -1,0 +1,109 @@
+//
+//  StreamInterpreterTests.swift
+//  OpenAI
+//
+//  Created by Oleksii Nezhyborets on 03.02.2025.
+//
+
+import Testing
+import Foundation
+@testable import OpenAI
+
+@MainActor
+struct ServerSentEventsStreamInterpreterTests {
+    private let interpreter = ServerSentEventsStreamInterpreter<ChatStreamResult>(
+        executionSerializer: NoDispatchExecutionSerializer(),
+        parsingOptions: []
+    )
+    
+    @Test func parseShortMessageResponseStream() async throws {
+        var chatStreamResults: [ChatStreamResult] = []
+        
+        try await withCheckedThrowingContinuation { continuation in
+            interpreter.setCallbackClosures { result in
+                Task {
+                    await MainActor.run {
+                        chatStreamResults.append(result)
+                        if chatStreamResults.count == 3 {
+                            continuation.resume()
+                        } else if chatStreamResults.count > 3 {
+                            assert(false)
+                        }
+                    }
+                }
+            } onError: { error in
+                continuation.resume(throwing: error)
+            }
+            
+            interpreter.processData(chatCompletionChunk())
+            interpreter.processData(chatCompletionChunkTermination())
+        }
+        
+        #expect(chatStreamResults.count == 3)
+    }
+    
+    // https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation
+    // If the line starts with a U+003A COLON character (:)
+    // - Ignore the line.
+    @Test func ignoresLinesStartingWithColon() async throws {
+        var chatStreamResults: [ChatStreamResult] = []
+        try await withCheckedThrowingContinuation { continuation in
+            interpreter.setCallbackClosures { result in
+                Task {
+                    await MainActor.run {
+                        chatStreamResults.append(result)
+                        continuation.resume()
+                    }
+                }
+            } onError: { error in
+                continuation.resume(throwing: error)
+            }
+            
+            interpreter.processData(chatCompletionChunkWithComment())
+        }
+        
+        #expect(chatStreamResults.count == 1)
+    }
+    
+    @Test func parseApiError() async throws {
+        var error: Error!
+        
+        await withCheckedContinuation { continuation in
+            interpreter.setCallbackClosures { result in
+            } onError: { apiError in
+                Task {
+                    await MainActor.run {
+                        error = apiError
+                        continuation.resume()
+                    }
+                }
+            }
+            
+            interpreter.processData(chatCompletionError())
+        }
+        
+        #expect(error is APIErrorResponse)
+    }
+    
+    // Chunk with 3 objects. I captured it from a real response. It's a very short response that contains just "Hi"
+    private func chatCompletionChunk() -> Data {
+        "data: {\"id\":\"chatcmpl-AwnboO5ZnaUyii9xxC5ZVmM5vGark\",\"object\":\"chat.completion.chunk\",\"created\":1738577084,\"model\":\"gpt-4-0613\",\"service_tier\":\"default\",\"system_fingerprint\":\"sysfig\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"refusal\":null},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-AwnboO5ZnaUyii9xxC5ZVmM5vGark\",\"object\":\"chat.completion.chunk\",\"created\":1738577084,\"model\":\"gpt-4-0613\",\"service_tier\":\"default\",\"system_fingerprint\":\"sysfig\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Hi\"},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-AwnboO5ZnaUyii9xxC5ZVmM5vGark\",\"object\":\"chat.completion.chunk\",\"created\":1738577084,\"model\":\"gpt-4-0613\",\"service_tier\":\"default\",\"system_fingerprint\":\"sysfig\",\"choices\":[{\"index\":0,\"delta\":{},\"logprobs\":null,\"finish_reason\":\"stop\"}]}\n\n".data(using: .utf8)!
+    }
+    
+    private func chatCompletionChunkWithComment() -> Data {
+        ": OPENROUTER PROCESSING\n\ndata: {\"id\":\"chatcmpl-AwnboO5ZnaUyii9xxC5ZVmM5vGark\",\"object\":\"chat.completion.chunk\",\"created\":1738577084,\"model\":\"gpt-4-0613\",\"service_tier\":\"default\",\"system_fingerprint\":\"sysfig\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"refusal\":null},\"logprobs\":null,\"finish_reason\":null}]}\n\n".data(using: .utf8)!
+    }
+    
+    private func chatCompletionChunkTermination() -> Data {
+        "data: [DONE]\n\n".data(using: .utf8)!
+    }
+    
+    // Copied from an actual reponse that was an input to inreptreter
+    private func chatCompletionError() -> Data {
+        "{\n    \"error\": {\n        \"message\": \"The model `o3-mini` does not exist or you do not have access to it.\",\n        \"type\": \"invalid_request_error\",\n        \"param\": null,\n        \"code\": \"model_not_found\"\n    }\n}\n".data(using: .utf8)!
+    }
+}
+
+private actor ChatStreamResultsActor {
+    var chatStreamResults: [ChatStreamResult] = []
+}
