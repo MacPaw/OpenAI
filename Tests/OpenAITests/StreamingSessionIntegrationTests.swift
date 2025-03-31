@@ -8,7 +8,6 @@
 import XCTest
 @testable import OpenAI
 
-@MainActor
 final class StreamingSessionIntegrationTests: XCTestCase {
     private enum Call {
         case content
@@ -34,47 +33,36 @@ final class StreamingSessionIntegrationTests: XCTestCase {
         middlewares: [],
         executionSerializer: executionSerializer,
         onReceiveContent: { _, _ in
-            Task {
-                await MainActor.run {
-                    self.calls.append(.content)
-                    self.expectation.fulfill()
-                }
-            }
+            self.calls.append(.content)
+            self.expectation.fulfill()
         },
         onProcessingError: { _, _ in },
         onComplete: { _,_ in
-            Task {
-                await MainActor.run {
-                    self.calls.append(.complete)
-                    self.expectation.fulfill()
-                }
-            }
+            self.calls.append(.complete)
+            self.expectation.fulfill()
         }
     )
 
-    @MainActor
     func testCompleteCalledAfterAllEventsWithMockSerializer() {
         XCTAssertTrue(executionSerializer is NoDispatchExecutionSerializer)
         let asserted = testCompleteCalledAfterAllEvents()
         XCTAssertTrue(asserted)
     }
     
-    @MainActor
     func testCompleteCalledAfterAllEventsWithRealSerializer() {
         executionSerializer = GCDQueueAsyncExecutionSerializer(queue: .userInitiated)
         let asserted = testCompleteCalledAfterAllEvents()
         XCTAssertTrue(asserted)
     }
     
-    @MainActor
     private func testCompleteCalledAfterAllEvents() -> Bool {
         _ = streamingSession
         let cancellable = streamingSession.makeSession()
         
-        let dataEvent = ServerSentEventsStreamInterpreterTests.chatCompletionChunk()
+        let dataEvent = MockServerSentEvent.chatCompletionChunk()
         streamInterpreter.processData(dataEvent)
         
-        let doneEvent = ServerSentEventsStreamInterpreterTests.chatCompletionChunkTermination()
+        let doneEvent = MockServerSentEvent.chatCompletionChunkTermination()
         streamInterpreter.processData(doneEvent)
         
         let urlSession = urlSessionFactory.urlSession
