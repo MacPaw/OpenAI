@@ -8,6 +8,7 @@
 import XCTest
 @testable import OpenAI
 
+@MainActor
 final class StreamingSessionIntegrationTests: XCTestCase {
     private enum Call {
         case content
