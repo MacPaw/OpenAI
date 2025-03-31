@@ -37,7 +37,7 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
     
     func processData(_ data: Data) {
         let decoder = JSONDecoder()
-        if let decoded = try? decoder.decode(APIErrorResponse.self, from: data) {
+        if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: data) {
             onError?(decoded)
             return
         }
@@ -97,7 +97,7 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
                 let object = try decoder.decode(ResultType.self, from: jsonData)
                 onEventDispatched?(object)
             } catch {
-                if let decoded = try? decoder.decode(APIErrorResponse.self, from: jsonData) {
+                if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: jsonData) {
                     onError?(decoded)
                     return
                 } else if index == jsonObjects.count - 1 {

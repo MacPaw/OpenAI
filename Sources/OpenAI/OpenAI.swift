@@ -406,7 +406,11 @@ extension OpenAI {
             do {
                 completion(.success(try decoder.decode(ResultType.self, from: data)))
             } catch {
-                completion(.failure((try? decoder.decode(APIErrorResponse.self, from: data)) ?? error))
+                if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: data) {
+                    completion(.failure(decoded))
+                } else {
+                    completion(.failure(error))
+                }
             }
         }
     }

@@ -154,9 +154,9 @@ public struct ChatStreamResult: Codable, Equatable, Sendable {
         let parsingOptions = decoder.userInfo[.parsingOptions] as? ParsingOptions ?? []
         
         self.id = try container.decodeString(forKey: .id, parsingOptions: parsingOptions)
-        self.object = try container.decode(String.self, forKey: .object)
+        self.object = try container.decodeString(forKey: .object, parsingOptions: parsingOptions)
         self.created = try container.decode(TimeInterval.self, forKey: .created)
-        self.model = try container.decode(String.self, forKey: .model)
+        self.model = try container.decodeString(forKey: .model, parsingOptions: parsingOptions)
         self.citations = try container.decodeIfPresent([String].self, forKey: .citations)
         self.choices = try container.decode([ChatStreamResult.Choice].self, forKey: .choices)
         self.systemFingerprint = try container.decodeString(forKey: .systemFingerprint, parsingOptions: parsingOptions)

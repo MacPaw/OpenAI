@@ -221,7 +221,11 @@ extension OpenAI: OpenAIAsync {
             do {
                 return try decoder.decode(ResultType.self, from: interceptedData ?? data)
             } catch {
-                throw (try? decoder.decode(APIErrorResponse.self, from: interceptedData ?? data)) ?? error
+                if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: interceptedData ?? data) {
+                    throw decoded
+                } else {
+                    throw error
+                }
             }
         } else {
             let dataTaskStore = URLSessionDataTaskStore()
