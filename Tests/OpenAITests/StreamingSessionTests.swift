@@ -19,12 +19,9 @@ final class StreamingSessionTests: XCTestCase {
         interpreter: streamInterpreter,
         sslDelegate: nil,
         middlewares: [],
+        executionSerializer: NoDispatchExecutionSerializer(),
         onReceiveContent: { _, _ in
-            Task {
-                await MainActor.run {
-                    self.onReceivedContentCallCount = 1
-                }
-            }
+            self.onReceivedContentCallCount += 1
         },
         onProcessingError: { _, _ in },
         onComplete: { _,_ in }
@@ -34,7 +31,6 @@ final class StreamingSessionTests: XCTestCase {
     func testDataProcessedCallback() async throws {
         _ = streamingSession
         streamInterpreter.processData(.init())
-        await Task.yield() // Let Task and MainActor.run happen in onReceiveContent of StreamingSession
         XCTAssertEqual(onReceivedContentCallCount, 1)
     }
 }

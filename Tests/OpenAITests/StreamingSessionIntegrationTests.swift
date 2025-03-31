@@ -23,12 +23,15 @@ final class StreamingSessionIntegrationTests: XCTestCase {
         return expectation
     }()
     
+    private var executionSerializer: ExecutionSerializer = NoDispatchExecutionSerializer()
+    
     private lazy var streamingSession = StreamingSession(
         urlSessionFactory: urlSessionFactory,
         urlRequest: .init(url: .init(string: "/")!),
         interpreter: streamInterpreter,
         sslDelegate: nil,
         middlewares: [],
+        executionSerializer: executionSerializer,
         onReceiveContent: { _, _ in
             Task {
                 await MainActor.run {
@@ -49,7 +52,21 @@ final class StreamingSessionIntegrationTests: XCTestCase {
     )
 
     @MainActor
-    func testCompleteCalledAfterAllEvents() {
+    func testCompleteCalledAfterAllEventsWithMockSerializer() {
+        XCTAssertTrue(executionSerializer is NoDispatchExecutionSerializer)
+        let asserted = testCompleteCalledAfterAllEvents()
+        XCTAssertTrue(asserted)
+    }
+    
+    @MainActor
+    func testCompleteCalledAfterAllEventsWithRealSerializer() {
+        executionSerializer = GCDQueueAsyncExecutionSerializer(queue: .userInitiated)
+        let asserted = testCompleteCalledAfterAllEvents()
+        XCTAssertTrue(asserted)
+    }
+    
+    @MainActor
+    private func testCompleteCalledAfterAllEvents() -> Bool {
         _ = streamingSession
         let cancellable = streamingSession.makeSession()
         
@@ -69,6 +86,6 @@ final class StreamingSessionIntegrationTests: XCTestCase {
         XCTAssertEqual(calls[2], .content)
         XCTAssertEqual(calls[3], .complete)
         cancellable.invalidateAndCancel() // just to hold a reference
+        return true
     }
-
 }

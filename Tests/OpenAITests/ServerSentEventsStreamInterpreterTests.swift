@@ -12,7 +12,6 @@ import Foundation
 @MainActor
 struct ServerSentEventsStreamInterpreterTests {
     private let interpreter = ServerSentEventsStreamInterpreter<ChatStreamResult>(
-        executionSerializer: NoDispatchExecutionSerializer(),
         parsingOptions: []
     )
     

@@ -14,6 +14,7 @@ import FoundationNetworking
 
 class MockStreamingSessionFactory: StreamingSessionFactory {
     var urlSessionFactory = MockURLSessionFactory()
+    var executionSerializer = NoDispatchExecutionSerializer()
     
     func makeServerSentEventsStreamingSession<ResultType>(
         urlRequest: URLRequest,
@@ -24,9 +25,10 @@ class MockStreamingSessionFactory: StreamingSessionFactory {
         .init(
             urlSessionFactory: urlSessionFactory,
             urlRequest: urlRequest,
-            interpreter: .init(executionSerializer: NoDispatchExecutionSerializer(), parsingOptions: []),
+            interpreter: .init(parsingOptions: []),
             sslDelegate: nil,
             middlewares: [],
+            executionSerializer: executionSerializer,
             onReceiveContent: onReceiveContent,
             onProcessingError: onProcessingError,
             onComplete: onComplete
@@ -45,6 +47,7 @@ class MockStreamingSessionFactory: StreamingSessionFactory {
             interpreter: .init(),
             sslDelegate: nil,
             middlewares: [],
+            executionSerializer: executionSerializer,
             onReceiveContent: onReceiveContent,
             onProcessingError: onProcessingError,
             onComplete: onComplete
