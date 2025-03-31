@@ -76,10 +76,16 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
     public var stream: Bool
     /// Options for streaming response. Only set this when you set stream: true.
     public var streamOptions: Self.StreamOptions?
+    /// Parameters for audio output. Required when audio output is requested with modalities: ["audio"].
+    public var audioOptions: Self.AudioOptions?
+    /// Output types that you would like the model to generate. Most models are capable of generating text, which is the default: ["text"]. The gpt-4o-audio-preview model can also be used to generate audio. To request that this model generate both text and audio responses, you can use: ["text", "audio"]
+    public var modalities: [Self.ChatCompletionModalities]?
 
     public init(
         messages: [Self.ChatCompletionMessageParam],
         model: Model,
+        modalities: [Self.ChatCompletionModalities]? = nil,
+        audioOptions: Self.AudioOptions? = nil,
         reasoningEffort: ReasoningEffort? = nil,
         frequencyPenalty: Double? = nil,
         logitBias: [String : Int]? = nil,
@@ -121,6 +127,8 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         self.user = user
         self.stream = stream
         self.streamOptions = streamOptions
+        self.audioOptions = audioOptions
+        self.modalities = modalities
     }
 
     public enum ChatCompletionMessageParam: Codable, Equatable, Sendable {
@@ -242,6 +250,20 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             switch role {
             case .user:
                 self = .user(.init(content: .vision(content), name: name))
+            default:
+                return nil
+            }
+
+        }
+
+        public init?(
+            role: Role,
+            content: [UserMessageParam.Content.AudioContent],
+            name: String? = nil
+        ) {
+            switch role {
+            case .user:
+                self = .user(.init(content: .audio(content), name: name))
             default:
                 return nil
             }
@@ -400,6 +422,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             public enum Content: Codable, Equatable, Sendable {
                 case string(String)
                 case vision([VisionContent])
+                case audio([AudioContent])
 
                 public var string: String? { get {
                     switch self {
@@ -418,9 +441,14 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
                     self = .vision(vision)
                 }
 
+                public init(audio: [AudioContent]) {
+                    self = .audio(audio)
+                }
+
                 public enum CodingKeys: CodingKey {
                     case string
                     case vision
+                    case audio
                 }
 
                 public func encode(to encoder: Encoder) throws {
@@ -430,8 +458,108 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
                         try container.encode(a0)
                     case .vision(let a0):
                         try container.encode(a0)
+                    case .audio(let a0):
+                        try container.encode(a0)
                     }
                 }
+
+            public enum AudioContent: Codable, Equatable, Sendable {
+                case chatCompletionContentPartTextParam(ChatCompletionContentPartTextParam)
+                case chatCompletionContentPartAudioParam(ChatCompletionContentPartAudioParam)
+
+                public var text: String? { get {
+                    switch self {
+                    case .chatCompletionContentPartTextParam(let text):
+                        return text.text
+                    default:
+                        return nil
+                    }
+                }}
+
+                public var inputAudio: Self.ChatCompletionContentPartAudioParam.InputAudio? { get {
+                    switch self {
+                    case .chatCompletionContentPartAudioParam(let inputAudio):
+                        return inputAudio.inputAudio
+                    default:
+                        return nil
+                    }
+                }}
+
+                public init(chatCompletionContentPartTextParam: ChatCompletionContentPartTextParam) {
+                    self = .chatCompletionContentPartTextParam(chatCompletionContentPartTextParam)
+                }
+
+                public init(chatCompletionContentPartAudioParam: ChatCompletionContentPartAudioParam) {
+                    self = .chatCompletionContentPartAudioParam(chatCompletionContentPartAudioParam)
+                }
+
+                public func encode(to encoder: Encoder) throws {
+                    var container = encoder.singleValueContainer()
+                    switch self {
+                    case .chatCompletionContentPartTextParam(let a0):
+                        try container.encode(a0)
+                    case .chatCompletionContentPartAudioParam(let a0):
+                        try container.encode(a0)
+                    }
+                }
+
+                enum CodingKeys: CodingKey {
+                    case chatCompletionContentPartTextParam
+                    case chatCompletionContentPartAudioParam
+                }
+
+                public struct ChatCompletionContentPartTextParam: Codable, Equatable, Sendable {
+                    /// The text content.
+                    public let text: String
+                    /// The type of the content part.
+                    public let type: String
+
+                    public init(text: String) {
+                        self.text = text
+                        self.type = "text"
+                    }
+                }
+
+                public struct ChatCompletionContentPartAudioParam: Codable, Equatable, Sendable {
+                    public let inputAudio: InputAudio
+                    /// The type of the content part.
+                    public let type: String
+
+                    public init(inputAudio: InputAudio) {
+                        self.inputAudio = inputAudio
+                        self.type = "input_audio"
+                    }
+
+                    public struct InputAudio: Codable, Equatable, Sendable {
+                        /// Base64 encoded audio data.
+                        public let data: String
+                        /// The format of the encoded audio data. Currently supports "wav" and "mp3".
+                        public let format: Format
+
+                        public init(data: String, format: Format) {
+                            self.data = data
+                            self.format = format
+                        }
+
+                        public init(data: Data, format: Format) {
+                            self.init(
+                                data: data.base64EncodedString(),
+                                format: format
+                            )
+                        }
+
+                        public enum Format: String, Codable, Equatable, CaseIterable, Sendable {
+                            case wav
+                            case mp3
+                        }
+                    }
+
+                    public enum CodingKeys: String, CodingKey {
+                        case inputAudio = "input_audio"
+                        case type
+                    }
+                }
+            }
 
             public enum VisionContent: Codable, Equatable, Sendable {
                 case chatCompletionContentPartTextParam(ChatCompletionContentPartTextParam)
@@ -551,6 +679,8 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             public let role: Self.Role = .assistant
             /// The contents of the assistant message. Required unless tool_calls is specified.
             public let content: String?
+            /// Data about a previous audio response from the model.
+            public let audio: Audio?
             /// The name of the author of this message. `name` is required if role is `function`, and it should be the name of the function whose response is in the `content`. May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
             public let name: String?
             /// The tool calls generated by the model, such as function calls.
@@ -558,10 +688,12 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
 
             public init(
                 content: String? = nil,
+                audio: Audio? = nil,
                 name: String? = nil,
                 toolCalls: [Self.ToolCallParam]? = nil
             ) {
                 self.content = content
+                self.audio = audio
                 self.name = name
                 self.toolCalls = toolCalls
             }
@@ -570,7 +702,12 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
                 case name
                 case role
                 case content
+                case audio
                 case toolCalls = "tool_calls"
+            }
+
+            public struct Audio: Codable, Equatable, Sendable {
+                public let id: String
             }
 
             public struct ToolCallParam: Codable, Equatable, Sendable {
@@ -1174,7 +1311,38 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         public enum CodingKeys: String, CodingKey {
             case includeUsage = "include_usage"
         }
-        
+
+    }
+
+    public struct AudioOptions: Codable, Equatable, Sendable {
+        public let format: AudioOptionsResponseFormat
+        public let voice: AudioOptionsSpeechVoice
+
+        public enum AudioOptionsResponseFormat: String, Codable, CaseIterable, Sendable {
+            case mp3
+            case opus
+            case flac
+            case wav
+            case pcm16
+        }
+
+        public enum AudioOptionsSpeechVoice: String, Codable, CaseIterable, Sendable {
+            case alloy
+            case ash
+            case ballad
+            case coral
+            case echo
+            case fable
+            case onyx
+            case nova
+            case sage
+            case shimmer
+        }
+    }
+
+    public enum ChatCompletionModalities: String, Codable, Equatable, Sendable {
+        case text
+        case audio
     }
 
     public enum CodingKeys: String, CodingKey {
@@ -1199,6 +1367,8 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         case user
         case stream
         case streamOptions = "stream_options"
+        case audioOptions = "audio"
+        case modalities = "modalities"
     }
 }
 
