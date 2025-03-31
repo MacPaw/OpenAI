@@ -214,6 +214,18 @@ public struct ChatResult: Codable, Equatable, Sendable {
         case citations
     }
     
+    init(id: String, created: Int, model: String, object: String, serviceTier: String? = nil, systemFingerprint: String, choices: [Choice], usage: Self.CompletionUsage? = nil, citations: [String]? = nil) {
+        self.id = id
+        self.created = created
+        self.model = model
+        self.object = object
+        self.serviceTier = serviceTier
+        self.systemFingerprint = systemFingerprint
+        self.choices = choices
+        self.usage = usage
+        self.citations = citations
+    }
+    
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let parsingOptions = decoder.userInfo[.parsingOptions] as? ParsingOptions ?? []
