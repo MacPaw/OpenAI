@@ -60,11 +60,11 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
     }
     
     func urlSession(_ session: any URLSessionProtocol, dataTask: any URLSessionDataTaskProtocol, didReceive data: Data) {
-        let data = self.middlewares.reduce(data) { current, middleware in
-            middleware.interceptStreamingData(request: dataTask.originalRequest, current)
-        }
-        
         executionSerializer.dispatch {
+            let data = self.middlewares.reduce(data) { current, middleware in
+                middleware.interceptStreamingData(request: dataTask.originalRequest, current)
+            }
+            
             self.interpreter.processData(data)
         }
     }
@@ -75,15 +75,15 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
         didReceive response: URLResponse,
         completionHandler: @escaping (URLSession.ResponseDisposition) -> Void
     ) {
-        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode >= 400 {
-            let error = OpenAIError.statusError(response: httpResponse, statusCode: httpResponse.statusCode)
-            executionSerializer.dispatch {
+        executionSerializer.dispatch {
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode >= 400 {
+                let error = OpenAIError.statusError(response: httpResponse, statusCode: httpResponse.statusCode)
                 self.onProcessingError?(self, error)
+                completionHandler(.cancel)
+                return
             }
-            completionHandler(.cancel)
-            return
+            completionHandler(.allow)
         }
-        completionHandler(.allow)
     }
 
     func urlSession(
@@ -98,14 +98,10 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
     private func subscribeToParser() {
         interpreter.setCallbackClosures { [weak self] content in
             guard let self else { return }
-            self.executionSerializer.dispatch {
-                self.onReceiveContent?(self, content)
-            }
+            self.onReceiveContent?(self, content)
         } onError: { [weak self] error in
             guard let self else { return }
-            self.executionSerializer.dispatch {
-                self.onProcessingError?(self, error)
-            }
+            self.onProcessingError?(self, error)
         }
     }
 }

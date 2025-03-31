@@ -24,13 +24,14 @@ final class StreamingSessionIntegrationTests: XCTestCase {
     }()
     
     private var executionSerializer: ExecutionSerializer = NoDispatchExecutionSerializer()
+    private var middlewares: [OpenAIMiddleware] = []
     
     private lazy var streamingSession = StreamingSession(
         urlSessionFactory: urlSessionFactory,
         urlRequest: .init(url: .init(string: "/")!),
         interpreter: streamInterpreter,
         sslDelegate: nil,
-        middlewares: [],
+        middlewares: middlewares,
         executionSerializer: executionSerializer,
         onReceiveContent: { _, _ in
             self.calls.append(.content)
@@ -43,14 +44,26 @@ final class StreamingSessionIntegrationTests: XCTestCase {
         }
     )
 
-    func testCompleteCalledAfterAllEventsWithMockSerializer() {
-        XCTAssertTrue(executionSerializer is NoDispatchExecutionSerializer)
+    func testCallOrderMockSerializerNoMiddleware() {
         let asserted = testCompleteCalledAfterAllEvents()
         XCTAssertTrue(asserted)
     }
     
-    func testCompleteCalledAfterAllEventsWithRealSerializer() {
+    func testCallOrderMockSerializerWithHeavyMiddleware() {
+        middlewares = [WorkSimulatingMockMiddleware()]
+        let asserted = testCompleteCalledAfterAllEvents()
+        XCTAssertTrue(asserted)
+    }
+    
+    func testCallOrderWithRealSerializerNoMiddleware() {
         executionSerializer = GCDQueueAsyncExecutionSerializer(queue: .userInitiated)
+        let asserted = testCompleteCalledAfterAllEvents()
+        XCTAssertTrue(asserted)
+    }
+    
+    func testCallOrderWithRealSerializerHeavyMiddleware() {
+        executionSerializer = GCDQueueAsyncExecutionSerializer(queue: .userInitiated)
+        middlewares = [WorkSimulatingMockMiddleware()]
         let asserted = testCompleteCalledAfterAllEvents()
         XCTAssertTrue(asserted)
     }
@@ -59,14 +72,25 @@ final class StreamingSessionIntegrationTests: XCTestCase {
         _ = streamingSession
         let cancellable = streamingSession.makeSession()
         
-        let dataEvent = MockServerSentEvent.chatCompletionChunk()
-        streamInterpreter.processData(dataEvent)
-        
-        let doneEvent = MockServerSentEvent.chatCompletionChunkTermination()
-        streamInterpreter.processData(doneEvent)
-        
         let urlSession = urlSessionFactory.urlSession
-        urlSession.delegate!.urlSession(urlSession, task: DataTaskMock(), didCompleteWithError: nil)
+        let urlSessionDelegate = urlSession.delegate!
+        let dataTask = DataTaskMock()
+        
+        DispatchQueue.global().async {
+            // urlSession delegate methods are usually called on arbitrary queue
+            // it actually make each call to didReceive and didComplete on different queue than the previous call
+            let dataEvent = MockServerSentEvent.chatCompletionChunk()
+            urlSessionDelegate.urlSession(urlSession, dataTask: dataTask, didReceive: dataEvent)
+            
+            DispatchQueue.global().async {
+                let doneEvent = MockServerSentEvent.chatCompletionChunkTermination()
+                urlSessionDelegate.urlSession(urlSession, dataTask: dataTask, didReceive: doneEvent)
+                
+                DispatchQueue.global().async {
+                    urlSession.delegate!.urlSession(urlSession, task: DataTaskMock(), didCompleteWithError: nil)
+                }
+            }
+        }
         
         wait(for: [expectation], timeout: 1)
         
@@ -76,5 +100,29 @@ final class StreamingSessionIntegrationTests: XCTestCase {
         XCTAssertEqual(calls[3], .complete)
         cancellable.invalidateAndCancel() // just to hold a reference
         return true
+    }
+}
+
+struct WorkSimulatingMockMiddleware: OpenAIMiddleware {
+    func intercept(request: URLRequest) -> URLRequest {
+        simulateBusyThread(duration: 0.1)
+        return request
+    }
+    
+    func interceptStreamingData(request: URLRequest?, _ data: Data) -> Data {
+        simulateBusyThread(duration: 0.1)
+        return data
+    }
+    
+    func intercept(response: URLResponse?, request: URLRequest, data: Data?) -> (response: URLResponse?, data: Data?) {
+        simulateBusyThread(duration: 0.1)
+        return (response, data)
+    }
+    
+    private func simulateBusyThread(duration: TimeInterval) {
+        let end = Date().addingTimeInterval(duration)
+        while Date() < end {
+            _ = UUID().uuidString.hashValue  // Some pointless work
+        }
     }
 }
