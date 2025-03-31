@@ -79,7 +79,7 @@ final class StreamingSessionIntegrationTests: XCTestCase {
         let urlSession = urlSessionFactory.urlSession
         urlSession.delegate!.urlSession(urlSession, task: DataTaskMock(), didCompleteWithError: nil)
         
-        wait(for: [expectation])
+        wait(for: [expectation], timeout: 1)
         
         XCTAssertEqual(calls[0], .content)
         XCTAssertEqual(calls[1], .content)
