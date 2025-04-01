@@ -113,8 +113,13 @@ public extension Model {
     static let tts_1_hd = "tts-1-hd"
     
     // Transcriptions / Translations
-    
+
+    /// Whisper is a general-purpose speech recognition model, trained on a large dataset of diverse audio. You can also use it as a multitask model to perform multilingual speech recognition as well as speech translation and language identification.
     static let whisper_1 = "whisper-1"
+    /// GPT-4o Transcribe is a speech-to-text model that uses GPT-4o to transcribe audio. It offers improvements to word error rate and better language recognition and accuracy compared to original Whisper models. Use it for more accurate transcripts.
+    static let gpt_4o_transcribe = "gpt-4o-transcribe"
+    /// GPT-4o mini Transcribe is a speech-to-text model that uses GPT-4o mini to transcribe audio. It offers improvements to word error rate and better language recognition and accuracy compared to original Whisper models. Use it for more accurate transcripts.
+    static let gpt_4o_mini_transcribe = "gpt-4o-mini-transcribe"
 
     // Image Generation
     static let dall_e_2 = "dall-e-2"
