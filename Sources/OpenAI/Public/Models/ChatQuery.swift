@@ -708,6 +708,10 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
 
             public struct Audio: Codable, Equatable, Sendable {
                 public let id: String
+
+                public init(id: String) {
+                    self.id = id
+                }
             }
 
             public struct ToolCallParam: Codable, Equatable, Sendable {
