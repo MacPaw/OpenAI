@@ -1340,7 +1340,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         }
 
         public init(
-            format: AudioOptionsResponseFormatб
+            format: AudioOptionsResponseFormat,
             voice: AudioOptionsSpeechVoice
         ) {
             self.format = format
