@@ -1338,6 +1338,14 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             case sage
             case shimmer
         }
+
+        public init(
+            format: AudioOptionsResponseFormatб
+            voice: AudioOptionsSpeechVoice
+        ) {
+            self.format = format
+            self.voice = voice
+        }
     }
 
     public enum ChatCompletionModalities: String, Codable, Equatable, Sendable {
