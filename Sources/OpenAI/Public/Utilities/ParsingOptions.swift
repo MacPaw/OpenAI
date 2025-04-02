@@ -15,4 +15,7 @@ public struct ParsingOptions: OptionSet {
     }
     
     public static let fillRequiredFieldIfKeyNotFound = ParsingOptions(rawValue: 1 << 0)
+    public static let fillRequiredFieldIfValueNotFound = ParsingOptions(rawValue: 1 << 1)
+    
+    public static let relaxed: ParsingOptions = [.fillRequiredFieldIfKeyNotFound, .fillRequiredFieldIfValueNotFound]
 }
