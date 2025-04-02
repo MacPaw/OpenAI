@@ -27,6 +27,12 @@ extension KeyedDecodingContainer {
                 } else {
                     throw error
                 }
+            case DecodingError.valueNotFound:
+                if parsingOptions.contains(.fillRequiredFieldIfValueNotFound) {
+                    return defaultValue
+                } else {
+                    throw error
+                }
             default:
                 throw error
             }
