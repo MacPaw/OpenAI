@@ -158,6 +158,7 @@ public struct ChatResult: Codable, Equatable, Sendable {
             case toolCalls = "tool_calls"
             case contentFilter = "content_filter"
             case functionCall = "function_call"
+            case error
         }
     }
 
