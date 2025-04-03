@@ -29,14 +29,23 @@ public struct ChatStreamResult: Codable, Equatable, Sendable {
             /// - Gemini (in OpenAI compatibility mode)
             ///   https://github.com/MacPaw/OpenAI/issues/283#issuecomment-2711396735
             /// - OpenRouter
-            public let reasoning: String?
+            internal let _reasoning: String?
 
             /// Value for `reasoning_content` field.
             ///
             /// Provided by:
             /// - Deepseek
             ///   https://api-docs.deepseek.com/api/create-chat-completion#responses
-            public let reasoningContent: String?
+            internal let _reasoningContent: String?
+
+            /// Reasoning content.
+            ///
+            /// Supported response fields:
+            /// - `reasoning` (Gemini, OpenRouter)
+            /// - `reasoning_content` (Deepseek)
+            public var reasoning: String? {
+                _reasoning ?? _reasoningContent
+            }
 
             public struct ChoiceDeltaAudio: Codable, Equatable, Sendable {
 
@@ -100,8 +109,8 @@ public struct ChatStreamResult: Codable, Equatable, Sendable {
                 case audio
                 case role
                 case toolCalls = "tool_calls"
-                case reasoning = "reasoning"
-                case reasoningContent = "reasoning_content"
+                case _reasoning = "reasoning"
+                case _reasoningContent = "reasoning_content"
             }
         }
 
