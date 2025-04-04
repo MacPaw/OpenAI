@@ -128,6 +128,71 @@ class OpenAITests: XCTestCase {
         let result = try await openAI.chats(query: query)
         XCTAssertEqual(result, chatResult)
     }
+    
+    func testChatQueryWithDynamicStructuredOutput() async throws {
+        
+        let chatResult = ChatResult(
+            id: "id-12312", created: 100, model: .gpt3_5Turbo, object: "foo", serviceTier: nil, systemFingerprint: "fing",
+            choices: [],
+            usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300),
+            citations: nil
+        )
+        try self.stub(result: chatResult)
+        
+        struct AnyEncodable: Encodable {
+
+            private let _encode: (Encoder) throws -> Void
+            public init<T: Encodable>(_ wrapped: T) {
+                _encode = wrapped.encode
+            }
+
+            func encode(to encoder: Encoder) throws {
+                try _encode(encoder)
+            }
+        }
+        
+        let schema = [
+            "type": AnyEncodable("object"),
+            "properties": AnyEncodable([
+                "title": AnyEncodable([
+                    "type": "string"
+                ]),
+                "director": AnyEncodable([
+                    "type": "string"
+                ]),
+                "release": AnyEncodable([
+                    "type": "string"
+                ]),
+                "genres": AnyEncodable([
+                    "type": AnyEncodable("array"),
+                    "items": AnyEncodable([
+                        "type": AnyEncodable("string"),
+                        "enum": AnyEncodable(["action", "drama", "comedy", "scifi"])
+                    ])
+                ]),
+                "cast": AnyEncodable([
+                    "type": AnyEncodable("array"),
+                    "items": AnyEncodable([
+                        "type": "string"
+                    ])
+                ])
+            ]),
+            "additionalProperties": AnyEncodable(false)
+        ]
+        let query = ChatQuery(
+            messages: [.system(.init(content: "Return a structured response."))],
+            model: .gpt4_o,
+            responseFormat: .dynamicJsonSchema(
+                .init(
+                    name: "movie-info",
+                    schema: schema
+                )
+            )
+        )
+        
+        let result = try await openAI.chats(query: query)
+        XCTAssertEqual(result, chatResult)
+    }
 
     func testChatsFunction() async throws {
         let query = ChatQuery(messages: [
