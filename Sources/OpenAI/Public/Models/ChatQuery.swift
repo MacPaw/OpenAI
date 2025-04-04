@@ -1,6 +1,6 @@
 //
 //  ChatQuery.swift
-//  
+//
 //
 //  Created by Sergii Kryvoblotskyi on 02/04/2023.
 //
@@ -819,10 +819,12 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         case text
         case jsonObject
         case jsonSchema(name: String, type: StructuredOutput.Type)
+        case dynamicJsonSchema(DynamicJSONSchema)
         
         enum CodingKeys: String, CodingKey {
             case type
             case jsonSchema = "json_schema"
+            case dynamicJsonSchema
         }
         
         public func encode(to encoder: any Encoder) throws {
@@ -836,6 +838,9 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
                 try container.encode("json_schema", forKey: .type)
                 let schema = JSONSchema(name: name, schema: type.example)
                 try container.encode(schema, forKey: .jsonSchema)
+            case .dynamicJsonSchema(let dynamicJSONSchema):
+                try container.encode("json_schema", forKey: .type)
+                try container.encode(dynamicJSONSchema, forKey: .jsonSchema)
             }
         }
         
@@ -845,6 +850,8 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             case (.jsonObject, .jsonObject): return true
             case (.jsonSchema(let lhsName, let lhsType), .jsonSchema(let rhsName, let rhsType)):
                 return lhsName == rhsName && lhsType == rhsType
+            case (.dynamicJsonSchema(let lhsSchema), .dynamicJsonSchema(let rhsSchema)):
+                return lhsSchema == rhsSchema
             default:
                 return false
             }
@@ -1070,6 +1077,53 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             case .nilFoundInExample:
                 return "Found nils when serializing the StructuredOutput‘s example. Provide values for all optional properties in the example."
             }
+        }
+    }
+    
+    public struct DynamicJSONSchema: Encodable, Sendable, Equatable {
+        let name: String
+        let description: String?
+        let schema: Encodable & Sendable
+        let strict: Bool?
+        
+        enum CodingKeys: String, CodingKey {
+            case name
+            case description
+            case schema
+            case strict
+        }
+        
+        public init(
+            name: String,
+            description: String? = nil,
+            schema: Encodable & Sendable,
+            strict: Bool? = nil
+        ) {
+            self.name = name
+            self.description = description
+            self.schema = schema
+            self.strict = strict
+        }
+        
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(name, forKey: .name)
+            if let description {
+                try container.encode(description, forKey: .description)
+            }
+            try container.encode(schema, forKey: .schema)
+            if let strict {
+                try container.encode(strict, forKey: .strict)
+            }
+        }
+        
+        public static func == (lhs: DynamicJSONSchema, rhs: DynamicJSONSchema) -> Bool {
+            guard lhs.name == rhs.name else { return false }
+            guard lhs.description == rhs.description else { return false }
+            guard lhs.strict == rhs.strict else { return false }
+            let lhsData = try? JSONEncoder().encode(lhs.schema)
+            let rhsData = try? JSONEncoder().encode(rhs.schema)
+            return lhsData == rhsData
         }
     }
 
