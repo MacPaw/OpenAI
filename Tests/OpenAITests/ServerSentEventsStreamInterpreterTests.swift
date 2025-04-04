@@ -11,7 +11,7 @@ import Foundation
 
 @MainActor
 struct ServerSentEventsStreamInterpreterTests {
-    private let interpreter = ServerSentEventsStreamDecoder<ChatStreamResult>(executionSerializer: NoDispatchExecutionSerializer())
+    private let interpreter = ServerSentEventsStreamInterpreter<ChatStreamResult>(executionSerializer: NoDispatchExecutionSerializer())
     
     @Test func parseShortMessageResponseStream() async throws {
         var chatStreamResults: [ChatStreamResult] = []
