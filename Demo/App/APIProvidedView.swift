@@ -51,7 +51,10 @@ struct APIProvidedView: View {
         )
         self._responsesStore = StateObject(
             wrappedValue: ResponsesStore(
-                client: OpenAI(apiToken: apiKey.wrappedValue).responses
+                client: OpenAI(
+                    configuration: .init(token: apiKey.wrappedValue),
+                    middlewares: [LoggingMiddleware()]
+                ).responses
             )
         )
     }

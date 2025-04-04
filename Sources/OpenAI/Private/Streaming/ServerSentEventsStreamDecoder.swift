@@ -1,5 +1,5 @@
 //
-//  ServerSentEventsStreamInterpreter.swift
+//  ServerSentEventsStreamDecoder.swift
 //  OpenAI
 //
 //  Created by Oleksii Nezhyborets on 11.03.2025.
@@ -9,7 +9,7 @@ import Foundation
 
 /// https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation
 /// 9.2.6 Interpreting an event stream
-final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: @unchecked Sendable, StreamInterpreter {
+final class ServerSentEventsStreamDecoder <ResultType: Codable & Sendable>: @unchecked Sendable, StreamInterpreter {
     private let streamingCompletionMarker = "[DONE]"
     private var previousChunkBuffer = ""
     

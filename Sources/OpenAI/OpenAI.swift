@@ -118,6 +118,11 @@ final public class OpenAI: @unchecked Sendable {
         self.executionSerializer = executionSerializer
         self.middlewares = middlewares
         self.responses = ResponsesEndpoint(
+            syncClient: .init(
+                configuration: configuration,
+                middlewares: middlewares,
+                streamingSessionFactory: streamingSessionFactory
+            ),
             client: .init(configuration: configuration, middlewares: middlewares, session: session),
             configuration: configuration
         )

@@ -23,7 +23,7 @@ public struct ResponsesChatDetailView: View {
             replyMode: .answer,
             didSendMessage: { draftMessage in
                 Task {
-                    try! await store.send(message: draftMessage)
+                    try! await store.send(message: draftMessage, stream: true)
                 }
         })
         .messageUseMarkdown(true)
@@ -41,14 +41,23 @@ public final class ResponsesStore: ObservableObject {
         self.messages = messages
     }
     
-    public func send(message: ExyteChat.DraftMessage) async throws {
+    public func send(message: ExyteChat.DraftMessage, stream: Bool) async throws {
         let query = CreateModelResponseQuery(
             input: .case1("What was a positive news story from today?"),
             model: Model.gpt4_o,
+            stream: stream,
             tools: [.WebSearchTool(.init(_type: .webSearchPreview))]
         )
         
-        let response = try await client.create(query: query)
+        if stream {
+            try await createResponseStreaming(query: query)
+        } else {
+            try await createResponse(query: query)
+        }
+    }
+    
+    private func createResponse(query: CreateModelResponseQuery) async throws {
+        let response = try await client.createResponse(query: query)
         for output in response.output {
             if let message = output.value1 {
                 switch message.content[0] {
@@ -97,6 +106,13 @@ public final class ResponsesStore: ObservableObject {
             } else if let webSearchCall = output.value4 {
                 print(webSearchCall)
             }
+        }
+    }
+    
+    private func createResponseStreaming(query: CreateModelResponseQuery) async throws {
+        let stream = client.createResponseStreaming(query: query)
+        for try await event in stream {
+            print(event)
         }
     }
 }

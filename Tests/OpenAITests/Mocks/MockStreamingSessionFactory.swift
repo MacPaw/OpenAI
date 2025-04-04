@@ -18,10 +18,10 @@ class MockStreamingSessionFactory: StreamingSessionFactory {
     func makeServerSentEventsStreamingSession<ResultType>(
         urlRequest: URLRequest,
         middlewares: [OpenAIMiddleware],
-        onReceiveContent: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, ResultType) -> Void,
-        onProcessingError: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, any Error) -> Void,
-        onComplete: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, (any Error)?) -> Void
-    ) -> StreamingSession<ServerSentEventsStreamInterpreter<ResultType>> where ResultType : Decodable, ResultType : Encodable, ResultType : Sendable {
+        onReceiveContent: @Sendable @escaping (StreamingSession<ServerSentEventsStreamDecoder<ResultType>>, ResultType) -> Void,
+        onProcessingError: @Sendable @escaping (StreamingSession<ServerSentEventsStreamDecoder<ResultType>>, any Error) -> Void,
+        onComplete: @Sendable @escaping (StreamingSession<ServerSentEventsStreamDecoder<ResultType>>, (any Error)?) -> Void
+    ) -> StreamingSession<ServerSentEventsStreamDecoder<ResultType>> where ResultType : Decodable, ResultType : Encodable, ResultType : Sendable {
         .init(
             urlSessionFactory: urlSessionFactory,
             urlRequest: urlRequest,
