@@ -41,8 +41,7 @@ class SyncClient {
             }
 
             let session = streamingSessionFactory.makeServerSentEventsStreamingSession(
-                urlRequest: interceptedRequest,
-                middlewares: middlewares
+                urlRequest: interceptedRequest
             ) { _, object in
                 onResult(.success(object))
             } onProcessingError: { _, error in

@@ -10,16 +10,15 @@ import Foundation
 /// https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation
 /// 9.2.6 Interpreting an event stream
 final class ServerSentEventsStreamParser: @unchecked Sendable {
-    private let streamingCompletionMarker = "[DONE]"
-    private var previousChunkBuffer = ""
-    
     private var onEventDispatched: ((Event) -> Void)?
     private var onError: ((Error) -> Void)?
-    private let executionSerializer: ExecutionSerializer
     
+    private var isFirstChunk = true
     private var dataBuffer: Data = .init()
     private var eventTypeBuffer: String = .init()
-    private var lastEventIdBuffer: String = .init()
+    private var retry: Int?
+    private var lastEventIdBuffer: String?
+    private var incompleteLine: Data?
     
     private let cr: UInt8 = 0x0D // carriage return
     private let lf: UInt8 = 0x0A // line feed
@@ -27,10 +26,11 @@ final class ServerSentEventsStreamParser: @unchecked Sendable {
     private let space: UInt8 = 0x20
     
     struct Event {
-        let id: String
+        let id: String?
         let data: Data
         let decodedData: String
         let eventType: String
+        let retry: Int?
     }
     
     enum ParsingError: Error {
@@ -39,30 +39,40 @@ final class ServerSentEventsStreamParser: @unchecked Sendable {
         case retryIsNotImplemented
     }
     
-    init(executionSerializer: ExecutionSerializer = GCDQueueAsyncExecutionSerializer(queue: .userInitiated)) {
-        self.executionSerializer = executionSerializer
-    }
-    
     /// Sets closures an instance of type in a thread safe manner
     ///
     /// - Parameters:
     ///     - onEventDispatched: Can be called multiple times per `processData`
     ///     - onError: Will only be called once per `processData`
     func setCallbackClosures(onEventDispatched: @escaping @Sendable (Event) -> Void, onError: @escaping @Sendable (Error) -> Void) {
-        executionSerializer.dispatch {
-            self.onEventDispatched = onEventDispatched
-            self.onError = onError
-        }
+        self.onEventDispatched = onEventDispatched
+        self.onError = onError
     }
     
     func processData(data: Data) {
-        let newEvent = dataBuffer.isEmpty && eventTypeBuffer.isEmpty && lastEventIdBuffer.isEmpty
+        var chunk = data
         
-        if newEvent {
-            
-        } else {
-            
+        /// The [UTF-8 decode](https://encoding.spec.whatwg.org/#utf-8-decode) algorithm strips one leading UTF-8 Byte Order Mark (BOM), if any.
+        if isFirstChunk && data.starts(with: [0xEF, 0xBB, 0xBF]) {
+            chunk = data.advanced(by: 3)
         }
+        
+        if let incompleteLine {
+            chunk = incompleteLine + chunk
+        }
+        
+        let (lines, incompleteLine) = lines(fromStream: chunk)
+        
+        for line in lines {
+            do {
+                try parseLine(lineData: line)
+            } catch {
+                onError?(error)
+            }
+        }
+        
+        self.incompleteLine = incompleteLine
+        isFirstChunk = false
     }
     
     private func lines(fromStream streamData: Data) -> (complete: [Data], incomplete: Data?) {
@@ -123,7 +133,7 @@ final class ServerSentEventsStreamParser: @unchecked Sendable {
         // If value starts with a U+0020 SPACE character, remove it from value.
         //
         // Process the field using the steps described below, using field as the field name and value as the field value.
-        let fieldNameData = lineData.prefix(while: { $0 == colon })
+        let fieldNameData = lineData.prefix(while: { $0 != colon })
         
         guard let fieldName = String(data: fieldNameData, encoding: .utf8) else {
             throw ParsingError.decodingFieldNameFailed(fieldNameData: fieldNameData, lineData: lineData)
@@ -139,9 +149,9 @@ final class ServerSentEventsStreamParser: @unchecked Sendable {
             // Process the field using field as the field name and value as the field value.
             
             // Collect the characters on the line after the first U+003A COLON character (:), and let value be that string.
-            var valueData = lineData.suffix(from: fieldNameData.count - 1)
+            var valueData = lineData.suffix(from: fieldNameData.count + 1)
             // If value starts with a U+0020 SPACE character, remove it from value.
-            if valueData[0] == space {
+            if valueData.first == space {
                 valueData.removeFirst()
             }
             
@@ -169,6 +179,7 @@ final class ServerSentEventsStreamParser: @unchecked Sendable {
         // 2. If the data buffer is an empty string, set the data buffer and the event type buffer to the empty string and return.
         if dataBuffer.isEmpty {
             eventTypeBuffer = .init()
+            retry = nil
             return
         }
         
@@ -191,12 +202,14 @@ final class ServerSentEventsStreamParser: @unchecked Sendable {
             id: lastEventIdBuffer,
             data: dataBuffer,
             decodedData: .init(data: dataBuffer, encoding: .utf8) ?? "",
-            eventType: eventTypeBuffer
+            eventType: eventTypeBuffer.isEmpty ? "message" : eventTypeBuffer,
+            retry: retry
         )
         
         // 7. Set the data buffer and the event type buffer to the empty string.
         dataBuffer = .init()
         eventTypeBuffer = .init()
+        retry = nil
         
         // 8. Queue a task which, if the readyState attribute is set to a value other than CLOSED, dispatches the newly created event at the EventSource object.
         // Current Implementation Note: we don't have said states at the moment, so we'll just dispatch the event
@@ -211,10 +224,7 @@ final class ServerSentEventsStreamParser: @unchecked Sendable {
         case "event":
             /// **If the field name is "event"**
             /// Set the event type buffer to field value.
-            guard let valueString = String(data: valueData, encoding: .utf8) else {
-                throw ParsingError.decodingFieldValueFailed(valueData: valueData, lineData: lineData)
-            }
-            
+            let valueString = try value(fromData: valueData, lineData: lineData)
             eventTypeBuffer = valueString
         case "data":
             /// **If the field name is "data"**
@@ -227,11 +237,7 @@ final class ServerSentEventsStreamParser: @unchecked Sendable {
             /// If the field value does not contain U+0000 NULL...
             if valueData.first(where: { $0 == 0x00 }) == nil {
                 // ...set the last event ID buffer to the field value.
-                
-                guard let valueString = String(data: valueData, encoding: .utf8) else {
-                    throw ParsingError.decodingFieldValueFailed(valueData: valueData, lineData: lineData)
-                }
-                
+                let valueString = try value(fromData: valueData, lineData: lineData)
                 lastEventIdBuffer = valueString
             } else {
                 // Otherwise, ignore the field.
@@ -240,7 +246,10 @@ final class ServerSentEventsStreamParser: @unchecked Sendable {
             /// **If the field value consists of only ASCII digits...**
             if valueData.allSatisfy({ $0 >= 0x30 && $0 <= 0x39 }) {
                 // ...interpret the field value as an integer in base ten, and set the event stream's reconnection time to that integer.
-                throw ParsingError.retryIsNotImplemented
+                let valueString = try value(fromData: valueData, lineData: lineData)
+                if let valueInt = Int(valueString) {
+                    retry = valueInt
+                }
             } else {
                 // Otherwise, ignore the field.
             }
@@ -250,5 +259,13 @@ final class ServerSentEventsStreamParser: @unchecked Sendable {
             /// The field is ignored.
             break
         }
+    }
+    
+    private func value(fromData valueData: Data, lineData: Data) throws -> String {
+        guard let valueString = String(data: valueData, encoding: .utf8) else {
+            throw ParsingError.decodingFieldValueFailed(valueData: valueData, lineData: lineData)
+        }
+        
+        return valueString
     }
 }
