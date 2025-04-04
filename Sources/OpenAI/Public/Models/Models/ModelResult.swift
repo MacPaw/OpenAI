@@ -25,4 +25,20 @@ public struct ModelResult: Codable, Equatable, Sendable {
         case object
         case ownedBy = "owned_by"
     }
+    
+    public init(id: String, created: TimeInterval, object: String, ownedBy: String) {
+        self.id = id
+        self.created = created
+        self.object = object
+        self.ownedBy = ownedBy
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let parsingOptions = decoder.userInfo[.parsingOptions] as? ParsingOptions ?? []
+        self.id = try container.decode(String.self, forKey: .id)
+        self.created = try container.decodeTimeInterval(forKey: .created, parsingOptions: parsingOptions)
+        self.object = try container.decode(String.self, forKey: .object)
+        self.ownedBy = try container.decode(String.self, forKey: .ownedBy)
+    }
 }

@@ -9,33 +9,34 @@ import Foundation
 
 /// https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation
 /// 9.2.6 Interpreting an event stream
+///
+/// - Note: This class is NOT thread safe. It is a caller's responsibility to call all the methods in a thread-safe manner.
 final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: @unchecked Sendable, StreamInterpreter {
     private let streamingCompletionMarker = "[DONE]"
     private var previousChunkBuffer = ""
     
     private var onEventDispatched: ((ResultType) -> Void)?
     private var onError: ((Error) -> Void)?
-    private let executionSerializer: ExecutionSerializer
+    private let parsingOptions: ParsingOptions
     
-    init(executionSerializer: ExecutionSerializer = GCDQueueAsyncExecutionSerializer(queue: .userInitiated)) {
-        self.executionSerializer = executionSerializer
+    init(parsingOptions: ParsingOptions) {
+        self.parsingOptions = parsingOptions
     }
     
-    /// Sets closures an instance of type in a thread safe manner
+    /// Sets closures an instance of type. Not thread safe.
     ///
     /// - Parameters:
     ///     - onEventDispatched: Can be called multiple times per `processData`
     ///     - onError: Will only be called once per `processData`
     func setCallbackClosures(onEventDispatched: @escaping @Sendable (ResultType) -> Void, onError: @escaping @Sendable (Error) -> Void) {
-        executionSerializer.dispatch {
-            self.onEventDispatched = onEventDispatched
-            self.onError = onError
-        }
+        self.onEventDispatched = onEventDispatched
+        self.onError = onError
     }
     
+    /// Not thread safe
     func processData(_ data: Data) {
         let decoder = JSONDecoder()
-        if let decoded = try? decoder.decode(APIErrorResponse.self, from: data) {
+        if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: data) {
             onError?(decoded)
             return
         }
@@ -45,9 +46,7 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
             return
         }
         
-        executionSerializer.dispatch {
-            self.processJSON(from: stringContent)
-        }
+        self.processJSON(from: stringContent)
     }
     
     private func processJSON(from stringContent: String) {
@@ -90,11 +89,12 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
                 return
             }
             let decoder = JSONDecoder()
+            decoder.userInfo[.parsingOptions] = parsingOptions
             do {
                 let object = try decoder.decode(ResultType.self, from: jsonData)
                 onEventDispatched?(object)
             } catch {
-                if let decoded = try? decoder.decode(APIErrorResponse.self, from: jsonData) {
+                if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: jsonData) {
                     onError?(decoded)
                     return
                 } else if index == jsonObjects.count - 1 {

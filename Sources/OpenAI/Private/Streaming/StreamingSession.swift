@@ -11,17 +11,18 @@ import Foundation
 import FoundationNetworking
 #endif
 
-final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifiable, URLSessionDataDelegateProtocol {
+final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifiable, URLSessionDataDelegateProtocol, @unchecked Sendable {
     typealias ResultType = Interpreter.ResultType
     
     private let urlSessionFactory: URLSessionFactory
     private let urlRequest: URLRequest
-    private let onReceiveContent: (@Sendable (StreamingSession, ResultType) -> Void)?
-    private let onProcessingError: (@Sendable (StreamingSession, Error) -> Void)?
-    private let onComplete: (@Sendable (StreamingSession, Error?) -> Void)?
     private let interpreter: Interpreter
     private let sslDelegate: SSLDelegateProtocol?
     private let middlewares: [OpenAIMiddleware]
+    private let executionSerializer: ExecutionSerializer
+    private let onReceiveContent: (@Sendable (StreamingSession, ResultType) -> Void)?
+    private let onProcessingError: (@Sendable (StreamingSession, Error) -> Void)?
+    private let onComplete: (@Sendable (StreamingSession, Error?) -> Void)?
 
     init(
         urlSessionFactory: URLSessionFactory = FoundationURLSessionFactory(),
@@ -29,6 +30,7 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
         interpreter: Interpreter,
         sslDelegate: SSLDelegateProtocol?,
         middlewares: [OpenAIMiddleware],
+        executionSerializer: ExecutionSerializer = GCDQueueAsyncExecutionSerializer(queue: .userInitiated),
         onReceiveContent: @escaping @Sendable (StreamingSession, ResultType) -> Void,
         onProcessingError: @escaping @Sendable (StreamingSession, Error) -> Void,
         onComplete: @escaping @Sendable (StreamingSession, Error?) -> Void
@@ -38,6 +40,7 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
         self.interpreter = interpreter
         self.sslDelegate = sslDelegate
         self.middlewares = middlewares
+        self.executionSerializer = executionSerializer
         self.onReceiveContent = onReceiveContent
         self.onProcessingError = onProcessingError
         self.onComplete = onComplete
@@ -51,14 +54,19 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
     }
     
     func urlSession(_ session: any URLSessionProtocol, task: any URLSessionTaskProtocol, didCompleteWithError error: (any Error)?) {
-        onComplete?(self, error)
+        executionSerializer.dispatch {
+            self.onComplete?(self,error)
+        }
     }
     
     func urlSession(_ session: any URLSessionProtocol, dataTask: any URLSessionDataTaskProtocol, didReceive data: Data) {
-        let data = self.middlewares.reduce(data) { current, middleware in
-            middleware.interceptStreamingData(request: dataTask.originalRequest, current)
+        executionSerializer.dispatch {
+            let data = self.middlewares.reduce(data) { current, middleware in
+                middleware.interceptStreamingData(request: dataTask.originalRequest, current)
+            }
+            
+            self.interpreter.processData(data)
         }
-        interpreter.processData(data)
     }
 
     func urlSession(
@@ -67,13 +75,15 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
         didReceive response: URLResponse,
         completionHandler: @escaping (URLSession.ResponseDisposition) -> Void
     ) {
-        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode >= 400 {
-            let error = OpenAIError.statusError(response: httpResponse, statusCode: httpResponse.statusCode)
-            self.onProcessingError?(self, error)
-            completionHandler(.cancel)
-            return
+        executionSerializer.dispatch {
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode >= 400 {
+                let error = OpenAIError.statusError(response: httpResponse, statusCode: httpResponse.statusCode)
+                self.onProcessingError?(self, error)
+                completionHandler(.cancel)
+                return
+            }
+            completionHandler(.allow)
         }
-        completionHandler(.allow)
     }
 
     func urlSession(
@@ -91,7 +101,7 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
             self.onReceiveContent?(self, content)
         } onError: { [weak self] error in
             guard let self else { return }
-            onProcessingError?(self, error)
+            self.onProcessingError?(self, error)
         }
     }
 }

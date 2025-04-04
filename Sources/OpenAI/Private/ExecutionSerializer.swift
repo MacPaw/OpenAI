@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol ExecutionSerializer {
+protocol ExecutionSerializer: Sendable {
     func dispatch(_ closure: @escaping () -> Void)
 }
 

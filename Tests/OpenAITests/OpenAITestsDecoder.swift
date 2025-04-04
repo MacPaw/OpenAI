@@ -59,30 +59,7 @@ class OpenAITestsDecoder: XCTestCase {
     }
     
     func testChatCompletion() async throws {
-        let data = """
-        {
-          "id": "chatcmpl-123",
-          "object": "chat.completion",
-          "created": 1677652288,
-          "model": "gpt-4",
-          "choices": [{
-            "index": 0,
-            "message": {
-              "role": "assistant",
-              "content": "Hello, world!",
-              "annotations": [],
-              "tool_calls": []
-            },
-            "finish_reason": "stop"
-          }],
-          "usage": {
-            "prompt_tokens": 9,
-            "completion_tokens": 12,
-            "total_tokens": 21
-          },
-          "system_fingerprint": "fp_fc9f1d7035"
-        }
-        """
+        let data = ChatResult.mockJsonString
         
         let expectedValue = ChatResult(
             id: "chatcmpl-123", created: 1677652288, model: .gpt4, object: "chat.completion", serviceTier: nil, systemFingerprint: "fp_fc9f1d7035",
@@ -90,7 +67,7 @@ class OpenAITestsDecoder: XCTestCase {
                 .init(
                     index: 0,
                     logprobs: nil,
-                    message: .init(content: "Hello, world!", refusal: nil, role: "assistant", annotations: [], audio: nil, toolCalls: [], reasoning: nil, reasoningContent: nil),
+                    message: .init(content: "Hello, world!", refusal: nil, role: "assistant", annotations: [], audio: nil, toolCalls: [], _reasoning: nil, _reasoningContent: nil),
                     finishReason: "stop"
                 )
             ],
@@ -342,8 +319,8 @@ class OpenAITestsDecoder: XCTestCase {
                         annotations: [],
                         audio: nil,
                         toolCalls: [.init(id: "chatcmpl-1234", function: .init(arguments: "", name: "get_current_weather"))],
-                        reasoning: nil,
-                        reasoningContent: nil
+                        _reasoning: nil,
+                        _reasoningContent: nil
                     ),
                     finishReason: "tool_calls"
                 )

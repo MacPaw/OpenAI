@@ -84,7 +84,7 @@ extension OpenAI: OpenAIAsync {
         )
     }
     
-    func audioCreateSpeechStream(
+    public func audioCreateSpeechStream(
         query: AudioSpeechQuery
     ) -> AsyncThrowingStream<AudioSpeechResult, Error> {
         return AsyncThrowingStream { continuation in
@@ -217,10 +217,15 @@ extension OpenAI: OpenAIAsync {
                 middleware.intercept(response: current.response, request: urlRequest, data: current.data)
             }
             let decoder = JSONDecoder()
+            decoder.userInfo[.parsingOptions] = configuration.parsingOptions
             do {
                 return try decoder.decode(ResultType.self, from: interceptedData ?? data)
             } catch {
-                throw (try? decoder.decode(APIErrorResponse.self, from: interceptedData ?? data)) ?? error
+                if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: interceptedData ?? data) {
+                    throw decoded
+                } else {
+                    throw error
+                }
             }
         } else {
             let dataTaskStore = URLSessionDataTaskStore()

@@ -46,18 +46,33 @@ public struct ChatResult: Codable, Equatable, Sendable {
             /// Following are fields that are not part of OpenAI but are present in responses from other providers
             
             /// Value for `reasoning` field in response.
+            ///
             /// Provided by:
-            /// Gemini (in OpenAI compatibility mode):
-            /// https://github.com/MacPaw/OpenAI/issues/283#issuecomment-2711396735
-            let reasoning: String?
-            
-            /// Value for `reasoning_content` field. Provided by:
-            /// DeepSeek: https://api-docs.deepseek.com/api/create-chat-completion#responses
-            /// "For deepseek-reasoner model only. The reasoning contents of the assistant message, before the final answer."
-            let reasoningContent: String?
-            
+            /// - Gemini (in OpenAI compatibility mode)
+            ///   https://github.com/MacPaw/OpenAI/issues/283#issuecomment-2711396735
+            /// - OpenRouter
+            internal let _reasoning: String?
+
+            /// Value for `reasoning_content` field.
+            ///
+            /// Provided by:
+            /// - Deepseek
+            ///   https://api-docs.deepseek.com/api/create-chat-completion#responses
+            internal let _reasoningContent: String?
+
+            /// Reasoning content.
+            ///
+            /// Supported response fields:
+            /// - `reasoning` (Gemini, OpenRouter)
+            /// - `reasoning_content` (Deepseek)
+            public var reasoning: String? {
+                _reasoning ?? _reasoningContent
+            }
+
             public enum CodingKeys: String, CodingKey {
-                case content, refusal, role, annotations, audio, toolCalls = "tool_calls", reasoning, reasoningContent = "reasoning_content"
+                case content, refusal, role, annotations, audio, toolCalls = "tool_calls"
+                case _reasoning = "reasoning"
+                case _reasoningContent = "reasoning_content"
             }
             
             public struct Annotation: Codable, Equatable, Sendable {
@@ -158,6 +173,7 @@ public struct ChatResult: Codable, Equatable, Sendable {
             case toolCalls = "tool_calls"
             case contentFilter = "content_filter"
             case functionCall = "function_call"
+            case error
         }
     }
 
@@ -212,6 +228,32 @@ public struct ChatResult: Codable, Equatable, Sendable {
         case systemFingerprint = "system_fingerprint"
         case usage
         case citations
+    }
+    
+    init(id: String, created: Int, model: String, object: String, serviceTier: String? = nil, systemFingerprint: String, choices: [Choice], usage: Self.CompletionUsage? = nil, citations: [String]? = nil) {
+        self.id = id
+        self.created = created
+        self.model = model
+        self.object = object
+        self.serviceTier = serviceTier
+        self.systemFingerprint = systemFingerprint
+        self.choices = choices
+        self.usage = usage
+        self.citations = citations
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let parsingOptions = decoder.userInfo[.parsingOptions] as? ParsingOptions ?? []
+        self.id = try container.decodeString(forKey: .id, parsingOptions: parsingOptions)
+        self.object = try container.decodeString(forKey: .object, parsingOptions: parsingOptions)
+        self.created = try container.decode(Int.self, forKey: .created)
+        self.model = try container.decodeString(forKey: .model, parsingOptions: parsingOptions)
+        self.choices = try container.decode([ChatResult.Choice].self, forKey: .choices)
+        self.serviceTier = try container.decodeIfPresent(String.self, forKey: .serviceTier)
+        self.systemFingerprint = try container.decodeString(forKey: .systemFingerprint, parsingOptions: parsingOptions)
+        self.usage = try container.decodeIfPresent(ChatResult.CompletionUsage.self, forKey: .usage)
+        self.citations = try container.decodeIfPresent([String].self, forKey: .citations)
     }
 }
 

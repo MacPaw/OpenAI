@@ -50,7 +50,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
         - [Files](#files)
           - [Upload File](#upload-file)
   - [Cancelling requests](#cancelling-requests)
-- [Support for other providers: Gemini, Perplexity, ...](#providers-support)
+- [Support for other providers: Gemini, DeepSeek, Perplexity, OpenRouter, etc.](#support-for-other-providers)
 - [Example Project](#example-project)
 - [Contribution Guidelines](#contribution-guidelines)
 - [Links](#links)
@@ -1121,10 +1121,29 @@ This SDK has a limited support for other providers like Gemini, Perplexity etc.
 
 The top priority of this SDK is OpenAI, and the main rule is for all the main types to be fully compatible with [OpenAI's API Reference](https://platform.openai.com/docs/api-reference/introduction). If it says a field should be optional, it must be optional in main subset of Query/Result types of this SDK. The same goes for other info declared in the reference, like default values.
 
-That said we still want to give a support for other providers. For the time being, we'll cover the requests case by case.
+That said we still want to give a support for other providers.
 
-#### Perplexity - Chat Completions Response
-[citations](https://docs.perplexity.ai/api-reference/chat-completions#response-citations) - added to `ChatResult` as optional field to enable parsing of Perplexity responses
+### Handling missing keys in responses with Parsing Options
+Some providers return responses that don't completely satisfy OpenAI's scheme. Like, Gemini chat completion response ommits `id` field which is a required field in OpenAI's API Reference.
+
+In such case use `fillRequiredFieldIfKeyNotFound` Parsing Option, like this:
+```swift
+let configuration = OpenAI.Configuration(token: "", parsingOptions: .fillRequiredFieldIfKeyNotFound)
+```
+
+
+### What if a provider returns additional fields?
+Currently we handle such cases by simply adding additional fields to main model set. This is possible because optional fields wouldn't break or conflict with OpenAI's scheme. At the moment, such additional fields are added.
+
+`ChatResult`
+
+* `citations` [Perplexity](https://docs.perplexity.ai/api-reference/chat-completions#response-citations)
+
+`ChatResult.Choice.Message`
+
+* `reasoningContent` [Grok](https://docs.x.ai/docs/api-reference#chat-completions), [DeepSeek](https://api-docs.deepseek.com/api/create-chat-completion#responses)
+* `reasoning` [OpenRouter](https://openrouter.ai/docs/use-cases/reasoning-tokens#basic-usage-with-reasoning-tokens)
+
 
 ## Example Project
 

@@ -11,12 +11,14 @@ import Foundation
 
 @MainActor
 struct ServerSentEventsStreamInterpreterTests {
-    private let interpreter = ServerSentEventsStreamInterpreter<ChatStreamResult>(executionSerializer: NoDispatchExecutionSerializer())
+    private let interpreter = ServerSentEventsStreamInterpreter<ChatStreamResult>(
+        parsingOptions: []
+    )
     
     @Test func parseShortMessageResponseStream() async throws {
         var chatStreamResults: [ChatStreamResult] = []
         
-        await withCheckedContinuation { continuation in
+        try await withCheckedThrowingContinuation { continuation in
             interpreter.setCallbackClosures { result in
                 Task {
                     await MainActor.run {
@@ -28,7 +30,8 @@ struct ServerSentEventsStreamInterpreterTests {
                         }
                     }
                 }
-            } onError: { _ in
+            } onError: { error in
+                continuation.resume(throwing: error)
             }
             
             interpreter.processData(chatCompletionChunk())
@@ -43,7 +46,7 @@ struct ServerSentEventsStreamInterpreterTests {
     // - Ignore the line.
     @Test func ignoresLinesStartingWithColon() async throws {
         var chatStreamResults: [ChatStreamResult] = []
-        await withCheckedContinuation { continuation in
+        try await withCheckedThrowingContinuation { continuation in
             interpreter.setCallbackClosures { result in
                 Task {
                     await MainActor.run {
@@ -51,7 +54,8 @@ struct ServerSentEventsStreamInterpreterTests {
                         continuation.resume()
                     }
                 }
-            } onError: { _ in
+            } onError: { error in
+                continuation.resume(throwing: error)
             }
             
             interpreter.processData(chatCompletionChunkWithComment())
@@ -80,17 +84,16 @@ struct ServerSentEventsStreamInterpreterTests {
         #expect(error is APIErrorResponse)
     }
     
-    // Chunk with 3 objects. I captured it from a real response. It's a very short response that contains just "Hi"
     private func chatCompletionChunk() -> Data {
-        "data: {\"id\":\"chatcmpl-AwnboO5ZnaUyii9xxC5ZVmM5vGark\",\"object\":\"chat.completion.chunk\",\"created\":1738577084,\"model\":\"gpt-4-0613\",\"service_tier\":\"default\",\"system_fingerprint\":null,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"refusal\":null},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-AwnboO5ZnaUyii9xxC5ZVmM5vGark\",\"object\":\"chat.completion.chunk\",\"created\":1738577084,\"model\":\"gpt-4-0613\",\"service_tier\":\"default\",\"system_fingerprint\":null,\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Hi\"},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-AwnboO5ZnaUyii9xxC5ZVmM5vGark\",\"object\":\"chat.completion.chunk\",\"created\":1738577084,\"model\":\"gpt-4-0613\",\"service_tier\":\"default\",\"system_fingerprint\":null,\"choices\":[{\"index\":0,\"delta\":{},\"logprobs\":null,\"finish_reason\":\"stop\"}]}\n\n".data(using: .utf8)!
+        MockServerSentEvent.chatCompletionChunk()
     }
     
     private func chatCompletionChunkWithComment() -> Data {
-        ": OPENROUTER PROCESSING\n\ndata: {\"id\":\"chatcmpl-AwnboO5ZnaUyii9xxC5ZVmM5vGark\",\"object\":\"chat.completion.chunk\",\"created\":1738577084,\"model\":\"gpt-4-0613\",\"service_tier\":\"default\",\"system_fingerprint\":null,\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"refusal\":null},\"logprobs\":null,\"finish_reason\":null}]}\n\n".data(using: .utf8)!
+        ": OPENROUTER PROCESSING\n\ndata: {\"id\":\"chatcmpl-AwnboO5ZnaUyii9xxC5ZVmM5vGark\",\"object\":\"chat.completion.chunk\",\"created\":1738577084,\"model\":\"gpt-4-0613\",\"service_tier\":\"default\",\"system_fingerprint\":\"sysfig\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"refusal\":null},\"logprobs\":null,\"finish_reason\":null}]}\n\n".data(using: .utf8)!
     }
     
     private func chatCompletionChunkTermination() -> Data {
-        "data: [DONE]\n\n".data(using: .utf8)!
+        MockServerSentEvent.chatCompletionChunkTermination()
     }
     
     // Copied from an actual reponse that was an input to inreptreter
@@ -101,4 +104,15 @@ struct ServerSentEventsStreamInterpreterTests {
 
 private actor ChatStreamResultsActor {
     var chatStreamResults: [ChatStreamResult] = []
+}
+
+struct MockServerSentEvent {
+    // Chunk with 3 objects. I captured it from a real response. It's a very short response that contains just "Hi"
+    static func chatCompletionChunk() -> Data {
+        "data: {\"id\":\"chatcmpl-AwnboO5ZnaUyii9xxC5ZVmM5vGark\",\"object\":\"chat.completion.chunk\",\"created\":1738577084,\"model\":\"gpt-4-0613\",\"service_tier\":\"default\",\"system_fingerprint\":\"sysfig\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"refusal\":null},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-AwnboO5ZnaUyii9xxC5ZVmM5vGark\",\"object\":\"chat.completion.chunk\",\"created\":1738577084,\"model\":\"gpt-4-0613\",\"service_tier\":\"default\",\"system_fingerprint\":\"sysfig\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Hi\"},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-AwnboO5ZnaUyii9xxC5ZVmM5vGark\",\"object\":\"chat.completion.chunk\",\"created\":1738577084,\"model\":\"gpt-4-0613\",\"service_tier\":\"default\",\"system_fingerprint\":\"sysfig\",\"choices\":[{\"index\":0,\"delta\":{},\"logprobs\":null,\"finish_reason\":\"stop\"}]}\n\n".data(using: .utf8)!
+    }
+    
+    static func chatCompletionChunkTermination() -> Data {
+        "data: [DONE]\n\n".data(using: .utf8)!
+    }
 }
