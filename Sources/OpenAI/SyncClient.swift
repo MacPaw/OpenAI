@@ -58,6 +58,35 @@ class SyncClient {
         }
     }
     
+    func performResponsesStreamingRequest(
+        request: any URLRequestBuildable,
+        onResult: @escaping @Sendable (Result<ResponseStreamEvent, Error>) -> Void,
+        completion: (@Sendable (Error?) -> Void)?
+    ) -> CancellableRequest {
+        do {
+            let urlRequest = try request.build(configuration: configuration)
+            let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
+                middleware.intercept(request: current)
+            }
+
+            let session = streamingSessionFactory.makeModelResponseStreamingSession(
+                urlRequest: interceptedRequest
+            ) { _, object in
+                onResult(.success(object))
+            } onProcessingError: { _, error in
+                onResult(.failure(error))
+            } onComplete: { [weak self] session, error in
+                completion?(error)
+                self?.invalidateSession(session)
+            }
+            
+            return runSession(session)
+        } catch {
+            completion?(error)
+            return NoOpCancellableRequest()
+        }
+    }
+    
     private func runSession<I>(_ session: StreamingSession<I>) -> CancellableRequest {
         let performableSession = session.makeSession()
         

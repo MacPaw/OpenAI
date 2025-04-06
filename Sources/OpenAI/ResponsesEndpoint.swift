@@ -53,7 +53,7 @@ public struct ResponsesEndpoint {
             return NoOpCancellableRequest()
         }
         
-        return syncClient.performStreamingRequest(
+        return syncClient.performResponsesStreamingRequest(
             request: JSONRequest<CreateModelResponseQuery>(
                 body: query,
                 url: buildURL(path: .Responses.createModelResponse.stringValue)

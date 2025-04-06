@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class AudioSpeechStreamInterpreter: @unchecked Sendable, StreamInterpreter {
+final class AudioSpeechStreamInterpreter: @unchecked Sendable, CodableResultStreamInterpreter {
     typealias ResultType = AudioSpeechResult
     
     private var onEventDispatched: ((AudioSpeechResult) -> Void)?

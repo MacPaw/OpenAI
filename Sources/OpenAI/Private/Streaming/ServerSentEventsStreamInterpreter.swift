@@ -11,7 +11,7 @@ import Foundation
 /// 9.2.6 Interpreting an event stream
 ///
 /// - Note: This class is NOT thread safe. It is a caller's responsibility to call all the methods in a thread-safe manner.
-final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: @unchecked Sendable, StreamInterpreter {
+final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: @unchecked Sendable, CodableResultStreamInterpreter {
     private let parser = ServerSentEventsStreamParser()
     private let streamingCompletionMarker = "[DONE]"
     private var previousChunkBuffer = ""
