@@ -9,9 +9,13 @@ import SwiftUI
 
 public struct MiscView: View {
     @ObservedObject var store: MiscStore
+    @ObservedObject var chatStore: ChatStore
+    @ObservedObject var assistantStore: AssistantStore
     
-    public init(store: MiscStore) {
+    public init(store: MiscStore, chatStore: ChatStore, assistantStore: AssistantStore) {
         self.store = store
+        self.chatStore = chatStore
+        self.assistantStore = assistantStore
     }
     
     public var body: some View {
@@ -20,6 +24,12 @@ public struct MiscView: View {
                 Section(header: Text("Models")) {
                     NavigationLink("List Models", destination: ListModelsView(store: store))
                     NavigationLink("Retrieve Model", destination: RetrieveModelView())
+                }
+                Section(header: Text("Assistants Beta")) {
+                    NavigationLink("Assistants", destination: AssistantsView(
+                        store: chatStore,
+                        assistantStore: assistantStore
+                    ))
                 }
                 Section(header: Text("Moderations")) {
                     NavigationLink("Moderation Chat", destination: ModerationChatView(store: store))

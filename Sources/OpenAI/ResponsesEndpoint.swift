@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ResponsesEndpoint {
+public struct ResponsesEndpoint: Sendable {
     enum CreateResponseError: Error {
         case invalidQueryExpectedStreamTrue
     }
