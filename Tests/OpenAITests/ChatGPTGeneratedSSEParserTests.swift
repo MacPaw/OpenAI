@@ -8,7 +8,6 @@
 import XCTest
 @testable import OpenAI
 
-@MainActor
 final class ChatGPTGeneratedSSEParserTests: XCTestCase {
     private let parser = ServerSentEventsStreamParser()
     
@@ -91,14 +90,17 @@ final class ChatGPTGeneratedSSEParserTests: XCTestCase {
     // Helper
     func parse(_ raw: String) -> [ServerSentEventsStreamParser.Event] {
         let parser = ServerSentEventsStreamParser()
-        var results: [ServerSentEventsStreamParser.Event] = []
+        let resultsActor = ResultsActor()
         parser.setCallbackClosures(onEventDispatched: { event in
-            MainActor.assumeIsolated {
-                results.append(event)
-            }
+            dispatchPrecondition(condition: .onQueue(.main))
+            resultsActor.results.append(event)
         }, onError: { error in
         })
         parser.processData(data: raw.data(using: .utf8)!)
-        return results
+        return resultsActor.results
     }
+}
+
+private class ResultsActor: @unchecked Sendable {
+    var results: [ServerSentEventsStreamParser.Event] = []
 }
