@@ -12,6 +12,7 @@ import Foundation
 ///
 /// - Note: This class is NOT thread safe. It is a caller's responsibility to call all the methods in a thread-safe manner.
 final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: @unchecked Sendable, StreamInterpreter {
+    private let parser = ServerSentEventsStreamParser()
     private let streamingCompletionMarker = "[DONE]"
     private var previousChunkBuffer = ""
     
@@ -19,8 +20,18 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
     private var onError: ((Error) -> Void)?
     private let parsingOptions: ParsingOptions
     
+    enum InterpeterError: Error {
+        case unhandledStreamEventType(String)
+    }
+    
     init(parsingOptions: ParsingOptions) {
         self.parsingOptions = parsingOptions
+        
+        parser.setCallbackClosures { [weak self] event in
+            self?.processEvent(event)
+        } onError: { [weak self] error in
+            self?.onError?(error)
+        }
     }
     
     /// Sets closures an instance of type. Not thread safe.
@@ -41,46 +52,13 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
             return
         }
         
-        guard let stringContent = String(data: data, encoding: .utf8) else {
-            onError?(StreamingError.unknownContent)
-            return
-        }
-        
-        self.processJSON(from: stringContent)
+        parser.processData(data: data)
     }
     
-    private func processJSON(from stringContent: String) {
-        if stringContent.isEmpty {
-            return
-        }
-
-        let fullChunk = "\(previousChunkBuffer)\(stringContent)"
-        let chunkLines = fullChunk
-            .components(separatedBy: .newlines)
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { $0.isEmpty == false }
-
-        var jsonObjects: [String] = []
-        for line in chunkLines {
-
-            // Skip comments
-            if line.starts(with: ":") { continue }
-
-            // Get JSON object
-            let jsonData = line
-                .components(separatedBy: "data:")
-                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                .filter { $0.isEmpty == false }
-            jsonObjects.append(contentsOf: jsonData)
-        }
-
-        previousChunkBuffer = ""
-        
-        guard jsonObjects.isEmpty == false, jsonObjects.first != streamingCompletionMarker else {
-            return
-        }
-        
-        jsonObjects.enumerated().forEach { (index, jsonContent)  in
+    private func processEvent(_ event: ServerSentEventsStreamParser.Event) {
+        switch event.eventType {
+        case "message":
+            let jsonContent = event.decodedData
             guard jsonContent != streamingCompletionMarker && !jsonContent.isEmpty else {
                 return
             }
@@ -97,12 +75,12 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
                 if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: jsonData) {
                     onError?(decoded)
                     return
-                } else if index == jsonObjects.count - 1 {
-                    previousChunkBuffer = "data: \(jsonContent)" // Chunk ends in a partial JSON
                 } else {
                     onError?(error)
                 }
             }
+        default:
+            onError?(InterpeterError.unhandledStreamEventType(event.eventType))
         }
     }
 }
