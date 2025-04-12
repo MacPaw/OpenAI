@@ -35,13 +35,15 @@ public final class ResponsesStore: ObservableObject {
     @Published var messages: [ExyteChat.Message] = []
     @Published var webSearchInProgress = false
     
-    enum StoreError: Error {
+    enum StoreError: DescribedError {
         case unhandledOutputItem(ResponseStreamEvent.Schemas.OutputItem)
         case noMessageToUpdate
         case messageBeingUpdatedIsExpectedToBeLastInArray
         case unexpectedMessage(id: String, expectedId: String)
         case unhandledResponseStreamEvent(ResponseStreamEvent)
         case incompleteLocalTextOnOutputTextDoneEvent(local: String, remote: String)
+        case noInputImageData(Sendable)
+        case imageExceedsSizeLimits(CGSize)
     }
     
     public init(client: ResponsesEndpoint) {
@@ -72,8 +74,44 @@ public final class ResponsesStore: ObservableObject {
             )
         )
         
+        let input: CreateModelResponseQuery.Input
+        
+        if let media = message.medias.first, media.type == .image {
+            guard let imageData = await media.getData() else {
+                throw StoreError.noInputImageData(media)
+            }
+            
+            guard let image = UIImage(data: imageData) else {
+                throw StoreError.noInputImageData(media)
+            }
+            
+            let biggerSideSize = max(image.size.height, image.size.width)
+            let smallerSideSize = min(image.size.height, image.size.width)
+            
+            guard biggerSideSize <= 2000, smallerSideSize <= 768 else {
+                throw StoreError.imageExceedsSizeLimits(image.size)
+            }
+            
+            input = .inputItemList([
+                .inputMessage(.init(
+                    role: .user,
+                    content: .textInput(message.text)
+                )),
+                .inputMessage(.init(
+                    role: .user,
+                    content: .inputItemContentList([
+                        .inputImage(
+                            .init(imageData: imageData, detail: .auto)
+                        )
+                    ]))
+                )
+            ])
+        } else {
+            input = .textInput(message.text)
+        }
+        
         let query = CreateModelResponseQuery(
-            input: .case1(message.text),
+            input: input,
             model: Model.gpt4_o,
             stream: stream,
             tools: [.WebSearchTool(.init(_type: .webSearchPreview))]
@@ -108,8 +146,13 @@ public final class ResponsesStore: ObservableObject {
     private func createResponseStreaming(query: CreateModelResponseQuery) async throws {
         let stream = client.createResponseStreaming(query: query)
         
+        var eventNumber = 1
         for try await event in stream {
+            print("--- Event \(1) ---")
+            print(event)
             try handleResponseStreamEvent(event)
+            eventNumber += 1
+            print("\n")
         }
     }
     

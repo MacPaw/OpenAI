@@ -6,12 +6,10 @@
 //
 
 import Foundation
-import OpenAPIRuntime
 
 public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     public typealias Schemas = Components.Schemas
     public typealias ResponseProperties = Schemas.ResponseProperties
-    public typealias Input = Components.Schemas.CreateResponse.Value3Payload.InputPayload
     
     /// Text, image, or file inputs to the model, used to generate a response.
     ///

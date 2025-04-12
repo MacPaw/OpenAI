@@ -91,6 +91,12 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, CodableRe
     }
     
     func processData(_ data: Data) {
+        let decoder = JSONDecoder()
+        if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: data) {
+            onError?(decoded)
+            return
+        }
+        
         parser.processData(data: data)
     }
     

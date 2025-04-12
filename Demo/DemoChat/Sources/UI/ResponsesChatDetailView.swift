@@ -12,6 +12,9 @@ import OpenAI
 public struct ResponsesChatDetailView: View {
     @ObservedObject var store: ResponsesStore
     
+    @State private var errorTitle = ""
+    @State private var errorAlertPresented = false
+    
     public init(store: ResponsesStore) {
         self.store = store
     }
@@ -27,11 +30,12 @@ public struct ResponsesChatDetailView: View {
                         do {
                             try await store.send(message: draftMessage, stream: true)
                         } catch {
-                            print("store.send(message) error: \(error)")
+                            errorTitle = error.localizedDescription
+                            errorAlertPresented = true
                         }
                     }
             })
-            .setAvailableInputs([.text])
+            .setAvailableInputs([.text, .media])
             .messageUseMarkdown(true)
             
             VStack {
@@ -44,7 +48,7 @@ public struct ResponsesChatDetailView: View {
                     .opacity(store.webSearchInProgress ? 1 : 0)
                 Spacer()
             }
-        }
+        }.alert(errorTitle, isPresented: $errorAlertPresented, actions: {})
     }
 }
 
