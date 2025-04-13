@@ -20,7 +20,7 @@ public struct ResponsesChatDetailView: View {
     }
     
     public var body: some View {
-        ZStack {
+        NavigationStack {
             ExyteChat.ChatView(
                 messages: store.chatMessages,
                 chatType: .conversation,
@@ -37,17 +37,21 @@ public struct ResponsesChatDetailView: View {
             })
             .setAvailableInputs([.text, .media])
             .messageUseMarkdown(true)
-            
-            VStack {
-                Text("Searching Web...")
-                    .frame(height: 50)
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        Color.init(uiColor: .secondarySystemBackground)
-                    )
-                    .opacity(store.webSearchInProgress ? 1 : 0)
-                Spacer()
-            }
+            .toolbar(content: {
+                ToolbarItem(placement: .principal) {
+                    HStack(spacing: 8) {
+                        if store.webSearchInProgress {
+                            Image(systemName: "globe")
+                            Text("Searching Web…")
+                        } else if store.inProgress {
+                            Text("Streaming…")
+                        } else {
+                            Text("") // Or you could return Text("Ready") or similar
+                        }
+                    }
+                }
+            })
+            .navigationBarTitleDisplayMode(.inline)
         }.alert(errorTitle, isPresented: $errorAlertPresented, actions: {})
     }
 }
