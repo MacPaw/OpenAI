@@ -7,7 +7,17 @@
 
 import Foundation
 
-public struct ResponsesEndpoint: Sendable {
+public protocol ResponsesEndpointProtocol: Sendable {
+    func createResponse(query: CreateModelResponseQuery) async throws -> ResponseObject
+    func createResponseStreaming(query: CreateModelResponseQuery) -> AsyncThrowingStream<ResponseStreamEvent, Error>
+    func createResponseStreaming(
+        query: CreateModelResponseQuery,
+        onResult: @escaping @Sendable (Result<ResponseStreamEvent, Error>) -> Void,
+        completion: (@Sendable (Error?) -> Void)?
+    ) -> CancellableRequest
+}
+
+public struct ResponsesEndpoint: ResponsesEndpointProtocol {
     enum CreateResponseError: Error {
         case invalidQueryExpectedStreamTrue
     }

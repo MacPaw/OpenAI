@@ -10,6 +10,7 @@ import Foundation
 public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     public typealias Schemas = Components.Schemas
     public typealias ResponseProperties = Schemas.ResponseProperties
+    public typealias Tool = Schemas.Tool
     
     /// Text, image, or file inputs to the model, used to generate a response.
     ///

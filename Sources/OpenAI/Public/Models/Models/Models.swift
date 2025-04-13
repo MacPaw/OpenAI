@@ -216,15 +216,19 @@ public extension Model {
         ]
     }
     
-    struct Filter {
+    public struct Filter {
         enum Modality {}
         
-        enum Endpoint {
+        public enum Endpoint {
             case responses
         }
         
         enum Feature {}
         
-        let supportedEndpoints: [Endpoint]
+        public let supportedEndpoints: [Endpoint]
+        
+        public init(supportedEndpoints: [Endpoint]) {
+            self.supportedEndpoints = supportedEndpoints
+        }
     }
 }

@@ -9,20 +9,24 @@ import SwiftUI
 import ExyteChat
 import OpenAI
 
-class ResponsesSettingsStore: ObservableObject {
-    @Published var selectedModel: Model = .gpt4_o
-    @Published var stream = false
-    @Published var webSearchEnabled = true
-    
-    
-}
-
 public struct ResponsesChatDetailView: View {
-    @ObservedObject var store: ResponsesStore
-    
     @State private var errorTitle = ""
     @State private var errorAlertPresented = false
-    @State private var isSettingsDisplayed = false
+    @StateObject private var settingsStore = ResponsesSettingsStore()
+    
+    private var settingsDescription: String {
+        var elements: [String] = ["Model: \(settingsStore.selectedModel)"]
+        
+        elements.append("stream: \(settingsStore.stream ? "true" : "false")")
+        
+        if settingsStore.webSearchEnabled {
+            elements.append("tools: Web Search")
+        }
+        
+        return elements.joined(separator: ", ")
+    }
+    
+    @ObservedObject var store: ResponsesStore
     
     public init(store: ResponsesStore) {
         self.store = store
@@ -33,30 +37,34 @@ public struct ResponsesChatDetailView: View {
             chatView()
             .toolbar(content: {
                 ToolbarItem(placement: .principal) {
-                    HStack(spacing: 8) {
-                        if store.webSearchInProgress {
-                            Image(systemName: "globe")
-                            Text("Searching Web…")
-                        } else if store.inProgress {
-                            Text("Streaming…")
-                        } else {
-                            Text("Responses API") // Or you could return Text("Ready") or similar
-                        }
+                    VStack {
+                        HStack {
+                            if store.webSearchInProgress {
+                                Image(systemName: "globe")
+                                Text("Searching Web…")
+                                    
+                            } else if store.inProgress {
+                                Text("Streaming…")
+                            } else {
+                                Text("Responses API")
+                            }
+                        }.fontWeight(.semibold)
+                        
+                        Text(settingsDescription)
+                            .font(.caption)
                     }
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        isSettingsDisplayed = true
+                    NavigationLink {
+                        ResponsesChatSettingsView(store: settingsStore)
                     } label: {
                         Image(systemName: "gearshape")
                     }
-
                 }
             })
             .navigationBarTitleDisplayMode(.inline)
             .alert(errorTitle, isPresented: $errorAlertPresented, actions: {})
-            .sheet(isPresented: <#T##Binding<Bool>#>, content: <#T##() -> View#>)
         }
     }
     
@@ -69,7 +77,12 @@ public struct ResponsesChatDetailView: View {
             didSendMessage: { draftMessage in
                 Task {
                     do {
-                        try await store.send(message: draftMessage, stream: true)
+                        try await store.send(
+                            message: draftMessage,
+                            model: settingsStore.selectedModel,
+                            stream: settingsStore.stream,
+                            webSearchEnabled: settingsStore.webSearchEnabled
+                        )
                     } catch {
                         errorTitle = error.localizedDescription
                         errorAlertPresented = true
@@ -81,4 +94,26 @@ public struct ResponsesChatDetailView: View {
     }
 }
 
+#Preview {
+    @Previewable @State var store: ResponsesStore = {
+        let store = ResponsesStore(client: PreviewMockResponsesEndpointProtocol())
+        store.webSearchInProgress = true
+        return store
+    }()
+    
+    ResponsesChatDetailView(store: store)
+}
 
+private struct PreviewMockResponsesEndpointProtocol: ResponsesEndpointProtocol {
+    func createResponse(query: CreateModelResponseQuery) async throws -> ResponseObject {
+        fatalError()
+    }
+    
+    func createResponseStreaming(query: CreateModelResponseQuery) -> AsyncThrowingStream<ResponseStreamEvent, any Error> {
+        fatalError()
+    }
+    
+    func createResponseStreaming(query: CreateModelResponseQuery, onResult: @escaping @Sendable (Result<ResponseStreamEvent, any Error>) -> Void, completion: (@Sendable ((any Error)?) -> Void)?) -> any CancellableRequest {
+        fatalError()
+    }
+}

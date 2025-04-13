@@ -81,17 +81,17 @@ public final class ResponsesStore: ObservableObject {
         }
     }
     
-    public var client: ResponsesEndpoint
+    public var client: ResponsesEndpointProtocol
     
     @Published var chatMessages: [ExyteChat.Message] = []
     @Published var inProgress = false
     @Published var webSearchInProgress = false
     
-    public init(client: ResponsesEndpoint) {
+    public init(client: ResponsesEndpointProtocol) {
         self.client = client
     }
     
-    public func send(message: ExyteChat.DraftMessage, stream: Bool) async throws {
+    public func send(message: ExyteChat.DraftMessage, model: Model, stream: Bool, webSearchEnabled: Bool) async throws {
         guard !inProgress else {
             return
         }
@@ -157,10 +157,10 @@ public final class ResponsesStore: ObservableObject {
         let previousResponseId = responses.last(where: { $0.type == .response })?.id
         let query = CreateModelResponseQuery(
             input: input,
-            model: Model.gpt4_o,
+            model: model,
             previousResponseId: previousResponseId,
             stream: stream,
-            tools: [.WebSearchTool(.init(_type: .webSearchPreview))]
+            tools: webSearchEnabled ? [.WebSearchTool(.init(_type: .webSearchPreview))] : []
         )
         
         if stream {
