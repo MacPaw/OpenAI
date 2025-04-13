@@ -22,7 +22,7 @@ public struct ResponsesChatDetailView: View {
     public var body: some View {
         ZStack {
             ExyteChat.ChatView(
-                messages: store.messages,
+                messages: store.chatMessages,
                 chatType: .conversation,
                 replyMode: .answer,
                 didSendMessage: { draftMessage in

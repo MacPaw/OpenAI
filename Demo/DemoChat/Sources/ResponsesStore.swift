@@ -11,6 +11,40 @@ import OpenAI
 
 @MainActor
 public final class ResponsesStore: ObservableObject {
+    public struct ConversationTurn: Identifiable, Hashable, Sendable {
+        public enum TurnType: Sendable {
+            case userInput
+            case response
+        }
+        
+        public let id: String
+        public let type: TurnType
+        public let chatMessage: ExyteChat.Message
+    }
+    
+    public enum StoreError: DescribedError {
+        case unhandledOutputItem(ResponseStreamEvent.Schemas.OutputItem)
+        case noResponseToUpdate
+        case noMessageToUpdate
+        case messageBeingUpdatedIsExpectedToBeLastInArray
+        case unexpectedMessage(id: String, expectedId: String)
+        case unhandledResponseStreamEvent(ResponseStreamEvent)
+        case incompleteLocalTextOnOutputTextDoneEvent(local: String, remote: String)
+        case noInputImageData(Sendable)
+        case imageExceedsSizeLimits(CGSize)
+    }
+    
+    private class ResponseData {
+        let id: String
+        
+        var message: MessageData?
+        
+        init(id: String, message: MessageData? = nil) {
+            self.id = id
+            self.message = message
+        }
+    }
+    
     private class MessageData {
         let id: String
         let user: User
@@ -27,28 +61,34 @@ public final class ResponsesStore: ObservableObject {
         }
     }
     
-    private var messageBeingStreamed: MessageData?
+    private var responseBeingStreamed: ResponseData?
+    private var currentUpdateTask: Task<Void, Never>?
+    private var conversationTurnForNextUpdateTask: ConversationTurn?
+    private var responses: [ConversationTurn] = [] {
+        didSet {
+            chatMessages = responses.map(\.chatMessage)
+        }
+    }
+    
+    private var messageBeingStreamed: MessageData? {
+        get {
+            responseBeingStreamed?.message
+        }
+        
+        set {
+            assert(responseBeingStreamed != nil)
+            responseBeingStreamed?.message = newValue
+        }
+    }
     
     public var client: ResponsesEndpoint
     
+    @Published var chatMessages: [ExyteChat.Message] = []
     @Published var inProgress = false
-    @Published var messages: [ExyteChat.Message] = []
     @Published var webSearchInProgress = false
-    
-    enum StoreError: DescribedError {
-        case unhandledOutputItem(ResponseStreamEvent.Schemas.OutputItem)
-        case noMessageToUpdate
-        case messageBeingUpdatedIsExpectedToBeLastInArray
-        case unexpectedMessage(id: String, expectedId: String)
-        case unhandledResponseStreamEvent(ResponseStreamEvent)
-        case incompleteLocalTextOnOutputTextDoneEvent(local: String, remote: String)
-        case noInputImageData(Sendable)
-        case imageExceedsSizeLimits(CGSize)
-    }
     
     public init(client: ResponsesEndpoint) {
         self.client = client
-        self.messages = messages
     }
     
     public func send(message: ExyteChat.DraftMessage, stream: Bool) async throws {
@@ -61,18 +101,22 @@ public final class ResponsesStore: ObservableObject {
             inProgress = false
         }
         
-        await messages.append(
-            .makeMessage(
-                id: UUID().uuidString,
+        let messageId = UUID().uuidString
+        let currentUserId = UUID().uuidString
+        await responses.append(.init(
+            id: messageId,
+            type: .userInput,
+            chatMessage: .makeMessage(
+                id: messageId,
                 user: .init(
-                    id: UUID().uuidString,
+                    id: currentUserId,
                     name: "Me",
                     avatarURL: nil,
                     isCurrentUser: true),
                 status: .none,
                 draft: message
             )
-        )
+        ))
         
         let input: CreateModelResponseQuery.Input
         
@@ -110,9 +154,11 @@ public final class ResponsesStore: ObservableObject {
             input = .textInput(message.text)
         }
         
+        let previousResponseId = responses.last(where: { $0.type == .response })?.id
         let query = CreateModelResponseQuery(
             input: input,
             model: Model.gpt4_o,
+            previousResponseId: previousResponseId,
             stream: stream,
             tools: [.WebSearchTool(.init(_type: .webSearchPreview))]
         )
@@ -139,7 +185,13 @@ public final class ResponsesStore: ObservableObject {
                 username: outputMessage.role.rawValue
             )
             
-            messages.append(message)
+            responses.append(
+                .init(
+                    id: response.id,
+                    type: .response,
+                    chatMessage: message
+                )
+            )
         }
     }
     
@@ -148,7 +200,7 @@ public final class ResponsesStore: ObservableObject {
         
         var eventNumber = 1
         for try await event in stream {
-            print("--- Event \(1) ---")
+            print("--- Event \(eventNumber) ---")
             print(event)
             try handleResponseStreamEvent(event)
             eventNumber += 1
@@ -158,9 +210,10 @@ public final class ResponsesStore: ObservableObject {
     
     private func handleResponseStreamEvent(_ event: ResponseStreamEvent) throws {
         switch event {
-        case .created(_ /* let responseEvent */):
+        case .created(let responseEvent):
             // #1
             inProgress = true
+            responseBeingStreamed = .init(id: responseEvent.response.id)
         case .inProgress(_ /* let responseInProgressEvent */):
             // #2
             inProgress = true
@@ -177,18 +230,19 @@ public final class ResponsesStore: ObservableObject {
             }
         case .contentPart(.added(let contentPartAddedEvent)):
             try updateMessageBeingStreamed(
-                withOutputContent: contentPartAddedEvent.part,
-                messageId: contentPartAddedEvent.itemId
+                messageId: contentPartAddedEvent.itemId,
+                outputContent: contentPartAddedEvent.part
             )
         case .outputText(let outputTextEvent):
             try handleOutputTextEvent(outputTextEvent)
         case .contentPart(.done(let contentPartDoneEvent)):
             try updateMessageBeingStreamed(
-                withOutputContent: contentPartDoneEvent.part,
-                messageId: contentPartDoneEvent.itemId
+                messageId: contentPartDoneEvent.itemId,
+                outputContent: contentPartDoneEvent.part,
             )
         case .completed(_ /* let responseEvent */):
             // # 29
+            responseBeingStreamed = nil
             inProgress = false
         default:
             throw StoreError.unhandledResponseStreamEvent(event)
@@ -208,7 +262,7 @@ public final class ResponsesStore: ObservableObject {
                 // Message, role: assistant
                 let role = outputMessage.role.rawValue
                 // outputMessage.content is empty, but we can add empty message just to show a progress
-                setMessageBeingStreamed(message: .init(
+                try setMessageBeingStreamed(message: .init(
                     id: outputMessage.id,
                     user: systemUser(withId: role, username: role),
                     text: "",
@@ -226,7 +280,15 @@ public final class ResponsesStore: ObservableObject {
                 webSearchInProgress = false
                 // TODO: improve naming (value1)
             } else if let outputMessage = outputItem.value1 {
-                // Message, role: assistant
+                // Message. Role: assistant
+                assert(outputMessage.id == messageBeingStreamed?.id)
+                for content in outputMessage.content {
+                    try updateMessageBeingStreamed(
+                        messageId: outputMessage.id,
+                        outputContent: content
+                    )
+                }
+                messageBeingStreamed = nil
             } else {
                 throw StoreError.unhandledOutputItem(outputItem)
             }
@@ -255,39 +317,45 @@ public final class ResponsesStore: ObservableObject {
         }
     }
     
-    private func setMessageBeingStreamed(message: MessageData) {
-        if let messageBeingStreamed, messages.last?.id == messageBeingStreamed.id {
-            messages.removeLast()
+    private func setMessageBeingStreamed(message: MessageData) throws {
+        guard let responseBeingStreamed else {
+            fatalError()
+        }
+        
+        if let messageBeingStreamed, message.id == messageBeingStreamed.id {
+            responses.removeLast()
         }
         
         messageBeingStreamed = message
-        messages.append(
-            chatMessage(from: message)
+        responses.append(
+            .init(
+                id: responseBeingStreamed.id,
+                type: .response,
+                chatMessage: chatMessage(from: message)
+            )
         )
     }
     
     private func updateMessageBeingStreamed(
-        withOutputContent outputContent: ResponseStreamEvent.Schemas.OutputContent,
-        messageId: String
+        messageId: String,
+        outputContent: ResponseStreamEvent.Schemas.OutputContent,
     ) throws {
-        guard let messageBeingStreamed else {
-            throw StoreError.noMessageToUpdate
+        try updateMessageBeingStreamed(messageId: messageId) { message in
+            switch outputContent {
+            case .OutputText(let outputText):
+                message.text = outputText.text
+                message.annotations = outputText.annotations
+            case .Refusal(let refusal):
+                message.refusalText = refusal.refusal
+            }
         }
-        
-        guard messageBeingStreamed.id == messageId else {
-            throw StoreError.unexpectedMessage(id: messageId, expectedId: messageBeingStreamed.id)
-        }
-        
-        switch outputContent {
-        case .OutputText(let outputText):
-            messageBeingStreamed.text = outputText.text
-            messageBeingStreamed.annotations = outputText.annotations
-        case .Refusal(let refusal):
-            messageBeingStreamed.refusalText = refusal.refusal
-        }
-        
-        replaceLastChatMessage(
-            with: chatMessage(from: messageBeingStreamed)
+    }
+    
+    private func conversationTurn(withResponseData responseData: ResponseData, messageData: MessageData) -> ConversationTurn {
+        .init(
+            id: responseData.id,
+            type: .response,
+            chatMessage: chatMessage(from: messageData)
         )
     }
     
@@ -300,18 +368,15 @@ public final class ResponsesStore: ObservableObject {
         )
     }
     
-    private var currentUpdateTask: Task<Void, Never>?
-    private var messageForNextUpdateTask: ExyteChat.Message?
-    
-    private func replaceLastChatMessage(with chatMessage: ExyteChat.Message) {
+    private func replaceLastConversationTurn(with updatedTurn: ConversationTurn) {
         if currentUpdateTask == nil {
-            scheduleTask(withMessage: chatMessage)
+            scheduleReplaceConversationTurnTask(withUpdatedTurn: updatedTurn)
         } else {
-            messageForNextUpdateTask = chatMessage
+            conversationTurnForNextUpdateTask = updatedTurn
         }
     }
     
-    private func scheduleTask(withMessage chatMessage: ExyteChat.Message) {
+    private func scheduleReplaceConversationTurnTask(withUpdatedTurn updatedTurn: ConversationTurn) {
         currentUpdateTask = .init(operation: {
             // Debouncing because otherwise it's hard for ExyteChat to handle very quick updates
             do {
@@ -322,35 +387,36 @@ public final class ResponsesStore: ObservableObject {
                 return
             }
             
-            var messages = self.messages
+            var messages = self.responses
             messages.removeLast()
-            messages.append(chatMessage)
-            self.messages = messages
+            messages.append(updatedTurn)
+            self.responses = messages
             self.currentUpdateTask = nil
             
-            if let nextMessage = messageForNextUpdateTask {
-                messageForNextUpdateTask = nil
-                scheduleTask(withMessage: nextMessage)
+            if let pendingItem = conversationTurnForNextUpdateTask {
+                conversationTurnForNextUpdateTask = nil
+                scheduleReplaceConversationTurnTask(withUpdatedTurn: pendingItem)
             }
         })
     }
     
     private func applyOutputTextDeltaToMessageBeingStreamed(messageId: String, newText: String) throws {
-        guard let messageBeingStreamed else {
-            throw StoreError.noMessageToUpdate
+        try updateMessageBeingStreamed(messageId: messageId) { message in
+            message.text += newText
         }
-        
-        guard messageBeingStreamed.id == messageId else {
-            throw StoreError.unexpectedMessage(id: messageId, expectedId: messageBeingStreamed.id)
-        }
-        
-        messageBeingStreamed.text += newText
-        replaceLastChatMessage(
-            with: chatMessage(from: messageBeingStreamed)
-        )
     }
     
     private func applyOutputTextAnnotationDeltaToMessageBeingStreamed(messageId: String, addedAnnotation: ResponseStreamEvent.Annotation) throws {
+        try updateMessageBeingStreamed(messageId: messageId) { message in
+            message.annotations.append(addedAnnotation)
+        }
+    }
+    
+    private func updateMessageBeingStreamed(messageId: String, _ updateClosure: (MessageData) -> Void) throws {
+        guard let responseBeingStreamed else {
+            throw StoreError.noResponseToUpdate
+        }
+        
         guard let messageBeingStreamed else {
             throw StoreError.noMessageToUpdate
         }
@@ -359,9 +425,32 @@ public final class ResponsesStore: ObservableObject {
             throw StoreError.unexpectedMessage(id: messageId, expectedId: messageBeingStreamed.id)
         }
         
-        messageBeingStreamed.annotations.append(addedAnnotation)
-        replaceLastChatMessage(
-            with: chatMessage(from: messageBeingStreamed)
+        updateClosure(messageBeingStreamed)
+        replaceLastConversationTurn(
+            with: conversationTurn(withResponseData: responseBeingStreamed, messageData: messageBeingStreamed)
+        )
+    }
+    
+    private func conversationTurn(
+        fromOutputContent outputContent: ResponseStreamEvent.Schemas.OutputContent,
+        messageId: String,
+        userId: String,
+        username: String
+    ) -> ConversationTurn {
+        guard let responseBeingStreamed else {
+            // TODO: Replace with throw
+            fatalError()
+        }
+        
+        return .init(
+            id: responseBeingStreamed.id,
+            type: .response,
+            chatMessage: chatMessage(
+                fromOutputContent: outputContent,
+                messageId: messageId,
+                userId: userId,
+                username: username
+            )
         )
     }
     

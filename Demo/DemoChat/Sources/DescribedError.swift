@@ -11,7 +11,7 @@ protocol DescribedError: LocalizedError {
 }
 
 extension DescribedError {
-    var errorDescription: String? {
+    public var errorDescription: String? {
         String(describing: self)
     }
 }
