@@ -25,4 +25,12 @@ final class URLSessionDataDelegateForwarder: NSObject, URLSessionDataDelegate {
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         target.urlSession(session, dataTask: dataTask, didReceive: data)
     }
+    
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        target.urlSession(session, didReceive: challenge, completionHandler: completionHandler)
+    }
+    
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+        target.urlSession(session, dataTask: dataTask, didReceive: response, completionHandler: completionHandler)
+    }
 }
