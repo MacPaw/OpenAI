@@ -23,7 +23,18 @@ public extension Model {
     
     /// `o1-mini`: fast and affordable reasoning model for specialized tasks
     static let o1_mini = "o1-mini"
-    
+
+    // GPT-4.1
+
+    /// `gpt-4.1` Smartest model for complex tasks
+    static let gpt4_1 = "gpt-4.1"
+
+    /// `gpt-4.1-mini` Affordable model balancing speed and intelligence
+    static let gpt4_1_mini = "gpt-4.1-mini"
+
+    /// `gpt-4.1-nano` Fastest, most cost-effective model for low-latency tasks
+    static let gpt4_1_nano = "gpt-4.1-nano"
+
     // GPT-4
 
     /// `gpt-4o`, currently the most advanced, multimodal flagship model that's cheaper and faster than GPT-4 Turbo.

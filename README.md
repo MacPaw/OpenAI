@@ -723,6 +723,10 @@ Models are represented as a typealias `typealias Model = String`.
 
 ```swift
 public extension Model {
+    static let gpt4_1 = "gpt-4.1"
+    static let gpt4_1_mini = "gpt-4.1-mini"
+    static let gpt4_1_nano = "gpt-4.1-nano"
+
     static let gpt4_turbo_preview = "gpt-4-turbo-preview"
     static let gpt4_vision_preview = "gpt-4-vision-preview"
     static let gpt4_0125_preview = "gpt-4-0125-preview"
