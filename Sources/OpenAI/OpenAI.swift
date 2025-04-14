@@ -12,7 +12,7 @@ import FoundationNetworking
 
 final public class OpenAI: @unchecked Sendable {
 
-    public struct Configuration {
+    public struct Configuration: Sendable {
         
         /// OpenAI API token. See https://platform.openai.com/docs/api-reference/authentication
         ///
@@ -64,7 +64,11 @@ final public class OpenAI: @unchecked Sendable {
     
     let session: URLSessionProtocol
     let middlewares: [OpenAIMiddleware]
-
+    let client: Client
+    let streamingClient: StreamingClient
+    let asyncClient: AsyncClient
+    
+    private let dataTaskFactory: DataTaskFactory
     private let streamingSessionFactory: StreamingSessionFactory
     private let cancellablesFactory: CancellablesFactory
     private let executionSerializer: ExecutionSerializer
@@ -124,13 +128,41 @@ final public class OpenAI: @unchecked Sendable {
         self.cancellablesFactory = cancellablesFactory
         self.executionSerializer = executionSerializer
         self.middlewares = middlewares
+        
+        let dataTaskFactory = DataTaskFactory(configuration: configuration, session: session, middlewares: middlewares)
+        
+        self.client = .init(
+            configuration: configuration,
+            session: session,
+            middlewares: middlewares,
+            dataTaskFactory: dataTaskFactory,
+            cancellablesFactory: cancellablesFactory
+        )
+        
+        self.streamingClient = .init(
+            configuration: configuration,
+            middlewares: middlewares,
+            streamingSessionFactory: streamingSessionFactory,
+            cancellablesFactory: cancellablesFactory,
+            executionSerializer: executionSerializer
+        )
+        
+        self.asyncClient = .init(
+            configuration: configuration,
+            middlewares: middlewares,
+            session: session,
+            dataTaskFactory: dataTaskFactory
+        )
+        
+        self.dataTaskFactory = .init(
+            configuration: configuration,
+            session: session,
+            middlewares: middlewares
+        )
+        
         self.responses = ResponsesEndpoint(
-            syncClient: .init(
-                configuration: configuration,
-                middlewares: middlewares,
-                streamingSessionFactory: streamingSessionFactory
-            ),
-            client: .init(configuration: configuration, middlewares: middlewares, session: session),
+            syncClient: streamingClient,
+            asyncClient: asyncClient,
             configuration: configuration
         )
     }
@@ -300,19 +332,11 @@ final public class OpenAI: @unchecked Sendable {
 }
 
 extension OpenAI {
-    func performRequest<ResultType: Codable>(request: any URLRequestBuildable, completion: @escaping @Sendable (Result<ResultType, Error>) -> Void) -> CancellableRequest {
-        do {
-            let urlRequest = try request.build(configuration: configuration)
-            let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
-                middleware.intercept(request: current)
-            }
-            let task = makeDataTask(forRequest: interceptedRequest, completion: completion)
-            task.resume()
-            return cancellablesFactory.makeTaskCanceller(task: task)
-        } catch {
-            completion(.failure(error))
-            return NoOpCancellableRequest()
-        }
+    func performRequest<ResultType: Codable>(
+        request: any URLRequestBuildable,
+        completion: @escaping @Sendable (Result<ResultType, Error>) -> Void
+    ) -> CancellableRequest {
+        client.performRequest(request: request, completion: completion)
     }
     
     func performStreamingRequest<ResultType: Codable & Sendable>(
@@ -320,56 +344,11 @@ extension OpenAI {
         onResult: @escaping @Sendable (Result<ResultType, Error>) -> Void,
         completion: (@Sendable (Error?) -> Void)?
     ) -> CancellableRequest {
-        do {
-            let urlRequest = try request.build(configuration: configuration)
-            let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
-                middleware.intercept(request: current)
-            }
-
-            let session = streamingSessionFactory.makeServerSentEventsStreamingSession(
-                urlRequest: interceptedRequest
-            ) { _, object in
-                onResult(.success(object))
-            } onProcessingError: { _, error in
-                onResult(.failure(error))
-            } onComplete: { [weak self] session, error in
-                completion?(error)
-                self?.invalidateSession(session)
-            }
-            
-            return runSession(session)
-        } catch {
-            completion?(error)
-            return NoOpCancellableRequest()
-        }
+        streamingClient.performStreamingRequest(request: request, onResult: onResult, completion: completion)
     }
     
     func performSpeechRequest(request: any URLRequestBuildable, completion: @escaping @Sendable (Result<AudioSpeechResult, Error>) -> Void) -> CancellableRequest {
-        do {
-            let urlRequest = try request.build(configuration: configuration)
-            let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
-                middleware.intercept(request: current)
-            }
-
-            let task = session.dataTask(with: interceptedRequest) { data, response, error in
-                if let error {
-                    return completion(.failure(error))
-                }
-                let (_, data) = self.middlewares.reduce((response, data)) { current, middleware in
-                    middleware.intercept(response: current.response, request: urlRequest, data: current.data)
-                }
-                guard let data else {
-                    return completion(.failure(OpenAIError.emptyData))
-                }
-                
-                completion(.success(AudioSpeechResult(audio: data)))
-            }
-            task.resume()
-            return cancellablesFactory.makeTaskCanceller(task: task)
-        } catch {
-            completion(.failure(error))
-            return NoOpCancellableRequest()
-        }
+        client.performSpeechRequest(request: request, completion: completion)
     }
     
     func performSpeechStreamingRequest(
@@ -377,69 +356,21 @@ extension OpenAI {
         onResult: @escaping @Sendable (Result<AudioSpeechResult, Error>) -> Void,
         completion: (@Sendable (Error?) -> Void)?
     ) -> CancellableRequest {
-        do {
-            let urlRequest = try request.build(configuration: configuration)
-            let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
-                middleware.intercept(request: current)
-            }
-
-            let session = streamingSessionFactory.makeAudioSpeechStreamingSession(
-                urlRequest: interceptedRequest
-            ) { _, object in
-                onResult(.success(object))
-            } onProcessingError: { _, error in
-                onResult(.failure(error))
-            } onComplete: { [weak self] session, error in
-                completion?(error)
-                self?.invalidateSession(session)
-            }
-            
-            return runSession(session)
-        } catch {
-            completion?(error)
-            return NoOpCancellableRequest()
-        }
+        streamingClient.performSpeechStreamingRequest(request: request, onResult: onResult, completion: completion)
     }
     
-    func makeDataTask<ResultType: Codable>(forRequest request: URLRequest, completion: @escaping @Sendable (Result<ResultType, Error>) -> Void) -> URLSessionDataTaskProtocol {
-        session.dataTask(with: request) { data, response, error in
-            if let error {
-                return completion(.failure(error))
-            }
-            let (_, data) = self.middlewares.reduce((response, data)) { current, middleware in
-                middleware.intercept(response: current.response, request: request, data: current.data)
-            }
-            guard let data else {
-                return completion(.failure(OpenAIError.emptyData))
-            }
-            let decoder = JSONDecoder()
-            decoder.userInfo[.parsingOptions] = self.configuration.parsingOptions
-            do {
-                completion(.success(try decoder.decode(ResultType.self, from: data)))
-            } catch {
-                if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: data) {
-                    completion(.failure(decoded))
-                } else {
-                    completion(.failure(error))
-                }
-            }
-        }
+    func makeDataTask<ResultType: Codable>(
+        forRequest request: URLRequest,
+        completion: @escaping @Sendable (Result<ResultType, Error>) -> Void
+    ) -> URLSessionDataTaskProtocol {
+        dataTaskFactory.makeDataTask(forRequest: request, completion: completion)
     }
     
-    func makeRawResponseDataTask(forRequest request: URLRequest, completion: @escaping @Sendable (Result<Data, Error>) -> Void) -> URLSessionDataTaskProtocol {
-        session.dataTask(with: request) { data, response, error in
-            if let error {
-                return completion(.failure(error))
-            }
-            let (_, data) = self.middlewares.reduce((response, data)) { current, middleware in
-                middleware.intercept(response: current.response, request: request, data: current.data)
-            }
-            guard let data else {
-                return completion(.failure(OpenAIError.emptyData))
-            }
-            
-            completion(.success(data))
-        }
+    func makeRawResponseDataTask(
+        forRequest request: URLRequest,
+        completion: @escaping @Sendable (Result<Data, Error>) -> Void
+    ) -> URLSessionDataTaskProtocol {
+        dataTaskFactory.makeRawResponseDataTask(forRequest: request, completion: completion)
     }
     
     private func runSession<I>(_ session: StreamingSession<I>) -> CancellableRequest {

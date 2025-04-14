@@ -11,7 +11,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-protocol StreamingSessionFactory {
+protocol StreamingSessionFactory: Sendable {
     func makeServerSentEventsStreamingSession<ResultType: Codable & Sendable>(
         urlRequest: URLRequest,
         onReceiveContent: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, ResultType) -> Void,

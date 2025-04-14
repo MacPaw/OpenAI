@@ -22,18 +22,18 @@ public struct ResponsesEndpoint: ResponsesEndpointProtocol {
         case invalidQueryExpectedStreamTrue
     }
     
-    let syncClient: SyncClient
-    let client: AsyncClient
-    let configuration: OpenAI.Configuration
+    private let syncClient: StreamingClient
+    private let asyncClient: AsyncClient
+    private let configuration: OpenAI.Configuration
     
-    init(syncClient: SyncClient, client: AsyncClient, configuration: OpenAI.Configuration) {
+    init(syncClient: StreamingClient, asyncClient: AsyncClient, configuration: OpenAI.Configuration) {
         self.syncClient = syncClient
-        self.client = client
+        self.asyncClient = asyncClient
         self.configuration = configuration
     }
     
     public func createResponse(query: CreateModelResponseQuery) async throws -> ResponseObject {
-        try await client.performRequest(request: makeCreateResponseRequest(query: query))
+        try await asyncClient.performRequest(request: makeCreateResponseRequest(query: query))
     }
     
     public func createResponseStreaming(query: CreateModelResponseQuery) -> AsyncThrowingStream<ResponseStreamEvent, Error> {
@@ -57,7 +57,11 @@ public struct ResponsesEndpoint: ResponsesEndpointProtocol {
         }
     }
     
-    public func createResponseStreaming(query: CreateModelResponseQuery, onResult: @escaping @Sendable (Result<ResponseStreamEvent, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest {
+    public func createResponseStreaming(
+        query: CreateModelResponseQuery,
+        onResult: @escaping @Sendable (Result<ResponseStreamEvent, Error>) -> Void,
+        completion: (@Sendable (Error?) -> Void)?
+    ) -> CancellableRequest {
         guard query.stream == true else {
             completion?(CreateResponseError.invalidQueryExpectedStreamTrue)
             return NoOpCancellableRequest()

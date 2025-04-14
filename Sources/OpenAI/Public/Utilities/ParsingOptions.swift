@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ParsingOptions: OptionSet {
+public struct ParsingOptions: OptionSet, Sendable {
     public let rawValue: Int
     
     public init(rawValue: Int) {

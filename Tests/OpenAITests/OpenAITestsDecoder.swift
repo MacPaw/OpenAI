@@ -105,18 +105,14 @@ class OpenAITestsDecoder: XCTestCase {
 
     func testChatQueryWithVision() async throws {
         let chatQuery = ChatQuery(messages: [
-//            .init(role: .user, content: [
-//                .chatCompletionContentPartTextParam(.init(text: "What's in this image?")),
-//                .chatCompletionContentPartImageParam(.init(imageUrl: .init(url: "https://some.url/image.jpeg", detail: .auto)))
-//            ])!
             .user(.init(content: .vision([
                 .chatCompletionContentPartTextParam(.init(text: "What's in this image?")),
                 .chatCompletionContentPartImageParam(.init(imageUrl: .init(url: "https://some.url/image.jpeg", detail: .auto)))
             ])))
-        ], model: Model.gpt4_vision_preview, maxTokens: 300)
+        ], model: Model.gpt4_o, maxTokens: 300)
         let expectedValue = """
         {
-            "model": "gpt-4-vision-preview",
+            "model": "gpt-4o",
             "messages": [
                 {
                     "role": "user",

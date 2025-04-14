@@ -12,7 +12,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-class MockStreamingSessionFactory: StreamingSessionFactory {
+class MockStreamingSessionFactory: StreamingSessionFactory, @unchecked Sendable {
     var urlSessionFactory = MockURLSessionFactory()
     var executionSerializer = NoDispatchExecutionSerializer()
     

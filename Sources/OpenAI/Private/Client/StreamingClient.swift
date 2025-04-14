@@ -7,7 +7,7 @@
 
 import Foundation
 
-class SyncClient {
+final class StreamingClient: @unchecked Sendable {
     private let configuration: OpenAI.Configuration
     private let middlewares: [OpenAIMiddleware]
     private let streamingSessionFactory: StreamingSessionFactory
@@ -19,8 +19,8 @@ class SyncClient {
         configuration: OpenAI.Configuration,
         middlewares: [OpenAIMiddleware],
         streamingSessionFactory: StreamingSessionFactory,
-        cancellablesFactory: CancellablesFactory = DefaultCancellablesFactory(),
-        executionSerializer: ExecutionSerializer = GCDQueueAsyncExecutionSerializer(queue: .userInitiated)
+        cancellablesFactory: CancellablesFactory,
+        executionSerializer: ExecutionSerializer
     ) {
         self.configuration = configuration
         self.middlewares = middlewares
@@ -41,6 +41,35 @@ class SyncClient {
             }
 
             let session = streamingSessionFactory.makeServerSentEventsStreamingSession(
+                urlRequest: interceptedRequest
+            ) { _, object in
+                onResult(.success(object))
+            } onProcessingError: { _, error in
+                onResult(.failure(error))
+            } onComplete: { [weak self] session, error in
+                completion?(error)
+                self?.invalidateSession(session)
+            }
+            
+            return runSession(session)
+        } catch {
+            completion?(error)
+            return NoOpCancellableRequest()
+        }
+    }
+    
+    func performSpeechStreamingRequest(
+        request: any URLRequestBuildable,
+        onResult: @escaping @Sendable (Result<AudioSpeechResult, Error>) -> Void,
+        completion: (@Sendable (Error?) -> Void)?
+    ) -> CancellableRequest {
+        do {
+            let urlRequest = try request.build(configuration: configuration)
+            let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
+                middleware.intercept(request: current)
+            }
+
+            let session = streamingSessionFactory.makeAudioSpeechStreamingSession(
                 urlRequest: interceptedRequest
             ) { _, object in
                 onResult(.success(object))

@@ -216,7 +216,7 @@ public extension Model {
         ]
     }
     
-    public struct Filter {
+    struct Filter {
         enum Modality {}
         
         public enum Endpoint {

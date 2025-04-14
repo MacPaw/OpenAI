@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ThreadRunQuery: Equatable, Codable {
+public struct ThreadRunQuery: Equatable, Codable, Sendable {
     
     public let assistantId: String
     public let thread: ThreadsQuery
