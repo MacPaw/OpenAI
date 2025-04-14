@@ -88,8 +88,10 @@ final class ServerSentEventsStreamParser: @unchecked Sendable {
         for i in 0..<streamData.count {
             let currentChar = streamData[i]
             if currentChar == lf {
-                // The description above basically says that "if the char is LF - it's end if line, regardless what precedes or follows it
-                lines.append(streamData.subdata(in: lineBeginningIndex..<i))
+                // The description above basically says that "if the char is LF - it's end if line, regardless what precedes or follows it.
+                // But if previous chat was CR we should exclude that, too
+                let lineEndIndex = previousCharacter == cr ? i - 1 : i
+                lines.append(streamData.subdata(in: lineBeginningIndex..<lineEndIndex))
                 lineBeginningIndex = i + 1
             } else if currentChar == cr {
                 // The description above basically says that "CR is not end of line only if followed by LF"
@@ -103,7 +105,7 @@ final class ServerSentEventsStreamParser: @unchecked Sendable {
                 // Simply skipping
             }
             
-            previousCharacter = 0
+            previousCharacter = currentChar
         }
         
         if lineBeginningIndex < streamData.count - 1 {

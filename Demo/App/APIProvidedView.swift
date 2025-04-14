@@ -26,26 +26,28 @@ struct APIProvidedView: View {
         idProvider: @escaping () -> String
     ) {
         self._apiKey = apiKey
+        
+        let client = APIProvidedView.makeClient(apiKey: apiKey.wrappedValue)
         self._chatStore = StateObject(
             wrappedValue: ChatStore(
-                openAIClient: OpenAI(apiToken: apiKey.wrappedValue),
+                openAIClient: client,
                 idProvider: idProvider
             )
         )
         self._imageStore = StateObject(
             wrappedValue: ImageStore(
-                openAIClient: OpenAI(apiToken: apiKey.wrappedValue)
+                openAIClient: client
             )
         )
         self._assistantStore = StateObject(
             wrappedValue: AssistantStore(
-                openAIClient: OpenAI(apiToken: apiKey.wrappedValue),
+                openAIClient: client,
                 idProvider: idProvider
             )
         )
         self._miscStore = StateObject(
             wrappedValue: MiscStore(
-                openAIClient: OpenAI(apiToken: apiKey.wrappedValue)
+                openAIClient: client
             )
         )
     }
@@ -58,11 +60,15 @@ struct APIProvidedView: View {
             miscStore: miscStore
         )
         .onChange(of: apiKey) { newApiKey in
-            let client = OpenAI(apiToken: newApiKey)
+            let client = APIProvidedView.makeClient(apiKey: newApiKey)
             chatStore.openAIClient = client
             imageStore.openAIClient = client
             assistantStore.openAIClient = client
             miscStore.openAIClient = client
         }
+    }
+    
+    private static func makeClient(apiKey: String) -> OpenAIProtocol {
+        OpenAI(apiToken: apiKey)
     }
 }

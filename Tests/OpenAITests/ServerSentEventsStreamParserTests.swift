@@ -1,5 +1,5 @@
 //
-//  ChatGPTGeneratedSSEParserTests.swift
+//  ServerSentEventsStreamParserTests.swift
 //  OpenAI
 //
 //  Created by Oleksii Nezhyborets on 04.04.2025.
@@ -8,7 +8,7 @@
 import XCTest
 @testable import OpenAI
 
-final class ChatGPTGeneratedSSEParserTests: XCTestCase {
+final class ServerSentEventsStreamParserTests: XCTestCase {
     private let parser = ServerSentEventsStreamParser()
     
     func testSingleDataLine() {
@@ -85,6 +85,16 @@ final class ChatGPTGeneratedSSEParserTests: XCTestCase {
         let input = "foo: bar\ndata: real\n\n"
         let events = parse(input)
         XCTAssertEqual(events[0].decodedData, "real")
+    }
+    
+    // Perplexity is sending such line-end indicators:
+    // \r\n\r\n
+    // and it seems to be valid (per spec), so it should work
+    func testCrLfCrLf() {
+        let input = "data: value1\r\n\r\ndata: value2\n\n"
+        let events = parse(input)
+        XCTAssertEqual(events[0].decodedData, "value1")
+        XCTAssertEqual(events[1].decodedData, "value2")
     }
     
     // Helper
