@@ -54,7 +54,7 @@ enum ModelResponseStreamEventType: String {
 }
 
 /// This class is NOT thread safe. It's a callers responsibility to make all the calls in serialized manner.
-final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, CodableResultStreamInterpreter {
+final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInterpreter {
     private let parser = ServerSentEventsStreamParser()
     private var onEventDispatched: ((ResponseStreamEvent) -> Void)?
     private var onError: ((Error) -> Void)?

@@ -11,7 +11,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-final class StreamingSession<Interpreter: CodableResultStreamInterpreter>: NSObject, Identifiable, URLSessionDataDelegateProtocol, @unchecked Sendable {
+final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifiable, URLSessionDataDelegateProtocol, @unchecked Sendable {
     typealias ResultType = Interpreter.ResultType
     
     private let urlSessionFactory: URLSessionFactory

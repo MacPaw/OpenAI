@@ -35,7 +35,7 @@ final class StreamingSessionTests: XCTestCase {
     }
 }
 
-class MockDataStreamInterpreter: CodableResultStreamInterpreter, @unchecked Sendable {
+class MockDataStreamInterpreter: StreamInterpreter, @unchecked Sendable {
     typealias ResultType = Data
     
     private var onEventDispatched: ((Data) -> Void)?
