@@ -10,7 +10,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-final public class OpenAI: @unchecked Sendable {
+final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
 
     public struct Configuration: Sendable {
         
@@ -60,7 +60,13 @@ final public class OpenAI: @unchecked Sendable {
         }
     }
     
-    public let responses: ResponsesEndpoint
+    // To use directly on older systems
+    public let responsesEndpoint: ResponsesEndpoint
+    
+    // To conform to OpenAIProtocol
+    public var responses: ResponsesEndpointProtocol {
+        responsesEndpoint
+    }
     
     let session: URLSessionProtocol
     let middlewares: [OpenAIMiddleware]
@@ -160,8 +166,9 @@ final public class OpenAI: @unchecked Sendable {
             middlewares: middlewares
         )
         
-        self.responses = ResponsesEndpoint(
-            syncClient: streamingClient,
+        self.responsesEndpoint = ResponsesEndpoint(
+            client: client,
+            streamingClient: streamingClient,
             asyncClient: asyncClient,
             configuration: configuration
         )
@@ -305,7 +312,6 @@ final public class OpenAI: @unchecked Sendable {
         performRequest(request: makeModelsRequest(), completion: completion)
     }
     
-    @available(iOS 13.0, *)
     public func moderations(query: ModerationsQuery, completion: @escaping @Sendable (Result<ModerationsResult, Error>) -> Void) -> CancellableRequest {
         performRequest(request: makeModerationsRequest(query: query), completion: completion)
     }

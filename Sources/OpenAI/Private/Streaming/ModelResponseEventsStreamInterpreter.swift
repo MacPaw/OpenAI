@@ -131,9 +131,9 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
         case .responseIncomplete:
                 .incomplete(try decoder.decode(ResponseEvent.self, from: data))
         case .responseOutputItemAdded:
-                .outputItem(.added(try decoder.decode(Schemas.ResponseOutputItemAddedEvent.self, from: data)))
+                .outputItem(.added(try decoder.decode(ResponseOutputItemAddedEvent.self, from: data)))
         case .responseOutputItemDone:
-                .outputItem(.done(try decoder.decode(Schemas.ResponseOutputItemDoneEvent.self, from: data)))
+                .outputItem(.done(try decoder.decode(ResponseOutputItemDoneEvent.self, from: data)))
         case .responseContentPartAdded:
                 .contentPart(.added(try decoder.decode(Schemas.ResponseContentPartAddedEvent.self, from: data)))
         case .responseContentPartDone:

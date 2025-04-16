@@ -23,7 +23,7 @@ public struct EasyInputMessage: Codable, Hashable, Sendable {
     }
     /// The role of the message input. One of `user`, `assistant`, `system`, or
     /// `developer`.
-    public var role: EasyInputMessage.RolePayload
+    public let role: EasyInputMessage.RolePayload
     /// Text, image, or audio input to the model, used to generate a response.
     /// Can also contain previous assistant responses.
     public enum ContentPayload: Codable, Hashable, Sendable {
@@ -63,13 +63,9 @@ public struct EasyInputMessage: Codable, Hashable, Sendable {
     }
     /// Text, image, or audio input to the model, used to generate a response.
     /// Can also contain previous assistant responses.
-    public var content: EasyInputMessage.ContentPayload
+    public let content: EasyInputMessage.ContentPayload
     /// The type of the message input. Always `message`.
-    @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
-        case message = "message"
-    }
-    /// The type of the message input. Always `message`.
-    public var _type: EasyInputMessage._TypePayload?
+    public let type: String?
     /// Creates a new `EasyInputMessage`.
     ///
     /// - Parameters:
@@ -79,15 +75,15 @@ public struct EasyInputMessage: Codable, Hashable, Sendable {
     public init(
         role: EasyInputMessage.RolePayload,
         content: EasyInputMessage.ContentPayload,
-        _type: EasyInputMessage._TypePayload? = nil
+        type: String? = "message"
     ) {
         self.role = role
         self.content = content
-        self._type = _type
+        self.type = type
     }
     public enum CodingKeys: String, CodingKey {
         case role
         case content
-        case _type = "type"
+        case type
     }
 }

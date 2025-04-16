@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Improved interface to use instead of generated `Components.Schemas.ResponseStreamEvent`
 public enum ResponseStreamEvent: Codable, Equatable, Sendable {
     public typealias Schemas = Components.Schemas
     public typealias OutputItem = Components.Schemas.OutputItem
@@ -16,9 +17,9 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
     
     public enum OutputItemEvent: Codable, Equatable, Sendable {
         /// Emitted when a new output item is added.
-        case added(Schemas.ResponseOutputItemAddedEvent)
+        case added(ResponseOutputItemAddedEvent)
         /// Emitted when an output item is marked done.
-        case done(Schemas.ResponseOutputItemDoneEvent)
+        case done(ResponseOutputItemDoneEvent)
     }
     
     public enum ContentPartEvent: Codable, Equatable, Sendable {
@@ -133,6 +134,7 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
     
     public init(from decoder: any Decoder) throws {
         do {
+            // Decoding Response Event
             let responseEvent = try ResponseEvent(from: decoder)
             guard let responseEventType = ModelResponseStreamEventType(rawValue: responseEvent.type) else {
                 throw ResponseStreamEventDecodingError.unknownEventType(responseEvent.type)
@@ -153,11 +155,44 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
                 throw ResponseStreamEventDecodingError.unknownEventType(responseEvent.type)
             }
         } catch {
-            // Do nothing, see below for trying parsing with different coding types
+            // Do nothing, will try other coding types
+        }
+        
+        do {
+            // Decoding Output Item events
+            let outputItemAddedEvent = try ResponseOutputItemAddedEvent(from: decoder)
+            self = .outputItem(.added(outputItemAddedEvent))
+        } catch {
+            // Do nothing, will try other coding types
+        }
+        
+        do {
+            // Decoding Output Item events
+            let outputItemDoneEvent = try ResponseOutputItemDoneEvent(from: decoder)
+            self = .outputItem(.done(outputItemDoneEvent))
+        } catch {
+            // Do nothing, will try other coding types
         }
         
         let rawEvent = try Components.Schemas.ResponseStreamEvent(from: decoder)
-        if let audioDelta = rawEvent.value1 {
+        if rawEvent.value10 != nil || rawEvent.value13 != nil || rawEvent.value20 != nil || rawEvent.value21 != nil, rawEvent.value22 != nil {
+            // The following events are handled elsewhere by non-generated types
+            // (search "Decoding Response Event")
+            //
+            // `response.completed`
+            // `response.created`
+            // `response.inProgress`
+            // `response.failed`
+            // `response.incomplete`
+            throw ResponseStreamEventDecodingError.unexpectedParsingCase
+        } else if rawEvent.value23 != nil || rawEvent.value24 != nil {
+            // The following events are handled elsewhere by non-generated types
+            // (search "Decoding Output Item events")
+            //
+            // `response.output_item.added`
+            // `response.output_item.done`
+            throw ResponseStreamEventDecodingError.unexpectedParsingCase
+        } else if let audioDelta = rawEvent.value1 {
             self = .audio(.delta(audioDelta))
         } else if let value = rawEvent.value2 {
             self = .audio(.done(value))
@@ -175,16 +210,10 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
             self = .codeInterpreterCall(.inProgress(value))
         } else if let value = rawEvent.value9 {
             self = .codeInterpreterCall(.interpreting(value))
-        } else if rawEvent.value10 != nil {
-            // .completed event is handled above
-            throw ResponseStreamEventDecodingError.unexpectedParsingCase
         } else if let value = rawEvent.value11 {
             self = .contentPart(.added(value))
         } else if let value = rawEvent.value12 {
             self = .contentPart(.done(value))
-        } else if rawEvent.value13 != nil {
-            let event = try ResponseEvent(from: decoder)
-            self = .created(event)
         } else if let value = rawEvent.value14 {
             self = .error(value)
         } else if let value = rawEvent.value15 {
@@ -197,19 +226,6 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
             self = .functionCallArguments(.delta(value))
         } else if let value = rawEvent.value19 {
             self = .functionCallArguments(.done(value))
-        } else if rawEvent.value20 != nil {
-            // .inProgress is meant to be handled elsewhere with a non-generated type
-            throw ResponseStreamEventDecodingError.unexpectedParsingCase
-        } else if rawEvent.value21 != nil {
-            // .failed is meant to be handled elsewhere with a non-generated type
-            throw ResponseStreamEventDecodingError.unexpectedParsingCase
-        } else if rawEvent.value22 != nil {
-            // .incomplete is meant to be handled elsewhere with a non-generated type
-            throw ResponseStreamEventDecodingError.unexpectedParsingCase
-        } else if let value = rawEvent.value23 {
-            self = .outputItem(.added(value))
-        } else if let value = rawEvent.value24 {
-            self = .outputItem(.done(value))
         } else if let value = rawEvent.value25 {
             self = .refusal(.delta(value))
         } else if let value = rawEvent.value26 {

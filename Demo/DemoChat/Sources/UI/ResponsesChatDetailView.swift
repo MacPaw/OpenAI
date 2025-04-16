@@ -105,6 +105,10 @@ public struct ResponsesChatDetailView: View {
 }
 
 private struct PreviewMockResponsesEndpointProtocol: ResponsesEndpointProtocol {
+    func createResponse(query: CreateModelResponseQuery, completion: @escaping @Sendable (Result<ResponseObject, any Error>) -> Void) -> any CancellableRequest {
+        fatalError()
+    }
+    
     func createResponse(query: CreateModelResponseQuery) async throws -> ResponseObject {
         fatalError()
     }

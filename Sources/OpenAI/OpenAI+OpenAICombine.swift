@@ -9,7 +9,6 @@
 import Combine
 import Foundation
 
-@available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
 extension OpenAI: OpenAICombine {
     public func images(query: ImagesQuery) -> AnyPublisher<ImagesResult, any Error> {
         performRequestCombine(request: makeImagesRequest(query: query))

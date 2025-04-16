@@ -7,54 +7,34 @@
 
 import Foundation
 
-public protocol ResponsesEndpointProtocol: Sendable {
-    func createResponse(query: CreateModelResponseQuery) async throws -> ResponseObject
-    func createResponseStreaming(query: CreateModelResponseQuery) -> AsyncThrowingStream<ResponseStreamEvent, Error>
-    func createResponseStreaming(
-        query: CreateModelResponseQuery,
-        onResult: @escaping @Sendable (Result<ResponseStreamEvent, Error>) -> Void,
-        completion: (@Sendable (Error?) -> Void)?
-    ) -> CancellableRequest
-}
-
-public struct ResponsesEndpoint: ResponsesEndpointProtocol {
+public final class ResponsesEndpoint: ResponsesEndpointProtocol {
     enum CreateResponseError: Error {
         case invalidQueryExpectedStreamTrue
     }
     
-    private let syncClient: StreamingClient
-    private let asyncClient: AsyncClient
+    private let client: Client
+    private let streamingClient: StreamingClient
+    
+    let asyncClient: AsyncClient
     private let configuration: OpenAI.Configuration
     
-    init(syncClient: StreamingClient, asyncClient: AsyncClient, configuration: OpenAI.Configuration) {
-        self.syncClient = syncClient
+    init(
+        client: Client,
+        streamingClient: StreamingClient,
+        asyncClient: AsyncClient,
+        configuration: OpenAI.Configuration
+    ) {
+        self.client = client
+        self.streamingClient = streamingClient
         self.asyncClient = asyncClient
         self.configuration = configuration
     }
     
-    public func createResponse(query: CreateModelResponseQuery) async throws -> ResponseObject {
-        try await asyncClient.performRequest(request: makeCreateResponseRequest(query: query))
-    }
-    
-    public func createResponseStreaming(query: CreateModelResponseQuery) -> AsyncThrowingStream<ResponseStreamEvent, Error> {
-        return AsyncThrowingStream { continuation in
-            let cancellableRequest = createResponseStreaming(query: query)  { result in
-                continuation.yield(with: result)
-            } completion: { error in
-                continuation.finish(throwing: error)
-            }
-            
-            continuation.onTermination = { termination in
-                switch termination {
-                case .cancelled:
-                    cancellableRequest.cancelRequest()
-                case .finished:
-                    break
-                @unknown default:
-                    break
-                }
-            }
-        }
+    public func createResponse(query: CreateModelResponseQuery, completion: @Sendable @escaping (Result<ResponseObject, any Error>) -> Void) -> any CancellableRequest {
+        client.performRequest(
+            request: makeCreateResponseRequest(query: query),
+            completion: completion
+        )
     }
     
     public func createResponseStreaming(
@@ -67,7 +47,7 @@ public struct ResponsesEndpoint: ResponsesEndpointProtocol {
             return NoOpCancellableRequest()
         }
         
-        return syncClient.performResponsesStreamingRequest(
+        return streamingClient.performResponsesStreamingRequest(
             request: JSONRequest<CreateModelResponseQuery>(
                 body: query,
                 url: buildURL(path: .Responses.createModelResponse.stringValue)
@@ -77,7 +57,7 @@ public struct ResponsesEndpoint: ResponsesEndpointProtocol {
         )
     }
     
-    private func makeCreateResponseRequest(query: CreateModelResponseQuery) -> JSONRequest<ResponseObject> {
+    func makeCreateResponseRequest(query: CreateModelResponseQuery) -> JSONRequest<ResponseObject> {
         .init(body: query, url: buildURL(path: .Responses.createModelResponse.stringValue))
     }
     

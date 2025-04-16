@@ -23,7 +23,7 @@ public final class ResponsesStore: ObservableObject {
     }
     
     public enum StoreError: DescribedError {
-        case unhandledOutputItem(ResponseStreamEvent.Schemas.OutputItem)
+        case unhandledOutputItem(OutputItem)
         case noResponseToUpdate
         case noMessageToUpdate
         case messageBeingUpdatedIsExpectedToBeLastInArray
@@ -173,25 +173,25 @@ public final class ResponsesStore: ObservableObject {
     private func createResponse(query: CreateModelResponseQuery) async throws {
         let response = try await client.createResponse(query: query)
         for output in response.output {
-            // TODO: value1
-            guard let outputMessage = output.value1 else {
-                continue
-            }
-            
-            let message = chatMessage(
-                fromOutputContent: outputMessage.content[0],
-                messageId: outputMessage.id,
-                userId: outputMessage.role.rawValue,
-                username: outputMessage.role.rawValue
-            )
-            
-            responses.append(
-                .init(
-                    id: response.id,
-                    type: .response,
-                    chatMessage: message
+            switch output {
+            case .outputMessage(let outputMessage):
+                let message = chatMessage(
+                    fromOutputContent: outputMessage.content[0],
+                    messageId: outputMessage.id,
+                    userId: outputMessage.role.rawValue,
+                    username: outputMessage.role.rawValue
                 )
-            )
+                
+                responses.append(
+                    .init(
+                        id: response.id,
+                        type: .response,
+                        chatMessage: message
+                    )
+                )
+            default:
+                throw StoreError.unhandledOutputItem(output)
+            }
         }
     }
     
@@ -253,12 +253,9 @@ public final class ResponsesStore: ObservableObject {
         switch event {
         case .added(let outputItemAddedEvent):
             let outputItem = outputItemAddedEvent.item
-            // TODO: improve naming (value4)
-            let webSearchToolCall = outputItem.value4
-            if webSearchToolCall != nil {
-                webSearchInProgress = true
-                // TODO: improve naming (value1)
-            } else if let outputMessage = outputItem.value1 {
+            
+            switch outputItem {
+            case .outputMessage(let outputMessage):
                 // Message, role: assistant
                 let role = outputMessage.role.rawValue
                 // outputMessage.content is empty, but we can add empty message just to show a progress
@@ -268,18 +265,16 @@ public final class ResponsesStore: ObservableObject {
                     text: "",
                     annotations: []
                 ))
-            } else {
+            case .webSearchToolCall(_ /* let webSearchToolCall */):
+                webSearchInProgress = true
+            default:
                 throw StoreError.unhandledOutputItem(outputItem)
             }
         case .done(let outputItemDoneEvent):
-            let outputItem: Components.Schemas.OutputItem = outputItemDoneEvent.item
-            // TODO: improve naming (value4)
-            let webSearchToolCall = outputItem.value4
-            if webSearchToolCall != nil {
-                // Web Search Tool Call
-                webSearchInProgress = false
-                // TODO: improve naming (value1)
-            } else if let outputMessage = outputItem.value1 {
+            let outputItem: OutputItem = outputItemDoneEvent.item
+            
+            switch outputItem {
+            case .outputMessage(let outputMessage):
                 // Message. Role: assistant
                 assert(outputMessage.id == messageBeingStreamed?.id)
                 for content in outputMessage.content {
@@ -289,7 +284,9 @@ public final class ResponsesStore: ObservableObject {
                     )
                 }
                 messageBeingStreamed = nil
-            } else {
+            case .webSearchToolCall(_ /* let webSearchToolCall */):
+                webSearchInProgress = false
+            default:
                 throw StoreError.unhandledOutputItem(outputItem)
             }
         }
