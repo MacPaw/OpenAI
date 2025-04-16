@@ -196,7 +196,7 @@ public final class ResponsesStore: ObservableObject {
     }
     
     private func createResponseStreaming(query: CreateModelResponseQuery) async throws {
-        let stream = client.createResponseStreaming(query: query)
+        let stream: AsyncThrowingStream<ResponseStreamEvent, Error> = client.createResponseStreaming(query: query)
         
         var eventNumber = 1
         for try await event in stream {
@@ -481,28 +481,10 @@ public final class ResponsesStore: ObservableObject {
         messageId: String,
         user: ExyteChat.User
     ) -> ExyteChat.Message {
-        var finalText = text
-        
-        // TODO: decide what to do with annotations
-//        if !annotations.isEmpty {
-//            finalText += "\n\nAnnotations:"
-//        }
-//        
-//        for annotation in annotations {
-//            switch annotation {
-//            case .FileCitation(let fileCitation):
-//                finalText += "\nFile citation. File ID: \(fileCitation.fileId)"
-//            case .FilePath(let filePath):
-//                finalText += "\nFile path. File ID: \(filePath.fileId)"
-//            case .UrlCitation(let urlCitation):
-//                finalText += "\nURL citation. Title: \(urlCitation.title), URL: \(urlCitation.url)"
-//            }
-//        }
-        
         let chatMessage = ExyteChat.Message(
             id: messageId,
             user: user,
-            text: finalText
+            text: text
         )
         return chatMessage
     }

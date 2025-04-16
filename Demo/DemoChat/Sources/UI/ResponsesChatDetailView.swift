@@ -8,6 +8,7 @@
 import SwiftUI
 import ExyteChat
 import OpenAI
+import Combine
 
 public struct ResponsesChatDetailView: View {
     @State private var errorTitle = ""
@@ -105,6 +106,14 @@ public struct ResponsesChatDetailView: View {
 }
 
 private struct PreviewMockResponsesEndpointProtocol: ResponsesEndpointProtocol {
+    func createResponse(query: CreateModelResponseQuery) -> AnyPublisher<ResponseObject, any Error> {
+        fatalError()
+    }
+    
+    func createResponseStreaming(query: CreateModelResponseQuery) -> AnyPublisher<Result<ResponseStreamEvent, any Error>, any Error> {
+        fatalError()
+    }
+    
     func createResponse(query: CreateModelResponseQuery, completion: @escaping @Sendable (Result<ResponseObject, any Error>) -> Void) -> any CancellableRequest {
         fatalError()
     }
