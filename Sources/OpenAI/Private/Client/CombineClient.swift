@@ -19,7 +19,7 @@ final class CombineClient: Sendable {
         self.middlewares = middlewares
     }
     
-    func performRequestCombine<ResultType: Codable>(request: any URLRequestBuildable) -> AnyPublisher<ResultType, Error> {
+    func performRequest<ResultType: Codable>(request: any URLRequestBuildable) -> AnyPublisher<ResultType, Error> {
         do {
             let urlRequest = try request.build(configuration: configuration)
             let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
@@ -47,7 +47,7 @@ final class CombineClient: Sendable {
         }
     }
     
-    func performSpeechRequestCombine(request: any URLRequestBuildable) -> AnyPublisher<AudioSpeechResult, Error> {
+    func performSpeechRequest(request: any URLRequestBuildable) -> AnyPublisher<AudioSpeechResult, Error> {
         do {
             let urlRequest = try request.build(configuration: configuration)
             let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in

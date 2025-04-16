@@ -433,10 +433,9 @@ public final class ResponsesStore: ObservableObject {
         messageId: String,
         userId: String,
         username: String
-    ) -> ConversationTurn {
+    ) throws -> ConversationTurn {
         guard let responseBeingStreamed else {
-            // TODO: Replace with throw
-            fatalError()
+            throw StoreError.noResponseToUpdate
         }
         
         return .init(

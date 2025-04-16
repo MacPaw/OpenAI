@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class ResponsesEndpoint: ResponsesEndpointProtocol {
+public final class ResponsesEndpoint: ResponsesEndpointProtocol, Sendable {
     enum CreateResponseError: Error {
         case invalidQueryExpectedStreamTrue
     }
@@ -16,17 +16,20 @@ public final class ResponsesEndpoint: ResponsesEndpointProtocol {
     private let streamingClient: StreamingClient
     
     let asyncClient: AsyncClient
+    let combineClient: CombineClient
     private let configuration: OpenAI.Configuration
     
     init(
         client: Client,
         streamingClient: StreamingClient,
         asyncClient: AsyncClient,
+        combineClient: CombineClient,
         configuration: OpenAI.Configuration
     ) {
         self.client = client
         self.streamingClient = streamingClient
         self.asyncClient = asyncClient
+        self.combineClient = combineClient
         self.configuration = configuration
     }
     

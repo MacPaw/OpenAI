@@ -73,6 +73,7 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
     let client: Client
     let streamingClient: StreamingClient
     let asyncClient: AsyncClient
+    let combineClient: CombineClient
     
     private let dataTaskFactory: DataTaskFactory
     private let streamingSessionFactory: StreamingSessionFactory
@@ -160,6 +161,8 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
             dataTaskFactory: dataTaskFactory
         )
         
+        self.combineClient = .init(configuration: configuration, session: session, middlewares: middlewares)
+        
         self.dataTaskFactory = .init(
             configuration: configuration,
             session: session,
@@ -170,6 +173,7 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
             client: client,
             streamingClient: streamingClient,
             asyncClient: asyncClient,
+            combineClient: combineClient,
             configuration: configuration
         )
     }

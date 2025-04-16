@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 public protocol ResponsesEndpointCombine: Sendable {
-//    func createResponse(query: CreateModelResponseQuery) -> AnyPublisher<ResponseObject, Error>
-//    func createResponseStreaming(query: CreateModelResponseQuery) -> AnyPublisher<Result<ResponseStreamEvent, Error>, Error>
+    func createResponse(query: CreateModelResponseQuery) -> AnyPublisher<ResponseObject, Error>
+    func createResponseStreaming(query: CreateModelResponseQuery) -> AnyPublisher<Result<ResponseStreamEvent, Error>, Error>
 }
 #endif
