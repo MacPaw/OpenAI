@@ -68,18 +68,10 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         responsesEndpoint
     }
     
-    let session: URLSessionProtocol
-    let middlewares: [OpenAIMiddleware]
     let client: Client
     let streamingClient: StreamingClient
     let asyncClient: AsyncClient
     let combineClient: CombineClient
-    
-    private let dataTaskFactory: DataTaskFactory
-    private let streamingSessionFactory: StreamingSessionFactory
-    private let cancellablesFactory: CancellablesFactory
-    private let executionSerializer: ExecutionSerializer
-    private var streamingSessions: [NSObject: InvalidatableSession] = [:]
     
     public let configuration: Configuration
 
@@ -130,11 +122,6 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         middlewares: [OpenAIMiddleware] = []
     ) {
         self.configuration = configuration
-        self.session = session
-        self.streamingSessionFactory = streamingSessionFactory
-        self.cancellablesFactory = cancellablesFactory
-        self.executionSerializer = executionSerializer
-        self.middlewares = middlewares
         
         let dataTaskFactory = DataTaskFactory(configuration: configuration, session: session, middlewares: middlewares)
         
@@ -162,12 +149,6 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         )
         
         self.combineClient = .init(configuration: configuration, session: session, middlewares: middlewares)
-        
-        self.dataTaskFactory = .init(
-            configuration: configuration,
-            session: session,
-            middlewares: middlewares
-        )
         
         self.responsesEndpoint = ResponsesEndpoint(
             client: client,
@@ -367,41 +348,6 @@ extension OpenAI {
         completion: (@Sendable (Error?) -> Void)?
     ) -> CancellableRequest {
         streamingClient.performSpeechStreamingRequest(request: request, onResult: onResult, completion: completion)
-    }
-    
-    func makeDataTask<ResultType: Codable>(
-        forRequest request: URLRequest,
-        completion: @escaping @Sendable (Result<ResultType, Error>) -> Void
-    ) -> URLSessionDataTaskProtocol {
-        dataTaskFactory.makeDataTask(forRequest: request, completion: completion)
-    }
-    
-    func makeRawResponseDataTask(
-        forRequest request: URLRequest,
-        completion: @escaping @Sendable (Result<Data, Error>) -> Void
-    ) -> URLSessionDataTaskProtocol {
-        dataTaskFactory.makeRawResponseDataTask(forRequest: request, completion: completion)
-    }
-    
-    private func runSession<I>(_ session: StreamingSession<I>) -> CancellableRequest {
-        let performableSession = session.makeSession()
-        
-        executionSerializer.dispatch {
-            self.streamingSessions[session] = performableSession
-        }
-        
-        performableSession.performSession()
-        
-        return cancellablesFactory.makeSessionCanceller(
-            session: performableSession
-        )
-    }
-    
-    private func invalidateSession(_ object: NSObject) {
-        self.executionSerializer.dispatch {
-            let invalidatableSession = self.streamingSessions.removeValue(forKey: object)
-            invalidatableSession?.invalidateAndCancel()
-        }
     }
 }
 
