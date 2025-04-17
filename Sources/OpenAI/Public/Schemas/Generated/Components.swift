@@ -18,8 +18,20 @@ import struct Foundation.Date
 
 /**
  The code here is generated using OpenAPI document provided by OpenAI.
- It's partially stripped from from unusued code, because we don't want to have 39k file where most of the code is unused.
- See below for what was removed if you want to regenerate+strip again.
+ 
+ # Command that was used to generate the code #
+ `swift run swift-openapi-generator generate --config openapi-generator-config.yaml openapi.yaml`
+ 
+ # Contents of config that was used to generate the code #
+ generate:
+   - types
+ namingStrategy: idiomatic
+ accessModifier: public
+ filter:
+   paths:
+   - /responses
+   - /responses/{response_id}
+   - /responses/{response_id}/input_items
  
  # openapi.yaml used for generating #
  openapi: 3.0.0
@@ -35,9 +47,10 @@ import struct Foundation.Date
     - name: MIT
     - url: https://github.com/openai/openai-openapi/blob/master/LICENSE
  
- # Swift OpenAPI Generator configuration: #
+ # Console output describing how generator was configured for that run #
+ Swift OpenAPI Generator is running with the following configuration:
  - OpenAPI document path: /Users/oleksiinezhyborets/Projects/swift-openapi-generator/openapi.yaml
- - Configuration path: <none>
+ - Configuration path: /Users/oleksiinezhyborets/Projects/swift-openapi-generator/openapi-generator-config.yaml
  - Generator modes: types
  - Access modifier: public
  - Naming strategy: idiomatic
@@ -49,141 +62,16 @@ import struct Foundation.Date
  - Current directory: /Users/oleksiinezhyborets/Projects/swift-openapi-generator
  - Plugin source: <none>
  - Is dry run: false
- - Additional imports: <none
+ - Additional imports: <none>
  
- As for the code that was removed from `Components` section of generated file.
- We didn't remove ALL the unused code, because it would take too long.
- We would also like to make the "generate+strip" repeatable, so that we could implement more features using generated code in the future.
- So I removed groups of code that are grouped by name and would be easy to remove again from the regenerated file.
- 
- Removed groups of types:
- - All Assistant... types
- - All AuditLog... types
- - All ChatCompletion... types
- - All Create... types except CreateResponse and CreateModelResponseProperties
- - All Delete... types
- - All FineTun... types
- - All Invite... types
- - All List... types
- - All Message... types
- - All Modify... types
- - All Project... types
- - All Run... types
- - All Realtime... types
- Also deleted PredictionContent because it depends on ChatCompletionRequestMessageContentPartText
+ # Manual operations after Types.swift file was generated #
+ - Extract Components enum from Types.swift into it's own file, as we don't need other top level files
  */
+
+/// Types generated from the components section of the OpenAPI document.
 public enum Components {
     /// Types generated from the `#/components/schemas` section of the OpenAPI document.
     public enum Schemas {
-        /// - Remark: Generated from `#/components/schemas/AddUploadPartRequest`.
-        @frozen public enum AddUploadPartRequest: Sendable, Hashable {
-            /// - Remark: Generated from `#/components/schemas/AddUploadPartRequest/data`.
-            public struct DataPayload: Sendable, Hashable {
-                public var body: OpenAPIRuntime.HTTPBody
-                /// Creates a new `DataPayload`.
-                ///
-                /// - Parameters:
-                ///   - body:
-                public init(body: OpenAPIRuntime.HTTPBody) {
-                    self.body = body
-                }
-            }
-            case data(OpenAPIRuntime.MultipartPart<Components.Schemas.AddUploadPartRequest.DataPayload>)
-        }
-        /// - Remark: Generated from `#/components/schemas/AdminApiKey`.
-        public struct AdminApiKey: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/AdminApiKey/object`.
-            public var object: Swift.String?
-            /// - Remark: Generated from `#/components/schemas/AdminApiKey/id`.
-            public var id: Swift.String?
-            /// - Remark: Generated from `#/components/schemas/AdminApiKey/name`.
-            public var name: Swift.String?
-            /// - Remark: Generated from `#/components/schemas/AdminApiKey/redacted_value`.
-            public var redactedValue: Swift.String?
-            /// - Remark: Generated from `#/components/schemas/AdminApiKey/value`.
-            public var value: Swift.String?
-            /// - Remark: Generated from `#/components/schemas/AdminApiKey/created_at`.
-            public var createdAt: Swift.Int64?
-            /// - Remark: Generated from `#/components/schemas/AdminApiKey/owner`.
-            public struct OwnerPayload: Codable, Hashable, Sendable {
-                /// - Remark: Generated from `#/components/schemas/AdminApiKey/owner/type`.
-                public var _type: Swift.String?
-                /// - Remark: Generated from `#/components/schemas/AdminApiKey/owner/id`.
-                public var id: Swift.String?
-                /// - Remark: Generated from `#/components/schemas/AdminApiKey/owner/name`.
-                public var name: Swift.String?
-                /// - Remark: Generated from `#/components/schemas/AdminApiKey/owner/created_at`.
-                public var createdAt: Swift.Int64?
-                /// - Remark: Generated from `#/components/schemas/AdminApiKey/owner/role`.
-                public var role: Swift.String?
-                /// Creates a new `OwnerPayload`.
-                ///
-                /// - Parameters:
-                ///   - _type:
-                ///   - id:
-                ///   - name:
-                ///   - createdAt:
-                ///   - role:
-                public init(
-                    _type: Swift.String? = nil,
-                    id: Swift.String? = nil,
-                    name: Swift.String? = nil,
-                    createdAt: Swift.Int64? = nil,
-                    role: Swift.String? = nil
-                ) {
-                    self._type = _type
-                    self.id = id
-                    self.name = name
-                    self.createdAt = createdAt
-                    self.role = role
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case _type = "type"
-                    case id
-                    case name
-                    case createdAt = "created_at"
-                    case role
-                }
-            }
-            /// - Remark: Generated from `#/components/schemas/AdminApiKey/owner`.
-            public var owner: Components.Schemas.AdminApiKey.OwnerPayload?
-            /// Creates a new `AdminApiKey`.
-            ///
-            /// - Parameters:
-            ///   - object:
-            ///   - id:
-            ///   - name:
-            ///   - redactedValue:
-            ///   - value:
-            ///   - createdAt:
-            ///   - owner:
-            public init(
-                object: Swift.String? = nil,
-                id: Swift.String? = nil,
-                name: Swift.String? = nil,
-                redactedValue: Swift.String? = nil,
-                value: Swift.String? = nil,
-                createdAt: Swift.Int64? = nil,
-                owner: Components.Schemas.AdminApiKey.OwnerPayload? = nil
-            ) {
-                self.object = object
-                self.id = id
-                self.name = name
-                self.redactedValue = redactedValue
-                self.value = value
-                self.createdAt = createdAt
-                self.owner = owner
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case id
-                case name
-                case redactedValue = "redacted_value"
-                case value
-                case createdAt = "created_at"
-                case owner
-            }
-        }
         /// - Remark: Generated from `#/components/schemas/Annotation`.
         @frozen public enum Annotation: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/Annotation/case1`.
@@ -229,542 +117,12 @@ public enum Components {
                 }
             }
         }
-        /// The format of the output, in one of these options: `json`, `text`, `srt`, `verbose_json`, or `vtt`. For `gpt-4o-transcribe` and `gpt-4o-mini-transcribe`, the only supported format is `json`.
-        ///
-        ///
-        /// - Remark: Generated from `#/components/schemas/AudioResponseFormat`.
-        @frozen public enum AudioResponseFormat: String, Codable, Hashable, Sendable, CaseIterable {
-            case json = "json"
-            case text = "text"
-            case srt = "srt"
-            case verboseJson = "verbose_json"
-            case vtt = "vtt"
-        }
-        /// The default strategy. This strategy currently uses a `max_chunk_size_tokens` of `800` and `chunk_overlap_tokens` of `400`.
-        ///
-        /// - Remark: Generated from `#/components/schemas/AutoChunkingStrategyRequestParam`.
-        public struct AutoChunkingStrategyRequestParam: Codable, Hashable, Sendable {
-            /// Always `auto`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/AutoChunkingStrategyRequestParam/type`.
-            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case auto = "auto"
-            }
-            /// Always `auto`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/AutoChunkingStrategyRequestParam/type`.
-            public var _type: Components.Schemas.AutoChunkingStrategyRequestParam._TypePayload
-            /// Creates a new `AutoChunkingStrategyRequestParam`.
-            ///
-            /// - Parameters:
-            ///   - _type: Always `auto`.
-            public init(_type: Components.Schemas.AutoChunkingStrategyRequestParam._TypePayload) {
-                self._type = _type
-            }
-            public enum CodingKeys: String, CodingKey {
-                case _type = "type"
-            }
-            public init(from decoder: any Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                self._type = try container.decode(
-                    Components.Schemas.AutoChunkingStrategyRequestParam._TypePayload.self,
-                    forKey: ._type
-                )
-                try decoder.ensureNoAdditionalProperties(knownKeys: [
-                    "type"
-                ])
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/Batch`.
-        public struct Batch: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/Batch/id`.
-            public var id: Swift.String
-            /// The object type, which is always `batch`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case batch = "batch"
-            }
-            /// The object type, which is always `batch`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/object`.
-            public var object: Components.Schemas.Batch.ObjectPayload
-            /// The OpenAI API endpoint used by the batch.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/endpoint`.
-            public var endpoint: Swift.String
-            /// - Remark: Generated from `#/components/schemas/Batch/errors`.
-            public struct ErrorsPayload: Codable, Hashable, Sendable {
-                /// The object type, which is always `list`.
-                ///
-                /// - Remark: Generated from `#/components/schemas/Batch/errors/object`.
-                public var object: Swift.String?
-                /// - Remark: Generated from `#/components/schemas/Batch/errors/DataPayload`.
-                public struct DataPayloadPayload: Codable, Hashable, Sendable {
-                    /// An error code identifying the error type.
-                    ///
-                    /// - Remark: Generated from `#/components/schemas/Batch/errors/DataPayload/code`.
-                    public var code: Swift.String?
-                    /// A human-readable message providing more details about the error.
-                    ///
-                    /// - Remark: Generated from `#/components/schemas/Batch/errors/DataPayload/message`.
-                    public var message: Swift.String?
-                    /// The name of the parameter that caused the error, if applicable.
-                    ///
-                    /// - Remark: Generated from `#/components/schemas/Batch/errors/DataPayload/param`.
-                    public var param: Swift.String?
-                    /// The line number of the input file where the error occurred, if applicable.
-                    ///
-                    /// - Remark: Generated from `#/components/schemas/Batch/errors/DataPayload/line`.
-                    public var line: Swift.Int?
-                    /// Creates a new `DataPayloadPayload`.
-                    ///
-                    /// - Parameters:
-                    ///   - code: An error code identifying the error type.
-                    ///   - message: A human-readable message providing more details about the error.
-                    ///   - param: The name of the parameter that caused the error, if applicable.
-                    ///   - line: The line number of the input file where the error occurred, if applicable.
-                    public init(
-                        code: Swift.String? = nil,
-                        message: Swift.String? = nil,
-                        param: Swift.String? = nil,
-                        line: Swift.Int? = nil
-                    ) {
-                        self.code = code
-                        self.message = message
-                        self.param = param
-                        self.line = line
-                    }
-                    public enum CodingKeys: String, CodingKey {
-                        case code
-                        case message
-                        case param
-                        case line
-                    }
-                }
-                /// - Remark: Generated from `#/components/schemas/Batch/errors/data`.
-                public typealias DataPayload = [Components.Schemas.Batch.ErrorsPayload.DataPayloadPayload]
-                /// - Remark: Generated from `#/components/schemas/Batch/errors/data`.
-                public var data: Components.Schemas.Batch.ErrorsPayload.DataPayload?
-                /// Creates a new `ErrorsPayload`.
-                ///
-                /// - Parameters:
-                ///   - object: The object type, which is always `list`.
-                ///   - data:
-                public init(
-                    object: Swift.String? = nil,
-                    data: Components.Schemas.Batch.ErrorsPayload.DataPayload? = nil
-                ) {
-                    self.object = object
-                    self.data = data
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case object
-                    case data
-                }
-            }
-            /// - Remark: Generated from `#/components/schemas/Batch/errors`.
-            public var errors: Components.Schemas.Batch.ErrorsPayload?
-            /// The ID of the input file for the batch.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/input_file_id`.
-            public var inputFileId: Swift.String
-            /// The time frame within which the batch should be processed.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/completion_window`.
-            public var completionWindow: Swift.String
-            /// The current status of the batch.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/status`.
-            @frozen public enum StatusPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case validating = "validating"
-                case failed = "failed"
-                case inProgress = "in_progress"
-                case finalizing = "finalizing"
-                case completed = "completed"
-                case expired = "expired"
-                case cancelling = "cancelling"
-                case cancelled = "cancelled"
-            }
-            /// The current status of the batch.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/status`.
-            public var status: Components.Schemas.Batch.StatusPayload
-            /// The ID of the file containing the outputs of successfully executed requests.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/output_file_id`.
-            public var outputFileId: Swift.String?
-            /// The ID of the file containing the outputs of requests with errors.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/error_file_id`.
-            public var errorFileId: Swift.String?
-            /// The Unix timestamp (in seconds) for when the batch was created.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/created_at`.
-            public var createdAt: Swift.Int
-            /// The Unix timestamp (in seconds) for when the batch started processing.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/in_progress_at`.
-            public var inProgressAt: Swift.Int?
-            /// The Unix timestamp (in seconds) for when the batch will expire.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/expires_at`.
-            public var expiresAt: Swift.Int?
-            /// The Unix timestamp (in seconds) for when the batch started finalizing.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/finalizing_at`.
-            public var finalizingAt: Swift.Int?
-            /// The Unix timestamp (in seconds) for when the batch was completed.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/completed_at`.
-            public var completedAt: Swift.Int?
-            /// The Unix timestamp (in seconds) for when the batch failed.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/failed_at`.
-            public var failedAt: Swift.Int?
-            /// The Unix timestamp (in seconds) for when the batch expired.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/expired_at`.
-            public var expiredAt: Swift.Int?
-            /// The Unix timestamp (in seconds) for when the batch started cancelling.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/cancelling_at`.
-            public var cancellingAt: Swift.Int?
-            /// The Unix timestamp (in seconds) for when the batch was cancelled.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/cancelled_at`.
-            public var cancelledAt: Swift.Int?
-            /// The request counts for different statuses within the batch.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/request_counts`.
-            public struct RequestCountsPayload: Codable, Hashable, Sendable {
-                /// Total number of requests in the batch.
-                ///
-                /// - Remark: Generated from `#/components/schemas/Batch/request_counts/total`.
-                public var total: Swift.Int
-                /// Number of requests that have been completed successfully.
-                ///
-                /// - Remark: Generated from `#/components/schemas/Batch/request_counts/completed`.
-                public var completed: Swift.Int
-                /// Number of requests that have failed.
-                ///
-                /// - Remark: Generated from `#/components/schemas/Batch/request_counts/failed`.
-                public var failed: Swift.Int
-                /// Creates a new `RequestCountsPayload`.
-                ///
-                /// - Parameters:
-                ///   - total: Total number of requests in the batch.
-                ///   - completed: Number of requests that have been completed successfully.
-                ///   - failed: Number of requests that have failed.
-                public init(
-                    total: Swift.Int,
-                    completed: Swift.Int,
-                    failed: Swift.Int
-                ) {
-                    self.total = total
-                    self.completed = completed
-                    self.failed = failed
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case total
-                    case completed
-                    case failed
-                }
-            }
-            /// The request counts for different statuses within the batch.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Batch/request_counts`.
-            public var requestCounts: Components.Schemas.Batch.RequestCountsPayload?
-            /// - Remark: Generated from `#/components/schemas/Batch/metadata`.
-            public var metadata: Components.Schemas.Metadata?
-            /// Creates a new `Batch`.
-            ///
-            /// - Parameters:
-            ///   - id:
-            ///   - object: The object type, which is always `batch`.
-            ///   - endpoint: The OpenAI API endpoint used by the batch.
-            ///   - errors:
-            ///   - inputFileId: The ID of the input file for the batch.
-            ///   - completionWindow: The time frame within which the batch should be processed.
-            ///   - status: The current status of the batch.
-            ///   - outputFileId: The ID of the file containing the outputs of successfully executed requests.
-            ///   - errorFileId: The ID of the file containing the outputs of requests with errors.
-            ///   - createdAt: The Unix timestamp (in seconds) for when the batch was created.
-            ///   - inProgressAt: The Unix timestamp (in seconds) for when the batch started processing.
-            ///   - expiresAt: The Unix timestamp (in seconds) for when the batch will expire.
-            ///   - finalizingAt: The Unix timestamp (in seconds) for when the batch started finalizing.
-            ///   - completedAt: The Unix timestamp (in seconds) for when the batch was completed.
-            ///   - failedAt: The Unix timestamp (in seconds) for when the batch failed.
-            ///   - expiredAt: The Unix timestamp (in seconds) for when the batch expired.
-            ///   - cancellingAt: The Unix timestamp (in seconds) for when the batch started cancelling.
-            ///   - cancelledAt: The Unix timestamp (in seconds) for when the batch was cancelled.
-            ///   - requestCounts: The request counts for different statuses within the batch.
-            ///   - metadata:
-            public init(
-                id: Swift.String,
-                object: Components.Schemas.Batch.ObjectPayload,
-                endpoint: Swift.String,
-                errors: Components.Schemas.Batch.ErrorsPayload? = nil,
-                inputFileId: Swift.String,
-                completionWindow: Swift.String,
-                status: Components.Schemas.Batch.StatusPayload,
-                outputFileId: Swift.String? = nil,
-                errorFileId: Swift.String? = nil,
-                createdAt: Swift.Int,
-                inProgressAt: Swift.Int? = nil,
-                expiresAt: Swift.Int? = nil,
-                finalizingAt: Swift.Int? = nil,
-                completedAt: Swift.Int? = nil,
-                failedAt: Swift.Int? = nil,
-                expiredAt: Swift.Int? = nil,
-                cancellingAt: Swift.Int? = nil,
-                cancelledAt: Swift.Int? = nil,
-                requestCounts: Components.Schemas.Batch.RequestCountsPayload? = nil,
-                metadata: Components.Schemas.Metadata? = nil
-            ) {
-                self.id = id
-                self.object = object
-                self.endpoint = endpoint
-                self.errors = errors
-                self.inputFileId = inputFileId
-                self.completionWindow = completionWindow
-                self.status = status
-                self.outputFileId = outputFileId
-                self.errorFileId = errorFileId
-                self.createdAt = createdAt
-                self.inProgressAt = inProgressAt
-                self.expiresAt = expiresAt
-                self.finalizingAt = finalizingAt
-                self.completedAt = completedAt
-                self.failedAt = failedAt
-                self.expiredAt = expiredAt
-                self.cancellingAt = cancellingAt
-                self.cancelledAt = cancelledAt
-                self.requestCounts = requestCounts
-                self.metadata = metadata
-            }
-            public enum CodingKeys: String, CodingKey {
-                case id
-                case object
-                case endpoint
-                case errors
-                case inputFileId = "input_file_id"
-                case completionWindow = "completion_window"
-                case status
-                case outputFileId = "output_file_id"
-                case errorFileId = "error_file_id"
-                case createdAt = "created_at"
-                case inProgressAt = "in_progress_at"
-                case expiresAt = "expires_at"
-                case finalizingAt = "finalizing_at"
-                case completedAt = "completed_at"
-                case failedAt = "failed_at"
-                case expiredAt = "expired_at"
-                case cancellingAt = "cancelling_at"
-                case cancelledAt = "cancelled_at"
-                case requestCounts = "request_counts"
-                case metadata
-            }
-        }
-        /// The per-line object of the batch input file
-        ///
-        /// - Remark: Generated from `#/components/schemas/BatchRequestInput`.
-        public struct BatchRequestInput: Codable, Hashable, Sendable {
-            /// A developer-provided per-request id that will be used to match outputs to inputs. Must be unique for each request in a batch.
-            ///
-            /// - Remark: Generated from `#/components/schemas/BatchRequestInput/custom_id`.
-            public var customId: Swift.String?
-            /// The HTTP method to be used for the request. Currently only `POST` is supported.
-            ///
-            /// - Remark: Generated from `#/components/schemas/BatchRequestInput/method`.
-            @frozen public enum MethodPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case post = "POST"
-            }
-            /// The HTTP method to be used for the request. Currently only `POST` is supported.
-            ///
-            /// - Remark: Generated from `#/components/schemas/BatchRequestInput/method`.
-            public var method: Components.Schemas.BatchRequestInput.MethodPayload?
-            /// The OpenAI API relative URL to be used for the request. Currently `/v1/chat/completions`, `/v1/embeddings`, and `/v1/completions` are supported.
-            ///
-            /// - Remark: Generated from `#/components/schemas/BatchRequestInput/url`.
-            public var url: Swift.String?
-            /// Creates a new `BatchRequestInput`.
-            ///
-            /// - Parameters:
-            ///   - customId: A developer-provided per-request id that will be used to match outputs to inputs. Must be unique for each request in a batch.
-            ///   - method: The HTTP method to be used for the request. Currently only `POST` is supported.
-            ///   - url: The OpenAI API relative URL to be used for the request. Currently `/v1/chat/completions`, `/v1/embeddings`, and `/v1/completions` are supported.
-            public init(
-                customId: Swift.String? = nil,
-                method: Components.Schemas.BatchRequestInput.MethodPayload? = nil,
-                url: Swift.String? = nil
-            ) {
-                self.customId = customId
-                self.method = method
-                self.url = url
-            }
-            public enum CodingKeys: String, CodingKey {
-                case customId = "custom_id"
-                case method
-                case url
-            }
-        }
-        /// The per-line object of the batch output and error files
-        ///
-        /// - Remark: Generated from `#/components/schemas/BatchRequestOutput`.
-        public struct BatchRequestOutput: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/BatchRequestOutput/id`.
-            public var id: Swift.String?
-            /// A developer-provided per-request id that will be used to match outputs to inputs.
-            ///
-            /// - Remark: Generated from `#/components/schemas/BatchRequestOutput/custom_id`.
-            public var customId: Swift.String?
-            /// - Remark: Generated from `#/components/schemas/BatchRequestOutput/response`.
-            public struct ResponsePayload: Codable, Hashable, Sendable {
-                /// The HTTP status code of the response
-                ///
-                /// - Remark: Generated from `#/components/schemas/BatchRequestOutput/response/status_code`.
-                public var statusCode: Swift.Int?
-                /// An unique identifier for the OpenAI API request. Please include this request ID when contacting support.
-                ///
-                /// - Remark: Generated from `#/components/schemas/BatchRequestOutput/response/request_id`.
-                public var requestId: Swift.String?
-                /// The JSON body of the response
-                ///
-                /// - Remark: Generated from `#/components/schemas/BatchRequestOutput/response/body`.
-                public var body: OpenAPIRuntime.OpenAPIObjectContainer?
-                /// Creates a new `ResponsePayload`.
-                ///
-                /// - Parameters:
-                ///   - statusCode: The HTTP status code of the response
-                ///   - requestId: An unique identifier for the OpenAI API request. Please include this request ID when contacting support.
-                ///   - body: The JSON body of the response
-                public init(
-                    statusCode: Swift.Int? = nil,
-                    requestId: Swift.String? = nil,
-                    body: OpenAPIRuntime.OpenAPIObjectContainer? = nil
-                ) {
-                    self.statusCode = statusCode
-                    self.requestId = requestId
-                    self.body = body
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case statusCode = "status_code"
-                    case requestId = "request_id"
-                    case body
-                }
-            }
-            /// - Remark: Generated from `#/components/schemas/BatchRequestOutput/response`.
-            public var response: Components.Schemas.BatchRequestOutput.ResponsePayload?
-            /// For requests that failed with a non-HTTP error, this will contain more information on the cause of the failure.
-            ///
-            /// - Remark: Generated from `#/components/schemas/BatchRequestOutput/error`.
-            public struct _ErrorPayload: Codable, Hashable, Sendable {
-                /// A machine-readable error code.
-                ///
-                /// - Remark: Generated from `#/components/schemas/BatchRequestOutput/error/code`.
-                public var code: Swift.String?
-                /// A human-readable error message.
-                ///
-                /// - Remark: Generated from `#/components/schemas/BatchRequestOutput/error/message`.
-                public var message: Swift.String?
-                /// Creates a new `_ErrorPayload`.
-                ///
-                /// - Parameters:
-                ///   - code: A machine-readable error code.
-                ///   - message: A human-readable error message.
-                public init(
-                    code: Swift.String? = nil,
-                    message: Swift.String? = nil
-                ) {
-                    self.code = code
-                    self.message = message
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case code
-                    case message
-                }
-            }
-            /// For requests that failed with a non-HTTP error, this will contain more information on the cause of the failure.
-            ///
-            /// - Remark: Generated from `#/components/schemas/BatchRequestOutput/error`.
-            public var error: Components.Schemas.BatchRequestOutput._ErrorPayload?
-            /// Creates a new `BatchRequestOutput`.
-            ///
-            /// - Parameters:
-            ///   - id:
-            ///   - customId: A developer-provided per-request id that will be used to match outputs to inputs.
-            ///   - response:
-            ///   - error: For requests that failed with a non-HTTP error, this will contain more information on the cause of the failure.
-            public init(
-                id: Swift.String? = nil,
-                customId: Swift.String? = nil,
-                response: Components.Schemas.BatchRequestOutput.ResponsePayload? = nil,
-                error: Components.Schemas.BatchRequestOutput._ErrorPayload? = nil
-            ) {
-                self.id = id
-                self.customId = customId
-                self.response = response
-                self.error = error
-            }
-            public enum CodingKeys: String, CodingKey {
-                case id
-                case customId = "custom_id"
-                case response
-                case error
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/CancelUploadRequest`.
-        public struct CancelUploadRequest: Codable, Hashable, Sendable {
-            /// Creates a new `CancelUploadRequest`.
-            public init() {}
-            public init(from decoder: any Decoder) throws {
-                try decoder.ensureNoAdditionalProperties(knownKeys: [])
-            }
-        }
-        /// The chunking strategy used to chunk the file(s). If not set, will use the `auto` strategy.
-        ///
-        /// - Remark: Generated from `#/components/schemas/ChunkingStrategyRequestParam`.
-        @frozen public enum ChunkingStrategyRequestParam: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/ChunkingStrategyRequestParam/case1`.
-            case AutoChunkingStrategyRequestParam(Components.Schemas.AutoChunkingStrategyRequestParam)
-            /// - Remark: Generated from `#/components/schemas/ChunkingStrategyRequestParam/case2`.
-            case StaticChunkingStrategyRequestParam(Components.Schemas.StaticChunkingStrategyRequestParam)
-            public init(from decoder: any Decoder) throws {
-                var errors: [any Error] = []
-                do {
-                    self = .AutoChunkingStrategyRequestParam(try .init(from: decoder))
-                    return
-                } catch {
-                    errors.append(error)
-                }
-                do {
-                    self = .StaticChunkingStrategyRequestParam(try .init(from: decoder))
-                    return
-                } catch {
-                    errors.append(error)
-                }
-                throw Swift.DecodingError.failedToDecodeOneOfSchema(
-                    type: Self.self,
-                    codingPath: decoder.codingPath,
-                    errors: errors
-                )
-            }
-            public func encode(to encoder: any Encoder) throws {
-                switch self {
-                case let .AutoChunkingStrategyRequestParam(value):
-                    try value.encode(to: encoder)
-                case let .StaticChunkingStrategyRequestParam(value):
-                    try value.encode(to: encoder)
-                }
-            }
-        }
         /// A click action.
         ///
         ///
         /// - Remark: Generated from `#/components/schemas/Click`.
         public struct Click: Codable, Hashable, Sendable {
-            /// Specifies the event type. For a click action, this property is 
+            /// Specifies the event type. For a click action, this property is
             /// always set to `click`.
             ///
             ///
@@ -772,7 +130,7 @@ public enum Components {
             @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case click = "click"
             }
-            /// Specifies the event type. For a click action, this property is 
+            /// Specifies the event type. For a click action, this property is
             /// always set to `click`.
             ///
             ///
@@ -807,7 +165,7 @@ public enum Components {
             /// Creates a new `Click`.
             ///
             /// - Parameters:
-            ///   - _type: Specifies the event type. For a click action, this property is 
+            ///   - _type: Specifies the event type. For a click action, this property is
             ///   - button: Indicates which mouse button was pressed during the click. One of `left`, `right`, `wheel`, `back`, or `forward`.
             ///   - x: The x-coordinate where the click occurred.
             ///   - y: The y-coordinate where the click occurred.
@@ -933,45 +291,6 @@ public enum Components {
             public enum CodingKeys: String, CodingKey {
                 case _type = "type"
                 case logs
-            }
-        }
-        /// A tool that runs code.
-        ///
-        ///
-        /// - Remark: Generated from `#/components/schemas/CodeInterpreterTool`.
-        public struct CodeInterpreterTool: Codable, Hashable, Sendable {
-            /// The type of the code interpreter tool. Always `code_interpreter`.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/CodeInterpreterTool/type`.
-            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case codeInterpreter = "code_interpreter"
-            }
-            /// The type of the code interpreter tool. Always `code_interpreter`.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/CodeInterpreterTool/type`.
-            public var _type: Components.Schemas.CodeInterpreterTool._TypePayload
-            /// The IDs of the files to run the code on.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/CodeInterpreterTool/file_ids`.
-            public var fileIds: [Swift.String]
-            /// Creates a new `CodeInterpreterTool`.
-            ///
-            /// - Parameters:
-            ///   - _type: The type of the code interpreter tool. Always `code_interpreter`.
-            ///   - fileIds: The IDs of the files to run the code on.
-            public init(
-                _type: Components.Schemas.CodeInterpreterTool._TypePayload,
-                fileIds: [Swift.String]
-            ) {
-                self._type = _type
-                self.fileIds = fileIds
-            }
-            public enum CodingKeys: String, CodingKey {
-                case _type = "type"
-                case fileIds = "file_ids"
             }
         }
         /// A tool call to run code.
@@ -1214,184 +533,6 @@ public enum Components {
                 ])
             }
         }
-        /// - Remark: Generated from `#/components/schemas/CompleteUploadRequest`.
-        public struct CompleteUploadRequest: Codable, Hashable, Sendable {
-            /// The ordered list of Part IDs.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/CompleteUploadRequest/part_ids`.
-            public var partIds: [Swift.String]
-            /// The optional md5 checksum for the file contents to verify if the bytes uploaded matches what you expect.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/CompleteUploadRequest/md5`.
-            public var md5: Swift.String?
-            /// Creates a new `CompleteUploadRequest`.
-            ///
-            /// - Parameters:
-            ///   - partIds: The ordered list of Part IDs.
-            ///   - md5: The optional md5 checksum for the file contents to verify if the bytes uploaded matches what you expect.
-            public init(
-                partIds: [Swift.String],
-                md5: Swift.String? = nil
-            ) {
-                self.partIds = partIds
-                self.md5 = md5
-            }
-            public enum CodingKeys: String, CodingKey {
-                case partIds = "part_ids"
-                case md5
-            }
-            public init(from decoder: any Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                self.partIds = try container.decode(
-                    [Swift.String].self,
-                    forKey: .partIds
-                )
-                self.md5 = try container.decodeIfPresent(
-                    Swift.String.self,
-                    forKey: .md5
-                )
-                try decoder.ensureNoAdditionalProperties(knownKeys: [
-                    "part_ids",
-                    "md5"
-                ])
-            }
-        }
-        /// Usage statistics for the completion request.
-        ///
-        /// - Remark: Generated from `#/components/schemas/CompletionUsage`.
-        public struct CompletionUsage: Codable, Hashable, Sendable {
-            /// Number of tokens in the generated completion.
-            ///
-            /// - Remark: Generated from `#/components/schemas/CompletionUsage/completion_tokens`.
-            public var completionTokens: Swift.Int
-            /// Number of tokens in the prompt.
-            ///
-            /// - Remark: Generated from `#/components/schemas/CompletionUsage/prompt_tokens`.
-            public var promptTokens: Swift.Int
-            /// Total number of tokens used in the request (prompt + completion).
-            ///
-            /// - Remark: Generated from `#/components/schemas/CompletionUsage/total_tokens`.
-            public var totalTokens: Swift.Int
-            /// Breakdown of tokens used in a completion.
-            ///
-            /// - Remark: Generated from `#/components/schemas/CompletionUsage/completion_tokens_details`.
-            public struct CompletionTokensDetailsPayload: Codable, Hashable, Sendable {
-                /// When using Predicted Outputs, the number of tokens in the
-                /// prediction that appeared in the completion.
-                ///
-                ///
-                /// - Remark: Generated from `#/components/schemas/CompletionUsage/completion_tokens_details/accepted_prediction_tokens`.
-                public var acceptedPredictionTokens: Swift.Int?
-                /// Audio input tokens generated by the model.
-                ///
-                /// - Remark: Generated from `#/components/schemas/CompletionUsage/completion_tokens_details/audio_tokens`.
-                public var audioTokens: Swift.Int?
-                /// Tokens generated by the model for reasoning.
-                ///
-                /// - Remark: Generated from `#/components/schemas/CompletionUsage/completion_tokens_details/reasoning_tokens`.
-                public var reasoningTokens: Swift.Int?
-                /// When using Predicted Outputs, the number of tokens in the
-                /// prediction that did not appear in the completion. However, like
-                /// reasoning tokens, these tokens are still counted in the total
-                /// completion tokens for purposes of billing, output, and context window
-                /// limits.
-                ///
-                ///
-                /// - Remark: Generated from `#/components/schemas/CompletionUsage/completion_tokens_details/rejected_prediction_tokens`.
-                public var rejectedPredictionTokens: Swift.Int?
-                /// Creates a new `CompletionTokensDetailsPayload`.
-                ///
-                /// - Parameters:
-                ///   - acceptedPredictionTokens: When using Predicted Outputs, the number of tokens in the
-                ///   - audioTokens: Audio input tokens generated by the model.
-                ///   - reasoningTokens: Tokens generated by the model for reasoning.
-                ///   - rejectedPredictionTokens: When using Predicted Outputs, the number of tokens in the
-                public init(
-                    acceptedPredictionTokens: Swift.Int? = nil,
-                    audioTokens: Swift.Int? = nil,
-                    reasoningTokens: Swift.Int? = nil,
-                    rejectedPredictionTokens: Swift.Int? = nil
-                ) {
-                    self.acceptedPredictionTokens = acceptedPredictionTokens
-                    self.audioTokens = audioTokens
-                    self.reasoningTokens = reasoningTokens
-                    self.rejectedPredictionTokens = rejectedPredictionTokens
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case acceptedPredictionTokens = "accepted_prediction_tokens"
-                    case audioTokens = "audio_tokens"
-                    case reasoningTokens = "reasoning_tokens"
-                    case rejectedPredictionTokens = "rejected_prediction_tokens"
-                }
-            }
-            /// Breakdown of tokens used in a completion.
-            ///
-            /// - Remark: Generated from `#/components/schemas/CompletionUsage/completion_tokens_details`.
-            public var completionTokensDetails: Components.Schemas.CompletionUsage.CompletionTokensDetailsPayload?
-            /// Breakdown of tokens used in the prompt.
-            ///
-            /// - Remark: Generated from `#/components/schemas/CompletionUsage/prompt_tokens_details`.
-            public struct PromptTokensDetailsPayload: Codable, Hashable, Sendable {
-                /// Audio input tokens present in the prompt.
-                ///
-                /// - Remark: Generated from `#/components/schemas/CompletionUsage/prompt_tokens_details/audio_tokens`.
-                public var audioTokens: Swift.Int?
-                /// Cached tokens present in the prompt.
-                ///
-                /// - Remark: Generated from `#/components/schemas/CompletionUsage/prompt_tokens_details/cached_tokens`.
-                public var cachedTokens: Swift.Int?
-                /// Creates a new `PromptTokensDetailsPayload`.
-                ///
-                /// - Parameters:
-                ///   - audioTokens: Audio input tokens present in the prompt.
-                ///   - cachedTokens: Cached tokens present in the prompt.
-                public init(
-                    audioTokens: Swift.Int? = nil,
-                    cachedTokens: Swift.Int? = nil
-                ) {
-                    self.audioTokens = audioTokens
-                    self.cachedTokens = cachedTokens
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case audioTokens = "audio_tokens"
-                    case cachedTokens = "cached_tokens"
-                }
-            }
-            /// Breakdown of tokens used in the prompt.
-            ///
-            /// - Remark: Generated from `#/components/schemas/CompletionUsage/prompt_tokens_details`.
-            public var promptTokensDetails: Components.Schemas.CompletionUsage.PromptTokensDetailsPayload?
-            /// Creates a new `CompletionUsage`.
-            ///
-            /// - Parameters:
-            ///   - completionTokens: Number of tokens in the generated completion.
-            ///   - promptTokens: Number of tokens in the prompt.
-            ///   - totalTokens: Total number of tokens used in the request (prompt + completion).
-            ///   - completionTokensDetails: Breakdown of tokens used in a completion.
-            ///   - promptTokensDetails: Breakdown of tokens used in the prompt.
-            public init(
-                completionTokens: Swift.Int,
-                promptTokens: Swift.Int,
-                totalTokens: Swift.Int,
-                completionTokensDetails: Components.Schemas.CompletionUsage.CompletionTokensDetailsPayload? = nil,
-                promptTokensDetails: Components.Schemas.CompletionUsage.PromptTokensDetailsPayload? = nil
-            ) {
-                self.completionTokens = completionTokens
-                self.promptTokens = promptTokens
-                self.totalTokens = totalTokens
-                self.completionTokensDetails = completionTokensDetails
-                self.promptTokensDetails = promptTokensDetails
-            }
-            public enum CodingKeys: String, CodingKey {
-                case completionTokens = "completion_tokens"
-                case promptTokens = "prompt_tokens"
-                case totalTokens = "total_tokens"
-                case completionTokensDetails = "completion_tokens_details"
-                case promptTokensDetails = "prompt_tokens_details"
-            }
-        }
         /// Combine multiple filters using `and` or `or`.
         ///
         /// - Remark: Generated from `#/components/schemas/CompoundFilter`.
@@ -1610,7 +751,7 @@ public enum Components {
         ///
         /// - Remark: Generated from `#/components/schemas/ComputerScreenshotImage`.
         public struct ComputerScreenshotImage: Codable, Hashable, Sendable {
-            /// Specifies the event type. For a computer screenshot, this property is 
+            /// Specifies the event type. For a computer screenshot, this property is
             /// always set to `computer_screenshot`.
             ///
             ///
@@ -1618,7 +759,7 @@ public enum Components {
             @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case computerScreenshot = "computer_screenshot"
             }
-            /// Specifies the event type. For a computer screenshot, this property is 
+            /// Specifies the event type. For a computer screenshot, this property is
             /// always set to `computer_screenshot`.
             ///
             ///
@@ -1635,7 +776,7 @@ public enum Components {
             /// Creates a new `ComputerScreenshotImage`.
             ///
             /// - Parameters:
-            ///   - _type: Specifies the event type. For a computer screenshot, this property is 
+            ///   - _type: Specifies the event type. For a computer screenshot, this property is
             ///   - imageUrl: The URL of the screenshot image.
             ///   - fileId: The identifier of an uploaded file that contains the screenshot.
             public init(
@@ -1653,7 +794,7 @@ public enum Components {
                 case fileId = "file_id"
             }
         }
-        /// A tool that controls a virtual computer. Learn more about the 
+        /// A tool that controls a virtual computer. Learn more about the
         /// [computer tool](/docs/guides/tools-computer-use).
         ///
         ///
@@ -1721,7 +862,7 @@ public enum Components {
                 case environment
             }
         }
-        /// A tool call to a computer use tool. See the 
+        /// A tool call to a computer use tool. See the
         /// [computer use guide](/docs/guides/tools-computer-use) for more information.
         ///
         ///
@@ -1829,7 +970,7 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/ComputerToolCallOutput/call_id`.
             public var callId: Swift.String
-            /// The safety checks reported by the API that have been acknowledged by the 
+            /// The safety checks reported by the API that have been acknowledged by the
             /// developer.
             ///
             ///
@@ -1859,7 +1000,7 @@ public enum Components {
             ///   - _type: The type of the computer tool call output. Always `computer_call_output`.
             ///   - id: The ID of the computer tool call output.
             ///   - callId: The ID of the computer tool call that produced the output.
-            ///   - acknowledgedSafetyChecks: The safety checks reported by the API that have been acknowledged by the 
+            ///   - acknowledgedSafetyChecks: The safety checks reported by the API that have been acknowledged by the
             ///   - output:
             ///   - status: The status of the message input. One of `in_progress`, `completed`, or
             public init(
@@ -1969,44 +1110,6 @@ public enum Components {
                 case message
             }
         }
-        /// Multi-modal input and output contents.
-        ///
-        ///
-        /// - Remark: Generated from `#/components/schemas/Content`.
-        @frozen public enum Content: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/Content/case1`.
-            case InputContent(Components.Schemas.InputContent)
-            /// - Remark: Generated from `#/components/schemas/Content/case2`.
-            case OutputContent(Components.Schemas.OutputContent)
-            public init(from decoder: any Decoder) throws {
-                var errors: [any Error] = []
-                do {
-                    self = .InputContent(try .init(from: decoder))
-                    return
-                } catch {
-                    errors.append(error)
-                }
-                do {
-                    self = .OutputContent(try .init(from: decoder))
-                    return
-                } catch {
-                    errors.append(error)
-                }
-                throw Swift.DecodingError.failedToDecodeOneOfSchema(
-                    type: Self.self,
-                    codingPath: decoder.codingPath,
-                    errors: errors
-                )
-            }
-            public func encode(to encoder: any Encoder) throws {
-                switch self {
-                case let .InputContent(value):
-                    try value.encode(to: encoder)
-                case let .OutputContent(value):
-                    try value.encode(to: encoder)
-                }
-            }
-        }
         /// An x/y coordinate pair, e.g. `{ x: 100, y: 200 }`.
         ///
         ///
@@ -2039,136 +1142,181 @@ public enum Components {
                 case y
             }
         }
-        /// The aggregated costs details of the specific time bucket.
-        ///
-        /// - Remark: Generated from `#/components/schemas/CostsResult`.
-        public struct CostsResult: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/CostsResult/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case organization_costs_result = "organization.costs.result"
-            }
-            /// - Remark: Generated from `#/components/schemas/CostsResult/object`.
-            public var object: Components.Schemas.CostsResult.ObjectPayload
-            /// The monetary value in its associated currency.
+        /// - Remark: Generated from `#/components/schemas/CreateModelResponseProperties`.
+        public struct CreateModelResponseProperties: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/CreateModelResponseProperties/value1`.
+            public var value1: Components.Schemas.ModelResponseProperties
+            /// Creates a new `CreateModelResponseProperties`.
             ///
-            /// - Remark: Generated from `#/components/schemas/CostsResult/amount`.
-            public struct AmountPayload: Codable, Hashable, Sendable {
-                /// The numeric value of the cost.
+            /// - Parameters:
+            ///   - value1:
+            public init(value1: Components.Schemas.ModelResponseProperties) {
+                self.value1 = value1
+            }
+            public init(from decoder: any Decoder) throws {
+                self.value1 = try .init(from: decoder)
+            }
+            public func encode(to encoder: any Encoder) throws {
+                try self.value1.encode(to: encoder)
+            }
+        }
+        /// - Remark: Generated from `#/components/schemas/CreateResponse`.
+        public struct CreateResponse: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/CreateResponse/value1`.
+            public var value1: Components.Schemas.CreateModelResponseProperties
+            /// - Remark: Generated from `#/components/schemas/CreateResponse/value2`.
+            public var value2: Components.Schemas.ResponseProperties
+            /// - Remark: Generated from `#/components/schemas/CreateResponse/value3`.
+            public struct Value3Payload: Codable, Hashable, Sendable {
+                /// Text, image, or file inputs to the model, used to generate a response.
                 ///
-                /// - Remark: Generated from `#/components/schemas/CostsResult/amount/value`.
-                public var value: Swift.Double?
-                /// Lowercase ISO-4217 currency e.g. "usd"
+                /// Learn more:
+                /// - [Text inputs and outputs](/docs/guides/text)
+                /// - [Image inputs](/docs/guides/images)
+                /// - [File inputs](/docs/guides/pdf-files)
+                /// - [Conversation state](/docs/guides/conversation-state)
+                /// - [Function calling](/docs/guides/function-calling)
                 ///
-                /// - Remark: Generated from `#/components/schemas/CostsResult/amount/currency`.
-                public var currency: Swift.String?
-                /// Creates a new `AmountPayload`.
+                ///
+                /// - Remark: Generated from `#/components/schemas/CreateResponse/value3/input`.
+                @frozen public enum InputPayload: Codable, Hashable, Sendable {
+                    /// A text input to the model, equivalent to a text input with the
+                    /// `user` role.
+                    ///
+                    ///
+                    /// - Remark: Generated from `#/components/schemas/CreateResponse/value3/input/case1`.
+                    case case1(Swift.String)
+                    /// A list of one or many input items to the model, containing
+                    /// different content types.
+                    ///
+                    ///
+                    /// - Remark: Generated from `#/components/schemas/CreateResponse/value3/input/case2`.
+                    case case2([Components.Schemas.InputItem])
+                    public init(from decoder: any Decoder) throws {
+                        var errors: [any Error] = []
+                        do {
+                            self = .case1(try decoder.decodeFromSingleValueContainer())
+                            return
+                        } catch {
+                            errors.append(error)
+                        }
+                        do {
+                            self = .case2(try decoder.decodeFromSingleValueContainer())
+                            return
+                        } catch {
+                            errors.append(error)
+                        }
+                        throw Swift.DecodingError.failedToDecodeOneOfSchema(
+                            type: Self.self,
+                            codingPath: decoder.codingPath,
+                            errors: errors
+                        )
+                    }
+                    public func encode(to encoder: any Encoder) throws {
+                        switch self {
+                        case let .case1(value):
+                            try encoder.encodeToSingleValueContainer(value)
+                        case let .case2(value):
+                            try encoder.encodeToSingleValueContainer(value)
+                        }
+                    }
+                }
+                /// Text, image, or file inputs to the model, used to generate a response.
+                ///
+                /// Learn more:
+                /// - [Text inputs and outputs](/docs/guides/text)
+                /// - [Image inputs](/docs/guides/images)
+                /// - [File inputs](/docs/guides/pdf-files)
+                /// - [Conversation state](/docs/guides/conversation-state)
+                /// - [Function calling](/docs/guides/function-calling)
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/CreateResponse/value3/input`.
+                public var input: Components.Schemas.CreateResponse.Value3Payload.InputPayload
+                /// Specify additional output data to include in the model response. Currently
+                /// supported values are:
+                /// - `file_search_call.results`: Include the search results of
+                ///   the file search tool call.
+                /// - `message.input_image.image_url`: Include image urls from the input message.
+                /// - `computer_call_output.output.image_url`: Include image urls from the computer call output.
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/CreateResponse/value3/include`.
+                public var include: [Components.Schemas.Includable]?
+                /// Whether to allow the model to run tool calls in parallel.
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/CreateResponse/value3/parallel_tool_calls`.
+                public var parallelToolCalls: Swift.Bool?
+                /// Whether to store the generated model response for later retrieval via
+                /// API.
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/CreateResponse/value3/store`.
+                public var store: Swift.Bool?
+                /// If set to true, the model response data will be streamed to the client
+                /// as it is generated using [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format).
+                /// See the [Streaming section below](/docs/api-reference/responses-streaming)
+                /// for more information.
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/CreateResponse/value3/stream`.
+                public var stream: Swift.Bool?
+                /// Creates a new `Value3Payload`.
                 ///
                 /// - Parameters:
-                ///   - value: The numeric value of the cost.
-                ///   - currency: Lowercase ISO-4217 currency e.g. "usd"
+                ///   - input: Text, image, or file inputs to the model, used to generate a response.
+                ///   - include: Specify additional output data to include in the model response. Currently
+                ///   - parallelToolCalls: Whether to allow the model to run tool calls in parallel.
+                ///   - store: Whether to store the generated model response for later retrieval via
+                ///   - stream: If set to true, the model response data will be streamed to the client
                 public init(
-                    value: Swift.Double? = nil,
-                    currency: Swift.String? = nil
+                    input: Components.Schemas.CreateResponse.Value3Payload.InputPayload,
+                    include: [Components.Schemas.Includable]? = nil,
+                    parallelToolCalls: Swift.Bool? = nil,
+                    store: Swift.Bool? = nil,
+                    stream: Swift.Bool? = nil
                 ) {
-                    self.value = value
-                    self.currency = currency
+                    self.input = input
+                    self.include = include
+                    self.parallelToolCalls = parallelToolCalls
+                    self.store = store
+                    self.stream = stream
                 }
                 public enum CodingKeys: String, CodingKey {
-                    case value
-                    case currency
+                    case input
+                    case include
+                    case parallelToolCalls = "parallel_tool_calls"
+                    case store
+                    case stream
                 }
             }
-            /// The monetary value in its associated currency.
-            ///
-            /// - Remark: Generated from `#/components/schemas/CostsResult/amount`.
-            public var amount: Components.Schemas.CostsResult.AmountPayload?
-            /// When `group_by=line_item`, this field provides the line item of the grouped costs result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/CostsResult/line_item`.
-            public var lineItem: Swift.String?
-            /// When `group_by=project_id`, this field provides the project ID of the grouped costs result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/CostsResult/project_id`.
-            public var projectId: Swift.String?
-            /// Creates a new `CostsResult`.
+            /// - Remark: Generated from `#/components/schemas/CreateResponse/value3`.
+            public var value3: Components.Schemas.CreateResponse.Value3Payload
+            /// Creates a new `CreateResponse`.
             ///
             /// - Parameters:
-            ///   - object:
-            ///   - amount: The monetary value in its associated currency.
-            ///   - lineItem: When `group_by=line_item`, this field provides the line item of the grouped costs result.
-            ///   - projectId: When `group_by=project_id`, this field provides the project ID of the grouped costs result.
+            ///   - value1:
+            ///   - value2:
+            ///   - value3:
             public init(
-                object: Components.Schemas.CostsResult.ObjectPayload,
-                amount: Components.Schemas.CostsResult.AmountPayload? = nil,
-                lineItem: Swift.String? = nil,
-                projectId: Swift.String? = nil
+                value1: Components.Schemas.CreateModelResponseProperties,
+                value2: Components.Schemas.ResponseProperties,
+                value3: Components.Schemas.CreateResponse.Value3Payload
             ) {
-                self.object = object
-                self.amount = amount
-                self.lineItem = lineItem
-                self.projectId = projectId
+                self.value1 = value1
+                self.value2 = value2
+                self.value3 = value3
             }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case amount
-                case lineItem = "line_item"
-                case projectId = "project_id"
+            public init(from decoder: any Decoder) throws {
+                self.value1 = try .init(from: decoder)
+                self.value2 = try .init(from: decoder)
+                self.value3 = try .init(from: decoder)
             }
-        }
-        /// - Remark: Generated from `#/components/schemas/DefaultProjectErrorResponse`.
-        public struct DefaultProjectErrorResponse: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/DefaultProjectErrorResponse/code`.
-            public var code: Swift.Int
-            /// - Remark: Generated from `#/components/schemas/DefaultProjectErrorResponse/message`.
-            public var message: Swift.String
-            /// Creates a new `DefaultProjectErrorResponse`.
-            ///
-            /// - Parameters:
-            ///   - code:
-            ///   - message:
-            public init(
-                code: Swift.Int,
-                message: Swift.String
-            ) {
-                self.code = code
-                self.message = message
-            }
-            public enum CodingKeys: String, CodingKey {
-                case code
-                case message
-            }
-        }
-        /// Occurs when a stream ends.
-        ///
-        /// - Remark: Generated from `#/components/schemas/DoneEvent`.
-        public struct DoneEvent: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/DoneEvent/event`.
-            @frozen public enum EventPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case done = "done"
-            }
-            /// - Remark: Generated from `#/components/schemas/DoneEvent/event`.
-            public var event: Components.Schemas.DoneEvent.EventPayload
-            /// - Remark: Generated from `#/components/schemas/DoneEvent/data`.
-            @frozen public enum DataPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case _lbrack_done_rbrack_ = "[DONE]"
-            }
-            /// - Remark: Generated from `#/components/schemas/DoneEvent/data`.
-            public var data: Components.Schemas.DoneEvent.DataPayload
-            /// Creates a new `DoneEvent`.
-            ///
-            /// - Parameters:
-            ///   - event:
-            ///   - data:
-            public init(
-                event: Components.Schemas.DoneEvent.EventPayload,
-                data: Components.Schemas.DoneEvent.DataPayload
-            ) {
-                self.event = event
-                self.data = data
-            }
-            public enum CodingKeys: String, CodingKey {
-                case event
-                case data
+            public func encode(to encoder: any Encoder) throws {
+                try self.value1.encode(to: encoder)
+                try self.value2.encode(to: encoder)
+                try self.value3.encode(to: encoder)
             }
         }
         /// A double click action.
@@ -2176,7 +1324,7 @@ public enum Components {
         ///
         /// - Remark: Generated from `#/components/schemas/DoubleClick`.
         public struct DoubleClick: Codable, Hashable, Sendable {
-            /// Specifies the event type. For a double click action, this property is 
+            /// Specifies the event type. For a double click action, this property is
             /// always set to `double_click`.
             ///
             ///
@@ -2184,7 +1332,7 @@ public enum Components {
             @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case doubleClick = "double_click"
             }
-            /// Specifies the event type. For a double click action, this property is 
+            /// Specifies the event type. For a double click action, this property is
             /// always set to `double_click`.
             ///
             ///
@@ -2203,7 +1351,7 @@ public enum Components {
             /// Creates a new `DoubleClick`.
             ///
             /// - Parameters:
-            ///   - _type: Specifies the event type. For a double click action, this property is 
+            ///   - _type: Specifies the event type. For a double click action, this property is
             ///   - x: The x-coordinate where the double click occurred.
             ///   - y: The y-coordinate where the double click occurred.
             public init(
@@ -2226,7 +1374,7 @@ public enum Components {
         ///
         /// - Remark: Generated from `#/components/schemas/Drag`.
         public struct Drag: Codable, Hashable, Sendable {
-            /// Specifies the event type. For a drag action, this property is 
+            /// Specifies the event type. For a drag action, this property is
             /// always set to `drag`.
             ///
             ///
@@ -2234,7 +1382,7 @@ public enum Components {
             @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case drag = "drag"
             }
-            /// Specifies the event type. For a drag action, this property is 
+            /// Specifies the event type. For a drag action, this property is
             /// always set to `drag`.
             ///
             ///
@@ -2255,7 +1403,7 @@ public enum Components {
             /// Creates a new `Drag`.
             ///
             /// - Parameters:
-            ///   - _type: Specifies the event type. For a drag action, this property is 
+            ///   - _type: Specifies the event type. For a drag action, this property is
             ///   - path: An array of coordinates representing the path of the drag action. Coordinates will appear as an array
             public init(
                 _type: Components.Schemas.Drag._TypePayload,
@@ -2376,51 +1524,6 @@ public enum Components {
                 case _type = "type"
             }
         }
-        /// Represents an embedding vector returned by embedding endpoint.
-        ///
-        ///
-        /// - Remark: Generated from `#/components/schemas/Embedding`.
-        public struct Embedding: Codable, Hashable, Sendable {
-            /// The index of the embedding in the list of embeddings.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Embedding/index`.
-            public var index: Swift.Int
-            /// The embedding vector, which is a list of floats. The length of vector depends on the model as listed in the [embedding guide](/docs/guides/embeddings).
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/Embedding/embedding`.
-            public var embedding: [Swift.Double]
-            /// The object type, which is always "embedding".
-            ///
-            /// - Remark: Generated from `#/components/schemas/Embedding/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case embedding = "embedding"
-            }
-            /// The object type, which is always "embedding".
-            ///
-            /// - Remark: Generated from `#/components/schemas/Embedding/object`.
-            public var object: Components.Schemas.Embedding.ObjectPayload
-            /// Creates a new `Embedding`.
-            ///
-            /// - Parameters:
-            ///   - index: The index of the embedding in the list of embeddings.
-            ///   - embedding: The embedding vector, which is a list of floats. The length of vector depends on the model as listed in the [embedding guide](/docs/guides/embeddings).
-            ///   - object: The object type, which is always "embedding".
-            public init(
-                index: Swift.Int,
-                embedding: [Swift.Double],
-                object: Components.Schemas.Embedding.ObjectPayload
-            ) {
-                self.index = index
-                self.embedding = embedding
-                self.object = object
-            }
-            public enum CodingKeys: String, CodingKey {
-                case index
-                case embedding
-                case object
-            }
-        }
         /// - Remark: Generated from `#/components/schemas/Error`.
         public struct _Error: Codable, Hashable, Sendable {
             /// - Remark: Generated from `#/components/schemas/Error/code`.
@@ -2454,50 +1557,6 @@ public enum Components {
                 case message
                 case param
                 case _type = "type"
-            }
-        }
-        /// Occurs when an [error](/docs/guides/error-codes#api-errors) occurs. This can happen due to an internal server error or a timeout.
-        ///
-        /// - Remark: Generated from `#/components/schemas/ErrorEvent`.
-        public struct ErrorEvent: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/ErrorEvent/event`.
-            @frozen public enum EventPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case error = "error"
-            }
-            /// - Remark: Generated from `#/components/schemas/ErrorEvent/event`.
-            public var event: Components.Schemas.ErrorEvent.EventPayload
-            /// - Remark: Generated from `#/components/schemas/ErrorEvent/data`.
-            public var data: Components.Schemas._Error
-            /// Creates a new `ErrorEvent`.
-            ///
-            /// - Parameters:
-            ///   - event:
-            ///   - data:
-            public init(
-                event: Components.Schemas.ErrorEvent.EventPayload,
-                data: Components.Schemas._Error
-            ) {
-                self.event = event
-                self.data = data
-            }
-            public enum CodingKeys: String, CodingKey {
-                case event
-                case data
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/ErrorResponse`.
-        public struct ErrorResponse: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/ErrorResponse/error`.
-            public var error: Components.Schemas._Error
-            /// Creates a new `ErrorResponse`.
-            ///
-            /// - Parameters:
-            ///   - error:
-            public init(error: Components.Schemas._Error) {
-                self.error = error
-            }
-            public enum CodingKeys: String, CodingKey {
-                case error
             }
         }
         /// A citation to a file.
@@ -2596,43 +1655,6 @@ public enum Components {
                 case index
             }
         }
-        /// The ranker to use for the file search. If not specified will use the `auto` ranker.
-        ///
-        /// - Remark: Generated from `#/components/schemas/FileSearchRanker`.
-        @frozen public enum FileSearchRanker: String, Codable, Hashable, Sendable, CaseIterable {
-            case auto = "auto"
-            case default20240821 = "default_2024_08_21"
-        }
-        /// The ranking options for the file search. If not specified, the file search tool will use the `auto` ranker and a score_threshold of 0.
-        ///
-        /// See the [file search tool documentation](/docs/assistants/tools/file-search#customizing-file-search-settings) for more information.
-        ///
-        ///
-        /// - Remark: Generated from `#/components/schemas/FileSearchRankingOptions`.
-        public struct FileSearchRankingOptions: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/FileSearchRankingOptions/ranker`.
-            public var ranker: Components.Schemas.FileSearchRanker?
-            /// The score threshold for the file search. All values must be a floating point number between 0 and 1.
-            ///
-            /// - Remark: Generated from `#/components/schemas/FileSearchRankingOptions/score_threshold`.
-            public var scoreThreshold: Swift.Double
-            /// Creates a new `FileSearchRankingOptions`.
-            ///
-            /// - Parameters:
-            ///   - ranker:
-            ///   - scoreThreshold: The score threshold for the file search. All values must be a floating point number between 0 and 1.
-            public init(
-                ranker: Components.Schemas.FileSearchRanker? = nil,
-                scoreThreshold: Swift.Double
-            ) {
-                self.ranker = ranker
-                self.scoreThreshold = scoreThreshold
-            }
-            public enum CodingKeys: String, CodingKey {
-                case ranker
-                case scoreThreshold = "score_threshold"
-            }
-        }
         /// A tool that searches for relevant content from uploaded files.
         /// Learn more about the [file search tool](/docs/guides/tools-file-search).
         ///
@@ -2656,7 +1678,7 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/FileSearchTool/vector_store_ids`.
             public var vectorStoreIds: [Swift.String]
-            /// The maximum number of results to return. This number should be between 1 
+            /// The maximum number of results to return. This number should be between 1
             /// and 50 inclusive.
             ///
             ///
@@ -2766,7 +1788,7 @@ public enum Components {
             /// - Parameters:
             ///   - _type: The type of the file search tool. Always `file_search`.
             ///   - vectorStoreIds: The IDs of the vector stores to search.
-            ///   - maxNumResults: The maximum number of results to return. This number should be between 1 
+            ///   - maxNumResults: The maximum number of results to return. This number should be between 1
             ///   - filters: A filter to apply based on file attributes.
             ///   - rankingOptions: Ranking options for search.
             public init(
@@ -2790,7 +1812,7 @@ public enum Components {
                 case rankingOptions = "ranking_options"
             }
         }
-        /// The results of a file search tool call. See the 
+        /// The results of a file search tool call. See the
         /// [file search guide](/docs/guides/tools-file-search) for more information.
         ///
         ///
@@ -2813,7 +1835,7 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/FileSearchToolCall/type`.
             public var _type: Components.Schemas.FileSearchToolCall._TypePayload
-            /// The status of the file search tool call. One of `in_progress`, 
+            /// The status of the file search tool call. One of `in_progress`,
             /// `searching`, `incomplete` or `failed`,
             ///
             ///
@@ -2825,7 +1847,7 @@ public enum Components {
                 case incomplete = "incomplete"
                 case failed = "failed"
             }
-            /// The status of the file search tool call. One of `in_progress`, 
+            /// The status of the file search tool call. One of `in_progress`,
             /// `searching`, `incomplete` or `failed`,
             ///
             ///
@@ -2904,7 +1926,7 @@ public enum Components {
             /// - Parameters:
             ///   - id: The unique ID of the file search tool call.
             ///   - _type: The type of the file search tool call. Always `file_search_call`.
-            ///   - status: The status of the file search tool call. One of `in_progress`, 
+            ///   - status: The status of the file search tool call. One of `in_progress`,
             ///   - queries: The queries used to search for files.
             ///   - results: The results of the file search tool call.
             public init(
@@ -2926,69 +1948,6 @@ public enum Components {
                 case status
                 case queries
                 case results
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/FunctionObject`.
-        public struct FunctionObject: Codable, Hashable, Sendable {
-            /// A description of what the function does, used by the model to choose when and how to call the function.
-            ///
-            /// - Remark: Generated from `#/components/schemas/FunctionObject/description`.
-            public var description: Swift.String?
-            /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
-            ///
-            /// - Remark: Generated from `#/components/schemas/FunctionObject/name`.
-            public var name: Swift.String
-            /// - Remark: Generated from `#/components/schemas/FunctionObject/parameters`.
-            public var parameters: Components.Schemas.FunctionParameters?
-            /// Whether to enable strict schema adherence when generating the function call. If set to true, the model will follow the exact schema defined in the `parameters` field. Only a subset of JSON Schema is supported when `strict` is `true`. Learn more about Structured Outputs in the [function calling guide](docs/guides/function-calling).
-            ///
-            /// - Remark: Generated from `#/components/schemas/FunctionObject/strict`.
-            public var strict: Swift.Bool?
-            /// Creates a new `FunctionObject`.
-            ///
-            /// - Parameters:
-            ///   - description: A description of what the function does, used by the model to choose when and how to call the function.
-            ///   - name: The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
-            ///   - parameters:
-            ///   - strict: Whether to enable strict schema adherence when generating the function call. If set to true, the model will follow the exact schema defined in the `parameters` field. Only a subset of JSON Schema is supported when `strict` is `true`. Learn more about Structured Outputs in the [function calling guide](docs/guides/function-calling).
-            public init(
-                description: Swift.String? = nil,
-                name: Swift.String,
-                parameters: Components.Schemas.FunctionParameters? = nil,
-                strict: Swift.Bool? = nil
-            ) {
-                self.description = description
-                self.name = name
-                self.parameters = parameters
-                self.strict = strict
-            }
-            public enum CodingKeys: String, CodingKey {
-                case description
-                case name
-                case parameters
-                case strict
-            }
-        }
-        /// The parameters the functions accepts, described as a JSON Schema object. See the [guide](/docs/guides/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format. 
-        ///
-        /// Omitting `parameters` defines a function with an empty parameter list.
-        ///
-        /// - Remark: Generated from `#/components/schemas/FunctionParameters`.
-        public struct FunctionParameters: Codable, Hashable, Sendable {
-            /// A container of undocumented properties.
-            public var additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer
-            /// Creates a new `FunctionParameters`.
-            ///
-            /// - Parameters:
-            ///   - additionalProperties: A container of undocumented properties.
-            public init(additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer = .init()) {
-                self.additionalProperties = additionalProperties
-            }
-            public init(from decoder: any Decoder) throws {
-                additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [])
-            }
-            public func encode(to encoder: any Encoder) throws {
-                try encoder.encodeAdditionalProperties(additionalProperties)
             }
         }
         /// Defines a function in your own code the model can choose to call. Learn more
@@ -3080,7 +2039,7 @@ public enum Components {
                 case strict
             }
         }
-        /// A tool call to run a function. See the 
+        /// A tool call to run a function. See the
         /// [function calling guide](/docs/guides/function-calling) for more information.
         ///
         ///
@@ -3335,66 +2294,6 @@ public enum Components {
                 try self.value2.encode(to: encoder)
             }
         }
-        /// Represents the url or the content of an image generated by the OpenAI API.
-        ///
-        /// - Remark: Generated from `#/components/schemas/Image`.
-        public struct Image: Codable, Hashable, Sendable {
-            /// The base64-encoded JSON of the generated image, if `response_format` is `b64_json`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Image/b64_json`.
-            public var b64Json: Swift.String?
-            /// The URL of the generated image, if `response_format` is `url` (default).
-            ///
-            /// - Remark: Generated from `#/components/schemas/Image/url`.
-            public var url: Swift.String?
-            /// The prompt that was used to generate the image, if there was any revision to the prompt.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Image/revised_prompt`.
-            public var revisedPrompt: Swift.String?
-            /// Creates a new `Image`.
-            ///
-            /// - Parameters:
-            ///   - b64Json: The base64-encoded JSON of the generated image, if `response_format` is `b64_json`.
-            ///   - url: The URL of the generated image, if `response_format` is `url` (default).
-            ///   - revisedPrompt: The prompt that was used to generate the image, if there was any revision to the prompt.
-            public init(
-                b64Json: Swift.String? = nil,
-                url: Swift.String? = nil,
-                revisedPrompt: Swift.String? = nil
-            ) {
-                self.b64Json = b64Json
-                self.url = url
-                self.revisedPrompt = revisedPrompt
-            }
-            public enum CodingKeys: String, CodingKey {
-                case b64Json = "b64_json"
-                case url
-                case revisedPrompt = "revised_prompt"
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/ImagesResponse`.
-        public struct ImagesResponse: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/ImagesResponse/created`.
-            public var created: Swift.Int
-            /// - Remark: Generated from `#/components/schemas/ImagesResponse/data`.
-            public var data: [Components.Schemas.Image]
-            /// Creates a new `ImagesResponse`.
-            ///
-            /// - Parameters:
-            ///   - created:
-            ///   - data:
-            public init(
-                created: Swift.Int,
-                data: [Components.Schemas.Image]
-            ) {
-                self.created = created
-                self.data = data
-            }
-            public enum CodingKeys: String, CodingKey {
-                case created
-                case data
-            }
-        }
         /// Specify additional output data to include in the model response. Currently
         /// supported values are:
         /// - `file_search_call.results`: Include the search results of
@@ -3408,64 +2307,6 @@ public enum Components {
             case fileSearchCall_results = "file_search_call.results"
             case message_inputImage_imageUrl = "message.input_image.image_url"
             case computerCallOutput_output_imageUrl = "computer_call_output.output.image_url"
-        }
-        /// An audio input to the model.
-        ///
-        ///
-        /// - Remark: Generated from `#/components/schemas/InputAudio`.
-        public struct InputAudio: Codable, Hashable, Sendable {
-            /// The type of the input item. Always `input_audio`.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/InputAudio/type`.
-            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case inputAudio = "input_audio"
-            }
-            /// The type of the input item. Always `input_audio`.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/InputAudio/type`.
-            public var _type: Components.Schemas.InputAudio._TypePayload
-            /// Base64-encoded audio data.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/InputAudio/data`.
-            public var data: Swift.String
-            /// The format of the audio data. Currently supported formats are `mp3` and
-            /// `wav`.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/InputAudio/format`.
-            @frozen public enum FormatPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case mp3 = "mp3"
-                case wav = "wav"
-            }
-            /// The format of the audio data. Currently supported formats are `mp3` and
-            /// `wav`.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/InputAudio/format`.
-            public var format: Components.Schemas.InputAudio.FormatPayload
-            /// Creates a new `InputAudio`.
-            ///
-            /// - Parameters:
-            ///   - _type: The type of the input item. Always `input_audio`.
-            ///   - data: Base64-encoded audio data.
-            ///   - format: The format of the audio data. Currently supported formats are `mp3` and
-            public init(
-                _type: Components.Schemas.InputAudio._TypePayload,
-                data: Swift.String,
-                format: Components.Schemas.InputAudio.FormatPayload
-            ) {
-                self._type = _type
-                self.data = data
-                self.format = format
-            }
-            public enum CodingKeys: String, CodingKey {
-                case _type = "type"
-                case data
-                case format
-            }
         }
         /// - Remark: Generated from `#/components/schemas/InputContent`.
         @frozen public enum InputContent: Codable, Hashable, Sendable {
@@ -3757,7 +2598,7 @@ public enum Components {
                 case content
             }
         }
-        /// A list of one or many input items to the model, containing different content 
+        /// A list of one or many input items to the model, containing different content
         /// types.
         ///
         ///
@@ -4049,7 +2890,7 @@ public enum Components {
         ///
         /// - Remark: Generated from `#/components/schemas/KeyPress`.
         public struct KeyPress: Codable, Hashable, Sendable {
-            /// Specifies the event type. For a keypress action, this property is 
+            /// Specifies the event type. For a keypress action, this property is
             /// always set to `keypress`.
             ///
             ///
@@ -4057,7 +2898,7 @@ public enum Components {
             @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case keypress = "keypress"
             }
-            /// Specifies the event type. For a keypress action, this property is 
+            /// Specifies the event type. For a keypress action, this property is
             /// always set to `keypress`.
             ///
             ///
@@ -4072,7 +2913,7 @@ public enum Components {
             /// Creates a new `KeyPress`.
             ///
             /// - Parameters:
-            ///   - _type: Specifies the event type. For a keypress action, this property is 
+            ///   - _type: Specifies the event type. For a keypress action, this property is
             ///   - keys: The combination of keys the model is requesting to be pressed. This is an
             public init(
                 _type: Components.Schemas.KeyPress._TypePayload,
@@ -4086,92 +2927,9 @@ public enum Components {
                 case keys
             }
         }
-        /// - Remark: Generated from `#/components/schemas/LogProb`.
-        public struct LogProb: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/LogProb/value1`.
-            public var value1: Components.Schemas.LogProbProperties
-            /// - Remark: Generated from `#/components/schemas/LogProb/value2`.
-            public struct Value2Payload: Codable, Hashable, Sendable {
-                /// - Remark: Generated from `#/components/schemas/LogProb/value2/top_logprobs`.
-                public var topLogprobs: [Components.Schemas.LogProbProperties]?
-                /// Creates a new `Value2Payload`.
-                ///
-                /// - Parameters:
-                ///   - topLogprobs:
-                public init(topLogprobs: [Components.Schemas.LogProbProperties]? = nil) {
-                    self.topLogprobs = topLogprobs
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case topLogprobs = "top_logprobs"
-                }
-            }
-            /// - Remark: Generated from `#/components/schemas/LogProb/value2`.
-            public var value2: Components.Schemas.LogProb.Value2Payload
-            /// Creates a new `LogProb`.
-            ///
-            /// - Parameters:
-            ///   - value1:
-            ///   - value2:
-            public init(
-                value1: Components.Schemas.LogProbProperties,
-                value2: Components.Schemas.LogProb.Value2Payload
-            ) {
-                self.value1 = value1
-                self.value2 = value2
-            }
-            public init(from decoder: any Decoder) throws {
-                self.value1 = try .init(from: decoder)
-                self.value2 = try .init(from: decoder)
-            }
-            public func encode(to encoder: any Encoder) throws {
-                try self.value1.encode(to: encoder)
-                try self.value2.encode(to: encoder)
-            }
-        }
-        /// A log probability object.
-        ///
-        ///
-        /// - Remark: Generated from `#/components/schemas/LogProbProperties`.
-        public struct LogProbProperties: Codable, Hashable, Sendable {
-            /// The token that was used to generate the log probability.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/LogProbProperties/token`.
-            public var token: Swift.String
-            /// The log probability of the token.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/LogProbProperties/logprob`.
-            public var logprob: Swift.Double
-            /// The bytes that were used to generate the log probability.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/LogProbProperties/bytes`.
-            public var bytes: [Swift.Int]
-            /// Creates a new `LogProbProperties`.
-            ///
-            /// - Parameters:
-            ///   - token: The token that was used to generate the log probability.
-            ///   - logprob: The log probability of the token.
-            ///   - bytes: The bytes that were used to generate the log probability.
-            public init(
-                token: Swift.String,
-                logprob: Swift.Double,
-                bytes: [Swift.Int]
-            ) {
-                self.token = token
-                self.logprob = logprob
-                self.bytes = bytes
-            }
-            public enum CodingKeys: String, CodingKey {
-                case token
-                case logprob
-                case bytes
-            }
-        }
         /// Set of 16 key-value pairs that can be attached to an object. This can be
         /// useful for storing additional information about the object in a structured
-        /// format, and querying for objects via API or the dashboard. 
+        /// format, and querying for objects via API or the dashboard.
         ///
         /// Keys are strings with a maximum length of 64 characters. Values are strings
         /// with a maximum length of 512 characters.
@@ -4193,104 +2951,6 @@ public enum Components {
             }
             public func encode(to encoder: any Encoder) throws {
                 try encoder.encodeAdditionalProperties(additionalProperties)
-            }
-        }
-        /// Describes an OpenAI model offering that can be used with the API.
-        ///
-        /// - Remark: Generated from `#/components/schemas/Model`.
-        public struct Model: Codable, Hashable, Sendable {
-            /// The model identifier, which can be referenced in the API endpoints.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Model/id`.
-            public var id: Swift.String
-            /// The Unix timestamp (in seconds) when the model was created.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Model/created`.
-            public var created: Swift.Int
-            /// The object type, which is always "model".
-            ///
-            /// - Remark: Generated from `#/components/schemas/Model/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case model = "model"
-            }
-            /// The object type, which is always "model".
-            ///
-            /// - Remark: Generated from `#/components/schemas/Model/object`.
-            public var object: Components.Schemas.Model.ObjectPayload
-            /// The organization that owns the model.
-            ///
-            /// - Remark: Generated from `#/components/schemas/Model/owned_by`.
-            public var ownedBy: Swift.String
-            /// Creates a new `Model`.
-            ///
-            /// - Parameters:
-            ///   - id: The model identifier, which can be referenced in the API endpoints.
-            ///   - created: The Unix timestamp (in seconds) when the model was created.
-            ///   - object: The object type, which is always "model".
-            ///   - ownedBy: The organization that owns the model.
-            public init(
-                id: Swift.String,
-                created: Swift.Int,
-                object: Components.Schemas.Model.ObjectPayload,
-                ownedBy: Swift.String
-            ) {
-                self.id = id
-                self.created = created
-                self.object = object
-                self.ownedBy = ownedBy
-            }
-            public enum CodingKeys: String, CodingKey {
-                case id
-                case created
-                case object
-                case ownedBy = "owned_by"
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/ModelIds`.
-        public struct ModelIds: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/ModelIds/value1`.
-            public var value1: Components.Schemas.ModelIdsShared?
-            /// - Remark: Generated from `#/components/schemas/ModelIds/value2`.
-            public var value2: Components.Schemas.ModelIdsResponses?
-            /// Creates a new `ModelIds`.
-            ///
-            /// - Parameters:
-            ///   - value1:
-            ///   - value2:
-            public init(
-                value1: Components.Schemas.ModelIdsShared? = nil,
-                value2: Components.Schemas.ModelIdsResponses? = nil
-            ) {
-                self.value1 = value1
-                self.value2 = value2
-            }
-            public init(from decoder: any Decoder) throws {
-                var errors: [any Error] = []
-                do {
-                    self.value1 = try decoder.decodeFromSingleValueContainer()
-                } catch {
-                    errors.append(error)
-                }
-                do {
-                    self.value2 = try decoder.decodeFromSingleValueContainer()
-                } catch {
-                    errors.append(error)
-                }
-                try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
-                    [
-                        self.value1,
-                        self.value2
-                    ],
-                    type: Self.self,
-                    codingPath: decoder.codingPath,
-                    errors: errors
-                )
-            }
-            public func encode(to encoder: any Encoder) throws {
-                try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                    self.value1,
-                    self.value2
-                ])
             }
         }
         /// - Remark: Generated from `#/components/schemas/ModelIdsResponses`.
@@ -4440,12 +3100,62 @@ public enum Components {
                 ])
             }
         }
+        /// - Remark: Generated from `#/components/schemas/ModelResponseProperties`.
+        public struct ModelResponseProperties: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/ModelResponseProperties/metadata`.
+            public var metadata: Components.Schemas.Metadata?
+            /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
+            /// We generally recommend altering this or `top_p` but not both.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ModelResponseProperties/temperature`.
+            public var temperature: Swift.Double?
+            /// An alternative to sampling with temperature, called nucleus sampling,
+            /// where the model considers the results of the tokens with top_p probability
+            /// mass. So 0.1 means only the tokens comprising the top 10% probability mass
+            /// are considered.
+            ///
+            /// We generally recommend altering this or `temperature` but not both.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ModelResponseProperties/top_p`.
+            public var topP: Swift.Double?
+            /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](/docs/guides/safety-best-practices#end-user-ids).
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ModelResponseProperties/user`.
+            public var user: Swift.String?
+            /// Creates a new `ModelResponseProperties`.
+            ///
+            /// - Parameters:
+            ///   - metadata:
+            ///   - temperature: What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
+            ///   - topP: An alternative to sampling with temperature, called nucleus sampling,
+            ///   - user: A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](/docs/guides/safety-best-practices#end-user-ids).
+            public init(
+                metadata: Components.Schemas.Metadata? = nil,
+                temperature: Swift.Double? = nil,
+                topP: Swift.Double? = nil,
+                user: Swift.String? = nil
+            ) {
+                self.metadata = metadata
+                self.temperature = temperature
+                self.topP = topP
+                self.user = user
+            }
+            public enum CodingKeys: String, CodingKey {
+                case metadata
+                case temperature
+                case topP = "top_p"
+                case user
+            }
+        }
         /// A mouse move action.
         ///
         ///
         /// - Remark: Generated from `#/components/schemas/Move`.
         public struct Move: Codable, Hashable, Sendable {
-            /// Specifies the event type. For a move action, this property is 
+            /// Specifies the event type. For a move action, this property is
             /// always set to `move`.
             ///
             ///
@@ -4453,7 +3163,7 @@ public enum Components {
             @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case move = "move"
             }
-            /// Specifies the event type. For a move action, this property is 
+            /// Specifies the event type. For a move action, this property is
             /// always set to `move`.
             ///
             ///
@@ -4472,7 +3182,7 @@ public enum Components {
             /// Creates a new `Move`.
             ///
             /// - Parameters:
-            ///   - _type: Specifies the event type. For a move action, this property is 
+            ///   - _type: Specifies the event type. For a move action, this property is
             ///   - x: The x-coordinate to move to.
             ///   - y: The y-coordinate to move to.
             public init(
@@ -4488,89 +3198,6 @@ public enum Components {
                 case _type = "type"
                 case x
                 case y
-            }
-        }
-        /// This is returned when the chunking strategy is unknown. Typically, this is because the file was indexed before the `chunking_strategy` concept was introduced in the API.
-        ///
-        /// - Remark: Generated from `#/components/schemas/OtherChunkingStrategyResponseParam`.
-        public struct OtherChunkingStrategyResponseParam: Codable, Hashable, Sendable {
-            /// Always `other`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/OtherChunkingStrategyResponseParam/type`.
-            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case other = "other"
-            }
-            /// Always `other`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/OtherChunkingStrategyResponseParam/type`.
-            public var _type: Components.Schemas.OtherChunkingStrategyResponseParam._TypePayload
-            /// Creates a new `OtherChunkingStrategyResponseParam`.
-            ///
-            /// - Parameters:
-            ///   - _type: Always `other`.
-            public init(_type: Components.Schemas.OtherChunkingStrategyResponseParam._TypePayload) {
-                self._type = _type
-            }
-            public enum CodingKeys: String, CodingKey {
-                case _type = "type"
-            }
-            public init(from decoder: any Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                self._type = try container.decode(
-                    Components.Schemas.OtherChunkingStrategyResponseParam._TypePayload.self,
-                    forKey: ._type
-                )
-                try decoder.ensureNoAdditionalProperties(knownKeys: [
-                    "type"
-                ])
-            }
-        }
-        /// An audio output from the model.
-        ///
-        ///
-        /// - Remark: Generated from `#/components/schemas/OutputAudio`.
-        public struct OutputAudio: Codable, Hashable, Sendable {
-            /// The type of the output audio. Always `output_audio`.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/OutputAudio/type`.
-            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case outputAudio = "output_audio"
-            }
-            /// The type of the output audio. Always `output_audio`.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/OutputAudio/type`.
-            public var _type: Components.Schemas.OutputAudio._TypePayload
-            /// Base64-encoded audio data from the model.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/OutputAudio/data`.
-            public var data: Swift.String
-            /// The transcript of the audio data from the model.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/OutputAudio/transcript`.
-            public var transcript: Swift.String
-            /// Creates a new `OutputAudio`.
-            ///
-            /// - Parameters:
-            ///   - _type: The type of the output audio. Always `output_audio`.
-            ///   - data: Base64-encoded audio data from the model.
-            ///   - transcript: The transcript of the audio data from the model.
-            public init(
-                _type: Components.Schemas.OutputAudio._TypePayload,
-                data: Swift.String,
-                transcript: Swift.String
-            ) {
-                self._type = _type
-                self.data = data
-                self.transcript = transcript
-            }
-            public enum CodingKeys: String, CodingKey {
-                case _type = "type"
-                case data
-                case transcript
             }
         }
         /// - Remark: Generated from `#/components/schemas/OutputContent`.
@@ -4833,13 +3460,9 @@ public enum Components {
                 case annotations
             }
         }
-        /// Whether to enable [parallel function calling](/docs/guides/function-calling#configuring-parallel-function-calling) during tool use.
-        ///
-        /// - Remark: Generated from `#/components/schemas/ParallelToolCalls`.
-        public typealias ParallelToolCalls = Swift.Bool
         /// **o-series models only**
         ///
-        /// Configuration options for 
+        /// Configuration options for
         /// [reasoning models](https://platform.openai.com/docs/guides/reasoning).
         ///
         ///
@@ -4885,9 +3508,9 @@ public enum Components {
                 case generateSummary = "generate_summary"
             }
         }
-        /// **o-series models only** 
+        /// **o-series models only**
         ///
-        /// Constrains effort on reasoning for 
+        /// Constrains effort on reasoning for
         /// [reasoning models](https://platform.openai.com/docs/guides/reasoning).
         /// Currently supported values are `low`, `medium`, and `high`. Reducing
         /// reasoning effort can result in faster responses and fewer tokens used
@@ -5050,12 +3673,2602 @@ public enum Components {
                 case refusal
             }
         }
+        /// - Remark: Generated from `#/components/schemas/Response`.
+        public struct Response: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/Response/value1`.
+            public var value1: Components.Schemas.ModelResponseProperties
+            /// - Remark: Generated from `#/components/schemas/Response/value2`.
+            public var value2: Components.Schemas.ResponseProperties
+            /// - Remark: Generated from `#/components/schemas/Response/value3`.
+            public struct Value3Payload: Codable, Hashable, Sendable {
+                /// Unique identifier for this Response.
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/Response/value3/id`.
+                public var id: Swift.String
+                /// The object type of this resource - always set to `response`.
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/Response/value3/object`.
+                @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
+                    case response = "response"
+                }
+                /// The object type of this resource - always set to `response`.
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/Response/value3/object`.
+                public var object: Components.Schemas.Response.Value3Payload.ObjectPayload
+                /// The status of the response generation. One of `completed`, `failed`,
+                /// `in_progress`, or `incomplete`.
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/Response/value3/status`.
+                @frozen public enum StatusPayload: String, Codable, Hashable, Sendable, CaseIterable {
+                    case completed = "completed"
+                    case failed = "failed"
+                    case inProgress = "in_progress"
+                    case incomplete = "incomplete"
+                }
+                /// The status of the response generation. One of `completed`, `failed`,
+                /// `in_progress`, or `incomplete`.
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/Response/value3/status`.
+                public var status: Components.Schemas.Response.Value3Payload.StatusPayload?
+                /// Unix timestamp (in seconds) of when this Response was created.
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/Response/value3/created_at`.
+                public var createdAt: Swift.Double
+                /// - Remark: Generated from `#/components/schemas/Response/value3/error`.
+                public var error: Components.Schemas.ResponseError?
+                /// Details about why the response is incomplete.
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/Response/value3/incomplete_details`.
+                public struct IncompleteDetailsPayload: Codable, Hashable, Sendable {
+                    /// The reason why the response is incomplete.
+                    ///
+                    /// - Remark: Generated from `#/components/schemas/Response/value3/incomplete_details/reason`.
+                    @frozen public enum ReasonPayload: String, Codable, Hashable, Sendable, CaseIterable {
+                        case maxOutputTokens = "max_output_tokens"
+                        case contentFilter = "content_filter"
+                    }
+                    /// The reason why the response is incomplete.
+                    ///
+                    /// - Remark: Generated from `#/components/schemas/Response/value3/incomplete_details/reason`.
+                    public var reason: Components.Schemas.Response.Value3Payload.IncompleteDetailsPayload.ReasonPayload?
+                    /// Creates a new `IncompleteDetailsPayload`.
+                    ///
+                    /// - Parameters:
+                    ///   - reason: The reason why the response is incomplete.
+                    public init(reason: Components.Schemas.Response.Value3Payload.IncompleteDetailsPayload.ReasonPayload? = nil) {
+                        self.reason = reason
+                    }
+                    public enum CodingKeys: String, CodingKey {
+                        case reason
+                    }
+                }
+                /// Details about why the response is incomplete.
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/Response/value3/incomplete_details`.
+                public var incompleteDetails: Components.Schemas.Response.Value3Payload.IncompleteDetailsPayload?
+                /// An array of content items generated by the model.
+                ///
+                /// - The length and order of items in the `output` array is dependent
+                ///   on the model's response.
+                /// - Rather than accessing the first item in the `output` array and
+                ///   assuming it's an `assistant` message with the content generated by
+                ///   the model, you might consider using the `output_text` property where
+                ///   supported in SDKs.
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/Response/value3/output`.
+                public var output: [Components.Schemas.OutputItem]
+                /// SDK-only convenience property that contains the aggregated text output
+                /// from all `output_text` items in the `output` array, if any are present.
+                /// Supported in the Python and JavaScript SDKs.
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/Response/value3/output_text`.
+                public var outputText: Swift.String?
+                /// - Remark: Generated from `#/components/schemas/Response/value3/usage`.
+                public var usage: Components.Schemas.ResponseUsage?
+                /// Whether to allow the model to run tool calls in parallel.
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/Response/value3/parallel_tool_calls`.
+                public var parallelToolCalls: Swift.Bool
+                /// Creates a new `Value3Payload`.
+                ///
+                /// - Parameters:
+                ///   - id: Unique identifier for this Response.
+                ///   - object: The object type of this resource - always set to `response`.
+                ///   - status: The status of the response generation. One of `completed`, `failed`,
+                ///   - createdAt: Unix timestamp (in seconds) of when this Response was created.
+                ///   - error:
+                ///   - incompleteDetails: Details about why the response is incomplete.
+                ///   - output: An array of content items generated by the model.
+                ///   - outputText: SDK-only convenience property that contains the aggregated text output
+                ///   - usage:
+                ///   - parallelToolCalls: Whether to allow the model to run tool calls in parallel.
+                public init(
+                    id: Swift.String,
+                    object: Components.Schemas.Response.Value3Payload.ObjectPayload,
+                    status: Components.Schemas.Response.Value3Payload.StatusPayload? = nil,
+                    createdAt: Swift.Double,
+                    error: Components.Schemas.ResponseError? = nil,
+                    incompleteDetails: Components.Schemas.Response.Value3Payload.IncompleteDetailsPayload? = nil,
+                    output: [Components.Schemas.OutputItem],
+                    outputText: Swift.String? = nil,
+                    usage: Components.Schemas.ResponseUsage? = nil,
+                    parallelToolCalls: Swift.Bool
+                ) {
+                    self.id = id
+                    self.object = object
+                    self.status = status
+                    self.createdAt = createdAt
+                    self.error = error
+                    self.incompleteDetails = incompleteDetails
+                    self.output = output
+                    self.outputText = outputText
+                    self.usage = usage
+                    self.parallelToolCalls = parallelToolCalls
+                }
+                public enum CodingKeys: String, CodingKey {
+                    case id
+                    case object
+                    case status
+                    case createdAt = "created_at"
+                    case error
+                    case incompleteDetails = "incomplete_details"
+                    case output
+                    case outputText = "output_text"
+                    case usage
+                    case parallelToolCalls = "parallel_tool_calls"
+                }
+            }
+            /// - Remark: Generated from `#/components/schemas/Response/value3`.
+            public var value3: Components.Schemas.Response.Value3Payload
+            /// Creates a new `Response`.
+            ///
+            /// - Parameters:
+            ///   - value1:
+            ///   - value2:
+            ///   - value3:
+            public init(
+                value1: Components.Schemas.ModelResponseProperties,
+                value2: Components.Schemas.ResponseProperties,
+                value3: Components.Schemas.Response.Value3Payload
+            ) {
+                self.value1 = value1
+                self.value2 = value2
+                self.value3 = value3
+            }
+            public init(from decoder: any Decoder) throws {
+                self.value1 = try .init(from: decoder)
+                self.value2 = try .init(from: decoder)
+                self.value3 = try .init(from: decoder)
+            }
+            public func encode(to encoder: any Encoder) throws {
+                try self.value1.encode(to: encoder)
+                try self.value2.encode(to: encoder)
+                try self.value3.encode(to: encoder)
+            }
+        }
+        /// Emitted when there is a partial audio response.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseAudioDeltaEvent`.
+        public struct ResponseAudioDeltaEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.audio.delta`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseAudioDeltaEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_audio_delta = "response.audio.delta"
+            }
+            /// The type of the event. Always `response.audio.delta`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseAudioDeltaEvent/type`.
+            public var _type: Components.Schemas.ResponseAudioDeltaEvent._TypePayload
+            /// A chunk of Base64 encoded response audio bytes.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseAudioDeltaEvent/delta`.
+            public var delta: Swift.String
+            /// Creates a new `ResponseAudioDeltaEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.audio.delta`.
+            ///   - delta: A chunk of Base64 encoded response audio bytes.
+            public init(
+                _type: Components.Schemas.ResponseAudioDeltaEvent._TypePayload,
+                delta: Swift.String
+            ) {
+                self._type = _type
+                self.delta = delta
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case delta
+            }
+        }
+        /// Emitted when the audio response is complete.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseAudioDoneEvent`.
+        public struct ResponseAudioDoneEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.audio.done`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseAudioDoneEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_audio_done = "response.audio.done"
+            }
+            /// The type of the event. Always `response.audio.done`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseAudioDoneEvent/type`.
+            public var _type: Components.Schemas.ResponseAudioDoneEvent._TypePayload
+            /// Creates a new `ResponseAudioDoneEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.audio.done`.
+            public init(_type: Components.Schemas.ResponseAudioDoneEvent._TypePayload) {
+                self._type = _type
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+            }
+        }
+        /// Emitted when there is a partial transcript of audio.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseAudioTranscriptDeltaEvent`.
+        public struct ResponseAudioTranscriptDeltaEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.audio.transcript.delta`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseAudioTranscriptDeltaEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_audio_transcript_delta = "response.audio.transcript.delta"
+            }
+            /// The type of the event. Always `response.audio.transcript.delta`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseAudioTranscriptDeltaEvent/type`.
+            public var _type: Components.Schemas.ResponseAudioTranscriptDeltaEvent._TypePayload
+            /// The partial transcript of the audio response.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseAudioTranscriptDeltaEvent/delta`.
+            public var delta: Swift.String
+            /// Creates a new `ResponseAudioTranscriptDeltaEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.audio.transcript.delta`.
+            ///   - delta: The partial transcript of the audio response.
+            public init(
+                _type: Components.Schemas.ResponseAudioTranscriptDeltaEvent._TypePayload,
+                delta: Swift.String
+            ) {
+                self._type = _type
+                self.delta = delta
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case delta
+            }
+        }
+        /// Emitted when the full audio transcript is completed.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseAudioTranscriptDoneEvent`.
+        public struct ResponseAudioTranscriptDoneEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.audio.transcript.done`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseAudioTranscriptDoneEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_audio_transcript_done = "response.audio.transcript.done"
+            }
+            /// The type of the event. Always `response.audio.transcript.done`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseAudioTranscriptDoneEvent/type`.
+            public var _type: Components.Schemas.ResponseAudioTranscriptDoneEvent._TypePayload
+            /// Creates a new `ResponseAudioTranscriptDoneEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.audio.transcript.done`.
+            public init(_type: Components.Schemas.ResponseAudioTranscriptDoneEvent._TypePayload) {
+                self._type = _type
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+            }
+        }
+        /// Emitted when a partial code snippet is added by the code interpreter.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallCodeDeltaEvent`.
+        public struct ResponseCodeInterpreterCallCodeDeltaEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.code_interpreter_call.code.delta`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallCodeDeltaEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_codeInterpreterCall_code_delta = "response.code_interpreter_call.code.delta"
+            }
+            /// The type of the event. Always `response.code_interpreter_call.code.delta`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallCodeDeltaEvent/type`.
+            public var _type: Components.Schemas.ResponseCodeInterpreterCallCodeDeltaEvent._TypePayload
+            /// The index of the output item that the code interpreter call is in progress.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallCodeDeltaEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// The partial code snippet added by the code interpreter.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallCodeDeltaEvent/delta`.
+            public var delta: Swift.String
+            /// Creates a new `ResponseCodeInterpreterCallCodeDeltaEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.code_interpreter_call.code.delta`.
+            ///   - outputIndex: The index of the output item that the code interpreter call is in progress.
+            ///   - delta: The partial code snippet added by the code interpreter.
+            public init(
+                _type: Components.Schemas.ResponseCodeInterpreterCallCodeDeltaEvent._TypePayload,
+                outputIndex: Swift.Int,
+                delta: Swift.String
+            ) {
+                self._type = _type
+                self.outputIndex = outputIndex
+                self.delta = delta
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case outputIndex = "output_index"
+                case delta
+            }
+        }
+        /// Emitted when code snippet output is finalized by the code interpreter.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallCodeDoneEvent`.
+        public struct ResponseCodeInterpreterCallCodeDoneEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.code_interpreter_call.code.done`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallCodeDoneEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_codeInterpreterCall_code_done = "response.code_interpreter_call.code.done"
+            }
+            /// The type of the event. Always `response.code_interpreter_call.code.done`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallCodeDoneEvent/type`.
+            public var _type: Components.Schemas.ResponseCodeInterpreterCallCodeDoneEvent._TypePayload
+            /// The index of the output item that the code interpreter call is in progress.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallCodeDoneEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// The final code snippet output by the code interpreter.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallCodeDoneEvent/code`.
+            public var code: Swift.String
+            /// Creates a new `ResponseCodeInterpreterCallCodeDoneEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.code_interpreter_call.code.done`.
+            ///   - outputIndex: The index of the output item that the code interpreter call is in progress.
+            ///   - code: The final code snippet output by the code interpreter.
+            public init(
+                _type: Components.Schemas.ResponseCodeInterpreterCallCodeDoneEvent._TypePayload,
+                outputIndex: Swift.Int,
+                code: Swift.String
+            ) {
+                self._type = _type
+                self.outputIndex = outputIndex
+                self.code = code
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case outputIndex = "output_index"
+                case code
+            }
+        }
+        /// Emitted when the code interpreter call is completed.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallCompletedEvent`.
+        public struct ResponseCodeInterpreterCallCompletedEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.code_interpreter_call.completed`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallCompletedEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_codeInterpreterCall_completed = "response.code_interpreter_call.completed"
+            }
+            /// The type of the event. Always `response.code_interpreter_call.completed`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallCompletedEvent/type`.
+            public var _type: Components.Schemas.ResponseCodeInterpreterCallCompletedEvent._TypePayload
+            /// The index of the output item that the code interpreter call is in progress.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallCompletedEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallCompletedEvent/code_interpreter_call`.
+            public var codeInterpreterCall: Components.Schemas.CodeInterpreterToolCall
+            /// Creates a new `ResponseCodeInterpreterCallCompletedEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.code_interpreter_call.completed`.
+            ///   - outputIndex: The index of the output item that the code interpreter call is in progress.
+            ///   - codeInterpreterCall:
+            public init(
+                _type: Components.Schemas.ResponseCodeInterpreterCallCompletedEvent._TypePayload,
+                outputIndex: Swift.Int,
+                codeInterpreterCall: Components.Schemas.CodeInterpreterToolCall
+            ) {
+                self._type = _type
+                self.outputIndex = outputIndex
+                self.codeInterpreterCall = codeInterpreterCall
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case outputIndex = "output_index"
+                case codeInterpreterCall = "code_interpreter_call"
+            }
+        }
+        /// Emitted when a code interpreter call is in progress.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallInProgressEvent`.
+        public struct ResponseCodeInterpreterCallInProgressEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.code_interpreter_call.in_progress`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallInProgressEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_codeInterpreterCall_inProgress = "response.code_interpreter_call.in_progress"
+            }
+            /// The type of the event. Always `response.code_interpreter_call.in_progress`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallInProgressEvent/type`.
+            public var _type: Components.Schemas.ResponseCodeInterpreterCallInProgressEvent._TypePayload
+            /// The index of the output item that the code interpreter call is in progress.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallInProgressEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallInProgressEvent/code_interpreter_call`.
+            public var codeInterpreterCall: Components.Schemas.CodeInterpreterToolCall
+            /// Creates a new `ResponseCodeInterpreterCallInProgressEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.code_interpreter_call.in_progress`.
+            ///   - outputIndex: The index of the output item that the code interpreter call is in progress.
+            ///   - codeInterpreterCall:
+            public init(
+                _type: Components.Schemas.ResponseCodeInterpreterCallInProgressEvent._TypePayload,
+                outputIndex: Swift.Int,
+                codeInterpreterCall: Components.Schemas.CodeInterpreterToolCall
+            ) {
+                self._type = _type
+                self.outputIndex = outputIndex
+                self.codeInterpreterCall = codeInterpreterCall
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case outputIndex = "output_index"
+                case codeInterpreterCall = "code_interpreter_call"
+            }
+        }
+        /// Emitted when the code interpreter is actively interpreting the code snippet.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallInterpretingEvent`.
+        public struct ResponseCodeInterpreterCallInterpretingEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.code_interpreter_call.interpreting`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallInterpretingEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_codeInterpreterCall_interpreting = "response.code_interpreter_call.interpreting"
+            }
+            /// The type of the event. Always `response.code_interpreter_call.interpreting`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallInterpretingEvent/type`.
+            public var _type: Components.Schemas.ResponseCodeInterpreterCallInterpretingEvent._TypePayload
+            /// The index of the output item that the code interpreter call is in progress.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallInterpretingEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// - Remark: Generated from `#/components/schemas/ResponseCodeInterpreterCallInterpretingEvent/code_interpreter_call`.
+            public var codeInterpreterCall: Components.Schemas.CodeInterpreterToolCall
+            /// Creates a new `ResponseCodeInterpreterCallInterpretingEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.code_interpreter_call.interpreting`.
+            ///   - outputIndex: The index of the output item that the code interpreter call is in progress.
+            ///   - codeInterpreterCall:
+            public init(
+                _type: Components.Schemas.ResponseCodeInterpreterCallInterpretingEvent._TypePayload,
+                outputIndex: Swift.Int,
+                codeInterpreterCall: Components.Schemas.CodeInterpreterToolCall
+            ) {
+                self._type = _type
+                self.outputIndex = outputIndex
+                self.codeInterpreterCall = codeInterpreterCall
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case outputIndex = "output_index"
+                case codeInterpreterCall = "code_interpreter_call"
+            }
+        }
+        /// Emitted when the model response is complete.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseCompletedEvent`.
+        public struct ResponseCompletedEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.completed`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCompletedEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_completed = "response.completed"
+            }
+            /// The type of the event. Always `response.completed`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCompletedEvent/type`.
+            public var _type: Components.Schemas.ResponseCompletedEvent._TypePayload
+            /// - Remark: Generated from `#/components/schemas/ResponseCompletedEvent/response`.
+            public var response: Components.Schemas.Response
+            /// Creates a new `ResponseCompletedEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.completed`.
+            ///   - response:
+            public init(
+                _type: Components.Schemas.ResponseCompletedEvent._TypePayload,
+                response: Components.Schemas.Response
+            ) {
+                self._type = _type
+                self.response = response
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case response
+            }
+        }
+        /// Emitted when a new content part is added.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseContentPartAddedEvent`.
+        public struct ResponseContentPartAddedEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.content_part.added`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseContentPartAddedEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_contentPart_added = "response.content_part.added"
+            }
+            /// The type of the event. Always `response.content_part.added`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseContentPartAddedEvent/type`.
+            public var _type: Components.Schemas.ResponseContentPartAddedEvent._TypePayload
+            /// The ID of the output item that the content part was added to.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseContentPartAddedEvent/item_id`.
+            public var itemId: Swift.String
+            /// The index of the output item that the content part was added to.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseContentPartAddedEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// The index of the content part that was added.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseContentPartAddedEvent/content_index`.
+            public var contentIndex: Swift.Int
+            /// - Remark: Generated from `#/components/schemas/ResponseContentPartAddedEvent/part`.
+            public var part: Components.Schemas.OutputContent
+            /// Creates a new `ResponseContentPartAddedEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.content_part.added`.
+            ///   - itemId: The ID of the output item that the content part was added to.
+            ///   - outputIndex: The index of the output item that the content part was added to.
+            ///   - contentIndex: The index of the content part that was added.
+            ///   - part:
+            public init(
+                _type: Components.Schemas.ResponseContentPartAddedEvent._TypePayload,
+                itemId: Swift.String,
+                outputIndex: Swift.Int,
+                contentIndex: Swift.Int,
+                part: Components.Schemas.OutputContent
+            ) {
+                self._type = _type
+                self.itemId = itemId
+                self.outputIndex = outputIndex
+                self.contentIndex = contentIndex
+                self.part = part
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case itemId = "item_id"
+                case outputIndex = "output_index"
+                case contentIndex = "content_index"
+                case part
+            }
+        }
+        /// Emitted when a content part is done.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseContentPartDoneEvent`.
+        public struct ResponseContentPartDoneEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.content_part.done`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseContentPartDoneEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_contentPart_done = "response.content_part.done"
+            }
+            /// The type of the event. Always `response.content_part.done`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseContentPartDoneEvent/type`.
+            public var _type: Components.Schemas.ResponseContentPartDoneEvent._TypePayload
+            /// The ID of the output item that the content part was added to.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseContentPartDoneEvent/item_id`.
+            public var itemId: Swift.String
+            /// The index of the output item that the content part was added to.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseContentPartDoneEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// The index of the content part that is done.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseContentPartDoneEvent/content_index`.
+            public var contentIndex: Swift.Int
+            /// - Remark: Generated from `#/components/schemas/ResponseContentPartDoneEvent/part`.
+            public var part: Components.Schemas.OutputContent
+            /// Creates a new `ResponseContentPartDoneEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.content_part.done`.
+            ///   - itemId: The ID of the output item that the content part was added to.
+            ///   - outputIndex: The index of the output item that the content part was added to.
+            ///   - contentIndex: The index of the content part that is done.
+            ///   - part:
+            public init(
+                _type: Components.Schemas.ResponseContentPartDoneEvent._TypePayload,
+                itemId: Swift.String,
+                outputIndex: Swift.Int,
+                contentIndex: Swift.Int,
+                part: Components.Schemas.OutputContent
+            ) {
+                self._type = _type
+                self.itemId = itemId
+                self.outputIndex = outputIndex
+                self.contentIndex = contentIndex
+                self.part = part
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case itemId = "item_id"
+                case outputIndex = "output_index"
+                case contentIndex = "content_index"
+                case part
+            }
+        }
+        /// An event that is emitted when a response is created.
+        ///
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseCreatedEvent`.
+        public struct ResponseCreatedEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.created`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCreatedEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_created = "response.created"
+            }
+            /// The type of the event. Always `response.created`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseCreatedEvent/type`.
+            public var _type: Components.Schemas.ResponseCreatedEvent._TypePayload
+            /// - Remark: Generated from `#/components/schemas/ResponseCreatedEvent/response`.
+            public var response: Components.Schemas.Response
+            /// Creates a new `ResponseCreatedEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.created`.
+            ///   - response:
+            public init(
+                _type: Components.Schemas.ResponseCreatedEvent._TypePayload,
+                response: Components.Schemas.Response
+            ) {
+                self._type = _type
+                self.response = response
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case response
+            }
+        }
+        /// An error object returned when the model fails to generate a Response.
+        ///
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseError`.
+        public struct ResponseError: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/ResponseError/code`.
+            public var code: Components.Schemas.ResponseErrorCode
+            /// A human-readable description of the error.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseError/message`.
+            public var message: Swift.String
+            /// Creates a new `ResponseError`.
+            ///
+            /// - Parameters:
+            ///   - code:
+            ///   - message: A human-readable description of the error.
+            public init(
+                code: Components.Schemas.ResponseErrorCode,
+                message: Swift.String
+            ) {
+                self.code = code
+                self.message = message
+            }
+            public enum CodingKeys: String, CodingKey {
+                case code
+                case message
+            }
+        }
+        /// The error code for the response.
+        ///
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseErrorCode`.
+        @frozen public enum ResponseErrorCode: String, Codable, Hashable, Sendable, CaseIterable {
+            case serverError = "server_error"
+            case rateLimitExceeded = "rate_limit_exceeded"
+            case invalidPrompt = "invalid_prompt"
+            case vectorStoreTimeout = "vector_store_timeout"
+            case invalidImage = "invalid_image"
+            case invalidImageFormat = "invalid_image_format"
+            case invalidBase64Image = "invalid_base64_image"
+            case invalidImageUrl = "invalid_image_url"
+            case imageTooLarge = "image_too_large"
+            case imageTooSmall = "image_too_small"
+            case imageParseError = "image_parse_error"
+            case imageContentPolicyViolation = "image_content_policy_violation"
+            case invalidImageMode = "invalid_image_mode"
+            case imageFileTooLarge = "image_file_too_large"
+            case unsupportedImageMediaType = "unsupported_image_media_type"
+            case emptyImageFile = "empty_image_file"
+            case failedToDownloadImage = "failed_to_download_image"
+            case imageFileNotFound = "image_file_not_found"
+        }
+        /// Emitted when an error occurs.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseErrorEvent`.
+        public struct ResponseErrorEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `error`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseErrorEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case error = "error"
+            }
+            /// The type of the event. Always `error`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseErrorEvent/type`.
+            public var _type: Components.Schemas.ResponseErrorEvent._TypePayload
+            /// The error code.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseErrorEvent/code`.
+            public var code: Swift.String?
+            /// The error message.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseErrorEvent/message`.
+            public var message: Swift.String
+            /// The error parameter.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseErrorEvent/param`.
+            public var param: Swift.String?
+            /// Creates a new `ResponseErrorEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `error`.
+            ///   - code: The error code.
+            ///   - message: The error message.
+            ///   - param: The error parameter.
+            public init(
+                _type: Components.Schemas.ResponseErrorEvent._TypePayload,
+                code: Swift.String? = nil,
+                message: Swift.String,
+                param: Swift.String? = nil
+            ) {
+                self._type = _type
+                self.code = code
+                self.message = message
+                self.param = param
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case code
+                case message
+                case param
+            }
+        }
+        /// An event that is emitted when a response fails.
+        ///
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseFailedEvent`.
+        public struct ResponseFailedEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.failed`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFailedEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_failed = "response.failed"
+            }
+            /// The type of the event. Always `response.failed`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFailedEvent/type`.
+            public var _type: Components.Schemas.ResponseFailedEvent._TypePayload
+            /// - Remark: Generated from `#/components/schemas/ResponseFailedEvent/response`.
+            public var response: Components.Schemas.Response
+            /// Creates a new `ResponseFailedEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.failed`.
+            ///   - response:
+            public init(
+                _type: Components.Schemas.ResponseFailedEvent._TypePayload,
+                response: Components.Schemas.Response
+            ) {
+                self._type = _type
+                self.response = response
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case response
+            }
+        }
+        /// Emitted when a file search call is completed (results found).
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseFileSearchCallCompletedEvent`.
+        public struct ResponseFileSearchCallCompletedEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.file_search_call.completed`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFileSearchCallCompletedEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_fileSearchCall_completed = "response.file_search_call.completed"
+            }
+            /// The type of the event. Always `response.file_search_call.completed`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFileSearchCallCompletedEvent/type`.
+            public var _type: Components.Schemas.ResponseFileSearchCallCompletedEvent._TypePayload
+            /// The index of the output item that the file search call is initiated.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFileSearchCallCompletedEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// The ID of the output item that the file search call is initiated.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFileSearchCallCompletedEvent/item_id`.
+            public var itemId: Swift.String
+            /// Creates a new `ResponseFileSearchCallCompletedEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.file_search_call.completed`.
+            ///   - outputIndex: The index of the output item that the file search call is initiated.
+            ///   - itemId: The ID of the output item that the file search call is initiated.
+            public init(
+                _type: Components.Schemas.ResponseFileSearchCallCompletedEvent._TypePayload,
+                outputIndex: Swift.Int,
+                itemId: Swift.String
+            ) {
+                self._type = _type
+                self.outputIndex = outputIndex
+                self.itemId = itemId
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case outputIndex = "output_index"
+                case itemId = "item_id"
+            }
+        }
+        /// Emitted when a file search call is initiated.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseFileSearchCallInProgressEvent`.
+        public struct ResponseFileSearchCallInProgressEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.file_search_call.in_progress`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFileSearchCallInProgressEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_fileSearchCall_inProgress = "response.file_search_call.in_progress"
+            }
+            /// The type of the event. Always `response.file_search_call.in_progress`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFileSearchCallInProgressEvent/type`.
+            public var _type: Components.Schemas.ResponseFileSearchCallInProgressEvent._TypePayload
+            /// The index of the output item that the file search call is initiated.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFileSearchCallInProgressEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// The ID of the output item that the file search call is initiated.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFileSearchCallInProgressEvent/item_id`.
+            public var itemId: Swift.String
+            /// Creates a new `ResponseFileSearchCallInProgressEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.file_search_call.in_progress`.
+            ///   - outputIndex: The index of the output item that the file search call is initiated.
+            ///   - itemId: The ID of the output item that the file search call is initiated.
+            public init(
+                _type: Components.Schemas.ResponseFileSearchCallInProgressEvent._TypePayload,
+                outputIndex: Swift.Int,
+                itemId: Swift.String
+            ) {
+                self._type = _type
+                self.outputIndex = outputIndex
+                self.itemId = itemId
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case outputIndex = "output_index"
+                case itemId = "item_id"
+            }
+        }
+        /// Emitted when a file search is currently searching.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseFileSearchCallSearchingEvent`.
+        public struct ResponseFileSearchCallSearchingEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.file_search_call.searching`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFileSearchCallSearchingEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_fileSearchCall_searching = "response.file_search_call.searching"
+            }
+            /// The type of the event. Always `response.file_search_call.searching`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFileSearchCallSearchingEvent/type`.
+            public var _type: Components.Schemas.ResponseFileSearchCallSearchingEvent._TypePayload
+            /// The index of the output item that the file search call is searching.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFileSearchCallSearchingEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// The ID of the output item that the file search call is initiated.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFileSearchCallSearchingEvent/item_id`.
+            public var itemId: Swift.String
+            /// Creates a new `ResponseFileSearchCallSearchingEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.file_search_call.searching`.
+            ///   - outputIndex: The index of the output item that the file search call is searching.
+            ///   - itemId: The ID of the output item that the file search call is initiated.
+            public init(
+                _type: Components.Schemas.ResponseFileSearchCallSearchingEvent._TypePayload,
+                outputIndex: Swift.Int,
+                itemId: Swift.String
+            ) {
+                self._type = _type
+                self.outputIndex = outputIndex
+                self.itemId = itemId
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case outputIndex = "output_index"
+                case itemId = "item_id"
+            }
+        }
+        /// JSON object response format. An older method of generating JSON responses.
+        /// Using `json_schema` is recommended for models that support it. Note that the
+        /// model will not generate JSON without a system or user message instructing it
+        /// to do so.
+        ///
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseFormatJsonObject`.
+        public struct ResponseFormatJsonObject: Codable, Hashable, Sendable {
+            /// The type of response format being defined. Always `json_object`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFormatJsonObject/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case jsonObject = "json_object"
+            }
+            /// The type of response format being defined. Always `json_object`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFormatJsonObject/type`.
+            public var _type: Components.Schemas.ResponseFormatJsonObject._TypePayload
+            /// Creates a new `ResponseFormatJsonObject`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of response format being defined. Always `json_object`.
+            public init(_type: Components.Schemas.ResponseFormatJsonObject._TypePayload) {
+                self._type = _type
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+            }
+        }
+        /// The schema for the response format, described as a JSON Schema object.
+        /// Learn how to build JSON schemas [here](https://json-schema.org/).
+        ///
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseFormatJsonSchemaSchema`.
+        public struct ResponseFormatJsonSchemaSchema: Codable, Hashable, Sendable {
+            /// A container of undocumented properties.
+            public var additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer
+            /// Creates a new `ResponseFormatJsonSchemaSchema`.
+            ///
+            /// - Parameters:
+            ///   - additionalProperties: A container of undocumented properties.
+            public init(additionalProperties: OpenAPIRuntime.OpenAPIObjectContainer = .init()) {
+                self.additionalProperties = additionalProperties
+            }
+            public init(from decoder: any Decoder) throws {
+                additionalProperties = try decoder.decodeAdditionalProperties(knownKeys: [])
+            }
+            public func encode(to encoder: any Encoder) throws {
+                try encoder.encodeAdditionalProperties(additionalProperties)
+            }
+        }
+        /// Default response format. Used to generate text responses.
+        ///
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseFormatText`.
+        public struct ResponseFormatText: Codable, Hashable, Sendable {
+            /// The type of response format being defined. Always `text`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFormatText/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case text = "text"
+            }
+            /// The type of response format being defined. Always `text`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFormatText/type`.
+            public var _type: Components.Schemas.ResponseFormatText._TypePayload
+            /// Creates a new `ResponseFormatText`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of response format being defined. Always `text`.
+            public init(_type: Components.Schemas.ResponseFormatText._TypePayload) {
+                self._type = _type
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+            }
+        }
+        /// Emitted when there is a partial function-call arguments delta.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDeltaEvent`.
+        public struct ResponseFunctionCallArgumentsDeltaEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.function_call_arguments.delta`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDeltaEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_functionCallArguments_delta = "response.function_call_arguments.delta"
+            }
+            /// The type of the event. Always `response.function_call_arguments.delta`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDeltaEvent/type`.
+            public var _type: Components.Schemas.ResponseFunctionCallArgumentsDeltaEvent._TypePayload
+            /// The ID of the output item that the function-call arguments delta is added to.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDeltaEvent/item_id`.
+            public var itemId: Swift.String
+            /// The index of the output item that the function-call arguments delta is added to.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDeltaEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// The function-call arguments delta that is added.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDeltaEvent/delta`.
+            public var delta: Swift.String
+            /// Creates a new `ResponseFunctionCallArgumentsDeltaEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.function_call_arguments.delta`.
+            ///   - itemId: The ID of the output item that the function-call arguments delta is added to.
+            ///   - outputIndex: The index of the output item that the function-call arguments delta is added to.
+            ///   - delta: The function-call arguments delta that is added.
+            public init(
+                _type: Components.Schemas.ResponseFunctionCallArgumentsDeltaEvent._TypePayload,
+                itemId: Swift.String,
+                outputIndex: Swift.Int,
+                delta: Swift.String
+            ) {
+                self._type = _type
+                self.itemId = itemId
+                self.outputIndex = outputIndex
+                self.delta = delta
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case itemId = "item_id"
+                case outputIndex = "output_index"
+                case delta
+            }
+        }
+        /// Emitted when function-call arguments are finalized.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDoneEvent`.
+        public struct ResponseFunctionCallArgumentsDoneEvent: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDoneEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_functionCallArguments_done = "response.function_call_arguments.done"
+            }
+            /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDoneEvent/type`.
+            public var _type: Components.Schemas.ResponseFunctionCallArgumentsDoneEvent._TypePayload
+            /// The ID of the item.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDoneEvent/item_id`.
+            public var itemId: Swift.String
+            /// The index of the output item.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDoneEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// The function-call arguments.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDoneEvent/arguments`.
+            public var arguments: Swift.String
+            /// Creates a new `ResponseFunctionCallArgumentsDoneEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type:
+            ///   - itemId: The ID of the item.
+            ///   - outputIndex: The index of the output item.
+            ///   - arguments: The function-call arguments.
+            public init(
+                _type: Components.Schemas.ResponseFunctionCallArgumentsDoneEvent._TypePayload,
+                itemId: Swift.String,
+                outputIndex: Swift.Int,
+                arguments: Swift.String
+            ) {
+                self._type = _type
+                self.itemId = itemId
+                self.outputIndex = outputIndex
+                self.arguments = arguments
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case itemId = "item_id"
+                case outputIndex = "output_index"
+                case arguments
+            }
+        }
+        /// Emitted when the response is in progress.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseInProgressEvent`.
+        public struct ResponseInProgressEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.in_progress`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseInProgressEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_inProgress = "response.in_progress"
+            }
+            /// The type of the event. Always `response.in_progress`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseInProgressEvent/type`.
+            public var _type: Components.Schemas.ResponseInProgressEvent._TypePayload
+            /// - Remark: Generated from `#/components/schemas/ResponseInProgressEvent/response`.
+            public var response: Components.Schemas.Response
+            /// Creates a new `ResponseInProgressEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.in_progress`.
+            ///   - response:
+            public init(
+                _type: Components.Schemas.ResponseInProgressEvent._TypePayload,
+                response: Components.Schemas.Response
+            ) {
+                self._type = _type
+                self.response = response
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case response
+            }
+        }
+        /// An event that is emitted when a response finishes as incomplete.
+        ///
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseIncompleteEvent`.
+        public struct ResponseIncompleteEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.incomplete`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseIncompleteEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_incomplete = "response.incomplete"
+            }
+            /// The type of the event. Always `response.incomplete`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseIncompleteEvent/type`.
+            public var _type: Components.Schemas.ResponseIncompleteEvent._TypePayload
+            /// - Remark: Generated from `#/components/schemas/ResponseIncompleteEvent/response`.
+            public var response: Components.Schemas.Response
+            /// Creates a new `ResponseIncompleteEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.incomplete`.
+            ///   - response:
+            public init(
+                _type: Components.Schemas.ResponseIncompleteEvent._TypePayload,
+                response: Components.Schemas.Response
+            ) {
+                self._type = _type
+                self.response = response
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case response
+            }
+        }
+        /// A list of Response items.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseItemList`.
+        public struct ResponseItemList: Codable, Hashable, Sendable {
+            /// The type of object returned, must be `list`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseItemList/object`.
+            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case list = "list"
+            }
+            /// The type of object returned, must be `list`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseItemList/object`.
+            public var object: Components.Schemas.ResponseItemList.ObjectPayload
+            /// A list of items used to generate this response.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseItemList/data`.
+            public var data: [Components.Schemas.ItemResource]
+            /// Whether there are more items available.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseItemList/has_more`.
+            public var hasMore: Swift.Bool
+            /// The ID of the first item in the list.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseItemList/first_id`.
+            public var firstId: Swift.String
+            /// The ID of the last item in the list.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseItemList/last_id`.
+            public var lastId: Swift.String
+            /// Creates a new `ResponseItemList`.
+            ///
+            /// - Parameters:
+            ///   - object: The type of object returned, must be `list`.
+            ///   - data: A list of items used to generate this response.
+            ///   - hasMore: Whether there are more items available.
+            ///   - firstId: The ID of the first item in the list.
+            ///   - lastId: The ID of the last item in the list.
+            public init(
+                object: Components.Schemas.ResponseItemList.ObjectPayload,
+                data: [Components.Schemas.ItemResource],
+                hasMore: Swift.Bool,
+                firstId: Swift.String,
+                lastId: Swift.String
+            ) {
+                self.object = object
+                self.data = data
+                self.hasMore = hasMore
+                self.firstId = firstId
+                self.lastId = lastId
+            }
+            public enum CodingKeys: String, CodingKey {
+                case object
+                case data
+                case hasMore = "has_more"
+                case firstId = "first_id"
+                case lastId = "last_id"
+            }
+        }
+        /// Emitted when a new output item is added.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseOutputItemAddedEvent`.
+        public struct ResponseOutputItemAddedEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.output_item.added`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseOutputItemAddedEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_outputItem_added = "response.output_item.added"
+            }
+            /// The type of the event. Always `response.output_item.added`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseOutputItemAddedEvent/type`.
+            public var _type: Components.Schemas.ResponseOutputItemAddedEvent._TypePayload
+            /// The index of the output item that was added.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseOutputItemAddedEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// - Remark: Generated from `#/components/schemas/ResponseOutputItemAddedEvent/item`.
+            public var item: Components.Schemas.OutputItem
+            /// Creates a new `ResponseOutputItemAddedEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.output_item.added`.
+            ///   - outputIndex: The index of the output item that was added.
+            ///   - item:
+            public init(
+                _type: Components.Schemas.ResponseOutputItemAddedEvent._TypePayload,
+                outputIndex: Swift.Int,
+                item: Components.Schemas.OutputItem
+            ) {
+                self._type = _type
+                self.outputIndex = outputIndex
+                self.item = item
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case outputIndex = "output_index"
+                case item
+            }
+        }
+        /// Emitted when an output item is marked done.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseOutputItemDoneEvent`.
+        public struct ResponseOutputItemDoneEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.output_item.done`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseOutputItemDoneEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_outputItem_done = "response.output_item.done"
+            }
+            /// The type of the event. Always `response.output_item.done`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseOutputItemDoneEvent/type`.
+            public var _type: Components.Schemas.ResponseOutputItemDoneEvent._TypePayload
+            /// The index of the output item that was marked done.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseOutputItemDoneEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// - Remark: Generated from `#/components/schemas/ResponseOutputItemDoneEvent/item`.
+            public var item: Components.Schemas.OutputItem
+            /// Creates a new `ResponseOutputItemDoneEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.output_item.done`.
+            ///   - outputIndex: The index of the output item that was marked done.
+            ///   - item:
+            public init(
+                _type: Components.Schemas.ResponseOutputItemDoneEvent._TypePayload,
+                outputIndex: Swift.Int,
+                item: Components.Schemas.OutputItem
+            ) {
+                self._type = _type
+                self.outputIndex = outputIndex
+                self.item = item
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case outputIndex = "output_index"
+                case item
+            }
+        }
+        /// - Remark: Generated from `#/components/schemas/ResponseProperties`.
+        public struct ResponseProperties: Codable, Hashable, Sendable {
+            /// The unique ID of the previous response to the model. Use this to
+            /// create multi-turn conversations. Learn more about
+            /// [conversation state](/docs/guides/conversation-state).
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseProperties/previous_response_id`.
+            public var previousResponseId: Swift.String?
+            /// - Remark: Generated from `#/components/schemas/ResponseProperties/model`.
+            public var model: Components.Schemas.ModelIdsResponses?
+            /// - Remark: Generated from `#/components/schemas/ResponseProperties/reasoning`.
+            public var reasoning: Components.Schemas.Reasoning?
+            /// An upper bound for the number of tokens that can be generated for a response, including visible output tokens and [reasoning tokens](/docs/guides/reasoning).
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseProperties/max_output_tokens`.
+            public var maxOutputTokens: Swift.Int?
+            /// Inserts a system (or developer) message as the first item in the model's context.
+            ///
+            /// When using along with `previous_response_id`, the instructions from a previous
+            /// response will be not be carried over to the next response. This makes it simple
+            /// to swap out system (or developer) messages in new responses.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseProperties/instructions`.
+            public var instructions: Swift.String?
+            /// Configuration options for a text response from the model. Can be plain
+            /// text or structured JSON data. Learn more:
+            /// - [Text inputs and outputs](/docs/guides/text)
+            /// - [Structured Outputs](/docs/guides/structured-outputs)
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseProperties/text`.
+            public struct TextPayload: Codable, Hashable, Sendable {
+                /// - Remark: Generated from `#/components/schemas/ResponseProperties/text/format`.
+                public var format: Components.Schemas.TextResponseFormatConfiguration?
+                /// Creates a new `TextPayload`.
+                ///
+                /// - Parameters:
+                ///   - format:
+                public init(format: Components.Schemas.TextResponseFormatConfiguration? = nil) {
+                    self.format = format
+                }
+                public enum CodingKeys: String, CodingKey {
+                    case format
+                }
+            }
+            /// Configuration options for a text response from the model. Can be plain
+            /// text or structured JSON data. Learn more:
+            /// - [Text inputs and outputs](/docs/guides/text)
+            /// - [Structured Outputs](/docs/guides/structured-outputs)
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseProperties/text`.
+            public var text: Components.Schemas.ResponseProperties.TextPayload?
+            /// An array of tools the model may call while generating a response. You
+            /// can specify which tool to use by setting the `tool_choice` parameter.
+            ///
+            /// The two categories of tools you can provide the model are:
+            ///
+            /// - **Built-in tools**: Tools that are provided by OpenAI that extend the
+            ///   model's capabilities, like [web search](/docs/guides/tools-web-search)
+            ///   or [file search](/docs/guides/tools-file-search). Learn more about
+            ///   [built-in tools](/docs/guides/tools).
+            /// - **Function calls (custom tools)**: Functions that are defined by you,
+            ///   enabling the model to call your own code. Learn more about
+            ///   [function calling](/docs/guides/function-calling).
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseProperties/tools`.
+            public var tools: [Components.Schemas.Tool]?
+            /// How the model should select which tool (or tools) to use when generating
+            /// a response. See the `tools` parameter to see how to specify which tools
+            /// the model can call.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseProperties/tool_choice`.
+            @frozen public enum ToolChoicePayload: Codable, Hashable, Sendable {
+                /// - Remark: Generated from `#/components/schemas/ResponseProperties/tool_choice/case1`.
+                case ToolChoiceOptions(Components.Schemas.ToolChoiceOptions)
+                /// - Remark: Generated from `#/components/schemas/ResponseProperties/tool_choice/case2`.
+                case ToolChoiceTypes(Components.Schemas.ToolChoiceTypes)
+                /// - Remark: Generated from `#/components/schemas/ResponseProperties/tool_choice/case3`.
+                case ToolChoiceFunction(Components.Schemas.ToolChoiceFunction)
+                public init(from decoder: any Decoder) throws {
+                    var errors: [any Error] = []
+                    do {
+                        self = .ToolChoiceOptions(try decoder.decodeFromSingleValueContainer())
+                        return
+                    } catch {
+                        errors.append(error)
+                    }
+                    do {
+                        self = .ToolChoiceTypes(try .init(from: decoder))
+                        return
+                    } catch {
+                        errors.append(error)
+                    }
+                    do {
+                        self = .ToolChoiceFunction(try .init(from: decoder))
+                        return
+                    } catch {
+                        errors.append(error)
+                    }
+                    throw Swift.DecodingError.failedToDecodeOneOfSchema(
+                        type: Self.self,
+                        codingPath: decoder.codingPath,
+                        errors: errors
+                    )
+                }
+                public func encode(to encoder: any Encoder) throws {
+                    switch self {
+                    case let .ToolChoiceOptions(value):
+                        try encoder.encodeToSingleValueContainer(value)
+                    case let .ToolChoiceTypes(value):
+                        try value.encode(to: encoder)
+                    case let .ToolChoiceFunction(value):
+                        try value.encode(to: encoder)
+                    }
+                }
+            }
+            /// How the model should select which tool (or tools) to use when generating
+            /// a response. See the `tools` parameter to see how to specify which tools
+            /// the model can call.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseProperties/tool_choice`.
+            public var toolChoice: Components.Schemas.ResponseProperties.ToolChoicePayload?
+            /// The truncation strategy to use for the model response.
+            /// - `auto`: If the context of this response and previous ones exceeds
+            ///   the model's context window size, the model will truncate the
+            ///   response to fit the context window by dropping input items in the
+            ///   middle of the conversation.
+            /// - `disabled` (default): If a model response will exceed the context window
+            ///   size for a model, the request will fail with a 400 error.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseProperties/truncation`.
+            @frozen public enum TruncationPayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case auto = "auto"
+                case disabled = "disabled"
+            }
+            /// The truncation strategy to use for the model response.
+            /// - `auto`: If the context of this response and previous ones exceeds
+            ///   the model's context window size, the model will truncate the
+            ///   response to fit the context window by dropping input items in the
+            ///   middle of the conversation.
+            /// - `disabled` (default): If a model response will exceed the context window
+            ///   size for a model, the request will fail with a 400 error.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseProperties/truncation`.
+            public var truncation: Components.Schemas.ResponseProperties.TruncationPayload?
+            /// Creates a new `ResponseProperties`.
+            ///
+            /// - Parameters:
+            ///   - previousResponseId: The unique ID of the previous response to the model. Use this to
+            ///   - model:
+            ///   - reasoning:
+            ///   - maxOutputTokens: An upper bound for the number of tokens that can be generated for a response, including visible output tokens and [reasoning tokens](/docs/guides/reasoning).
+            ///   - instructions: Inserts a system (or developer) message as the first item in the model's context.
+            ///   - text: Configuration options for a text response from the model. Can be plain
+            ///   - tools: An array of tools the model may call while generating a response. You
+            ///   - toolChoice: How the model should select which tool (or tools) to use when generating
+            ///   - truncation: The truncation strategy to use for the model response.
+            public init(
+                previousResponseId: Swift.String? = nil,
+                model: Components.Schemas.ModelIdsResponses? = nil,
+                reasoning: Components.Schemas.Reasoning? = nil,
+                maxOutputTokens: Swift.Int? = nil,
+                instructions: Swift.String? = nil,
+                text: Components.Schemas.ResponseProperties.TextPayload? = nil,
+                tools: [Components.Schemas.Tool]? = nil,
+                toolChoice: Components.Schemas.ResponseProperties.ToolChoicePayload? = nil,
+                truncation: Components.Schemas.ResponseProperties.TruncationPayload? = nil
+            ) {
+                self.previousResponseId = previousResponseId
+                self.model = model
+                self.reasoning = reasoning
+                self.maxOutputTokens = maxOutputTokens
+                self.instructions = instructions
+                self.text = text
+                self.tools = tools
+                self.toolChoice = toolChoice
+                self.truncation = truncation
+            }
+            public enum CodingKeys: String, CodingKey {
+                case previousResponseId = "previous_response_id"
+                case model
+                case reasoning
+                case maxOutputTokens = "max_output_tokens"
+                case instructions
+                case text
+                case tools
+                case toolChoice = "tool_choice"
+                case truncation
+            }
+        }
+        /// Emitted when there is a partial refusal text.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseRefusalDeltaEvent`.
+        public struct ResponseRefusalDeltaEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.refusal.delta`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseRefusalDeltaEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_refusal_delta = "response.refusal.delta"
+            }
+            /// The type of the event. Always `response.refusal.delta`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseRefusalDeltaEvent/type`.
+            public var _type: Components.Schemas.ResponseRefusalDeltaEvent._TypePayload
+            /// The ID of the output item that the refusal text is added to.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseRefusalDeltaEvent/item_id`.
+            public var itemId: Swift.String
+            /// The index of the output item that the refusal text is added to.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseRefusalDeltaEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// The index of the content part that the refusal text is added to.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseRefusalDeltaEvent/content_index`.
+            public var contentIndex: Swift.Int
+            /// The refusal text that is added.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseRefusalDeltaEvent/delta`.
+            public var delta: Swift.String
+            /// Creates a new `ResponseRefusalDeltaEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.refusal.delta`.
+            ///   - itemId: The ID of the output item that the refusal text is added to.
+            ///   - outputIndex: The index of the output item that the refusal text is added to.
+            ///   - contentIndex: The index of the content part that the refusal text is added to.
+            ///   - delta: The refusal text that is added.
+            public init(
+                _type: Components.Schemas.ResponseRefusalDeltaEvent._TypePayload,
+                itemId: Swift.String,
+                outputIndex: Swift.Int,
+                contentIndex: Swift.Int,
+                delta: Swift.String
+            ) {
+                self._type = _type
+                self.itemId = itemId
+                self.outputIndex = outputIndex
+                self.contentIndex = contentIndex
+                self.delta = delta
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case itemId = "item_id"
+                case outputIndex = "output_index"
+                case contentIndex = "content_index"
+                case delta
+            }
+        }
+        /// Emitted when refusal text is finalized.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseRefusalDoneEvent`.
+        public struct ResponseRefusalDoneEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.refusal.done`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseRefusalDoneEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_refusal_done = "response.refusal.done"
+            }
+            /// The type of the event. Always `response.refusal.done`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseRefusalDoneEvent/type`.
+            public var _type: Components.Schemas.ResponseRefusalDoneEvent._TypePayload
+            /// The ID of the output item that the refusal text is finalized.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseRefusalDoneEvent/item_id`.
+            public var itemId: Swift.String
+            /// The index of the output item that the refusal text is finalized.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseRefusalDoneEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// The index of the content part that the refusal text is finalized.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseRefusalDoneEvent/content_index`.
+            public var contentIndex: Swift.Int
+            /// The refusal text that is finalized.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseRefusalDoneEvent/refusal`.
+            public var refusal: Swift.String
+            /// Creates a new `ResponseRefusalDoneEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.refusal.done`.
+            ///   - itemId: The ID of the output item that the refusal text is finalized.
+            ///   - outputIndex: The index of the output item that the refusal text is finalized.
+            ///   - contentIndex: The index of the content part that the refusal text is finalized.
+            ///   - refusal: The refusal text that is finalized.
+            public init(
+                _type: Components.Schemas.ResponseRefusalDoneEvent._TypePayload,
+                itemId: Swift.String,
+                outputIndex: Swift.Int,
+                contentIndex: Swift.Int,
+                refusal: Swift.String
+            ) {
+                self._type = _type
+                self.itemId = itemId
+                self.outputIndex = outputIndex
+                self.contentIndex = contentIndex
+                self.refusal = refusal
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case itemId = "item_id"
+                case outputIndex = "output_index"
+                case contentIndex = "content_index"
+                case refusal
+            }
+        }
+        /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent`.
+        public struct ResponseStreamEvent: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value1`.
+            public var value1: Components.Schemas.ResponseAudioDeltaEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value2`.
+            public var value2: Components.Schemas.ResponseAudioDoneEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value3`.
+            public var value3: Components.Schemas.ResponseAudioTranscriptDeltaEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value4`.
+            public var value4: Components.Schemas.ResponseAudioTranscriptDoneEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value5`.
+            public var value5: Components.Schemas.ResponseCodeInterpreterCallCodeDeltaEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value6`.
+            public var value6: Components.Schemas.ResponseCodeInterpreterCallCodeDoneEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value7`.
+            public var value7: Components.Schemas.ResponseCodeInterpreterCallCompletedEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value8`.
+            public var value8: Components.Schemas.ResponseCodeInterpreterCallInProgressEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value9`.
+            public var value9: Components.Schemas.ResponseCodeInterpreterCallInterpretingEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value10`.
+            public var value10: Components.Schemas.ResponseCompletedEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value11`.
+            public var value11: Components.Schemas.ResponseContentPartAddedEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value12`.
+            public var value12: Components.Schemas.ResponseContentPartDoneEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value13`.
+            public var value13: Components.Schemas.ResponseCreatedEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value14`.
+            public var value14: Components.Schemas.ResponseErrorEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value15`.
+            public var value15: Components.Schemas.ResponseFileSearchCallCompletedEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value16`.
+            public var value16: Components.Schemas.ResponseFileSearchCallInProgressEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value17`.
+            public var value17: Components.Schemas.ResponseFileSearchCallSearchingEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value18`.
+            public var value18: Components.Schemas.ResponseFunctionCallArgumentsDeltaEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value19`.
+            public var value19: Components.Schemas.ResponseFunctionCallArgumentsDoneEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value20`.
+            public var value20: Components.Schemas.ResponseInProgressEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value21`.
+            public var value21: Components.Schemas.ResponseFailedEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value22`.
+            public var value22: Components.Schemas.ResponseIncompleteEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value23`.
+            public var value23: Components.Schemas.ResponseOutputItemAddedEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value24`.
+            public var value24: Components.Schemas.ResponseOutputItemDoneEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value25`.
+            public var value25: Components.Schemas.ResponseRefusalDeltaEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value26`.
+            public var value26: Components.Schemas.ResponseRefusalDoneEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value27`.
+            public var value27: Components.Schemas.ResponseTextAnnotationDeltaEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value28`.
+            public var value28: Components.Schemas.ResponseTextDeltaEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value29`.
+            public var value29: Components.Schemas.ResponseTextDoneEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value30`.
+            public var value30: Components.Schemas.ResponseWebSearchCallCompletedEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value31`.
+            public var value31: Components.Schemas.ResponseWebSearchCallInProgressEvent?
+            /// - Remark: Generated from `#/components/schemas/ResponseStreamEvent/value32`.
+            public var value32: Components.Schemas.ResponseWebSearchCallSearchingEvent?
+            /// Creates a new `ResponseStreamEvent`.
+            ///
+            /// - Parameters:
+            ///   - value1:
+            ///   - value2:
+            ///   - value3:
+            ///   - value4:
+            ///   - value5:
+            ///   - value6:
+            ///   - value7:
+            ///   - value8:
+            ///   - value9:
+            ///   - value10:
+            ///   - value11:
+            ///   - value12:
+            ///   - value13:
+            ///   - value14:
+            ///   - value15:
+            ///   - value16:
+            ///   - value17:
+            ///   - value18:
+            ///   - value19:
+            ///   - value20:
+            ///   - value21:
+            ///   - value22:
+            ///   - value23:
+            ///   - value24:
+            ///   - value25:
+            ///   - value26:
+            ///   - value27:
+            ///   - value28:
+            ///   - value29:
+            ///   - value30:
+            ///   - value31:
+            ///   - value32:
+            public init(
+                value1: Components.Schemas.ResponseAudioDeltaEvent? = nil,
+                value2: Components.Schemas.ResponseAudioDoneEvent? = nil,
+                value3: Components.Schemas.ResponseAudioTranscriptDeltaEvent? = nil,
+                value4: Components.Schemas.ResponseAudioTranscriptDoneEvent? = nil,
+                value5: Components.Schemas.ResponseCodeInterpreterCallCodeDeltaEvent? = nil,
+                value6: Components.Schemas.ResponseCodeInterpreterCallCodeDoneEvent? = nil,
+                value7: Components.Schemas.ResponseCodeInterpreterCallCompletedEvent? = nil,
+                value8: Components.Schemas.ResponseCodeInterpreterCallInProgressEvent? = nil,
+                value9: Components.Schemas.ResponseCodeInterpreterCallInterpretingEvent? = nil,
+                value10: Components.Schemas.ResponseCompletedEvent? = nil,
+                value11: Components.Schemas.ResponseContentPartAddedEvent? = nil,
+                value12: Components.Schemas.ResponseContentPartDoneEvent? = nil,
+                value13: Components.Schemas.ResponseCreatedEvent? = nil,
+                value14: Components.Schemas.ResponseErrorEvent? = nil,
+                value15: Components.Schemas.ResponseFileSearchCallCompletedEvent? = nil,
+                value16: Components.Schemas.ResponseFileSearchCallInProgressEvent? = nil,
+                value17: Components.Schemas.ResponseFileSearchCallSearchingEvent? = nil,
+                value18: Components.Schemas.ResponseFunctionCallArgumentsDeltaEvent? = nil,
+                value19: Components.Schemas.ResponseFunctionCallArgumentsDoneEvent? = nil,
+                value20: Components.Schemas.ResponseInProgressEvent? = nil,
+                value21: Components.Schemas.ResponseFailedEvent? = nil,
+                value22: Components.Schemas.ResponseIncompleteEvent? = nil,
+                value23: Components.Schemas.ResponseOutputItemAddedEvent? = nil,
+                value24: Components.Schemas.ResponseOutputItemDoneEvent? = nil,
+                value25: Components.Schemas.ResponseRefusalDeltaEvent? = nil,
+                value26: Components.Schemas.ResponseRefusalDoneEvent? = nil,
+                value27: Components.Schemas.ResponseTextAnnotationDeltaEvent? = nil,
+                value28: Components.Schemas.ResponseTextDeltaEvent? = nil,
+                value29: Components.Schemas.ResponseTextDoneEvent? = nil,
+                value30: Components.Schemas.ResponseWebSearchCallCompletedEvent? = nil,
+                value31: Components.Schemas.ResponseWebSearchCallInProgressEvent? = nil,
+                value32: Components.Schemas.ResponseWebSearchCallSearchingEvent? = nil
+            ) {
+                self.value1 = value1
+                self.value2 = value2
+                self.value3 = value3
+                self.value4 = value4
+                self.value5 = value5
+                self.value6 = value6
+                self.value7 = value7
+                self.value8 = value8
+                self.value9 = value9
+                self.value10 = value10
+                self.value11 = value11
+                self.value12 = value12
+                self.value13 = value13
+                self.value14 = value14
+                self.value15 = value15
+                self.value16 = value16
+                self.value17 = value17
+                self.value18 = value18
+                self.value19 = value19
+                self.value20 = value20
+                self.value21 = value21
+                self.value22 = value22
+                self.value23 = value23
+                self.value24 = value24
+                self.value25 = value25
+                self.value26 = value26
+                self.value27 = value27
+                self.value28 = value28
+                self.value29 = value29
+                self.value30 = value30
+                self.value31 = value31
+                self.value32 = value32
+            }
+            public init(from decoder: any Decoder) throws {
+                var errors: [any Error] = []
+                do {
+                    self.value1 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value2 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value3 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value4 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value5 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value6 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value7 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value8 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value9 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value10 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value11 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value12 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value13 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value14 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value15 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value16 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value17 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value18 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value19 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value20 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value21 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value22 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value23 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value24 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value25 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value26 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value27 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value28 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value29 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value30 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value31 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value32 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                    [
+                        self.value1,
+                        self.value2,
+                        self.value3,
+                        self.value4,
+                        self.value5,
+                        self.value6,
+                        self.value7,
+                        self.value8,
+                        self.value9,
+                        self.value10,
+                        self.value11,
+                        self.value12,
+                        self.value13,
+                        self.value14,
+                        self.value15,
+                        self.value16,
+                        self.value17,
+                        self.value18,
+                        self.value19,
+                        self.value20,
+                        self.value21,
+                        self.value22,
+                        self.value23,
+                        self.value24,
+                        self.value25,
+                        self.value26,
+                        self.value27,
+                        self.value28,
+                        self.value29,
+                        self.value30,
+                        self.value31,
+                        self.value32
+                    ],
+                    type: Self.self,
+                    codingPath: decoder.codingPath,
+                    errors: errors
+                )
+            }
+            public func encode(to encoder: any Encoder) throws {
+                try self.value1?.encode(to: encoder)
+                try self.value2?.encode(to: encoder)
+                try self.value3?.encode(to: encoder)
+                try self.value4?.encode(to: encoder)
+                try self.value5?.encode(to: encoder)
+                try self.value6?.encode(to: encoder)
+                try self.value7?.encode(to: encoder)
+                try self.value8?.encode(to: encoder)
+                try self.value9?.encode(to: encoder)
+                try self.value10?.encode(to: encoder)
+                try self.value11?.encode(to: encoder)
+                try self.value12?.encode(to: encoder)
+                try self.value13?.encode(to: encoder)
+                try self.value14?.encode(to: encoder)
+                try self.value15?.encode(to: encoder)
+                try self.value16?.encode(to: encoder)
+                try self.value17?.encode(to: encoder)
+                try self.value18?.encode(to: encoder)
+                try self.value19?.encode(to: encoder)
+                try self.value20?.encode(to: encoder)
+                try self.value21?.encode(to: encoder)
+                try self.value22?.encode(to: encoder)
+                try self.value23?.encode(to: encoder)
+                try self.value24?.encode(to: encoder)
+                try self.value25?.encode(to: encoder)
+                try self.value26?.encode(to: encoder)
+                try self.value27?.encode(to: encoder)
+                try self.value28?.encode(to: encoder)
+                try self.value29?.encode(to: encoder)
+                try self.value30?.encode(to: encoder)
+                try self.value31?.encode(to: encoder)
+                try self.value32?.encode(to: encoder)
+            }
+        }
+        /// Emitted when a text annotation is added.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseTextAnnotationDeltaEvent`.
+        public struct ResponseTextAnnotationDeltaEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.output_text.annotation.added`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextAnnotationDeltaEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_outputText_annotation_added = "response.output_text.annotation.added"
+            }
+            /// The type of the event. Always `response.output_text.annotation.added`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextAnnotationDeltaEvent/type`.
+            public var _type: Components.Schemas.ResponseTextAnnotationDeltaEvent._TypePayload
+            /// The ID of the output item that the text annotation was added to.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextAnnotationDeltaEvent/item_id`.
+            public var itemId: Swift.String
+            /// The index of the output item that the text annotation was added to.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextAnnotationDeltaEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// The index of the content part that the text annotation was added to.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextAnnotationDeltaEvent/content_index`.
+            public var contentIndex: Swift.Int
+            /// The index of the annotation that was added.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextAnnotationDeltaEvent/annotation_index`.
+            public var annotationIndex: Swift.Int
+            /// - Remark: Generated from `#/components/schemas/ResponseTextAnnotationDeltaEvent/annotation`.
+            public var annotation: Components.Schemas.Annotation
+            /// Creates a new `ResponseTextAnnotationDeltaEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.output_text.annotation.added`.
+            ///   - itemId: The ID of the output item that the text annotation was added to.
+            ///   - outputIndex: The index of the output item that the text annotation was added to.
+            ///   - contentIndex: The index of the content part that the text annotation was added to.
+            ///   - annotationIndex: The index of the annotation that was added.
+            ///   - annotation:
+            public init(
+                _type: Components.Schemas.ResponseTextAnnotationDeltaEvent._TypePayload,
+                itemId: Swift.String,
+                outputIndex: Swift.Int,
+                contentIndex: Swift.Int,
+                annotationIndex: Swift.Int,
+                annotation: Components.Schemas.Annotation
+            ) {
+                self._type = _type
+                self.itemId = itemId
+                self.outputIndex = outputIndex
+                self.contentIndex = contentIndex
+                self.annotationIndex = annotationIndex
+                self.annotation = annotation
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case itemId = "item_id"
+                case outputIndex = "output_index"
+                case contentIndex = "content_index"
+                case annotationIndex = "annotation_index"
+                case annotation
+            }
+        }
+        /// Emitted when there is an additional text delta.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseTextDeltaEvent`.
+        public struct ResponseTextDeltaEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.output_text.delta`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextDeltaEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_outputText_delta = "response.output_text.delta"
+            }
+            /// The type of the event. Always `response.output_text.delta`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextDeltaEvent/type`.
+            public var _type: Components.Schemas.ResponseTextDeltaEvent._TypePayload
+            /// The ID of the output item that the text delta was added to.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextDeltaEvent/item_id`.
+            public var itemId: Swift.String
+            /// The index of the output item that the text delta was added to.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextDeltaEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// The index of the content part that the text delta was added to.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextDeltaEvent/content_index`.
+            public var contentIndex: Swift.Int
+            /// The text delta that was added.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextDeltaEvent/delta`.
+            public var delta: Swift.String
+            /// Creates a new `ResponseTextDeltaEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.output_text.delta`.
+            ///   - itemId: The ID of the output item that the text delta was added to.
+            ///   - outputIndex: The index of the output item that the text delta was added to.
+            ///   - contentIndex: The index of the content part that the text delta was added to.
+            ///   - delta: The text delta that was added.
+            public init(
+                _type: Components.Schemas.ResponseTextDeltaEvent._TypePayload,
+                itemId: Swift.String,
+                outputIndex: Swift.Int,
+                contentIndex: Swift.Int,
+                delta: Swift.String
+            ) {
+                self._type = _type
+                self.itemId = itemId
+                self.outputIndex = outputIndex
+                self.contentIndex = contentIndex
+                self.delta = delta
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case itemId = "item_id"
+                case outputIndex = "output_index"
+                case contentIndex = "content_index"
+                case delta
+            }
+        }
+        /// Emitted when text content is finalized.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseTextDoneEvent`.
+        public struct ResponseTextDoneEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.output_text.done`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextDoneEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_outputText_done = "response.output_text.done"
+            }
+            /// The type of the event. Always `response.output_text.done`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextDoneEvent/type`.
+            public var _type: Components.Schemas.ResponseTextDoneEvent._TypePayload
+            /// The ID of the output item that the text content is finalized.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextDoneEvent/item_id`.
+            public var itemId: Swift.String
+            /// The index of the output item that the text content is finalized.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextDoneEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// The index of the content part that the text content is finalized.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextDoneEvent/content_index`.
+            public var contentIndex: Swift.Int
+            /// The text content that is finalized.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseTextDoneEvent/text`.
+            public var text: Swift.String
+            /// Creates a new `ResponseTextDoneEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.output_text.done`.
+            ///   - itemId: The ID of the output item that the text content is finalized.
+            ///   - outputIndex: The index of the output item that the text content is finalized.
+            ///   - contentIndex: The index of the content part that the text content is finalized.
+            ///   - text: The text content that is finalized.
+            public init(
+                _type: Components.Schemas.ResponseTextDoneEvent._TypePayload,
+                itemId: Swift.String,
+                outputIndex: Swift.Int,
+                contentIndex: Swift.Int,
+                text: Swift.String
+            ) {
+                self._type = _type
+                self.itemId = itemId
+                self.outputIndex = outputIndex
+                self.contentIndex = contentIndex
+                self.text = text
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case itemId = "item_id"
+                case outputIndex = "output_index"
+                case contentIndex = "content_index"
+                case text
+            }
+        }
+        /// Represents token usage details including input tokens, output tokens,
+        /// a breakdown of output tokens, and the total tokens used.
+        ///
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseUsage`.
+        public struct ResponseUsage: Codable, Hashable, Sendable {
+            /// The number of input tokens.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseUsage/input_tokens`.
+            public var inputTokens: Swift.Int
+            /// A detailed breakdown of the input tokens.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseUsage/input_tokens_details`.
+            public struct InputTokensDetailsPayload: Codable, Hashable, Sendable {
+                /// The number of tokens that were retrieved from the cache.
+                /// [More on prompt caching](/docs/guides/prompt-caching).
+                ///
+                ///
+                /// - Remark: Generated from `#/components/schemas/ResponseUsage/input_tokens_details/cached_tokens`.
+                public var cachedTokens: Swift.Int
+                /// Creates a new `InputTokensDetailsPayload`.
+                ///
+                /// - Parameters:
+                ///   - cachedTokens: The number of tokens that were retrieved from the cache.
+                public init(cachedTokens: Swift.Int) {
+                    self.cachedTokens = cachedTokens
+                }
+                public enum CodingKeys: String, CodingKey {
+                    case cachedTokens = "cached_tokens"
+                }
+            }
+            /// A detailed breakdown of the input tokens.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseUsage/input_tokens_details`.
+            public var inputTokensDetails: Components.Schemas.ResponseUsage.InputTokensDetailsPayload
+            /// The number of output tokens.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseUsage/output_tokens`.
+            public var outputTokens: Swift.Int
+            /// A detailed breakdown of the output tokens.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseUsage/output_tokens_details`.
+            public struct OutputTokensDetailsPayload: Codable, Hashable, Sendable {
+                /// The number of reasoning tokens.
+                ///
+                /// - Remark: Generated from `#/components/schemas/ResponseUsage/output_tokens_details/reasoning_tokens`.
+                public var reasoningTokens: Swift.Int
+                /// Creates a new `OutputTokensDetailsPayload`.
+                ///
+                /// - Parameters:
+                ///   - reasoningTokens: The number of reasoning tokens.
+                public init(reasoningTokens: Swift.Int) {
+                    self.reasoningTokens = reasoningTokens
+                }
+                public enum CodingKeys: String, CodingKey {
+                    case reasoningTokens = "reasoning_tokens"
+                }
+            }
+            /// A detailed breakdown of the output tokens.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseUsage/output_tokens_details`.
+            public var outputTokensDetails: Components.Schemas.ResponseUsage.OutputTokensDetailsPayload
+            /// The total number of tokens used.
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseUsage/total_tokens`.
+            public var totalTokens: Swift.Int
+            /// Creates a new `ResponseUsage`.
+            ///
+            /// - Parameters:
+            ///   - inputTokens: The number of input tokens.
+            ///   - inputTokensDetails: A detailed breakdown of the input tokens.
+            ///   - outputTokens: The number of output tokens.
+            ///   - outputTokensDetails: A detailed breakdown of the output tokens.
+            ///   - totalTokens: The total number of tokens used.
+            public init(
+                inputTokens: Swift.Int,
+                inputTokensDetails: Components.Schemas.ResponseUsage.InputTokensDetailsPayload,
+                outputTokens: Swift.Int,
+                outputTokensDetails: Components.Schemas.ResponseUsage.OutputTokensDetailsPayload,
+                totalTokens: Swift.Int
+            ) {
+                self.inputTokens = inputTokens
+                self.inputTokensDetails = inputTokensDetails
+                self.outputTokens = outputTokens
+                self.outputTokensDetails = outputTokensDetails
+                self.totalTokens = totalTokens
+            }
+            public enum CodingKeys: String, CodingKey {
+                case inputTokens = "input_tokens"
+                case inputTokensDetails = "input_tokens_details"
+                case outputTokens = "output_tokens"
+                case outputTokensDetails = "output_tokens_details"
+                case totalTokens = "total_tokens"
+            }
+        }
+        /// Emitted when a web search call is completed.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseWebSearchCallCompletedEvent`.
+        public struct ResponseWebSearchCallCompletedEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.web_search_call.completed`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseWebSearchCallCompletedEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_webSearchCall_completed = "response.web_search_call.completed"
+            }
+            /// The type of the event. Always `response.web_search_call.completed`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseWebSearchCallCompletedEvent/type`.
+            public var _type: Components.Schemas.ResponseWebSearchCallCompletedEvent._TypePayload
+            /// The index of the output item that the web search call is associated with.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseWebSearchCallCompletedEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// Unique ID for the output item associated with the web search call.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseWebSearchCallCompletedEvent/item_id`.
+            public var itemId: Swift.String
+            /// Creates a new `ResponseWebSearchCallCompletedEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.web_search_call.completed`.
+            ///   - outputIndex: The index of the output item that the web search call is associated with.
+            ///   - itemId: Unique ID for the output item associated with the web search call.
+            public init(
+                _type: Components.Schemas.ResponseWebSearchCallCompletedEvent._TypePayload,
+                outputIndex: Swift.Int,
+                itemId: Swift.String
+            ) {
+                self._type = _type
+                self.outputIndex = outputIndex
+                self.itemId = itemId
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case outputIndex = "output_index"
+                case itemId = "item_id"
+            }
+        }
+        /// Emitted when a web search call is initiated.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseWebSearchCallInProgressEvent`.
+        public struct ResponseWebSearchCallInProgressEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.web_search_call.in_progress`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseWebSearchCallInProgressEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_webSearchCall_inProgress = "response.web_search_call.in_progress"
+            }
+            /// The type of the event. Always `response.web_search_call.in_progress`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseWebSearchCallInProgressEvent/type`.
+            public var _type: Components.Schemas.ResponseWebSearchCallInProgressEvent._TypePayload
+            /// The index of the output item that the web search call is associated with.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseWebSearchCallInProgressEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// Unique ID for the output item associated with the web search call.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseWebSearchCallInProgressEvent/item_id`.
+            public var itemId: Swift.String
+            /// Creates a new `ResponseWebSearchCallInProgressEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.web_search_call.in_progress`.
+            ///   - outputIndex: The index of the output item that the web search call is associated with.
+            ///   - itemId: Unique ID for the output item associated with the web search call.
+            public init(
+                _type: Components.Schemas.ResponseWebSearchCallInProgressEvent._TypePayload,
+                outputIndex: Swift.Int,
+                itemId: Swift.String
+            ) {
+                self._type = _type
+                self.outputIndex = outputIndex
+                self.itemId = itemId
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case outputIndex = "output_index"
+                case itemId = "item_id"
+            }
+        }
+        /// Emitted when a web search call is executing.
+        ///
+        /// - Remark: Generated from `#/components/schemas/ResponseWebSearchCallSearchingEvent`.
+        public struct ResponseWebSearchCallSearchingEvent: Codable, Hashable, Sendable {
+            /// The type of the event. Always `response.web_search_call.searching`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseWebSearchCallSearchingEvent/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case response_webSearchCall_searching = "response.web_search_call.searching"
+            }
+            /// The type of the event. Always `response.web_search_call.searching`.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseWebSearchCallSearchingEvent/type`.
+            public var _type: Components.Schemas.ResponseWebSearchCallSearchingEvent._TypePayload
+            /// The index of the output item that the web search call is associated with.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseWebSearchCallSearchingEvent/output_index`.
+            public var outputIndex: Swift.Int
+            /// Unique ID for the output item associated with the web search call.
+            ///
+            ///
+            /// - Remark: Generated from `#/components/schemas/ResponseWebSearchCallSearchingEvent/item_id`.
+            public var itemId: Swift.String
+            /// Creates a new `ResponseWebSearchCallSearchingEvent`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the event. Always `response.web_search_call.searching`.
+            ///   - outputIndex: The index of the output item that the web search call is associated with.
+            ///   - itemId: Unique ID for the output item associated with the web search call.
+            public init(
+                _type: Components.Schemas.ResponseWebSearchCallSearchingEvent._TypePayload,
+                outputIndex: Swift.Int,
+                itemId: Swift.String
+            ) {
+                self._type = _type
+                self.outputIndex = outputIndex
+                self.itemId = itemId
+            }
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case outputIndex = "output_index"
+                case itemId = "item_id"
+            }
+        }
         /// A screenshot action.
         ///
         ///
         /// - Remark: Generated from `#/components/schemas/Screenshot`.
         public struct Screenshot: Codable, Hashable, Sendable {
-            /// Specifies the event type. For a screenshot action, this property is 
+            /// Specifies the event type. For a screenshot action, this property is
             /// always set to `screenshot`.
             ///
             ///
@@ -5063,7 +6276,7 @@ public enum Components {
             @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case screenshot = "screenshot"
             }
-            /// Specifies the event type. For a screenshot action, this property is 
+            /// Specifies the event type. For a screenshot action, this property is
             /// always set to `screenshot`.
             ///
             ///
@@ -5072,7 +6285,7 @@ public enum Components {
             /// Creates a new `Screenshot`.
             ///
             /// - Parameters:
-            ///   - _type: Specifies the event type. For a screenshot action, this property is 
+            ///   - _type: Specifies the event type. For a screenshot action, this property is
             public init(_type: Components.Schemas.Screenshot._TypePayload) {
                 self._type = _type
             }
@@ -5085,7 +6298,7 @@ public enum Components {
         ///
         /// - Remark: Generated from `#/components/schemas/Scroll`.
         public struct Scroll: Codable, Hashable, Sendable {
-            /// Specifies the event type. For a scroll action, this property is 
+            /// Specifies the event type. For a scroll action, this property is
             /// always set to `scroll`.
             ///
             ///
@@ -5093,7 +6306,7 @@ public enum Components {
             @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case scroll = "scroll"
             }
-            /// Specifies the event type. For a scroll action, this property is 
+            /// Specifies the event type. For a scroll action, this property is
             /// always set to `scroll`.
             ///
             ///
@@ -5122,7 +6335,7 @@ public enum Components {
             /// Creates a new `Scroll`.
             ///
             /// - Parameters:
-            ///   - _type: Specifies the event type. For a scroll action, this property is 
+            ///   - _type: Specifies the event type. For a scroll action, this property is
             ///   - x: The x-coordinate where the scroll occurred.
             ///   - y: The y-coordinate where the scroll occurred.
             ///   - scrollX: The horizontal scroll distance.
@@ -5148,262 +6361,10 @@ public enum Components {
                 case scrollY = "scroll_y"
             }
         }
-        /// - Remark: Generated from `#/components/schemas/StaticChunkingStrategy`.
-        public struct StaticChunkingStrategy: Codable, Hashable, Sendable {
-            /// The maximum number of tokens in each chunk. The default value is `800`. The minimum value is `100` and the maximum value is `4096`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/StaticChunkingStrategy/max_chunk_size_tokens`.
-            public var maxChunkSizeTokens: Swift.Int
-            /// The number of tokens that overlap between chunks. The default value is `400`.
-            ///
-            /// Note that the overlap must not exceed half of `max_chunk_size_tokens`.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/StaticChunkingStrategy/chunk_overlap_tokens`.
-            public var chunkOverlapTokens: Swift.Int
-            /// Creates a new `StaticChunkingStrategy`.
-            ///
-            /// - Parameters:
-            ///   - maxChunkSizeTokens: The maximum number of tokens in each chunk. The default value is `800`. The minimum value is `100` and the maximum value is `4096`.
-            ///   - chunkOverlapTokens: The number of tokens that overlap between chunks. The default value is `400`.
-            public init(
-                maxChunkSizeTokens: Swift.Int,
-                chunkOverlapTokens: Swift.Int
-            ) {
-                self.maxChunkSizeTokens = maxChunkSizeTokens
-                self.chunkOverlapTokens = chunkOverlapTokens
-            }
-            public enum CodingKeys: String, CodingKey {
-                case maxChunkSizeTokens = "max_chunk_size_tokens"
-                case chunkOverlapTokens = "chunk_overlap_tokens"
-            }
-            public init(from decoder: any Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                self.maxChunkSizeTokens = try container.decode(
-                    Swift.Int.self,
-                    forKey: .maxChunkSizeTokens
-                )
-                self.chunkOverlapTokens = try container.decode(
-                    Swift.Int.self,
-                    forKey: .chunkOverlapTokens
-                )
-                try decoder.ensureNoAdditionalProperties(knownKeys: [
-                    "max_chunk_size_tokens",
-                    "chunk_overlap_tokens"
-                ])
-            }
-        }
-        /// Customize your own chunking strategy by setting chunk size and chunk overlap.
-        ///
-        /// - Remark: Generated from `#/components/schemas/StaticChunkingStrategyRequestParam`.
-        public struct StaticChunkingStrategyRequestParam: Codable, Hashable, Sendable {
-            /// Always `static`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/StaticChunkingStrategyRequestParam/type`.
-            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case _static = "static"
-            }
-            /// Always `static`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/StaticChunkingStrategyRequestParam/type`.
-            public var _type: Components.Schemas.StaticChunkingStrategyRequestParam._TypePayload
-            /// - Remark: Generated from `#/components/schemas/StaticChunkingStrategyRequestParam/static`.
-            public var _static: Components.Schemas.StaticChunkingStrategy
-            /// Creates a new `StaticChunkingStrategyRequestParam`.
-            ///
-            /// - Parameters:
-            ///   - _type: Always `static`.
-            ///   - _static:
-            public init(
-                _type: Components.Schemas.StaticChunkingStrategyRequestParam._TypePayload,
-                _static: Components.Schemas.StaticChunkingStrategy
-            ) {
-                self._type = _type
-                self._static = _static
-            }
-            public enum CodingKeys: String, CodingKey {
-                case _type = "type"
-                case _static = "static"
-            }
-            public init(from decoder: any Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                self._type = try container.decode(
-                    Components.Schemas.StaticChunkingStrategyRequestParam._TypePayload.self,
-                    forKey: ._type
-                )
-                self._static = try container.decode(
-                    Components.Schemas.StaticChunkingStrategy.self,
-                    forKey: ._static
-                )
-                try decoder.ensureNoAdditionalProperties(knownKeys: [
-                    "type",
-                    "static"
-                ])
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/StaticChunkingStrategyResponseParam`.
-        public struct StaticChunkingStrategyResponseParam: Codable, Hashable, Sendable {
-            /// Always `static`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/StaticChunkingStrategyResponseParam/type`.
-            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case _static = "static"
-            }
-            /// Always `static`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/StaticChunkingStrategyResponseParam/type`.
-            public var _type: Components.Schemas.StaticChunkingStrategyResponseParam._TypePayload
-            /// - Remark: Generated from `#/components/schemas/StaticChunkingStrategyResponseParam/static`.
-            public var _static: Components.Schemas.StaticChunkingStrategy
-            /// Creates a new `StaticChunkingStrategyResponseParam`.
-            ///
-            /// - Parameters:
-            ///   - _type: Always `static`.
-            ///   - _static:
-            public init(
-                _type: Components.Schemas.StaticChunkingStrategyResponseParam._TypePayload,
-                _static: Components.Schemas.StaticChunkingStrategy
-            ) {
-                self._type = _type
-                self._static = _static
-            }
-            public enum CodingKeys: String, CodingKey {
-                case _type = "type"
-                case _static = "static"
-            }
-            public init(from decoder: any Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                self._type = try container.decode(
-                    Components.Schemas.StaticChunkingStrategyResponseParam._TypePayload.self,
-                    forKey: ._type
-                )
-                self._static = try container.decode(
-                    Components.Schemas.StaticChunkingStrategy.self,
-                    forKey: ._static
-                )
-                try decoder.ensureNoAdditionalProperties(knownKeys: [
-                    "type",
-                    "static"
-                ])
-            }
-        }
-        /// Up to 4 sequences where the API will stop generating further tokens. The
-        /// returned text will not contain the stop sequence.
-        ///
-        ///
-        /// - Remark: Generated from `#/components/schemas/StopConfiguration`.
-        @frozen public enum StopConfiguration: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/StopConfiguration/case1`.
-            case case1(Swift.String?)
-            /// - Remark: Generated from `#/components/schemas/StopConfiguration/case2`.
-            case case2([Swift.String])
-            public init(from decoder: any Decoder) throws {
-                var errors: [any Error] = []
-                do {
-                    self = .case1(try decoder.decodeFromSingleValueContainer())
-                    return
-                } catch {
-                    errors.append(error)
-                }
-                do {
-                    self = .case2(try decoder.decodeFromSingleValueContainer())
-                    return
-                } catch {
-                    errors.append(error)
-                }
-                throw Swift.DecodingError.failedToDecodeOneOfSchema(
-                    type: Self.self,
-                    codingPath: decoder.codingPath,
-                    errors: errors
-                )
-            }
-            public func encode(to encoder: any Encoder) throws {
-                switch self {
-                case let .case1(value):
-                    try encoder.encodeToSingleValueContainer(value)
-                case let .case2(value):
-                    try encoder.encodeToSingleValueContainer(value)
-                }
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/SubmitToolOutputsRunRequest`.
-        public struct SubmitToolOutputsRunRequest: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/SubmitToolOutputsRunRequest/ToolOutputsPayload`.
-            public struct ToolOutputsPayloadPayload: Codable, Hashable, Sendable {
-                /// The ID of the tool call in the `required_action` object within the run object the output is being submitted for.
-                ///
-                /// - Remark: Generated from `#/components/schemas/SubmitToolOutputsRunRequest/ToolOutputsPayload/tool_call_id`.
-                public var toolCallId: Swift.String?
-                /// The output of the tool call to be submitted to continue the run.
-                ///
-                /// - Remark: Generated from `#/components/schemas/SubmitToolOutputsRunRequest/ToolOutputsPayload/output`.
-                public var output: Swift.String?
-                /// Creates a new `ToolOutputsPayloadPayload`.
-                ///
-                /// - Parameters:
-                ///   - toolCallId: The ID of the tool call in the `required_action` object within the run object the output is being submitted for.
-                ///   - output: The output of the tool call to be submitted to continue the run.
-                public init(
-                    toolCallId: Swift.String? = nil,
-                    output: Swift.String? = nil
-                ) {
-                    self.toolCallId = toolCallId
-                    self.output = output
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case toolCallId = "tool_call_id"
-                    case output
-                }
-            }
-            /// A list of tools for which the outputs are being submitted.
-            ///
-            /// - Remark: Generated from `#/components/schemas/SubmitToolOutputsRunRequest/tool_outputs`.
-            public typealias ToolOutputsPayload = [Components.Schemas.SubmitToolOutputsRunRequest.ToolOutputsPayloadPayload]
-            /// A list of tools for which the outputs are being submitted.
-            ///
-            /// - Remark: Generated from `#/components/schemas/SubmitToolOutputsRunRequest/tool_outputs`.
-            public var toolOutputs: Components.Schemas.SubmitToolOutputsRunRequest.ToolOutputsPayload
-            /// If `true`, returns a stream of events that happen during the Run as server-sent events, terminating when the Run enters a terminal state with a `data: [DONE]` message.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/SubmitToolOutputsRunRequest/stream`.
-            public var stream: Swift.Bool?
-            /// Creates a new `SubmitToolOutputsRunRequest`.
-            ///
-            /// - Parameters:
-            ///   - toolOutputs: A list of tools for which the outputs are being submitted.
-            ///   - stream: If `true`, returns a stream of events that happen during the Run as server-sent events, terminating when the Run enters a terminal state with a `data: [DONE]` message.
-            public init(
-                toolOutputs: Components.Schemas.SubmitToolOutputsRunRequest.ToolOutputsPayload,
-                stream: Swift.Bool? = nil
-            ) {
-                self.toolOutputs = toolOutputs
-                self.stream = stream
-            }
-            public enum CodingKeys: String, CodingKey {
-                case toolOutputs = "tool_outputs"
-                case stream
-            }
-            public init(from decoder: any Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                self.toolOutputs = try container.decode(
-                    Components.Schemas.SubmitToolOutputsRunRequest.ToolOutputsPayload.self,
-                    forKey: .toolOutputs
-                )
-                self.stream = try container.decodeIfPresent(
-                    Swift.Bool.self,
-                    forKey: .stream
-                )
-                try decoder.ensureNoAdditionalProperties(knownKeys: [
-                    "tool_outputs",
-                    "stream"
-                ])
-            }
-        }
         /// An object specifying the format that the model must output.
         ///
-        /// Configuring `{ "type": "json_schema" }` enables Structured Outputs, 
-        /// which ensures the model will match your supplied JSON schema. Learn more in the 
+        /// Configuring `{ "type": "json_schema" }` enables Structured Outputs,
+        /// which ensures the model will match your supplied JSON schema. Learn more in the
         /// [Structured Outputs guide](/docs/guides/structured-outputs).
         ///
         /// The default format is `{ "type": "text" }` with no additional options.
@@ -5526,190 +6487,6 @@ public enum Components {
                 case name
                 case schema
                 case strict
-            }
-        }
-        /// Represents a thread that contains [messages](/docs/api-reference/messages).
-        ///
-        /// - Remark: Generated from `#/components/schemas/ThreadObject`.
-        public struct ThreadObject: Codable, Hashable, Sendable {
-            /// The identifier, which can be referenced in API endpoints.
-            ///
-            /// - Remark: Generated from `#/components/schemas/ThreadObject/id`.
-            public var id: Swift.String
-            /// The object type, which is always `thread`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/ThreadObject/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case thread = "thread"
-            }
-            /// The object type, which is always `thread`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/ThreadObject/object`.
-            public var object: Components.Schemas.ThreadObject.ObjectPayload
-            /// The Unix timestamp (in seconds) for when the thread was created.
-            ///
-            /// - Remark: Generated from `#/components/schemas/ThreadObject/created_at`.
-            public var createdAt: Swift.Int
-            /// A set of resources that are made available to the assistant's tools in this thread. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/ThreadObject/tool_resources`.
-            public struct ToolResourcesPayload: Codable, Hashable, Sendable {
-                /// - Remark: Generated from `#/components/schemas/ThreadObject/tool_resources/code_interpreter`.
-                public struct CodeInterpreterPayload: Codable, Hashable, Sendable {
-                    /// A list of [file](/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool.
-                    ///
-                    ///
-                    /// - Remark: Generated from `#/components/schemas/ThreadObject/tool_resources/code_interpreter/file_ids`.
-                    public var fileIds: [Swift.String]?
-                    /// Creates a new `CodeInterpreterPayload`.
-                    ///
-                    /// - Parameters:
-                    ///   - fileIds: A list of [file](/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool.
-                    public init(fileIds: [Swift.String]? = nil) {
-                        self.fileIds = fileIds
-                    }
-                    public enum CodingKeys: String, CodingKey {
-                        case fileIds = "file_ids"
-                    }
-                }
-                /// - Remark: Generated from `#/components/schemas/ThreadObject/tool_resources/code_interpreter`.
-                public var codeInterpreter: Components.Schemas.ThreadObject.ToolResourcesPayload.CodeInterpreterPayload?
-                /// - Remark: Generated from `#/components/schemas/ThreadObject/tool_resources/file_search`.
-                public struct FileSearchPayload: Codable, Hashable, Sendable {
-                    /// The [vector store](/docs/api-reference/vector-stores/object) attached to this thread. There can be a maximum of 1 vector store attached to the thread.
-                    ///
-                    ///
-                    /// - Remark: Generated from `#/components/schemas/ThreadObject/tool_resources/file_search/vector_store_ids`.
-                    public var vectorStoreIds: [Swift.String]?
-                    /// Creates a new `FileSearchPayload`.
-                    ///
-                    /// - Parameters:
-                    ///   - vectorStoreIds: The [vector store](/docs/api-reference/vector-stores/object) attached to this thread. There can be a maximum of 1 vector store attached to the thread.
-                    public init(vectorStoreIds: [Swift.String]? = nil) {
-                        self.vectorStoreIds = vectorStoreIds
-                    }
-                    public enum CodingKeys: String, CodingKey {
-                        case vectorStoreIds = "vector_store_ids"
-                    }
-                }
-                /// - Remark: Generated from `#/components/schemas/ThreadObject/tool_resources/file_search`.
-                public var fileSearch: Components.Schemas.ThreadObject.ToolResourcesPayload.FileSearchPayload?
-                /// Creates a new `ToolResourcesPayload`.
-                ///
-                /// - Parameters:
-                ///   - codeInterpreter:
-                ///   - fileSearch:
-                public init(
-                    codeInterpreter: Components.Schemas.ThreadObject.ToolResourcesPayload.CodeInterpreterPayload? = nil,
-                    fileSearch: Components.Schemas.ThreadObject.ToolResourcesPayload.FileSearchPayload? = nil
-                ) {
-                    self.codeInterpreter = codeInterpreter
-                    self.fileSearch = fileSearch
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case codeInterpreter = "code_interpreter"
-                    case fileSearch = "file_search"
-                }
-            }
-            /// A set of resources that are made available to the assistant's tools in this thread. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/ThreadObject/tool_resources`.
-            public var toolResources: Components.Schemas.ThreadObject.ToolResourcesPayload?
-            /// - Remark: Generated from `#/components/schemas/ThreadObject/metadata`.
-            public var metadata: Components.Schemas.Metadata?
-            /// Creates a new `ThreadObject`.
-            ///
-            /// - Parameters:
-            ///   - id: The identifier, which can be referenced in API endpoints.
-            ///   - object: The object type, which is always `thread`.
-            ///   - createdAt: The Unix timestamp (in seconds) for when the thread was created.
-            ///   - toolResources: A set of resources that are made available to the assistant's tools in this thread. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
-            ///   - metadata:
-            public init(
-                id: Swift.String,
-                object: Components.Schemas.ThreadObject.ObjectPayload,
-                createdAt: Swift.Int,
-                toolResources: Components.Schemas.ThreadObject.ToolResourcesPayload? = nil,
-                metadata: Components.Schemas.Metadata? = nil
-            ) {
-                self.id = id
-                self.object = object
-                self.createdAt = createdAt
-                self.toolResources = toolResources
-                self.metadata = metadata
-            }
-            public enum CodingKeys: String, CodingKey {
-                case id
-                case object
-                case createdAt = "created_at"
-                case toolResources = "tool_resources"
-                case metadata
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/ThreadStreamEvent`.
-        @frozen public enum ThreadStreamEvent: Codable, Hashable, Sendable {
-            /// Occurs when a new [thread](/docs/api-reference/threads/object) is created.
-            ///
-            /// - Remark: Generated from `#/components/schemas/ThreadStreamEvent/case1`.
-            public struct Case1Payload: Codable, Hashable, Sendable {
-                /// Whether to enable input audio transcription.
-                ///
-                /// - Remark: Generated from `#/components/schemas/ThreadStreamEvent/case1/enabled`.
-                public var enabled: Swift.Bool?
-                /// - Remark: Generated from `#/components/schemas/ThreadStreamEvent/case1/event`.
-                @frozen public enum EventPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                    case thread_created = "thread.created"
-                }
-                /// - Remark: Generated from `#/components/schemas/ThreadStreamEvent/case1/event`.
-                public var event: Components.Schemas.ThreadStreamEvent.Case1Payload.EventPayload
-                /// - Remark: Generated from `#/components/schemas/ThreadStreamEvent/case1/data`.
-                public var data: Components.Schemas.ThreadObject
-                /// Creates a new `Case1Payload`.
-                ///
-                /// - Parameters:
-                ///   - enabled: Whether to enable input audio transcription.
-                ///   - event:
-                ///   - data:
-                public init(
-                    enabled: Swift.Bool? = nil,
-                    event: Components.Schemas.ThreadStreamEvent.Case1Payload.EventPayload,
-                    data: Components.Schemas.ThreadObject
-                ) {
-                    self.enabled = enabled
-                    self.event = event
-                    self.data = data
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case enabled
-                    case event
-                    case data
-                }
-            }
-            /// Occurs when a new [thread](/docs/api-reference/threads/object) is created.
-            ///
-            /// - Remark: Generated from `#/components/schemas/ThreadStreamEvent/case1`.
-            case case1(Components.Schemas.ThreadStreamEvent.Case1Payload)
-            public init(from decoder: any Decoder) throws {
-                var errors: [any Error] = []
-                do {
-                    self = .case1(try .init(from: decoder))
-                    return
-                } catch {
-                    errors.append(error)
-                }
-                throw Swift.DecodingError.failedToDecodeOneOfSchema(
-                    type: Self.self,
-                    codingPath: decoder.codingPath,
-                    errors: errors
-                )
-            }
-            public func encode(to encoder: any Encoder) throws {
-                switch self {
-                case let .case1(value):
-                    try value.encode(to: encoder)
-                }
             }
         }
         /// - Remark: Generated from `#/components/schemas/Tool`.
@@ -5863,272 +6640,12 @@ public enum Components {
                 case _type = "type"
             }
         }
-        /// Emitted when there is an additional text delta. This is also the first event emitted when the transcription starts. Only emitted when you [create a transcription](/docs/api-reference/audio/create-transcription) with the `Stream` parameter set to `true`.
-        ///
-        /// - Remark: Generated from `#/components/schemas/TranscriptTextDeltaEvent`.
-        public struct TranscriptTextDeltaEvent: Codable, Hashable, Sendable {
-            /// The type of the event. Always `transcript.text.delta`.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptTextDeltaEvent/type`.
-            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case transcript_text_delta = "transcript.text.delta"
-            }
-            /// The type of the event. Always `transcript.text.delta`.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptTextDeltaEvent/type`.
-            public var _type: Components.Schemas.TranscriptTextDeltaEvent._TypePayload
-            /// The text delta that was additionally transcribed.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptTextDeltaEvent/delta`.
-            public var delta: Swift.String
-            /// The log probabilities of the delta. Only included if you [create a transcription](/docs/api-reference/audio/create-transcription) with the `include[]` parameter set to `logprobs`.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptTextDeltaEvent/logprobs`.
-            public var logprobs: [Components.Schemas.LogProbProperties]?
-            /// Creates a new `TranscriptTextDeltaEvent`.
-            ///
-            /// - Parameters:
-            ///   - _type: The type of the event. Always `transcript.text.delta`.
-            ///   - delta: The text delta that was additionally transcribed.
-            ///   - logprobs: The log probabilities of the delta. Only included if you [create a transcription](/docs/api-reference/audio/create-transcription) with the `include[]` parameter set to `logprobs`.
-            public init(
-                _type: Components.Schemas.TranscriptTextDeltaEvent._TypePayload,
-                delta: Swift.String,
-                logprobs: [Components.Schemas.LogProbProperties]? = nil
-            ) {
-                self._type = _type
-                self.delta = delta
-                self.logprobs = logprobs
-            }
-            public enum CodingKeys: String, CodingKey {
-                case _type = "type"
-                case delta
-                case logprobs
-            }
-        }
-        /// Emitted when the transcription is complete. Contains the complete transcription text. Only emitted when you [create a transcription](/docs/api-reference/audio/create-transcription) with the `Stream` parameter set to `true`.
-        ///
-        /// - Remark: Generated from `#/components/schemas/TranscriptTextDoneEvent`.
-        public struct TranscriptTextDoneEvent: Codable, Hashable, Sendable {
-            /// The type of the event. Always `transcript.text.done`.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptTextDoneEvent/type`.
-            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case transcript_text_done = "transcript.text.done"
-            }
-            /// The type of the event. Always `transcript.text.done`.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptTextDoneEvent/type`.
-            public var _type: Components.Schemas.TranscriptTextDoneEvent._TypePayload
-            /// The text that was transcribed.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptTextDoneEvent/text`.
-            public var text: Swift.String
-            /// The log probabilities of the individual tokens in the transcription. Only included if you [create a transcription](/docs/api-reference/audio/create-transcription) with the `include[]` parameter set to `logprobs`.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptTextDoneEvent/logprobs`.
-            public var logprobs: [Components.Schemas.LogProbProperties]?
-            /// Creates a new `TranscriptTextDoneEvent`.
-            ///
-            /// - Parameters:
-            ///   - _type: The type of the event. Always `transcript.text.done`.
-            ///   - text: The text that was transcribed.
-            ///   - logprobs: The log probabilities of the individual tokens in the transcription. Only included if you [create a transcription](/docs/api-reference/audio/create-transcription) with the `include[]` parameter set to `logprobs`.
-            public init(
-                _type: Components.Schemas.TranscriptTextDoneEvent._TypePayload,
-                text: Swift.String,
-                logprobs: [Components.Schemas.LogProbProperties]? = nil
-            ) {
-                self._type = _type
-                self.text = text
-                self.logprobs = logprobs
-            }
-            public enum CodingKeys: String, CodingKey {
-                case _type = "type"
-                case text
-                case logprobs
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/TranscriptionInclude`.
-        @frozen public enum TranscriptionInclude: String, Codable, Hashable, Sendable, CaseIterable {
-            case logprobs = "logprobs"
-        }
-        /// - Remark: Generated from `#/components/schemas/TranscriptionSegment`.
-        public struct TranscriptionSegment: Codable, Hashable, Sendable {
-            /// Unique identifier of the segment.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptionSegment/id`.
-            public var id: Swift.Int
-            /// Seek offset of the segment.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptionSegment/seek`.
-            public var seek: Swift.Int
-            /// Start time of the segment in seconds.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptionSegment/start`.
-            public var start: Swift.Float
-            /// End time of the segment in seconds.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptionSegment/end`.
-            public var end: Swift.Float
-            /// Text content of the segment.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptionSegment/text`.
-            public var text: Swift.String
-            /// Array of token IDs for the text content.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptionSegment/tokens`.
-            public var tokens: [Swift.Int]
-            /// Temperature parameter used for generating the segment.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptionSegment/temperature`.
-            public var temperature: Swift.Float
-            /// Average logprob of the segment. If the value is lower than -1, consider the logprobs failed.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptionSegment/avg_logprob`.
-            public var avgLogprob: Swift.Float
-            /// Compression ratio of the segment. If the value is greater than 2.4, consider the compression failed.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptionSegment/compression_ratio`.
-            public var compressionRatio: Swift.Float
-            /// Probability of no speech in the segment. If the value is higher than 1.0 and the `avg_logprob` is below -1, consider this segment silent.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptionSegment/no_speech_prob`.
-            public var noSpeechProb: Swift.Float
-            /// Creates a new `TranscriptionSegment`.
-            ///
-            /// - Parameters:
-            ///   - id: Unique identifier of the segment.
-            ///   - seek: Seek offset of the segment.
-            ///   - start: Start time of the segment in seconds.
-            ///   - end: End time of the segment in seconds.
-            ///   - text: Text content of the segment.
-            ///   - tokens: Array of token IDs for the text content.
-            ///   - temperature: Temperature parameter used for generating the segment.
-            ///   - avgLogprob: Average logprob of the segment. If the value is lower than -1, consider the logprobs failed.
-            ///   - compressionRatio: Compression ratio of the segment. If the value is greater than 2.4, consider the compression failed.
-            ///   - noSpeechProb: Probability of no speech in the segment. If the value is higher than 1.0 and the `avg_logprob` is below -1, consider this segment silent.
-            public init(
-                id: Swift.Int,
-                seek: Swift.Int,
-                start: Swift.Float,
-                end: Swift.Float,
-                text: Swift.String,
-                tokens: [Swift.Int],
-                temperature: Swift.Float,
-                avgLogprob: Swift.Float,
-                compressionRatio: Swift.Float,
-                noSpeechProb: Swift.Float
-            ) {
-                self.id = id
-                self.seek = seek
-                self.start = start
-                self.end = end
-                self.text = text
-                self.tokens = tokens
-                self.temperature = temperature
-                self.avgLogprob = avgLogprob
-                self.compressionRatio = compressionRatio
-                self.noSpeechProb = noSpeechProb
-            }
-            public enum CodingKeys: String, CodingKey {
-                case id
-                case seek
-                case start
-                case end
-                case text
-                case tokens
-                case temperature
-                case avgLogprob = "avg_logprob"
-                case compressionRatio = "compression_ratio"
-                case noSpeechProb = "no_speech_prob"
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/TranscriptionWord`.
-        public struct TranscriptionWord: Codable, Hashable, Sendable {
-            /// The text content of the word.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptionWord/word`.
-            public var word: Swift.String
-            /// Start time of the word in seconds.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptionWord/start`.
-            public var start: Swift.Float
-            /// End time of the word in seconds.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TranscriptionWord/end`.
-            public var end: Swift.Float
-            /// Creates a new `TranscriptionWord`.
-            ///
-            /// - Parameters:
-            ///   - word: The text content of the word.
-            ///   - start: Start time of the word in seconds.
-            ///   - end: End time of the word in seconds.
-            public init(
-                word: Swift.String,
-                start: Swift.Float,
-                end: Swift.Float
-            ) {
-                self.word = word
-                self.start = start
-                self.end = end
-            }
-            public enum CodingKeys: String, CodingKey {
-                case word
-                case start
-                case end
-            }
-        }
-        /// Controls for how a thread will be truncated prior to the run. Use this to control the intial context window of the run.
-        ///
-        /// - Remark: Generated from `#/components/schemas/TruncationObject`.
-        public struct TruncationObject: Codable, Hashable, Sendable {
-            /// The truncation strategy to use for the thread. The default is `auto`. If set to `last_messages`, the thread will be truncated to the n most recent messages in the thread. When set to `auto`, messages in the middle of the thread will be dropped to fit the context length of the model, `max_prompt_tokens`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TruncationObject/type`.
-            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case auto = "auto"
-                case lastMessages = "last_messages"
-            }
-            /// The truncation strategy to use for the thread. The default is `auto`. If set to `last_messages`, the thread will be truncated to the n most recent messages in the thread. When set to `auto`, messages in the middle of the thread will be dropped to fit the context length of the model, `max_prompt_tokens`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TruncationObject/type`.
-            public var _type: Components.Schemas.TruncationObject._TypePayload
-            /// The number of most recent messages from the thread when constructing the context for the run.
-            ///
-            /// - Remark: Generated from `#/components/schemas/TruncationObject/last_messages`.
-            public var lastMessages: Swift.Int?
-            /// Creates a new `TruncationObject`.
-            ///
-            /// - Parameters:
-            ///   - _type: The truncation strategy to use for the thread. The default is `auto`. If set to `last_messages`, the thread will be truncated to the n most recent messages in the thread. When set to `auto`, messages in the middle of the thread will be dropped to fit the context length of the model, `max_prompt_tokens`.
-            ///   - lastMessages: The number of most recent messages from the thread when constructing the context for the run.
-            public init(
-                _type: Components.Schemas.TruncationObject._TypePayload,
-                lastMessages: Swift.Int? = nil
-            ) {
-                self._type = _type
-                self.lastMessages = lastMessages
-            }
-            public enum CodingKeys: String, CodingKey {
-                case _type = "type"
-                case lastMessages = "last_messages"
-            }
-        }
         /// An action to type in text.
         ///
         ///
         /// - Remark: Generated from `#/components/schemas/Type`.
         public struct _Type: Codable, Hashable, Sendable {
-            /// Specifies the event type. For a type action, this property is 
+            /// Specifies the event type. For a type action, this property is
             /// always set to `type`.
             ///
             ///
@@ -6136,7 +6653,7 @@ public enum Components {
             @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case _type = "type"
             }
-            /// Specifies the event type. For a type action, this property is 
+            /// Specifies the event type. For a type action, this property is
             /// always set to `type`.
             ///
             ///
@@ -6150,7 +6667,7 @@ public enum Components {
             /// Creates a new `_Type`.
             ///
             /// - Parameters:
-            ///   - _type: Specifies the event type. For a type action, this property is 
+            ///   - _type: Specifies the event type. For a type action, this property is
             ///   - text: The text to type.
             public init(
                 _type: Components.Schemas._Type._TypePayload,
@@ -6162,161 +6679,6 @@ public enum Components {
             public enum CodingKeys: String, CodingKey {
                 case _type = "type"
                 case text
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/UpdateVectorStoreFileAttributesRequest`.
-        public struct UpdateVectorStoreFileAttributesRequest: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/UpdateVectorStoreFileAttributesRequest/attributes`.
-            public var attributes: Components.Schemas.VectorStoreFileAttributes?
-            /// Creates a new `UpdateVectorStoreFileAttributesRequest`.
-            ///
-            /// - Parameters:
-            ///   - attributes:
-            public init(attributes: Components.Schemas.VectorStoreFileAttributes? = nil) {
-                self.attributes = attributes
-            }
-            public enum CodingKeys: String, CodingKey {
-                case attributes
-            }
-            public init(from decoder: any Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                self.attributes = try container.decodeIfPresent(
-                    Components.Schemas.VectorStoreFileAttributes.self,
-                    forKey: .attributes
-                )
-                try decoder.ensureNoAdditionalProperties(knownKeys: [
-                    "attributes"
-                ])
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/UpdateVectorStoreRequest`.
-        public struct UpdateVectorStoreRequest: Codable, Hashable, Sendable {
-            /// The name of the vector store.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UpdateVectorStoreRequest/name`.
-            public var name: Swift.String?
-            /// - Remark: Generated from `#/components/schemas/UpdateVectorStoreRequest/expires_after`.
-            public struct ExpiresAfterPayload: Codable, Hashable, Sendable {
-                /// - Remark: Generated from `#/components/schemas/UpdateVectorStoreRequest/expires_after/value1`.
-                public var value1: Components.Schemas.VectorStoreExpirationAfter
-                /// - Remark: Generated from `#/components/schemas/UpdateVectorStoreRequest/expires_after/value2`.
-                public var value2: OpenAPIRuntime.OpenAPIValueContainer
-                /// Creates a new `ExpiresAfterPayload`.
-                ///
-                /// - Parameters:
-                ///   - value1:
-                ///   - value2:
-                public init(
-                    value1: Components.Schemas.VectorStoreExpirationAfter,
-                    value2: OpenAPIRuntime.OpenAPIValueContainer
-                ) {
-                    self.value1 = value1
-                    self.value2 = value2
-                }
-                public init(from decoder: any Decoder) throws {
-                    self.value1 = try .init(from: decoder)
-                    self.value2 = try .init(from: decoder)
-                }
-                public func encode(to encoder: any Encoder) throws {
-                    try self.value1.encode(to: encoder)
-                    try self.value2.encode(to: encoder)
-                }
-            }
-            /// - Remark: Generated from `#/components/schemas/UpdateVectorStoreRequest/expires_after`.
-            public var expiresAfter: Components.Schemas.UpdateVectorStoreRequest.ExpiresAfterPayload?
-            /// - Remark: Generated from `#/components/schemas/UpdateVectorStoreRequest/metadata`.
-            public var metadata: Components.Schemas.Metadata?
-            /// Creates a new `UpdateVectorStoreRequest`.
-            ///
-            /// - Parameters:
-            ///   - name: The name of the vector store.
-            ///   - expiresAfter:
-            ///   - metadata:
-            public init(
-                name: Swift.String? = nil,
-                expiresAfter: Components.Schemas.UpdateVectorStoreRequest.ExpiresAfterPayload? = nil,
-                metadata: Components.Schemas.Metadata? = nil
-            ) {
-                self.name = name
-                self.expiresAfter = expiresAfter
-                self.metadata = metadata
-            }
-            public enum CodingKeys: String, CodingKey {
-                case name
-                case expiresAfter = "expires_after"
-                case metadata
-            }
-            public init(from decoder: any Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                self.name = try container.decodeIfPresent(
-                    Swift.String.self,
-                    forKey: .name
-                )
-                self.expiresAfter = try container.decodeIfPresent(
-                    Components.Schemas.UpdateVectorStoreRequest.ExpiresAfterPayload.self,
-                    forKey: .expiresAfter
-                )
-                self.metadata = try container.decodeIfPresent(
-                    Components.Schemas.Metadata.self,
-                    forKey: .metadata
-                )
-                try decoder.ensureNoAdditionalProperties(knownKeys: [
-                    "name",
-                    "expires_after",
-                    "metadata"
-                ])
-            }
-        }
-        /// The upload Part represents a chunk of bytes we can add to an Upload object.
-        ///
-        ///
-        /// - Remark: Generated from `#/components/schemas/UploadPart`.
-        public struct UploadPart: Codable, Hashable, Sendable {
-            /// The upload Part unique identifier, which can be referenced in API endpoints.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UploadPart/id`.
-            public var id: Swift.String
-            /// The Unix timestamp (in seconds) for when the Part was created.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UploadPart/created_at`.
-            public var createdAt: Swift.Int
-            /// The ID of the Upload object that this Part was added to.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UploadPart/upload_id`.
-            public var uploadId: Swift.String
-            /// The object type, which is always `upload.part`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UploadPart/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case upload_part = "upload.part"
-            }
-            /// The object type, which is always `upload.part`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UploadPart/object`.
-            public var object: Components.Schemas.UploadPart.ObjectPayload
-            /// Creates a new `UploadPart`.
-            ///
-            /// - Parameters:
-            ///   - id: The upload Part unique identifier, which can be referenced in API endpoints.
-            ///   - createdAt: The Unix timestamp (in seconds) for when the Part was created.
-            ///   - uploadId: The ID of the Upload object that this Part was added to.
-            ///   - object: The object type, which is always `upload.part`.
-            public init(
-                id: Swift.String,
-                createdAt: Swift.Int,
-                uploadId: Swift.String,
-                object: Components.Schemas.UploadPart.ObjectPayload
-            ) {
-                self.id = id
-                self.createdAt = createdAt
-                self.uploadId = uploadId
-                self.object = object
-            }
-            public enum CodingKeys: String, CodingKey {
-                case id
-                case createdAt = "created_at"
-                case uploadId = "upload_id"
-                case object
             }
         }
         /// A citation for a web resource used to generate a model response.
@@ -6385,966 +6747,10 @@ public enum Components {
                 case endIndex = "end_index"
             }
         }
-        /// The aggregated audio speeches usage details of the specific time bucket.
-        ///
-        /// - Remark: Generated from `#/components/schemas/UsageAudioSpeechesResult`.
-        public struct UsageAudioSpeechesResult: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/UsageAudioSpeechesResult/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case organization_usage_audioSpeeches_result = "organization.usage.audio_speeches.result"
-            }
-            /// - Remark: Generated from `#/components/schemas/UsageAudioSpeechesResult/object`.
-            public var object: Components.Schemas.UsageAudioSpeechesResult.ObjectPayload
-            /// The number of characters processed.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageAudioSpeechesResult/characters`.
-            public var characters: Swift.Int
-            /// The count of requests made to the model.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageAudioSpeechesResult/num_model_requests`.
-            public var numModelRequests: Swift.Int
-            /// When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageAudioSpeechesResult/project_id`.
-            public var projectId: Swift.String?
-            /// When `group_by=user_id`, this field provides the user ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageAudioSpeechesResult/user_id`.
-            public var userId: Swift.String?
-            /// When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageAudioSpeechesResult/api_key_id`.
-            public var apiKeyId: Swift.String?
-            /// When `group_by=model`, this field provides the model name of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageAudioSpeechesResult/model`.
-            public var model: Swift.String?
-            /// Creates a new `UsageAudioSpeechesResult`.
-            ///
-            /// - Parameters:
-            ///   - object:
-            ///   - characters: The number of characters processed.
-            ///   - numModelRequests: The count of requests made to the model.
-            ///   - projectId: When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            ///   - userId: When `group_by=user_id`, this field provides the user ID of the grouped usage result.
-            ///   - apiKeyId: When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result.
-            ///   - model: When `group_by=model`, this field provides the model name of the grouped usage result.
-            public init(
-                object: Components.Schemas.UsageAudioSpeechesResult.ObjectPayload,
-                characters: Swift.Int,
-                numModelRequests: Swift.Int,
-                projectId: Swift.String? = nil,
-                userId: Swift.String? = nil,
-                apiKeyId: Swift.String? = nil,
-                model: Swift.String? = nil
-            ) {
-                self.object = object
-                self.characters = characters
-                self.numModelRequests = numModelRequests
-                self.projectId = projectId
-                self.userId = userId
-                self.apiKeyId = apiKeyId
-                self.model = model
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case characters
-                case numModelRequests = "num_model_requests"
-                case projectId = "project_id"
-                case userId = "user_id"
-                case apiKeyId = "api_key_id"
-                case model
-            }
-        }
-        /// The aggregated audio transcriptions usage details of the specific time bucket.
-        ///
-        /// - Remark: Generated from `#/components/schemas/UsageAudioTranscriptionsResult`.
-        public struct UsageAudioTranscriptionsResult: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/UsageAudioTranscriptionsResult/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case organization_usage_audioTranscriptions_result = "organization.usage.audio_transcriptions.result"
-            }
-            /// - Remark: Generated from `#/components/schemas/UsageAudioTranscriptionsResult/object`.
-            public var object: Components.Schemas.UsageAudioTranscriptionsResult.ObjectPayload
-            /// The number of seconds processed.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageAudioTranscriptionsResult/seconds`.
-            public var seconds: Swift.Int
-            /// The count of requests made to the model.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageAudioTranscriptionsResult/num_model_requests`.
-            public var numModelRequests: Swift.Int
-            /// When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageAudioTranscriptionsResult/project_id`.
-            public var projectId: Swift.String?
-            /// When `group_by=user_id`, this field provides the user ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageAudioTranscriptionsResult/user_id`.
-            public var userId: Swift.String?
-            /// When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageAudioTranscriptionsResult/api_key_id`.
-            public var apiKeyId: Swift.String?
-            /// When `group_by=model`, this field provides the model name of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageAudioTranscriptionsResult/model`.
-            public var model: Swift.String?
-            /// Creates a new `UsageAudioTranscriptionsResult`.
-            ///
-            /// - Parameters:
-            ///   - object:
-            ///   - seconds: The number of seconds processed.
-            ///   - numModelRequests: The count of requests made to the model.
-            ///   - projectId: When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            ///   - userId: When `group_by=user_id`, this field provides the user ID of the grouped usage result.
-            ///   - apiKeyId: When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result.
-            ///   - model: When `group_by=model`, this field provides the model name of the grouped usage result.
-            public init(
-                object: Components.Schemas.UsageAudioTranscriptionsResult.ObjectPayload,
-                seconds: Swift.Int,
-                numModelRequests: Swift.Int,
-                projectId: Swift.String? = nil,
-                userId: Swift.String? = nil,
-                apiKeyId: Swift.String? = nil,
-                model: Swift.String? = nil
-            ) {
-                self.object = object
-                self.seconds = seconds
-                self.numModelRequests = numModelRequests
-                self.projectId = projectId
-                self.userId = userId
-                self.apiKeyId = apiKeyId
-                self.model = model
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case seconds
-                case numModelRequests = "num_model_requests"
-                case projectId = "project_id"
-                case userId = "user_id"
-                case apiKeyId = "api_key_id"
-                case model
-            }
-        }
-        /// The aggregated code interpreter sessions usage details of the specific time bucket.
-        ///
-        /// - Remark: Generated from `#/components/schemas/UsageCodeInterpreterSessionsResult`.
-        public struct UsageCodeInterpreterSessionsResult: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/UsageCodeInterpreterSessionsResult/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case organization_usage_codeInterpreterSessions_result = "organization.usage.code_interpreter_sessions.result"
-            }
-            /// - Remark: Generated from `#/components/schemas/UsageCodeInterpreterSessionsResult/object`.
-            public var object: Components.Schemas.UsageCodeInterpreterSessionsResult.ObjectPayload
-            /// The number of code interpreter sessions.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageCodeInterpreterSessionsResult/num_sessions`.
-            public var numSessions: Swift.Int?
-            /// When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageCodeInterpreterSessionsResult/project_id`.
-            public var projectId: Swift.String?
-            /// Creates a new `UsageCodeInterpreterSessionsResult`.
-            ///
-            /// - Parameters:
-            ///   - object:
-            ///   - numSessions: The number of code interpreter sessions.
-            ///   - projectId: When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            public init(
-                object: Components.Schemas.UsageCodeInterpreterSessionsResult.ObjectPayload,
-                numSessions: Swift.Int? = nil,
-                projectId: Swift.String? = nil
-            ) {
-                self.object = object
-                self.numSessions = numSessions
-                self.projectId = projectId
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case numSessions = "num_sessions"
-                case projectId = "project_id"
-            }
-        }
-        /// The aggregated completions usage details of the specific time bucket.
-        ///
-        /// - Remark: Generated from `#/components/schemas/UsageCompletionsResult`.
-        public struct UsageCompletionsResult: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/UsageCompletionsResult/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case organization_usage_completions_result = "organization.usage.completions.result"
-            }
-            /// - Remark: Generated from `#/components/schemas/UsageCompletionsResult/object`.
-            public var object: Components.Schemas.UsageCompletionsResult.ObjectPayload
-            /// The aggregated number of text input tokens used, including cached tokens. For customers subscribe to scale tier, this includes scale tier tokens.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageCompletionsResult/input_tokens`.
-            public var inputTokens: Swift.Int
-            /// The aggregated number of text input tokens that has been cached from previous requests. For customers subscribe to scale tier, this includes scale tier tokens.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageCompletionsResult/input_cached_tokens`.
-            public var inputCachedTokens: Swift.Int?
-            /// The aggregated number of text output tokens used. For customers subscribe to scale tier, this includes scale tier tokens.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageCompletionsResult/output_tokens`.
-            public var outputTokens: Swift.Int
-            /// The aggregated number of audio input tokens used, including cached tokens.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageCompletionsResult/input_audio_tokens`.
-            public var inputAudioTokens: Swift.Int?
-            /// The aggregated number of audio output tokens used.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageCompletionsResult/output_audio_tokens`.
-            public var outputAudioTokens: Swift.Int?
-            /// The count of requests made to the model.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageCompletionsResult/num_model_requests`.
-            public var numModelRequests: Swift.Int
-            /// When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageCompletionsResult/project_id`.
-            public var projectId: Swift.String?
-            /// When `group_by=user_id`, this field provides the user ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageCompletionsResult/user_id`.
-            public var userId: Swift.String?
-            /// When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageCompletionsResult/api_key_id`.
-            public var apiKeyId: Swift.String?
-            /// When `group_by=model`, this field provides the model name of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageCompletionsResult/model`.
-            public var model: Swift.String?
-            /// When `group_by=batch`, this field tells whether the grouped usage result is batch or not.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageCompletionsResult/batch`.
-            public var batch: Swift.Bool?
-            /// Creates a new `UsageCompletionsResult`.
-            ///
-            /// - Parameters:
-            ///   - object:
-            ///   - inputTokens: The aggregated number of text input tokens used, including cached tokens. For customers subscribe to scale tier, this includes scale tier tokens.
-            ///   - inputCachedTokens: The aggregated number of text input tokens that has been cached from previous requests. For customers subscribe to scale tier, this includes scale tier tokens.
-            ///   - outputTokens: The aggregated number of text output tokens used. For customers subscribe to scale tier, this includes scale tier tokens.
-            ///   - inputAudioTokens: The aggregated number of audio input tokens used, including cached tokens.
-            ///   - outputAudioTokens: The aggregated number of audio output tokens used.
-            ///   - numModelRequests: The count of requests made to the model.
-            ///   - projectId: When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            ///   - userId: When `group_by=user_id`, this field provides the user ID of the grouped usage result.
-            ///   - apiKeyId: When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result.
-            ///   - model: When `group_by=model`, this field provides the model name of the grouped usage result.
-            ///   - batch: When `group_by=batch`, this field tells whether the grouped usage result is batch or not.
-            public init(
-                object: Components.Schemas.UsageCompletionsResult.ObjectPayload,
-                inputTokens: Swift.Int,
-                inputCachedTokens: Swift.Int? = nil,
-                outputTokens: Swift.Int,
-                inputAudioTokens: Swift.Int? = nil,
-                outputAudioTokens: Swift.Int? = nil,
-                numModelRequests: Swift.Int,
-                projectId: Swift.String? = nil,
-                userId: Swift.String? = nil,
-                apiKeyId: Swift.String? = nil,
-                model: Swift.String? = nil,
-                batch: Swift.Bool? = nil
-            ) {
-                self.object = object
-                self.inputTokens = inputTokens
-                self.inputCachedTokens = inputCachedTokens
-                self.outputTokens = outputTokens
-                self.inputAudioTokens = inputAudioTokens
-                self.outputAudioTokens = outputAudioTokens
-                self.numModelRequests = numModelRequests
-                self.projectId = projectId
-                self.userId = userId
-                self.apiKeyId = apiKeyId
-                self.model = model
-                self.batch = batch
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case inputTokens = "input_tokens"
-                case inputCachedTokens = "input_cached_tokens"
-                case outputTokens = "output_tokens"
-                case inputAudioTokens = "input_audio_tokens"
-                case outputAudioTokens = "output_audio_tokens"
-                case numModelRequests = "num_model_requests"
-                case projectId = "project_id"
-                case userId = "user_id"
-                case apiKeyId = "api_key_id"
-                case model
-                case batch
-            }
-        }
-        /// The aggregated embeddings usage details of the specific time bucket.
-        ///
-        /// - Remark: Generated from `#/components/schemas/UsageEmbeddingsResult`.
-        public struct UsageEmbeddingsResult: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/UsageEmbeddingsResult/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case organization_usage_embeddings_result = "organization.usage.embeddings.result"
-            }
-            /// - Remark: Generated from `#/components/schemas/UsageEmbeddingsResult/object`.
-            public var object: Components.Schemas.UsageEmbeddingsResult.ObjectPayload
-            /// The aggregated number of input tokens used.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageEmbeddingsResult/input_tokens`.
-            public var inputTokens: Swift.Int
-            /// The count of requests made to the model.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageEmbeddingsResult/num_model_requests`.
-            public var numModelRequests: Swift.Int
-            /// When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageEmbeddingsResult/project_id`.
-            public var projectId: Swift.String?
-            /// When `group_by=user_id`, this field provides the user ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageEmbeddingsResult/user_id`.
-            public var userId: Swift.String?
-            /// When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageEmbeddingsResult/api_key_id`.
-            public var apiKeyId: Swift.String?
-            /// When `group_by=model`, this field provides the model name of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageEmbeddingsResult/model`.
-            public var model: Swift.String?
-            /// Creates a new `UsageEmbeddingsResult`.
-            ///
-            /// - Parameters:
-            ///   - object:
-            ///   - inputTokens: The aggregated number of input tokens used.
-            ///   - numModelRequests: The count of requests made to the model.
-            ///   - projectId: When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            ///   - userId: When `group_by=user_id`, this field provides the user ID of the grouped usage result.
-            ///   - apiKeyId: When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result.
-            ///   - model: When `group_by=model`, this field provides the model name of the grouped usage result.
-            public init(
-                object: Components.Schemas.UsageEmbeddingsResult.ObjectPayload,
-                inputTokens: Swift.Int,
-                numModelRequests: Swift.Int,
-                projectId: Swift.String? = nil,
-                userId: Swift.String? = nil,
-                apiKeyId: Swift.String? = nil,
-                model: Swift.String? = nil
-            ) {
-                self.object = object
-                self.inputTokens = inputTokens
-                self.numModelRequests = numModelRequests
-                self.projectId = projectId
-                self.userId = userId
-                self.apiKeyId = apiKeyId
-                self.model = model
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case inputTokens = "input_tokens"
-                case numModelRequests = "num_model_requests"
-                case projectId = "project_id"
-                case userId = "user_id"
-                case apiKeyId = "api_key_id"
-                case model
-            }
-        }
-        /// The aggregated images usage details of the specific time bucket.
-        ///
-        /// - Remark: Generated from `#/components/schemas/UsageImagesResult`.
-        public struct UsageImagesResult: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/UsageImagesResult/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case organization_usage_images_result = "organization.usage.images.result"
-            }
-            /// - Remark: Generated from `#/components/schemas/UsageImagesResult/object`.
-            public var object: Components.Schemas.UsageImagesResult.ObjectPayload
-            /// The number of images processed.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageImagesResult/images`.
-            public var images: Swift.Int
-            /// The count of requests made to the model.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageImagesResult/num_model_requests`.
-            public var numModelRequests: Swift.Int
-            /// When `group_by=source`, this field provides the source of the grouped usage result, possible values are `image.generation`, `image.edit`, `image.variation`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageImagesResult/source`.
-            public var source: Swift.String?
-            /// When `group_by=size`, this field provides the image size of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageImagesResult/size`.
-            public var size: Swift.String?
-            /// When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageImagesResult/project_id`.
-            public var projectId: Swift.String?
-            /// When `group_by=user_id`, this field provides the user ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageImagesResult/user_id`.
-            public var userId: Swift.String?
-            /// When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageImagesResult/api_key_id`.
-            public var apiKeyId: Swift.String?
-            /// When `group_by=model`, this field provides the model name of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageImagesResult/model`.
-            public var model: Swift.String?
-            /// Creates a new `UsageImagesResult`.
-            ///
-            /// - Parameters:
-            ///   - object:
-            ///   - images: The number of images processed.
-            ///   - numModelRequests: The count of requests made to the model.
-            ///   - source: When `group_by=source`, this field provides the source of the grouped usage result, possible values are `image.generation`, `image.edit`, `image.variation`.
-            ///   - size: When `group_by=size`, this field provides the image size of the grouped usage result.
-            ///   - projectId: When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            ///   - userId: When `group_by=user_id`, this field provides the user ID of the grouped usage result.
-            ///   - apiKeyId: When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result.
-            ///   - model: When `group_by=model`, this field provides the model name of the grouped usage result.
-            public init(
-                object: Components.Schemas.UsageImagesResult.ObjectPayload,
-                images: Swift.Int,
-                numModelRequests: Swift.Int,
-                source: Swift.String? = nil,
-                size: Swift.String? = nil,
-                projectId: Swift.String? = nil,
-                userId: Swift.String? = nil,
-                apiKeyId: Swift.String? = nil,
-                model: Swift.String? = nil
-            ) {
-                self.object = object
-                self.images = images
-                self.numModelRequests = numModelRequests
-                self.source = source
-                self.size = size
-                self.projectId = projectId
-                self.userId = userId
-                self.apiKeyId = apiKeyId
-                self.model = model
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case images
-                case numModelRequests = "num_model_requests"
-                case source
-                case size
-                case projectId = "project_id"
-                case userId = "user_id"
-                case apiKeyId = "api_key_id"
-                case model
-            }
-        }
-        /// The aggregated moderations usage details of the specific time bucket.
-        ///
-        /// - Remark: Generated from `#/components/schemas/UsageModerationsResult`.
-        public struct UsageModerationsResult: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/UsageModerationsResult/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case organization_usage_moderations_result = "organization.usage.moderations.result"
-            }
-            /// - Remark: Generated from `#/components/schemas/UsageModerationsResult/object`.
-            public var object: Components.Schemas.UsageModerationsResult.ObjectPayload
-            /// The aggregated number of input tokens used.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageModerationsResult/input_tokens`.
-            public var inputTokens: Swift.Int
-            /// The count of requests made to the model.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageModerationsResult/num_model_requests`.
-            public var numModelRequests: Swift.Int
-            /// When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageModerationsResult/project_id`.
-            public var projectId: Swift.String?
-            /// When `group_by=user_id`, this field provides the user ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageModerationsResult/user_id`.
-            public var userId: Swift.String?
-            /// When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageModerationsResult/api_key_id`.
-            public var apiKeyId: Swift.String?
-            /// When `group_by=model`, this field provides the model name of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageModerationsResult/model`.
-            public var model: Swift.String?
-            /// Creates a new `UsageModerationsResult`.
-            ///
-            /// - Parameters:
-            ///   - object:
-            ///   - inputTokens: The aggregated number of input tokens used.
-            ///   - numModelRequests: The count of requests made to the model.
-            ///   - projectId: When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            ///   - userId: When `group_by=user_id`, this field provides the user ID of the grouped usage result.
-            ///   - apiKeyId: When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result.
-            ///   - model: When `group_by=model`, this field provides the model name of the grouped usage result.
-            public init(
-                object: Components.Schemas.UsageModerationsResult.ObjectPayload,
-                inputTokens: Swift.Int,
-                numModelRequests: Swift.Int,
-                projectId: Swift.String? = nil,
-                userId: Swift.String? = nil,
-                apiKeyId: Swift.String? = nil,
-                model: Swift.String? = nil
-            ) {
-                self.object = object
-                self.inputTokens = inputTokens
-                self.numModelRequests = numModelRequests
-                self.projectId = projectId
-                self.userId = userId
-                self.apiKeyId = apiKeyId
-                self.model = model
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case inputTokens = "input_tokens"
-                case numModelRequests = "num_model_requests"
-                case projectId = "project_id"
-                case userId = "user_id"
-                case apiKeyId = "api_key_id"
-                case model
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/UsageResponse`.
-        public struct UsageResponse: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/UsageResponse/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case page = "page"
-            }
-            /// - Remark: Generated from `#/components/schemas/UsageResponse/object`.
-            public var object: Components.Schemas.UsageResponse.ObjectPayload
-            /// - Remark: Generated from `#/components/schemas/UsageResponse/data`.
-            public var data: [Components.Schemas.UsageTimeBucket]
-            /// - Remark: Generated from `#/components/schemas/UsageResponse/has_more`.
-            public var hasMore: Swift.Bool
-            /// - Remark: Generated from `#/components/schemas/UsageResponse/next_page`.
-            public var nextPage: Swift.String
-            /// Creates a new `UsageResponse`.
-            ///
-            /// - Parameters:
-            ///   - object:
-            ///   - data:
-            ///   - hasMore:
-            ///   - nextPage:
-            public init(
-                object: Components.Schemas.UsageResponse.ObjectPayload,
-                data: [Components.Schemas.UsageTimeBucket],
-                hasMore: Swift.Bool,
-                nextPage: Swift.String
-            ) {
-                self.object = object
-                self.data = data
-                self.hasMore = hasMore
-                self.nextPage = nextPage
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case data
-                case hasMore = "has_more"
-                case nextPage = "next_page"
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/UsageTimeBucket`.
-        public struct UsageTimeBucket: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case bucket = "bucket"
-            }
-            /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/object`.
-            public var object: Components.Schemas.UsageTimeBucket.ObjectPayload
-            /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/start_time`.
-            public var startTime: Swift.Int
-            /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/end_time`.
-            public var endTime: Swift.Int
-            /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/ResultPayload`.
-            @frozen public enum ResultPayloadPayload: Codable, Hashable, Sendable {
-                /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/ResultPayload/case1`.
-                case UsageCompletionsResult(Components.Schemas.UsageCompletionsResult)
-                /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/ResultPayload/case2`.
-                case UsageEmbeddingsResult(Components.Schemas.UsageEmbeddingsResult)
-                /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/ResultPayload/case3`.
-                case UsageModerationsResult(Components.Schemas.UsageModerationsResult)
-                /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/ResultPayload/case4`.
-                case UsageImagesResult(Components.Schemas.UsageImagesResult)
-                /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/ResultPayload/case5`.
-                case UsageAudioSpeechesResult(Components.Schemas.UsageAudioSpeechesResult)
-                /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/ResultPayload/case6`.
-                case UsageAudioTranscriptionsResult(Components.Schemas.UsageAudioTranscriptionsResult)
-                /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/ResultPayload/case7`.
-                case UsageVectorStoresResult(Components.Schemas.UsageVectorStoresResult)
-                /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/ResultPayload/case8`.
-                case UsageCodeInterpreterSessionsResult(Components.Schemas.UsageCodeInterpreterSessionsResult)
-                /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/ResultPayload/case9`.
-                case CostsResult(Components.Schemas.CostsResult)
-                public init(from decoder: any Decoder) throws {
-                    var errors: [any Error] = []
-                    do {
-                        self = .UsageCompletionsResult(try .init(from: decoder))
-                        return
-                    } catch {
-                        errors.append(error)
-                    }
-                    do {
-                        self = .UsageEmbeddingsResult(try .init(from: decoder))
-                        return
-                    } catch {
-                        errors.append(error)
-                    }
-                    do {
-                        self = .UsageModerationsResult(try .init(from: decoder))
-                        return
-                    } catch {
-                        errors.append(error)
-                    }
-                    do {
-                        self = .UsageImagesResult(try .init(from: decoder))
-                        return
-                    } catch {
-                        errors.append(error)
-                    }
-                    do {
-                        self = .UsageAudioSpeechesResult(try .init(from: decoder))
-                        return
-                    } catch {
-                        errors.append(error)
-                    }
-                    do {
-                        self = .UsageAudioTranscriptionsResult(try .init(from: decoder))
-                        return
-                    } catch {
-                        errors.append(error)
-                    }
-                    do {
-                        self = .UsageVectorStoresResult(try .init(from: decoder))
-                        return
-                    } catch {
-                        errors.append(error)
-                    }
-                    do {
-                        self = .UsageCodeInterpreterSessionsResult(try .init(from: decoder))
-                        return
-                    } catch {
-                        errors.append(error)
-                    }
-                    do {
-                        self = .CostsResult(try .init(from: decoder))
-                        return
-                    } catch {
-                        errors.append(error)
-                    }
-                    throw Swift.DecodingError.failedToDecodeOneOfSchema(
-                        type: Self.self,
-                        codingPath: decoder.codingPath,
-                        errors: errors
-                    )
-                }
-                public func encode(to encoder: any Encoder) throws {
-                    switch self {
-                    case let .UsageCompletionsResult(value):
-                        try value.encode(to: encoder)
-                    case let .UsageEmbeddingsResult(value):
-                        try value.encode(to: encoder)
-                    case let .UsageModerationsResult(value):
-                        try value.encode(to: encoder)
-                    case let .UsageImagesResult(value):
-                        try value.encode(to: encoder)
-                    case let .UsageAudioSpeechesResult(value):
-                        try value.encode(to: encoder)
-                    case let .UsageAudioTranscriptionsResult(value):
-                        try value.encode(to: encoder)
-                    case let .UsageVectorStoresResult(value):
-                        try value.encode(to: encoder)
-                    case let .UsageCodeInterpreterSessionsResult(value):
-                        try value.encode(to: encoder)
-                    case let .CostsResult(value):
-                        try value.encode(to: encoder)
-                    }
-                }
-            }
-            /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/result`.
-            public typealias ResultPayload = [Components.Schemas.UsageTimeBucket.ResultPayloadPayload]
-            /// - Remark: Generated from `#/components/schemas/UsageTimeBucket/result`.
-            public var result: Components.Schemas.UsageTimeBucket.ResultPayload
-            /// Creates a new `UsageTimeBucket`.
-            ///
-            /// - Parameters:
-            ///   - object:
-            ///   - startTime:
-            ///   - endTime:
-            ///   - result:
-            public init(
-                object: Components.Schemas.UsageTimeBucket.ObjectPayload,
-                startTime: Swift.Int,
-                endTime: Swift.Int,
-                result: Components.Schemas.UsageTimeBucket.ResultPayload
-            ) {
-                self.object = object
-                self.startTime = startTime
-                self.endTime = endTime
-                self.result = result
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case startTime = "start_time"
-                case endTime = "end_time"
-                case result
-            }
-        }
-        /// The aggregated vector stores usage details of the specific time bucket.
-        ///
-        /// - Remark: Generated from `#/components/schemas/UsageVectorStoresResult`.
-        public struct UsageVectorStoresResult: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/UsageVectorStoresResult/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case organization_usage_vectorStores_result = "organization.usage.vector_stores.result"
-            }
-            /// - Remark: Generated from `#/components/schemas/UsageVectorStoresResult/object`.
-            public var object: Components.Schemas.UsageVectorStoresResult.ObjectPayload
-            /// The vector stores usage in bytes.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageVectorStoresResult/usage_bytes`.
-            public var usageBytes: Swift.Int
-            /// When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/UsageVectorStoresResult/project_id`.
-            public var projectId: Swift.String?
-            /// Creates a new `UsageVectorStoresResult`.
-            ///
-            /// - Parameters:
-            ///   - object:
-            ///   - usageBytes: The vector stores usage in bytes.
-            ///   - projectId: When `group_by=project_id`, this field provides the project ID of the grouped usage result.
-            public init(
-                object: Components.Schemas.UsageVectorStoresResult.ObjectPayload,
-                usageBytes: Swift.Int,
-                projectId: Swift.String? = nil
-            ) {
-                self.object = object
-                self.usageBytes = usageBytes
-                self.projectId = projectId
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case usageBytes = "usage_bytes"
-                case projectId = "project_id"
-            }
-        }
-        /// Represents an individual `user` within an organization.
-        ///
-        /// - Remark: Generated from `#/components/schemas/User`.
-        public struct User: Codable, Hashable, Sendable {
-            /// The object type, which is always `organization.user`
-            ///
-            /// - Remark: Generated from `#/components/schemas/User/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case organization_user = "organization.user"
-            }
-            /// The object type, which is always `organization.user`
-            ///
-            /// - Remark: Generated from `#/components/schemas/User/object`.
-            public var object: Components.Schemas.User.ObjectPayload
-            /// The identifier, which can be referenced in API endpoints
-            ///
-            /// - Remark: Generated from `#/components/schemas/User/id`.
-            public var id: Swift.String
-            /// The name of the user
-            ///
-            /// - Remark: Generated from `#/components/schemas/User/name`.
-            public var name: Swift.String
-            /// The email address of the user
-            ///
-            /// - Remark: Generated from `#/components/schemas/User/email`.
-            public var email: Swift.String
-            /// `owner` or `reader`
-            ///
-            /// - Remark: Generated from `#/components/schemas/User/role`.
-            @frozen public enum RolePayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case owner = "owner"
-                case reader = "reader"
-            }
-            /// `owner` or `reader`
-            ///
-            /// - Remark: Generated from `#/components/schemas/User/role`.
-            public var role: Components.Schemas.User.RolePayload
-            /// The Unix timestamp (in seconds) of when the user was added.
-            ///
-            /// - Remark: Generated from `#/components/schemas/User/added_at`.
-            public var addedAt: Swift.Int
-            /// Creates a new `User`.
-            ///
-            /// - Parameters:
-            ///   - object: The object type, which is always `organization.user`
-            ///   - id: The identifier, which can be referenced in API endpoints
-            ///   - name: The name of the user
-            ///   - email: The email address of the user
-            ///   - role: `owner` or `reader`
-            ///   - addedAt: The Unix timestamp (in seconds) of when the user was added.
-            public init(
-                object: Components.Schemas.User.ObjectPayload,
-                id: Swift.String,
-                name: Swift.String,
-                email: Swift.String,
-                role: Components.Schemas.User.RolePayload,
-                addedAt: Swift.Int
-            ) {
-                self.object = object
-                self.id = id
-                self.name = name
-                self.email = email
-                self.role = role
-                self.addedAt = addedAt
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case id
-                case name
-                case email
-                case role
-                case addedAt = "added_at"
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/UserDeleteResponse`.
-        public struct UserDeleteResponse: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/UserDeleteResponse/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case organization_user_deleted = "organization.user.deleted"
-            }
-            /// - Remark: Generated from `#/components/schemas/UserDeleteResponse/object`.
-            public var object: Components.Schemas.UserDeleteResponse.ObjectPayload
-            /// - Remark: Generated from `#/components/schemas/UserDeleteResponse/id`.
-            public var id: Swift.String
-            /// - Remark: Generated from `#/components/schemas/UserDeleteResponse/deleted`.
-            public var deleted: Swift.Bool
-            /// Creates a new `UserDeleteResponse`.
-            ///
-            /// - Parameters:
-            ///   - object:
-            ///   - id:
-            ///   - deleted:
-            public init(
-                object: Components.Schemas.UserDeleteResponse.ObjectPayload,
-                id: Swift.String,
-                deleted: Swift.Bool
-            ) {
-                self.object = object
-                self.id = id
-                self.deleted = deleted
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case id
-                case deleted
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/UserListResponse`.
-        public struct UserListResponse: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/UserListResponse/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case list = "list"
-            }
-            /// - Remark: Generated from `#/components/schemas/UserListResponse/object`.
-            public var object: Components.Schemas.UserListResponse.ObjectPayload
-            /// - Remark: Generated from `#/components/schemas/UserListResponse/data`.
-            public var data: [Components.Schemas.User]
-            /// - Remark: Generated from `#/components/schemas/UserListResponse/first_id`.
-            public var firstId: Swift.String
-            /// - Remark: Generated from `#/components/schemas/UserListResponse/last_id`.
-            public var lastId: Swift.String
-            /// - Remark: Generated from `#/components/schemas/UserListResponse/has_more`.
-            public var hasMore: Swift.Bool
-            /// Creates a new `UserListResponse`.
-            ///
-            /// - Parameters:
-            ///   - object:
-            ///   - data:
-            ///   - firstId:
-            ///   - lastId:
-            ///   - hasMore:
-            public init(
-                object: Components.Schemas.UserListResponse.ObjectPayload,
-                data: [Components.Schemas.User],
-                firstId: Swift.String,
-                lastId: Swift.String,
-                hasMore: Swift.Bool
-            ) {
-                self.object = object
-                self.data = data
-                self.firstId = firstId
-                self.lastId = lastId
-                self.hasMore = hasMore
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case data
-                case firstId = "first_id"
-                case lastId = "last_id"
-                case hasMore = "has_more"
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/UserRoleUpdateRequest`.
-        public struct UserRoleUpdateRequest: Codable, Hashable, Sendable {
-            /// `owner` or `reader`
-            ///
-            /// - Remark: Generated from `#/components/schemas/UserRoleUpdateRequest/role`.
-            @frozen public enum RolePayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case owner = "owner"
-                case reader = "reader"
-            }
-            /// `owner` or `reader`
-            ///
-            /// - Remark: Generated from `#/components/schemas/UserRoleUpdateRequest/role`.
-            public var role: Components.Schemas.UserRoleUpdateRequest.RolePayload
-            /// Creates a new `UserRoleUpdateRequest`.
-            ///
-            /// - Parameters:
-            ///   - role: `owner` or `reader`
-            public init(role: Components.Schemas.UserRoleUpdateRequest.RolePayload) {
-                self.role = role
-            }
-            public enum CodingKeys: String, CodingKey {
-                case role
-            }
-        }
-        /// The expiration policy for a vector store.
-        ///
-        /// - Remark: Generated from `#/components/schemas/VectorStoreExpirationAfter`.
-        public struct VectorStoreExpirationAfter: Codable, Hashable, Sendable {
-            /// Anchor timestamp after which the expiration policy applies. Supported anchors: `last_active_at`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreExpirationAfter/anchor`.
-            @frozen public enum AnchorPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case lastActiveAt = "last_active_at"
-            }
-            /// Anchor timestamp after which the expiration policy applies. Supported anchors: `last_active_at`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreExpirationAfter/anchor`.
-            public var anchor: Components.Schemas.VectorStoreExpirationAfter.AnchorPayload
-            /// The number of days after the anchor time that the vector store will expire.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreExpirationAfter/days`.
-            public var days: Swift.Int
-            /// Creates a new `VectorStoreExpirationAfter`.
-            ///
-            /// - Parameters:
-            ///   - anchor: Anchor timestamp after which the expiration policy applies. Supported anchors: `last_active_at`.
-            ///   - days: The number of days after the anchor time that the vector store will expire.
-            public init(
-                anchor: Components.Schemas.VectorStoreExpirationAfter.AnchorPayload,
-                days: Swift.Int
-            ) {
-                self.anchor = anchor
-                self.days = days
-            }
-            public enum CodingKeys: String, CodingKey {
-                case anchor
-                case days
-            }
-        }
-        /// Set of 16 key-value pairs that can be attached to an object. This can be 
-        /// useful for storing additional information about the object in a structured 
-        /// format, and querying for objects via API or the dashboard. Keys are strings 
-        /// with a maximum length of 64 characters. Values are strings with a maximum 
+        /// Set of 16 key-value pairs that can be attached to an object. This can be
+        /// useful for storing additional information about the object in a structured
+        /// format, and querying for objects via API or the dashboard. Keys are strings
+        /// with a maximum length of 64 characters. Values are strings with a maximum
         /// length of 512 characters, booleans, or numbers.
         ///
         ///
@@ -7411,1024 +6817,12 @@ public enum Components {
                 try encoder.encodeAdditionalProperties(additionalProperties)
             }
         }
-        /// A batch of files attached to a vector store.
-        ///
-        /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject`.
-        public struct VectorStoreFileBatchObject: Codable, Hashable, Sendable {
-            /// The identifier, which can be referenced in API endpoints.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/id`.
-            public var id: Swift.String
-            /// The object type, which is always `vector_store.file_batch`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case vectorStore_filesBatch = "vector_store.files_batch"
-            }
-            /// The object type, which is always `vector_store.file_batch`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/object`.
-            public var object: Components.Schemas.VectorStoreFileBatchObject.ObjectPayload
-            /// The Unix timestamp (in seconds) for when the vector store files batch was created.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/created_at`.
-            public var createdAt: Swift.Int
-            /// The ID of the [vector store](/docs/api-reference/vector-stores/object) that the [File](/docs/api-reference/files) is attached to.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/vector_store_id`.
-            public var vectorStoreId: Swift.String
-            /// The status of the vector store files batch, which can be either `in_progress`, `completed`, `cancelled` or `failed`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/status`.
-            @frozen public enum StatusPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case inProgress = "in_progress"
-                case completed = "completed"
-                case cancelled = "cancelled"
-                case failed = "failed"
-            }
-            /// The status of the vector store files batch, which can be either `in_progress`, `completed`, `cancelled` or `failed`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/status`.
-            public var status: Components.Schemas.VectorStoreFileBatchObject.StatusPayload
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/file_counts`.
-            public struct FileCountsPayload: Codable, Hashable, Sendable {
-                /// The number of files that are currently being processed.
-                ///
-                /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/file_counts/in_progress`.
-                public var inProgress: Swift.Int
-                /// The number of files that have been processed.
-                ///
-                /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/file_counts/completed`.
-                public var completed: Swift.Int
-                /// The number of files that have failed to process.
-                ///
-                /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/file_counts/failed`.
-                public var failed: Swift.Int
-                /// The number of files that where cancelled.
-                ///
-                /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/file_counts/cancelled`.
-                public var cancelled: Swift.Int
-                /// The total number of files.
-                ///
-                /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/file_counts/total`.
-                public var total: Swift.Int
-                /// Creates a new `FileCountsPayload`.
-                ///
-                /// - Parameters:
-                ///   - inProgress: The number of files that are currently being processed.
-                ///   - completed: The number of files that have been processed.
-                ///   - failed: The number of files that have failed to process.
-                ///   - cancelled: The number of files that where cancelled.
-                ///   - total: The total number of files.
-                public init(
-                    inProgress: Swift.Int,
-                    completed: Swift.Int,
-                    failed: Swift.Int,
-                    cancelled: Swift.Int,
-                    total: Swift.Int
-                ) {
-                    self.inProgress = inProgress
-                    self.completed = completed
-                    self.failed = failed
-                    self.cancelled = cancelled
-                    self.total = total
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case inProgress = "in_progress"
-                    case completed
-                    case failed
-                    case cancelled
-                    case total
-                }
-            }
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileBatchObject/file_counts`.
-            public var fileCounts: Components.Schemas.VectorStoreFileBatchObject.FileCountsPayload
-            /// Creates a new `VectorStoreFileBatchObject`.
-            ///
-            /// - Parameters:
-            ///   - id: The identifier, which can be referenced in API endpoints.
-            ///   - object: The object type, which is always `vector_store.file_batch`.
-            ///   - createdAt: The Unix timestamp (in seconds) for when the vector store files batch was created.
-            ///   - vectorStoreId: The ID of the [vector store](/docs/api-reference/vector-stores/object) that the [File](/docs/api-reference/files) is attached to.
-            ///   - status: The status of the vector store files batch, which can be either `in_progress`, `completed`, `cancelled` or `failed`.
-            ///   - fileCounts:
-            public init(
-                id: Swift.String,
-                object: Components.Schemas.VectorStoreFileBatchObject.ObjectPayload,
-                createdAt: Swift.Int,
-                vectorStoreId: Swift.String,
-                status: Components.Schemas.VectorStoreFileBatchObject.StatusPayload,
-                fileCounts: Components.Schemas.VectorStoreFileBatchObject.FileCountsPayload
-            ) {
-                self.id = id
-                self.object = object
-                self.createdAt = createdAt
-                self.vectorStoreId = vectorStoreId
-                self.status = status
-                self.fileCounts = fileCounts
-            }
-            public enum CodingKeys: String, CodingKey {
-                case id
-                case object
-                case createdAt = "created_at"
-                case vectorStoreId = "vector_store_id"
-                case status
-                case fileCounts = "file_counts"
-            }
-        }
-        /// Represents the parsed content of a vector store file.
-        ///
-        /// - Remark: Generated from `#/components/schemas/VectorStoreFileContentResponse`.
-        public struct VectorStoreFileContentResponse: Codable, Hashable, Sendable {
-            /// The object type, which is always `vector_store.file_content.page`
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileContentResponse/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case vectorStore_fileContent_page = "vector_store.file_content.page"
-            }
-            /// The object type, which is always `vector_store.file_content.page`
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileContentResponse/object`.
-            public var object: Components.Schemas.VectorStoreFileContentResponse.ObjectPayload
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileContentResponse/DataPayload`.
-            public struct DataPayloadPayload: Codable, Hashable, Sendable {
-                /// The content type (currently only `"text"`)
-                ///
-                /// - Remark: Generated from `#/components/schemas/VectorStoreFileContentResponse/DataPayload/type`.
-                public var _type: Swift.String?
-                /// The text content
-                ///
-                /// - Remark: Generated from `#/components/schemas/VectorStoreFileContentResponse/DataPayload/text`.
-                public var text: Swift.String?
-                /// Creates a new `DataPayloadPayload`.
-                ///
-                /// - Parameters:
-                ///   - _type: The content type (currently only `"text"`)
-                ///   - text: The text content
-                public init(
-                    _type: Swift.String? = nil,
-                    text: Swift.String? = nil
-                ) {
-                    self._type = _type
-                    self.text = text
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case _type = "type"
-                    case text
-                }
-            }
-            /// Parsed content of the file.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileContentResponse/data`.
-            public typealias DataPayload = [Components.Schemas.VectorStoreFileContentResponse.DataPayloadPayload]
-            /// Parsed content of the file.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileContentResponse/data`.
-            public var data: Components.Schemas.VectorStoreFileContentResponse.DataPayload
-            /// Indicates if there are more content pages to fetch.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileContentResponse/has_more`.
-            public var hasMore: Swift.Bool
-            /// The token for the next page, if any.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileContentResponse/next_page`.
-            public var nextPage: Swift.String?
-            /// Creates a new `VectorStoreFileContentResponse`.
-            ///
-            /// - Parameters:
-            ///   - object: The object type, which is always `vector_store.file_content.page`
-            ///   - data: Parsed content of the file.
-            ///   - hasMore: Indicates if there are more content pages to fetch.
-            ///   - nextPage: The token for the next page, if any.
-            public init(
-                object: Components.Schemas.VectorStoreFileContentResponse.ObjectPayload,
-                data: Components.Schemas.VectorStoreFileContentResponse.DataPayload,
-                hasMore: Swift.Bool,
-                nextPage: Swift.String? = nil
-            ) {
-                self.object = object
-                self.data = data
-                self.hasMore = hasMore
-                self.nextPage = nextPage
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case data
-                case hasMore = "has_more"
-                case nextPage = "next_page"
-            }
-        }
-        /// A list of files attached to a vector store.
-        ///
-        /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject`.
-        public struct VectorStoreFileObject: Codable, Hashable, Sendable {
-            /// The identifier, which can be referenced in API endpoints.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/id`.
-            public var id: Swift.String
-            /// The object type, which is always `vector_store.file`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case vectorStore_file = "vector_store.file"
-            }
-            /// The object type, which is always `vector_store.file`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/object`.
-            public var object: Components.Schemas.VectorStoreFileObject.ObjectPayload
-            /// The total vector store usage in bytes. Note that this may be different from the original file size.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/usage_bytes`.
-            public var usageBytes: Swift.Int
-            /// The Unix timestamp (in seconds) for when the vector store file was created.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/created_at`.
-            public var createdAt: Swift.Int
-            /// The ID of the [vector store](/docs/api-reference/vector-stores/object) that the [File](/docs/api-reference/files) is attached to.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/vector_store_id`.
-            public var vectorStoreId: Swift.String
-            /// The status of the vector store file, which can be either `in_progress`, `completed`, `cancelled`, or `failed`. The status `completed` indicates that the vector store file is ready for use.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/status`.
-            @frozen public enum StatusPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case inProgress = "in_progress"
-                case completed = "completed"
-                case cancelled = "cancelled"
-                case failed = "failed"
-            }
-            /// The status of the vector store file, which can be either `in_progress`, `completed`, `cancelled`, or `failed`. The status `completed` indicates that the vector store file is ready for use.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/status`.
-            public var status: Components.Schemas.VectorStoreFileObject.StatusPayload
-            /// The last error associated with this vector store file. Will be `null` if there are no errors.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/last_error`.
-            public struct LastErrorPayload: Codable, Hashable, Sendable {
-                /// One of `server_error` or `rate_limit_exceeded`.
-                ///
-                /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/last_error/code`.
-                @frozen public enum CodePayload: String, Codable, Hashable, Sendable, CaseIterable {
-                    case serverError = "server_error"
-                    case unsupportedFile = "unsupported_file"
-                    case invalidFile = "invalid_file"
-                }
-                /// One of `server_error` or `rate_limit_exceeded`.
-                ///
-                /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/last_error/code`.
-                public var code: Components.Schemas.VectorStoreFileObject.LastErrorPayload.CodePayload
-                /// A human-readable description of the error.
-                ///
-                /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/last_error/message`.
-                public var message: Swift.String
-                /// Creates a new `LastErrorPayload`.
-                ///
-                /// - Parameters:
-                ///   - code: One of `server_error` or `rate_limit_exceeded`.
-                ///   - message: A human-readable description of the error.
-                public init(
-                    code: Components.Schemas.VectorStoreFileObject.LastErrorPayload.CodePayload,
-                    message: Swift.String
-                ) {
-                    self.code = code
-                    self.message = message
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case code
-                    case message
-                }
-            }
-            /// The last error associated with this vector store file. Will be `null` if there are no errors.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/last_error`.
-            public var lastError: Components.Schemas.VectorStoreFileObject.LastErrorPayload?
-            /// The strategy used to chunk the file.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/chunking_strategy`.
-            @frozen public enum ChunkingStrategyPayload: Codable, Hashable, Sendable {
-                /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/chunking_strategy/case1`.
-                case StaticChunkingStrategyResponseParam(Components.Schemas.StaticChunkingStrategyResponseParam)
-                /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/chunking_strategy/case2`.
-                case OtherChunkingStrategyResponseParam(Components.Schemas.OtherChunkingStrategyResponseParam)
-                public init(from decoder: any Decoder) throws {
-                    var errors: [any Error] = []
-                    do {
-                        self = .StaticChunkingStrategyResponseParam(try .init(from: decoder))
-                        return
-                    } catch {
-                        errors.append(error)
-                    }
-                    do {
-                        self = .OtherChunkingStrategyResponseParam(try .init(from: decoder))
-                        return
-                    } catch {
-                        errors.append(error)
-                    }
-                    throw Swift.DecodingError.failedToDecodeOneOfSchema(
-                        type: Self.self,
-                        codingPath: decoder.codingPath,
-                        errors: errors
-                    )
-                }
-                public func encode(to encoder: any Encoder) throws {
-                    switch self {
-                    case let .StaticChunkingStrategyResponseParam(value):
-                        try value.encode(to: encoder)
-                    case let .OtherChunkingStrategyResponseParam(value):
-                        try value.encode(to: encoder)
-                    }
-                }
-            }
-            /// The strategy used to chunk the file.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/chunking_strategy`.
-            public var chunkingStrategy: Components.Schemas.VectorStoreFileObject.ChunkingStrategyPayload?
-            /// - Remark: Generated from `#/components/schemas/VectorStoreFileObject/attributes`.
-            public var attributes: Components.Schemas.VectorStoreFileAttributes?
-            /// Creates a new `VectorStoreFileObject`.
-            ///
-            /// - Parameters:
-            ///   - id: The identifier, which can be referenced in API endpoints.
-            ///   - object: The object type, which is always `vector_store.file`.
-            ///   - usageBytes: The total vector store usage in bytes. Note that this may be different from the original file size.
-            ///   - createdAt: The Unix timestamp (in seconds) for when the vector store file was created.
-            ///   - vectorStoreId: The ID of the [vector store](/docs/api-reference/vector-stores/object) that the [File](/docs/api-reference/files) is attached to.
-            ///   - status: The status of the vector store file, which can be either `in_progress`, `completed`, `cancelled`, or `failed`. The status `completed` indicates that the vector store file is ready for use.
-            ///   - lastError: The last error associated with this vector store file. Will be `null` if there are no errors.
-            ///   - chunkingStrategy: The strategy used to chunk the file.
-            ///   - attributes:
-            public init(
-                id: Swift.String,
-                object: Components.Schemas.VectorStoreFileObject.ObjectPayload,
-                usageBytes: Swift.Int,
-                createdAt: Swift.Int,
-                vectorStoreId: Swift.String,
-                status: Components.Schemas.VectorStoreFileObject.StatusPayload,
-                lastError: Components.Schemas.VectorStoreFileObject.LastErrorPayload? = nil,
-                chunkingStrategy: Components.Schemas.VectorStoreFileObject.ChunkingStrategyPayload? = nil,
-                attributes: Components.Schemas.VectorStoreFileAttributes? = nil
-            ) {
-                self.id = id
-                self.object = object
-                self.usageBytes = usageBytes
-                self.createdAt = createdAt
-                self.vectorStoreId = vectorStoreId
-                self.status = status
-                self.lastError = lastError
-                self.chunkingStrategy = chunkingStrategy
-                self.attributes = attributes
-            }
-            public enum CodingKeys: String, CodingKey {
-                case id
-                case object
-                case usageBytes = "usage_bytes"
-                case createdAt = "created_at"
-                case vectorStoreId = "vector_store_id"
-                case status
-                case lastError = "last_error"
-                case chunkingStrategy = "chunking_strategy"
-                case attributes
-            }
-        }
-        /// A vector store is a collection of processed files can be used by the `file_search` tool.
-        ///
-        /// - Remark: Generated from `#/components/schemas/VectorStoreObject`.
-        public struct VectorStoreObject: Codable, Hashable, Sendable {
-            /// The identifier, which can be referenced in API endpoints.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreObject/id`.
-            public var id: Swift.String
-            /// The object type, which is always `vector_store`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreObject/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case vectorStore = "vector_store"
-            }
-            /// The object type, which is always `vector_store`.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreObject/object`.
-            public var object: Components.Schemas.VectorStoreObject.ObjectPayload
-            /// The Unix timestamp (in seconds) for when the vector store was created.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreObject/created_at`.
-            public var createdAt: Swift.Int
-            /// The name of the vector store.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreObject/name`.
-            public var name: Swift.String
-            /// The total number of bytes used by the files in the vector store.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreObject/usage_bytes`.
-            public var usageBytes: Swift.Int
-            /// - Remark: Generated from `#/components/schemas/VectorStoreObject/file_counts`.
-            public struct FileCountsPayload: Codable, Hashable, Sendable {
-                /// The number of files that are currently being processed.
-                ///
-                /// - Remark: Generated from `#/components/schemas/VectorStoreObject/file_counts/in_progress`.
-                public var inProgress: Swift.Int
-                /// The number of files that have been successfully processed.
-                ///
-                /// - Remark: Generated from `#/components/schemas/VectorStoreObject/file_counts/completed`.
-                public var completed: Swift.Int
-                /// The number of files that have failed to process.
-                ///
-                /// - Remark: Generated from `#/components/schemas/VectorStoreObject/file_counts/failed`.
-                public var failed: Swift.Int
-                /// The number of files that were cancelled.
-                ///
-                /// - Remark: Generated from `#/components/schemas/VectorStoreObject/file_counts/cancelled`.
-                public var cancelled: Swift.Int
-                /// The total number of files.
-                ///
-                /// - Remark: Generated from `#/components/schemas/VectorStoreObject/file_counts/total`.
-                public var total: Swift.Int
-                /// Creates a new `FileCountsPayload`.
-                ///
-                /// - Parameters:
-                ///   - inProgress: The number of files that are currently being processed.
-                ///   - completed: The number of files that have been successfully processed.
-                ///   - failed: The number of files that have failed to process.
-                ///   - cancelled: The number of files that were cancelled.
-                ///   - total: The total number of files.
-                public init(
-                    inProgress: Swift.Int,
-                    completed: Swift.Int,
-                    failed: Swift.Int,
-                    cancelled: Swift.Int,
-                    total: Swift.Int
-                ) {
-                    self.inProgress = inProgress
-                    self.completed = completed
-                    self.failed = failed
-                    self.cancelled = cancelled
-                    self.total = total
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case inProgress = "in_progress"
-                    case completed
-                    case failed
-                    case cancelled
-                    case total
-                }
-            }
-            /// - Remark: Generated from `#/components/schemas/VectorStoreObject/file_counts`.
-            public var fileCounts: Components.Schemas.VectorStoreObject.FileCountsPayload
-            /// The status of the vector store, which can be either `expired`, `in_progress`, or `completed`. A status of `completed` indicates that the vector store is ready for use.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreObject/status`.
-            @frozen public enum StatusPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case expired = "expired"
-                case inProgress = "in_progress"
-                case completed = "completed"
-            }
-            /// The status of the vector store, which can be either `expired`, `in_progress`, or `completed`. A status of `completed` indicates that the vector store is ready for use.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreObject/status`.
-            public var status: Components.Schemas.VectorStoreObject.StatusPayload
-            /// - Remark: Generated from `#/components/schemas/VectorStoreObject/expires_after`.
-            public var expiresAfter: Components.Schemas.VectorStoreExpirationAfter?
-            /// The Unix timestamp (in seconds) for when the vector store will expire.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreObject/expires_at`.
-            public var expiresAt: Swift.Int?
-            /// The Unix timestamp (in seconds) for when the vector store was last active.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreObject/last_active_at`.
-            public var lastActiveAt: Swift.Int?
-            /// - Remark: Generated from `#/components/schemas/VectorStoreObject/metadata`.
-            public var metadata: Components.Schemas.Metadata?
-            /// Creates a new `VectorStoreObject`.
-            ///
-            /// - Parameters:
-            ///   - id: The identifier, which can be referenced in API endpoints.
-            ///   - object: The object type, which is always `vector_store`.
-            ///   - createdAt: The Unix timestamp (in seconds) for when the vector store was created.
-            ///   - name: The name of the vector store.
-            ///   - usageBytes: The total number of bytes used by the files in the vector store.
-            ///   - fileCounts:
-            ///   - status: The status of the vector store, which can be either `expired`, `in_progress`, or `completed`. A status of `completed` indicates that the vector store is ready for use.
-            ///   - expiresAfter:
-            ///   - expiresAt: The Unix timestamp (in seconds) for when the vector store will expire.
-            ///   - lastActiveAt: The Unix timestamp (in seconds) for when the vector store was last active.
-            ///   - metadata:
-            public init(
-                id: Swift.String,
-                object: Components.Schemas.VectorStoreObject.ObjectPayload,
-                createdAt: Swift.Int,
-                name: Swift.String,
-                usageBytes: Swift.Int,
-                fileCounts: Components.Schemas.VectorStoreObject.FileCountsPayload,
-                status: Components.Schemas.VectorStoreObject.StatusPayload,
-                expiresAfter: Components.Schemas.VectorStoreExpirationAfter? = nil,
-                expiresAt: Swift.Int? = nil,
-                lastActiveAt: Swift.Int? = nil,
-                metadata: Components.Schemas.Metadata? = nil
-            ) {
-                self.id = id
-                self.object = object
-                self.createdAt = createdAt
-                self.name = name
-                self.usageBytes = usageBytes
-                self.fileCounts = fileCounts
-                self.status = status
-                self.expiresAfter = expiresAfter
-                self.expiresAt = expiresAt
-                self.lastActiveAt = lastActiveAt
-                self.metadata = metadata
-            }
-            public enum CodingKeys: String, CodingKey {
-                case id
-                case object
-                case createdAt = "created_at"
-                case name
-                case usageBytes = "usage_bytes"
-                case fileCounts = "file_counts"
-                case status
-                case expiresAfter = "expires_after"
-                case expiresAt = "expires_at"
-                case lastActiveAt = "last_active_at"
-                case metadata
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest`.
-        public struct VectorStoreSearchRequest: Codable, Hashable, Sendable {
-            /// A query string for a search
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest/query`.
-            @frozen public enum QueryPayload: Codable, Hashable, Sendable {
-                /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest/query/case1`.
-                case case1(Swift.String)
-                /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest/query/case2`.
-                case case2([Swift.String])
-                public init(from decoder: any Decoder) throws {
-                    var errors: [any Error] = []
-                    do {
-                        self = .case1(try decoder.decodeFromSingleValueContainer())
-                        return
-                    } catch {
-                        errors.append(error)
-                    }
-                    do {
-                        self = .case2(try decoder.decodeFromSingleValueContainer())
-                        return
-                    } catch {
-                        errors.append(error)
-                    }
-                    throw Swift.DecodingError.failedToDecodeOneOfSchema(
-                        type: Self.self,
-                        codingPath: decoder.codingPath,
-                        errors: errors
-                    )
-                }
-                public func encode(to encoder: any Encoder) throws {
-                    switch self {
-                    case let .case1(value):
-                        try encoder.encodeToSingleValueContainer(value)
-                    case let .case2(value):
-                        try encoder.encodeToSingleValueContainer(value)
-                    }
-                }
-            }
-            /// A query string for a search
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest/query`.
-            public var query: Components.Schemas.VectorStoreSearchRequest.QueryPayload
-            /// Whether to rewrite the natural language query for vector search.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest/rewrite_query`.
-            public var rewriteQuery: Swift.Bool?
-            /// The maximum number of results to return. This number should be between 1 and 50 inclusive.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest/max_num_results`.
-            public var maxNumResults: Swift.Int?
-            /// A filter to apply based on file attributes.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest/filters`.
-            @frozen public enum FiltersPayload: Codable, Hashable, Sendable {
-                /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest/filters/case1`.
-                case ComparisonFilter(Components.Schemas.ComparisonFilter)
-                /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest/filters/case2`.
-                case CompoundFilter(Components.Schemas.CompoundFilter)
-                public init(from decoder: any Decoder) throws {
-                    var errors: [any Error] = []
-                    do {
-                        self = .ComparisonFilter(try .init(from: decoder))
-                        return
-                    } catch {
-                        errors.append(error)
-                    }
-                    do {
-                        self = .CompoundFilter(try .init(from: decoder))
-                        return
-                    } catch {
-                        errors.append(error)
-                    }
-                    throw Swift.DecodingError.failedToDecodeOneOfSchema(
-                        type: Self.self,
-                        codingPath: decoder.codingPath,
-                        errors: errors
-                    )
-                }
-                public func encode(to encoder: any Encoder) throws {
-                    switch self {
-                    case let .ComparisonFilter(value):
-                        try value.encode(to: encoder)
-                    case let .CompoundFilter(value):
-                        try value.encode(to: encoder)
-                    }
-                }
-            }
-            /// A filter to apply based on file attributes.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest/filters`.
-            public var filters: Components.Schemas.VectorStoreSearchRequest.FiltersPayload?
-            /// Ranking options for search.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest/ranking_options`.
-            public struct RankingOptionsPayload: Codable, Hashable, Sendable {
-                /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest/ranking_options/ranker`.
-                @frozen public enum RankerPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                    case auto = "auto"
-                    case default20241115 = "default-2024-11-15"
-                }
-                /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest/ranking_options/ranker`.
-                public var ranker: Components.Schemas.VectorStoreSearchRequest.RankingOptionsPayload.RankerPayload?
-                /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest/ranking_options/score_threshold`.
-                public var scoreThreshold: Swift.Double?
-                /// Creates a new `RankingOptionsPayload`.
-                ///
-                /// - Parameters:
-                ///   - ranker:
-                ///   - scoreThreshold:
-                public init(
-                    ranker: Components.Schemas.VectorStoreSearchRequest.RankingOptionsPayload.RankerPayload? = nil,
-                    scoreThreshold: Swift.Double? = nil
-                ) {
-                    self.ranker = ranker
-                    self.scoreThreshold = scoreThreshold
-                }
-                public enum CodingKeys: String, CodingKey {
-                    case ranker
-                    case scoreThreshold = "score_threshold"
-                }
-                public init(from decoder: any Decoder) throws {
-                    let container = try decoder.container(keyedBy: CodingKeys.self)
-                    self.ranker = try container.decodeIfPresent(
-                        Components.Schemas.VectorStoreSearchRequest.RankingOptionsPayload.RankerPayload.self,
-                        forKey: .ranker
-                    )
-                    self.scoreThreshold = try container.decodeIfPresent(
-                        Swift.Double.self,
-                        forKey: .scoreThreshold
-                    )
-                    try decoder.ensureNoAdditionalProperties(knownKeys: [
-                        "ranker",
-                        "score_threshold"
-                    ])
-                }
-            }
-            /// Ranking options for search.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchRequest/ranking_options`.
-            public var rankingOptions: Components.Schemas.VectorStoreSearchRequest.RankingOptionsPayload?
-            /// Creates a new `VectorStoreSearchRequest`.
-            ///
-            /// - Parameters:
-            ///   - query: A query string for a search
-            ///   - rewriteQuery: Whether to rewrite the natural language query for vector search.
-            ///   - maxNumResults: The maximum number of results to return. This number should be between 1 and 50 inclusive.
-            ///   - filters: A filter to apply based on file attributes.
-            ///   - rankingOptions: Ranking options for search.
-            public init(
-                query: Components.Schemas.VectorStoreSearchRequest.QueryPayload,
-                rewriteQuery: Swift.Bool? = nil,
-                maxNumResults: Swift.Int? = nil,
-                filters: Components.Schemas.VectorStoreSearchRequest.FiltersPayload? = nil,
-                rankingOptions: Components.Schemas.VectorStoreSearchRequest.RankingOptionsPayload? = nil
-            ) {
-                self.query = query
-                self.rewriteQuery = rewriteQuery
-                self.maxNumResults = maxNumResults
-                self.filters = filters
-                self.rankingOptions = rankingOptions
-            }
-            public enum CodingKeys: String, CodingKey {
-                case query
-                case rewriteQuery = "rewrite_query"
-                case maxNumResults = "max_num_results"
-                case filters
-                case rankingOptions = "ranking_options"
-            }
-            public init(from decoder: any Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                self.query = try container.decode(
-                    Components.Schemas.VectorStoreSearchRequest.QueryPayload.self,
-                    forKey: .query
-                )
-                self.rewriteQuery = try container.decodeIfPresent(
-                    Swift.Bool.self,
-                    forKey: .rewriteQuery
-                )
-                self.maxNumResults = try container.decodeIfPresent(
-                    Swift.Int.self,
-                    forKey: .maxNumResults
-                )
-                self.filters = try container.decodeIfPresent(
-                    Components.Schemas.VectorStoreSearchRequest.FiltersPayload.self,
-                    forKey: .filters
-                )
-                self.rankingOptions = try container.decodeIfPresent(
-                    Components.Schemas.VectorStoreSearchRequest.RankingOptionsPayload.self,
-                    forKey: .rankingOptions
-                )
-                try decoder.ensureNoAdditionalProperties(knownKeys: [
-                    "query",
-                    "rewrite_query",
-                    "max_num_results",
-                    "filters",
-                    "ranking_options"
-                ])
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultContentObject`.
-        public struct VectorStoreSearchResultContentObject: Codable, Hashable, Sendable {
-            /// The type of content.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultContentObject/type`.
-            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case text = "text"
-            }
-            /// The type of content.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultContentObject/type`.
-            public var _type: Components.Schemas.VectorStoreSearchResultContentObject._TypePayload
-            /// The text content returned from search.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultContentObject/text`.
-            public var text: Swift.String
-            /// Creates a new `VectorStoreSearchResultContentObject`.
-            ///
-            /// - Parameters:
-            ///   - _type: The type of content.
-            ///   - text: The text content returned from search.
-            public init(
-                _type: Components.Schemas.VectorStoreSearchResultContentObject._TypePayload,
-                text: Swift.String
-            ) {
-                self._type = _type
-                self.text = text
-            }
-            public enum CodingKeys: String, CodingKey {
-                case _type = "type"
-                case text
-            }
-            public init(from decoder: any Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                self._type = try container.decode(
-                    Components.Schemas.VectorStoreSearchResultContentObject._TypePayload.self,
-                    forKey: ._type
-                )
-                self.text = try container.decode(
-                    Swift.String.self,
-                    forKey: .text
-                )
-                try decoder.ensureNoAdditionalProperties(knownKeys: [
-                    "type",
-                    "text"
-                ])
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultItem`.
-        public struct VectorStoreSearchResultItem: Codable, Hashable, Sendable {
-            /// The ID of the vector store file.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultItem/file_id`.
-            public var fileId: Swift.String
-            /// The name of the vector store file.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultItem/filename`.
-            public var filename: Swift.String
-            /// The similarity score for the result.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultItem/score`.
-            public var score: Swift.Double
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultItem/attributes`.
-            public var attributes: Components.Schemas.VectorStoreFileAttributes?
-            /// Content chunks from the file.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultItem/content`.
-            public var content: [Components.Schemas.VectorStoreSearchResultContentObject]
-            /// Creates a new `VectorStoreSearchResultItem`.
-            ///
-            /// - Parameters:
-            ///   - fileId: The ID of the vector store file.
-            ///   - filename: The name of the vector store file.
-            ///   - score: The similarity score for the result.
-            ///   - attributes:
-            ///   - content: Content chunks from the file.
-            public init(
-                fileId: Swift.String,
-                filename: Swift.String,
-                score: Swift.Double,
-                attributes: Components.Schemas.VectorStoreFileAttributes? = nil,
-                content: [Components.Schemas.VectorStoreSearchResultContentObject]
-            ) {
-                self.fileId = fileId
-                self.filename = filename
-                self.score = score
-                self.attributes = attributes
-                self.content = content
-            }
-            public enum CodingKeys: String, CodingKey {
-                case fileId = "file_id"
-                case filename
-                case score
-                case attributes
-                case content
-            }
-            public init(from decoder: any Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                self.fileId = try container.decode(
-                    Swift.String.self,
-                    forKey: .fileId
-                )
-                self.filename = try container.decode(
-                    Swift.String.self,
-                    forKey: .filename
-                )
-                self.score = try container.decode(
-                    Swift.Double.self,
-                    forKey: .score
-                )
-                self.attributes = try container.decodeIfPresent(
-                    Components.Schemas.VectorStoreFileAttributes.self,
-                    forKey: .attributes
-                )
-                self.content = try container.decode(
-                    [Components.Schemas.VectorStoreSearchResultContentObject].self,
-                    forKey: .content
-                )
-                try decoder.ensureNoAdditionalProperties(knownKeys: [
-                    "file_id",
-                    "filename",
-                    "score",
-                    "attributes",
-                    "content"
-                ])
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultsPage`.
-        public struct VectorStoreSearchResultsPage: Codable, Hashable, Sendable {
-            /// The object type, which is always `vector_store.search_results.page`
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultsPage/object`.
-            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case vectorStore_searchResults_page = "vector_store.search_results.page"
-            }
-            /// The object type, which is always `vector_store.search_results.page`
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultsPage/object`.
-            public var object: Components.Schemas.VectorStoreSearchResultsPage.ObjectPayload
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultsPage/search_query`.
-            public var searchQuery: [Swift.String]
-            /// The list of search result items.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultsPage/data`.
-            public var data: [Components.Schemas.VectorStoreSearchResultItem]
-            /// Indicates if there are more results to fetch.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultsPage/has_more`.
-            public var hasMore: Swift.Bool
-            /// The token for the next page, if any.
-            ///
-            /// - Remark: Generated from `#/components/schemas/VectorStoreSearchResultsPage/next_page`.
-            public var nextPage: Swift.String?
-            /// Creates a new `VectorStoreSearchResultsPage`.
-            ///
-            /// - Parameters:
-            ///   - object: The object type, which is always `vector_store.search_results.page`
-            ///   - searchQuery:
-            ///   - data: The list of search result items.
-            ///   - hasMore: Indicates if there are more results to fetch.
-            ///   - nextPage: The token for the next page, if any.
-            public init(
-                object: Components.Schemas.VectorStoreSearchResultsPage.ObjectPayload,
-                searchQuery: [Swift.String],
-                data: [Components.Schemas.VectorStoreSearchResultItem],
-                hasMore: Swift.Bool,
-                nextPage: Swift.String? = nil
-            ) {
-                self.object = object
-                self.searchQuery = searchQuery
-                self.data = data
-                self.hasMore = hasMore
-                self.nextPage = nextPage
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case searchQuery = "search_query"
-                case data
-                case hasMore = "has_more"
-                case nextPage = "next_page"
-            }
-            public init(from decoder: any Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                self.object = try container.decode(
-                    Components.Schemas.VectorStoreSearchResultsPage.ObjectPayload.self,
-                    forKey: .object
-                )
-                self.searchQuery = try container.decode(
-                    [Swift.String].self,
-                    forKey: .searchQuery
-                )
-                self.data = try container.decode(
-                    [Components.Schemas.VectorStoreSearchResultItem].self,
-                    forKey: .data
-                )
-                self.hasMore = try container.decode(
-                    Swift.Bool.self,
-                    forKey: .hasMore
-                )
-                self.nextPage = try container.decodeIfPresent(
-                    Swift.String.self,
-                    forKey: .nextPage
-                )
-                try decoder.ensureNoAdditionalProperties(knownKeys: [
-                    "object",
-                    "search_query",
-                    "data",
-                    "has_more",
-                    "next_page"
-                ])
-            }
-        }
-        /// - Remark: Generated from `#/components/schemas/VoiceIdsShared`.
-        public struct VoiceIdsShared: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/VoiceIdsShared/value1`.
-            public var value1: Swift.String?
-            /// - Remark: Generated from `#/components/schemas/VoiceIdsShared/value2`.
-            @frozen public enum Value2Payload: String, Codable, Hashable, Sendable, CaseIterable {
-                case alloy = "alloy"
-                case ash = "ash"
-                case ballad = "ballad"
-                case coral = "coral"
-                case echo = "echo"
-                case fable = "fable"
-                case onyx = "onyx"
-                case nova = "nova"
-                case sage = "sage"
-                case shimmer = "shimmer"
-                case verse = "verse"
-            }
-            /// - Remark: Generated from `#/components/schemas/VoiceIdsShared/value2`.
-            public var value2: Components.Schemas.VoiceIdsShared.Value2Payload?
-            /// Creates a new `VoiceIdsShared`.
-            ///
-            /// - Parameters:
-            ///   - value1:
-            ///   - value2:
-            public init(
-                value1: Swift.String? = nil,
-                value2: Components.Schemas.VoiceIdsShared.Value2Payload? = nil
-            ) {
-                self.value1 = value1
-                self.value2 = value2
-            }
-            public init(from decoder: any Decoder) throws {
-                var errors: [any Error] = []
-                do {
-                    self.value1 = try decoder.decodeFromSingleValueContainer()
-                } catch {
-                    errors.append(error)
-                }
-                do {
-                    self.value2 = try decoder.decodeFromSingleValueContainer()
-                } catch {
-                    errors.append(error)
-                }
-                try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
-                    [
-                        self.value1,
-                        self.value2
-                    ],
-                    type: Self.self,
-                    codingPath: decoder.codingPath,
-                    errors: errors
-                )
-            }
-            public func encode(to encoder: any Encoder) throws {
-                try encoder.encodeFirstNonNilValueToSingleValueContainer([
-                    self.value1,
-                    self.value2
-                ])
-            }
-        }
         /// A wait action.
         ///
         ///
         /// - Remark: Generated from `#/components/schemas/Wait`.
         public struct Wait: Codable, Hashable, Sendable {
-            /// Specifies the event type. For a wait action, this property is 
+            /// Specifies the event type. For a wait action, this property is
             /// always set to `wait`.
             ///
             ///
@@ -8436,7 +6830,7 @@ public enum Components {
             @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case wait = "wait"
             }
-            /// Specifies the event type. For a wait action, this property is 
+            /// Specifies the event type. For a wait action, this property is
             /// always set to `wait`.
             ///
             ///
@@ -8445,7 +6839,7 @@ public enum Components {
             /// Creates a new `Wait`.
             ///
             /// - Parameters:
-            ///   - _type: Specifies the event type. For a wait action, this property is 
+            ///   - _type: Specifies the event type. For a wait action, this property is
             public init(_type: Components.Schemas.Wait._TypePayload) {
                 self._type = _type
             }
@@ -8453,7 +6847,7 @@ public enum Components {
                 case _type = "type"
             }
         }
-        /// High level guidance for the amount of context window space to use for the 
+        /// High level guidance for the amount of context window space to use for the
         /// search. One of `low`, `medium`, or `high`. `medium` is the default.
         ///
         ///
@@ -8467,7 +6861,7 @@ public enum Components {
         ///
         /// - Remark: Generated from `#/components/schemas/WebSearchLocation`.
         public struct WebSearchLocation: Codable, Hashable, Sendable {
-            /// The two-letter 
+            /// The two-letter
             /// [ISO country code](https://en.wikipedia.org/wiki/ISO_3166-1) of the user,
             /// e.g. `US`.
             ///
@@ -8484,7 +6878,7 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/WebSearchLocation/city`.
             public var city: Swift.String?
-            /// The [IANA timezone](https://timeapi.io/documentation/iana-timezones) 
+            /// The [IANA timezone](https://timeapi.io/documentation/iana-timezones)
             /// of the user, e.g. `America/Los_Angeles`.
             ///
             ///
@@ -8493,10 +6887,10 @@ public enum Components {
             /// Creates a new `WebSearchLocation`.
             ///
             /// - Parameters:
-            ///   - country: The two-letter 
+            ///   - country: The two-letter
             ///   - region: Free text input for the region of the user, e.g. `California`.
             ///   - city: Free text input for the city of the user, e.g. `San Francisco`.
-            ///   - timezone: The [IANA timezone](https://timeapi.io/documentation/iana-timezones) 
+            ///   - timezone: The [IANA timezone](https://timeapi.io/documentation/iana-timezones)
             public init(
                 country: Swift.String? = nil,
                 region: Swift.String? = nil,
@@ -8615,7 +7009,7 @@ public enum Components {
                 case searchContextSize = "search_context_size"
             }
         }
-        /// The results of a web search tool call. See the 
+        /// The results of a web search tool call. See the
         /// [web search guide](/docs/guides/tools-web-search) for more information.
         ///
         ///
