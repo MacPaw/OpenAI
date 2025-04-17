@@ -1,5 +1,5 @@
 //
-//  ChatGPTGeneratedSSEParserTests.swift
+//  ServerSentEventsParserTests.swift
 //  OpenAI
 //
 //  Created by Oleksii Nezhyborets on 04.04.2025.
@@ -8,8 +8,7 @@
 import XCTest
 @testable import OpenAI
 
-@MainActor
-final class ChatGPTGeneratedSSEParserTests: XCTestCase {
+final class ServerSentEventsParserTests: XCTestCase {
     private let parser = ServerSentEventsStreamParser()
     
     func testSingleDataLine() {
@@ -91,14 +90,17 @@ final class ChatGPTGeneratedSSEParserTests: XCTestCase {
     // Helper
     func parse(_ raw: String) -> [ServerSentEventsStreamParser.Event] {
         let parser = ServerSentEventsStreamParser()
-        var results: [ServerSentEventsStreamParser.Event] = []
+        let resultsHolder = ResultsHolder()
         parser.setCallbackClosures(onEventDispatched: { event in
-            MainActor.assumeIsolated {
-                results.append(event)
-            }
+            dispatchPrecondition(condition: .onQueue(.main))
+            resultsHolder.results.append(event)
         }, onError: { error in
         })
         parser.processData(data: raw.data(using: .utf8)!)
-        return results
+        return resultsHolder.results
+    }
+    
+    private class ResultsHolder: @unchecked Sendable {
+        var results: [ServerSentEventsStreamParser.Event] = []
     }
 }
