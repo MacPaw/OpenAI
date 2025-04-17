@@ -6,6 +6,9 @@
 //
 
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 final class DataTaskFactory: Sendable {
     private let configuration: OpenAI.Configuration

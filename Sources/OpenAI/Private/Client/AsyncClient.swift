@@ -6,6 +6,9 @@
 //
 
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 actor AsyncClient {
     private let configuration: OpenAI.Configuration
