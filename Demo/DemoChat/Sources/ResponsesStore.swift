@@ -198,11 +198,8 @@ public final class ResponsesStore: ObservableObject {
         
         var eventNumber = 1
         for try await event in stream {
-            print("--- Event \(eventNumber) ---")
-            print(event)
             try handleResponseStreamEvent(event)
             eventNumber += 1
-            print("\n")
         }
     }
     
