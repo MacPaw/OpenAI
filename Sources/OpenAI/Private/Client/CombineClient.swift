@@ -4,9 +4,12 @@
 //
 //  Created by Oleksii Nezhyborets on 14.04.2025.
 //
-#if canImport(Combine)
+
 import Foundation
+
+#if canImport(Combine)
 import Combine
+#endif
 
 final class CombineClient: Sendable {
     private let configuration: OpenAI.Configuration
@@ -19,6 +22,7 @@ final class CombineClient: Sendable {
         self.middlewares = middlewares
     }
     
+#if canImport(Combine)
     func performRequest<ResultType: Codable>(request: any URLRequestBuildable) -> AnyPublisher<ResultType, Error> {
         do {
             let urlRequest = try request.build(configuration: configuration)
@@ -66,5 +70,5 @@ final class CombineClient: Sendable {
                 .eraseToAnyPublisher()
         }
     }
-}
 #endif
+}
