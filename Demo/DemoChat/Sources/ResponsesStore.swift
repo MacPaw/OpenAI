@@ -31,7 +31,7 @@ public final class ResponsesStore: ObservableObject {
         case unhandledResponseStreamEvent(ResponseStreamEvent)
         case incompleteLocalTextOnOutputTextDoneEvent(local: String, remote: String)
         case noInputImageData(Sendable)
-        case imageExceedsSizeLimits(CGSize)
+        case couldNotResizeInputImage
     }
     
     private class ResponseData {
@@ -129,11 +129,9 @@ public final class ResponsesStore: ObservableObject {
                 throw StoreError.noInputImageData(media)
             }
             
-            let biggerSideSize = max(image.size.height, image.size.width)
-            let smallerSideSize = min(image.size.height, image.size.width)
-            
-            guard biggerSideSize <= 2000, smallerSideSize <= 768 else {
-                throw StoreError.imageExceedsSizeLimits(image.size)
+            let resizedImage = image.resizedToFit()
+            guard let resizedImageData = resizedImage.pngData() else {
+                throw StoreError.couldNotResizeInputImage
             }
             
             input = .inputItemList([
@@ -145,7 +143,7 @@ public final class ResponsesStore: ObservableObject {
                     role: .user,
                     content: .inputItemContentList([
                         .inputImage(
-                            .init(imageData: imageData, detail: .auto)
+                            .init(imageData: resizedImageData, detail: .auto)
                         )
                     ]))
                 )
