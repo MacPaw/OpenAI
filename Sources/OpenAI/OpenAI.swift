@@ -60,20 +60,13 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         }
     }
     
-    // To use directly on older systems
-    public let responsesEndpoint: ResponsesEndpoint
-    
-    // To conform to OpenAIProtocol
-    public var responses: ResponsesEndpointProtocol {
-        responsesEndpoint
-    }
-    
     let client: Client
     let streamingClient: StreamingClient
     let asyncClient: AsyncClient
     let combineClient: CombineClient
     
     public let configuration: Configuration
+    public let responses: ResponsesEndpointProtocol
 
     public convenience init(apiToken: String) {
         self.init(
@@ -150,7 +143,7 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         
         self.combineClient = .init(configuration: configuration, session: session, middlewares: middlewares)
         
-        self.responsesEndpoint = ResponsesEndpoint(
+        self.responses = ResponsesEndpoint(
             client: client,
             streamingClient: streamingClient,
             asyncClient: asyncClient,
