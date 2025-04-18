@@ -10,7 +10,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-protocol URLBuilder {
+protocol URLBuilder: Sendable {
     func buildURL() -> URL
 }
 

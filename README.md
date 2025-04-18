@@ -17,7 +17,8 @@ This repository contains Swift community-maintained implementation over [OpenAI]
     - [Initialization](#initialization)
     - [Chats](#chats)
         - [Chats Streaming](#chats-streaming) 
-        - [Structured Output](#structured-output) 
+        - [Structured Output](#structured-output)
+    - [Responses](#responses)
     - [Images](#images)
         - [Create Image](#create-image)
         - [Create Image Edit](#create-image-edit)
@@ -350,6 +351,27 @@ let result = try await openAI.chats(query: query)
 
 
 Review [Structured Output Documentation](https://platform.openai.com/docs/guides/structured-outputs) for more info.
+
+### Responses
+
+https://platform.openai.com/docs/api-reference/responses
+
+> OpenAI's most advanced interface for generating model responses. Supports text and image inputs, and text outputs. Create stateful interactions with the model, using the output of previous responses as input. Extend the model's capabilities with built-in tools for file search, web search, computer use, and more. Allow the model access to external systems and data using function calling.
+
+Basic (closure-based non-streaming) would look like this:
+```swift
+let client = OpenAI(apiToken: "")
+let response = client.responses.createResponse(query: query) { (result: Result<ResponseObject, Error>) in
+    switch result {
+    case .success(let responseObject):
+        break
+    case .failure(let error):
+        break
+    }
+}
+```
+
+`client.responses` is a an instance of `ResponsesEndpointProtocol` type. It has streaming/non-streaming methods, that have closure-based/async/Combine variations. See more information in [Chats](#chats) section, as `createResponse` and `createResponseStreaming` methods of `ResponsesEndpointProtocol` are following the design and form of `chats` and `chatsStream` methods of `OpenAIProtocol`.
 
 ### Images
 

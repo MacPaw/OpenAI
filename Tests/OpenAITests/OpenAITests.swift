@@ -8,7 +8,6 @@
 import XCTest
 @testable import OpenAI
 
-@available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
 class OpenAITests: XCTestCase {
 
     private var openAI: OpenAIProtocol!
@@ -308,8 +307,7 @@ class OpenAITests: XCTestCase {
         let result = try await openAI.moderations(query: query)
         XCTAssertEqual(result, moderationsResult)
     }
-
-    @available(iOS 16.0, *)
+    
     func testModerationsIterable() {
         let categories = ModerationsResult.Moderation.Categories(harassment: false, harassmentThreatening: false, hate: false, hateThreatening: false, selfHarm: false, selfHarmIntent: false, selfHarmInstructions: false, sexual: false, sexualMinors: false, violence: false, violenceGraphic: false)
         Mirror(reflecting: categories).children.enumerated().forEach { index, element in
@@ -822,9 +820,6 @@ class OpenAITests: XCTestCase {
     }
 }
 
-@available(tvOS 13.0, *)
-@available(iOS 13.0, *)
-@available(watchOS 6.0, *)
 extension OpenAITests {
     
     func stub(error: Error) {
@@ -841,9 +836,6 @@ extension OpenAITests {
     }
 }
 
-@available(tvOS 13.0, *)
-@available(iOS 13.0, *)
-@available(watchOS 6.0, *)
 extension OpenAITests {
     
     enum TypeError: Error {

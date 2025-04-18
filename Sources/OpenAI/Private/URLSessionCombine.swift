@@ -15,12 +15,10 @@ import FoundationNetworking
 import Combine
 
 protocol URLSessionCombine {
-    @available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
     func dataTaskPublisher(for request: URLRequest) -> AnyPublisher<(data: Data, response: URLResponse), URLError>
 }
 
 extension URLSession: URLSessionCombine {
-    @available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
     func dataTaskPublisher(for request: URLRequest) -> AnyPublisher<(data: Data, response: URLResponse), URLError> {
         let typedPublisher: URLSession.DataTaskPublisher = dataTaskPublisher(for: request)
         return typedPublisher.eraseToAnyPublisher()

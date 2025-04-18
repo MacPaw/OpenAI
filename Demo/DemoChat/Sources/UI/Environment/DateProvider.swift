@@ -7,15 +7,8 @@
 
 import SwiftUI
 
-private struct DateProviderKey: EnvironmentKey {
-    static let defaultValue: () -> Date = Date.init
-}
-
 extension EnvironmentValues {
-    public var dateProviderValue: () -> Date {
-        get { self[DateProviderKey.self] }
-        set { self[DateProviderKey.self] = newValue }
-    }
+    @Entry public var dateProviderValue: () -> Date = Date.init
 }
 
 extension View {
