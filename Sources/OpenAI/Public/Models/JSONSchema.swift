@@ -7,11 +7,89 @@
 
 import Foundation
 
-public final class JSONSchema: Codable, Hashable, Sendable {
+public final class JSONSchema: Codable, Hashable, Sendable {    
     public enum InstanceType: Codable, Hashable, Sendable {
-        case type(String)
+        case integer
+        case string
+        case boolean
+        case array
+        case object
+        case number
+        case null
         case types([String])
+        
+        private enum CodingKeys: String {
+            case integer, string, boolean, array, object, number, null, types
+        }
+        
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            
+            if let single = try? container.decode(String.self) {
+                switch single {
+                case "integer": self = .integer
+                case "string": self = .string
+                case "boolean": self = .boolean
+                case "array": self = .array
+                case "object": self = .object
+                case "number": self = .number
+                case "null": self = .null
+                default:
+                    throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unknown instance type: \(single)")
+                }
+            } else if let array = try? container.decode([String].self) {
+                self = .types(array)
+            } else {
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "InstanceType must be a string or array of strings")
+            }
+        }
+        
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
+            
+            switch self {
+            case .integer: try container.encode("integer")
+            case .string: try container.encode("string")
+            case .boolean: try container.encode("boolean")
+            case .array: try container.encode("array")
+            case .object: try container.encode("object")
+            case .number: try container.encode("number")
+            case .null: try container.encode("null")
+            case .types(let types): try container.encode(types)
+            }
+        }
     }
+        
+    /// ### Kind
+    /// Assertion
+    ///
+    /// ### Instance
+    /// Any
+    ///
+    /// ### Summary
+    /// Validation succeeds if the type of the instance matches the type represented by the given type, or matches at least one of the given types.
+    public let type: InstanceType?
+    
+    /// ### Kind
+    /// Assertion
+    ///
+    /// ### Instance
+    /// Any
+    ///
+    /// ### Summary
+    /// Validation succeeds if the instance is equal to one of the elements in this keyword’s array value.
+    public let enumValues: [CodableValue]?
+    /// - Note: Maps from `enum` to `enumValues` in Swift.
+    
+    /// ### Kind
+    /// Assertion
+    ///
+    /// ### Instance
+    /// Any
+    ///
+    /// ### Summary
+    /// Validation succeeds if the instance is equal to this keyword’s value.
+    public let const: CodableValue?
     
     // MARK: Core
     
@@ -277,37 +355,6 @@ public final class JSONSchema: Codable, Hashable, Sendable {
     public let prefixItems: [JSONSchema]?
     
     // MARK: - Validation
-    
-    /// ### Kind
-    /// Assertion
-    ///
-    /// ### Instance
-    /// Any
-    ///
-    /// ### Summary
-    /// Validation succeeds if the type of the instance matches the type represented by the given type, or matches at least one of the given types.
-    public let type: InstanceType?
-    
-    /// ### Kind
-    /// Assertion
-    ///
-    /// ### Instance
-    /// Any
-    ///
-    /// ### Summary
-    /// Validation succeeds if the instance is equal to one of the elements in this keyword’s array value.
-    public let enumValues: [CodableValue]?
-    /// - Note: Maps from `enum` to `enumValues` in Swift.
-    
-    /// ### Kind
-    /// Assertion
-    ///
-    /// ### Instance
-    /// Any
-    ///
-    /// ### Summary
-    /// Validation succeeds if the instance is equal to this keyword’s value.
-    public let const: CodableValue?
     
     /// ### Kind
     /// Assertion
@@ -615,6 +662,9 @@ public final class JSONSchema: Codable, Hashable, Sendable {
     public let unevaluatedProperties: JSONSchema?
     
     public init(
+        type: InstanceType? = nil,
+        enumValues: [CodableValue]? = nil,
+        const: CodableValue? = nil,
         // Core
         id: String? = nil,
         schema: String? = nil,
@@ -644,9 +694,6 @@ public final class JSONSchema: Codable, Hashable, Sendable {
         prefixItems: [JSONSchema]? = nil,
         
         // Validation
-        type: InstanceType? = nil,
-        enumValues: [CodableValue]? = nil,
-        const: CodableValue? = nil,
         maxLength: Int? = nil,
         minLength: Int? = nil,
         pattern: String? = nil,
@@ -684,6 +731,10 @@ public final class JSONSchema: Codable, Hashable, Sendable {
         unevaluatedItems: JSONSchema? = nil,
         unevaluatedProperties: JSONSchema? = nil
     ) {
+        self.type = type
+        self.enumValues = enumValues
+        self.const = const
+        
         // Core
         self.id = id
         self.schema = schema
@@ -713,9 +764,6 @@ public final class JSONSchema: Codable, Hashable, Sendable {
         self.prefixItems = prefixItems
         
         // Validation
-        self.type = type
-        self.enumValues = enumValues
-        self.const = const
         self.maxLength = maxLength
         self.minLength = minLength
         self.pattern = pattern
@@ -755,6 +803,11 @@ public final class JSONSchema: Codable, Hashable, Sendable {
     }
     
     enum CodingKeys: String, CodingKey {
+        case type
+        case enumValues = "enum"
+        case const
+        
+        // Core
         case id = "$id"
         case schema = "$schema"
         case ref = "$ref"
@@ -783,9 +836,6 @@ public final class JSONSchema: Codable, Hashable, Sendable {
         case prefixItems
         
         // Validation
-        case type
-        case enumValues = "enum"
-        case const
         case maxLength
         case minLength
         case pattern
