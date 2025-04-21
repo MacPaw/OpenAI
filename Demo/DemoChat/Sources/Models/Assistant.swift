@@ -32,13 +32,4 @@ struct Assistant: Hashable {
     var functions: [FunctionDeclaration]
 }
 
-
 extension Assistant: Equatable, Identifiable {}
-
-extension FunctionDeclaration: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-        hasher.combine(description)
-        hasher.combine(parameters)
-    }
-}

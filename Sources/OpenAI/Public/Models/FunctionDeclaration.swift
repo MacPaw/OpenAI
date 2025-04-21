@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FunctionDeclaration: Codable, Equatable, Sendable {
+public struct FunctionDeclaration: Codable, Hashable, Sendable {
     /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
     public let name: String
     
