@@ -680,31 +680,7 @@ class OpenAITestsDecoder: XCTestCase {
         try encode(threadRunQuery, expectedValue)
     }
     
-    func testChatQueryWithStructuredOutputDerivedSchema() throws {
-        enum MovieGenre: String, Codable, StructuredOutputEnum {
-            case action, drama, comedy, scifi
-            var caseNames: [String] { Self.allCases.map { $0.rawValue } }
-        }
-        
-        struct MovieInfo: StructuredOutput {
-            
-            let title: String
-            let director: String
-            let release: Date
-            let genres: [MovieGenre]
-            let cast: [String]
-            
-            static let example: Self = {
-                .init(
-                    title: "Earth",
-                    director: "Alexander Dovzhenko",
-                    release: Calendar.current.date(from: DateComponents(year: 1930, month: 4, day: 1))!,
-                    genres: [.drama],
-                    cast: ["Stepan Shkurat", "Semyon Svashenko", "Yuliya Solntseva"]
-                )
-            }()
-        }
-        
+    func testChatQueryWithStructuredOutputDerivedSchema() throws {        
         let query = ChatQuery(
             messages: [.system(.init(content: "Return a structured response."))],
             model: .gpt4_o,
