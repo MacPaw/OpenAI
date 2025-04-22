@@ -243,20 +243,25 @@ for try await result in openAI.chatsStream(query: query) {
 **Function calls**
 ```swift
 let openAI = OpenAI(apiToken: "...")
-// Declare functions which GPT-3 might decide to call.
+// Declare functions which model might decide to call.
 let functions = [
   FunctionDeclaration(
       name: "get_current_weather",
       description: "Get the current weather in a given location",
-      parameters:
-        JSONSchema(
-          type: .object,
-          properties: [
-            "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
-            "unit": .init(type: .string, enumValues: ["celsius", "fahrenheit"])
-          ],
-          required: ["location"]
-        )
+      parameters: .init(fields: [
+        .type(.object),
+        .properties([
+          "location": .init(fields: [
+            .type(.string),
+            .description("The city and state, e.g. San Francisco, CA")
+          ]),
+          "unit": .init(fields: [
+            .type(.string),
+            .enumValues(["celsius", "fahrenheit"])
+          ])
+        ]),
+        .required(["location"])
+      ])
   )
 ]
 let query = ChatQuery(
@@ -339,12 +344,12 @@ enum MovieGenre: String, Codable, StructuredOutputEnum {
 let query = ChatQuery(
     messages: [.system(.init(content: "Best Picture winner at the 2011 Oscars"))],
     model: .gpt4_o,
-    responseFormat: .jsonSchema(name: "movie-info", type: MovieInfo.self)
+    responseFormat: .derivedJsonSchema(name: "movie-info", type: MovieInfo.self)
 )
 let result = try await openAI.chats(query: query)
 ```
 
-- Use the `jsonSchema(name:type:)` response format when creating a `ChatQuery`
+- Use the `derivedJsonSchema(name:type:)` response format when creating a `ChatQuery`
 - Provide a schema name and a type that conforms to `ChatQuery.StructuredOutput` and generates an instance as an example
 - Make sure all enum types within the provided type conform to `ChatQuery.StructuredOutputEnum` and generate an array of names for all cases
 
