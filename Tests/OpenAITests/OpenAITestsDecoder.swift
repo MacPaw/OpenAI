@@ -195,7 +195,7 @@ class OpenAITestsDecoder: XCTestCase {
 
         XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
     }
-
+    
     func testChatQueryWithFunctionCall() async throws {
         let chatQuery = ChatQuery(
             messages: [
@@ -205,18 +205,26 @@ class OpenAITestsDecoder: XCTestCase {
             responseFormat: ChatQuery.ResponseFormat.jsonObject,
             toolChoice: .function("get_current_weather"),
             tools: [
-                .init(function: .init(
-                    name: "get_current_weather",
-                    description: "Get the current weather in a given location",
-                    parameters: .init(
-                        type: .object,
-                        properties: [
-                          "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
-                          "unit": .init(type: .string, enumValues: [.string("celsius"), .string("fahrenheit")])
-                        ],
-                        required: ["location"]
-                      )
-                ))
+                .init(
+                    function: .init(
+                        name: "get_current_weather",
+                        description: "Get the current weather in a given location",
+                        parameters: .init(fields: [
+                            .type(.object),
+                            .properties([
+                                "location": .init(fields: [
+                                    .type(.string),
+                                    .description("The city and state, e.g. San Francisco, CA")
+                                ]),
+                                "unit": .init(fields: [
+                                    .type(.string),
+                                    .enumValues(["celsius", "fahrenheit"])
+                                ])
+                            ]),
+                            .required(["location"])
+                        ])
+                    )
+                )
             ]
         )
         let expectedValue = """
@@ -732,7 +740,14 @@ class OpenAITestsDecoder: XCTestCase {
                 .init(
                     name: "movie-info",
                     description: "dezg",
-                    schema: .init(type: .object, properties: ["title": .init(type: .string)]),
+                    schema: .init(fields: [
+                        .type(.object),
+                        .properties([
+                            "title": .init(fields: [
+                                .type(.string)
+                            ])
+                        ])
+                    ]),
                     strict: false
                 )
             )
@@ -746,16 +761,16 @@ class OpenAITestsDecoder: XCTestCase {
         let responseFormat = dict["response_format"] as! [String: Any]
         XCTAssertEqual(responseFormat["type"] as! String, "json_schema")
         
-        let configOptions = responseFormat["json_schema"] as! [String: Any]
-        XCTAssertEqual(configOptions["name"] as! String, "movie-info")
-        XCTAssertEqual(configOptions["description"] as! String, "dezg")
-        XCTAssertEqual(configOptions["strict"] as! Bool, false)
+        let configOptions = try XCTUnwrap(responseFormat["json_schema"] as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(configOptions["name"] as? String), "movie-info")
+        XCTAssertEqual(try XCTUnwrap(configOptions["description"] as? String), "dezg")
+        XCTAssertEqual(try XCTUnwrap(configOptions["strict"] as? Bool), false)
         
         let jsonSchema = configOptions["schema"] as! [String: Any]
-        XCTAssertEqual(jsonSchema["type"] as! String, "object")
-        let properties = jsonSchema["properties"] as! [String: [String: Any]]
-        let titleSchema = properties["title"]!
+        XCTAssertEqual(try XCTUnwrap(jsonSchema["type"] as? String), "object")
+        let properties = try XCTUnwrap(jsonSchema["properties"] as? [String: [String: Any]])
+        let titleSchema = try XCTUnwrap(properties["title"])
         XCTAssertEqual(titleSchema.count, 1)
-        XCTAssertEqual(titleSchema["type"] as! String, "string")
+        XCTAssertEqual(try XCTUnwrap(titleSchema["type"] as? String), "string")
     }
 }

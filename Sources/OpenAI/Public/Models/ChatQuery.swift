@@ -876,7 +876,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             /// A description of what the response format is for, used by the model to determine how to respond in the format.
             let description: String?
             /// The schema for the response format, described as a JSON Schema object. Learn how to build JSON schemas [here](https://json-schema.org/).
-            let schema: JSONSchema?
+            let schema: AnyJSONSchema?
             /// Whether to enable strict schema adherence when generating the output. If set to true, the model will always follow the exact schema defined in the `schema` field. Only a subset of JSON Schema is supported when `strict` is `true`. To learn more, read the [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) guide.
             ///
             /// Defaults to false
@@ -1216,7 +1216,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             /// The parameters the functions accepts, described as a JSON Schema object. See the [guide](https://platform.openai.com/docs/guides/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
             ///
             /// Omitting `parameters` defines a function with an empty parameter list.
-            public let parameters: JSONSchema?
+            public let parameters: AnyJSONSchema?
             /// Whether to enable strict schema adherence when generating the function call. If set to true, the model will follow the exact schema defined in the `parameters` field. Only a subset of JSON Schema is supported when `strict` is `true`. Learn more about Structured Outputs in the [function calling guide](https://platform.openai.com/docs/api-reference/chat/docs/guides/function-calling).
             ///
             /// Defaults to false
@@ -1225,7 +1225,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             public init(
                 name: String,
                 description: String? = nil,
-                parameters: JSONSchema? = nil,
+                parameters: AnyJSONSchema? = nil,
                 strict: Bool? = nil
             ) {
                 self.name = name
