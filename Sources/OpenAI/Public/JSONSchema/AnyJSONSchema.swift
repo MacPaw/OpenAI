@@ -6,7 +6,7 @@
 //
 
 
-public struct AnyJSONSchema: JSONSchema, JSONDocument {
+public struct AnyJSONSchema: JSONSchema {
     private let value: any JSONSchema
 
     public init(schema: any JSONSchema) {
