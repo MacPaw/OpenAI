@@ -251,9 +251,16 @@ public final class ChatStore: ObservableObject {
                 if let existingMessageIndex = existingMessages.firstIndex(where: { $0.id == partialChatResult.id }) {
                     // Meld into previous message
                     let previousMessage = existingMessages[existingMessageIndex]
+                    
+                    let role = if let new = choice.delta.role {
+                        new
+                    } else {
+                        previousMessage.role
+                    }
+                    
                     let combinedMessage = Message(
                         id: message.id, // id stays the same for different deltas
-                        role: message.role,
+                        role: role,
                         content: previousMessage.content + message.content,
                         createdAt: message.createdAt
                     )
