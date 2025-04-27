@@ -316,7 +316,7 @@ Structured Outputs is a feature that ensures the model will always generate resp
 **Example**
 
 ```swift
-struct MovieInfo: StructuredOutput {
+struct MovieInfo: JSONSchemaConvertible {
     
     let title: String
     let director: String
@@ -335,7 +335,7 @@ struct MovieInfo: StructuredOutput {
     }()
 }
 
-enum MovieGenre: String, Codable, StructuredOutputEnum {
+enum MovieGenre: String, Codable, JSONSchemaEnumConvertible {
     case action, drama, comedy, scifi
     
     var caseNames: [String] { Self.allCases.map { $0.rawValue } }
@@ -350,8 +350,8 @@ let result = try await openAI.chats(query: query)
 ```
 
 - Use the `derivedJsonSchema(name:type:)` response format when creating a `ChatQuery`
-- Provide a schema name and a type that conforms to `ChatQuery.StructuredOutput` and generates an instance as an example
-- Make sure all enum types within the provided type conform to `ChatQuery.StructuredOutputEnum` and generate an array of names for all cases
+- Provide a schema name and a type that conforms to `JSONSchemaConvertible` and generates an instance as an example
+- Make sure all enum types within the provided type conform to `ChatQuery.JSONSchemaEnumConvertible` and generate an array of names for all cases
 
 
 Review [Structured Output Documentation](https://platform.openai.com/docs/guides/structured-outputs) for more info.

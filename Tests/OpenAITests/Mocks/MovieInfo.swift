@@ -8,12 +8,12 @@
 @testable import OpenAI
 import Foundation
 
-enum MovieGenre: String, Codable, StructuredOutputEnum {
+enum MovieGenre: String, Codable, JSONSchemaEnumConvertible {
     case action, drama, comedy, scifi
     var caseNames: [String] { Self.allCases.map { $0.rawValue } }
 }
 
-struct MovieInfo: StructuredOutput {
+struct MovieInfo: JSONSchemaConvertible {
     let title: String
     let director: String
     let release: Date
