@@ -103,6 +103,12 @@ See `OpenAI.Configuration` for more values that can be passed on init for custom
 
 Once you posses the token, and the instance is initialized you are ready to make requests.
 
+#### Using the SDK for other providers except OpenAI
+
+This SDK is more focused on working with OpenAI Platform, but also works with other providers that support OpenAI-compatible API.
+
+Use `.relaxed` parsing option on Configuration, or see more details on the topic [here](#support-for-other-providers)
+
 ### Chats
 
 Using the OpenAI Chat API, you can build your own applications with `gpt-3.5-turbo` to do things like:
@@ -1121,13 +1127,20 @@ subscription.cancel()
 ```
 
 ## Support for other providers
+
+> TL;DR Use `.relaxed` parsing option on Configuration
+
 This SDK has a limited support for other providers like Gemini, Perplexity etc.
 
 The top priority of this SDK is OpenAI, and the main rule is for all the main types to be fully compatible with [OpenAI's API Reference](https://platform.openai.com/docs/api-reference/introduction). If it says a field should be optional, it must be optional in main subset of Query/Result types of this SDK. The same goes for other info declared in the reference, like default values.
 
 That said we still want to give a support for other providers.
 
-### Handling missing keys in responses with Parsing Options
+### Option 1: Use `.relaxed` parsing option
+`.relaxed` parsing option handles both missing and additional key/values in responses. It should be sufficient for most use-cases. Let us know if it doesn't cover any case you need.
+
+### Option 2: Specify parsing options separately
+#### Handle missing keys in responses
 Some providers return responses that don't completely satisfy OpenAI's scheme. Like, Gemini chat completion response ommits `id` field which is a required field in OpenAI's API Reference.
 
 In such case use `fillRequiredFieldIfKeyNotFound` Parsing Option, like this:
@@ -1135,9 +1148,13 @@ In such case use `fillRequiredFieldIfKeyNotFound` Parsing Option, like this:
 let configuration = OpenAI.Configuration(token: "", parsingOptions: .fillRequiredFieldIfKeyNotFound)
 ```
 
+#### Handle missing values in responses
+Some fields are required to be present (non-optional) by OpenAI, but other providers may return `null` for them.
 
-### What if a provider returns additional fields?
-Currently we handle such cases by simply adding additional fields to main model set. This is possible because optional fields wouldn't break or conflict with OpenAI's scheme. At the moment, such additional fields are added.
+Use `.fillRequiredFieldIfValueNotFound` to handle missing values
+
+#### What if a provider returns additional fields?
+Currently we handle such cases by simply adding additional fields to main model set. This is possible because optional fields wouldn't break or conflict with OpenAI's scheme. At the moment, such additional fields are added:
 
 `ChatResult`
 
@@ -1147,7 +1164,6 @@ Currently we handle such cases by simply adding additional fields to main model 
 
 * `reasoningContent` [Grok](https://docs.x.ai/docs/api-reference#chat-completions), [DeepSeek](https://api-docs.deepseek.com/api/create-chat-completion#responses)
 * `reasoning` [OpenRouter](https://openrouter.ai/docs/use-cases/reasoning-tokens#basic-usage-with-reasoning-tokens)
-
 
 ## Example Project
 
