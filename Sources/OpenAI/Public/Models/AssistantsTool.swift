@@ -1,5 +1,5 @@
 //
-//  Tool.swift
+//  AssistantsTool.swift
 //  
 //
 //  Created by Brent Whitman on 2024-01-29.
@@ -10,7 +10,7 @@ import Foundation
 /// The type of tool
 ///
 /// Refer to the [documentation](https://platform.openai.com/docs/assistants/tools/tools-beta) for  more information on tools.
-public enum Tool: Codable, Equatable, Sendable {
+public enum AssistantsTool: Codable, Equatable, Sendable {
     /// Code Interpreter allows the Assistants API to write and run Python code in a sandboxed execution environment.
     case codeInterpreter
     /// Function calling allows you to describe functions to the Assistants and have it intelligently return the functions that need to be called along with their arguments.

@@ -80,7 +80,7 @@ public struct ResponseObject: Codable, Equatable, Sendable {
     /// The two categories of tools you can provide the model are:
     /// - **Built-in tools:** Tools that are provided by OpenAI that extend the model's capabilities, like [web search](https://platform.openai.com/docs/guides/tools-web-search) or [file search](https://platform.openai.com/docs/guides/tools-file-search). Learn more about [built-in tools](https://platform.openai.com/docs/guides/tools).
     /// - **Function calls (custom tools):** Functions that are defined by you, enabling the model to call your own code. Learn more about [function calling](https://platform.openai.com/docs/guides/function-calling).
-    public let tools: [Schemas.Tool]
+    public let tools: [Tool]
     
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
     ///

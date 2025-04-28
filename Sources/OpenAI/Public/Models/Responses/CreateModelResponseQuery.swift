@@ -10,7 +10,6 @@ import Foundation
 public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     public typealias Schemas = Components.Schemas
     public typealias ResponseProperties = Schemas.ResponseProperties
-    public typealias Tool = Schemas.Tool
     
     /// Text, image, or file inputs to the model, used to generate a response.
     ///
@@ -88,7 +87,7 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     /// - **Built-in tools**: Tools that are provided by OpenAI that extend the model's capabilities, like [web search](https://platform.openai.com/docs/guides/tools-web-search) or [file search](https://platform.openai.com/docs/guides/tools-file-search).
     /// - **Function calls (custom tools):** Functions that are defined by you, enabling the model to call your own code.
     /// Learn more about [function calling](https://platform.openai.com/docs/guides/function-calling).
-    public let tools: [Schemas.Tool]?
+    public let tools: [Tool]?
     
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with topP probability mass.
     /// So 0.1 means only the tokens comprising the top 10% probability mass are considered.
@@ -120,7 +119,7 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
         temperature: Double? = nil,
         text: ResponseProperties.TextPayload? = nil,
         toolChoice: ResponseProperties.ToolChoicePayload? = nil,
-        tools: [Schemas.Tool]? = nil,
+        tools: [Tool]? = nil,
         topP: Double? = nil,
         truncation: String? = nil,
         user: String? = nil

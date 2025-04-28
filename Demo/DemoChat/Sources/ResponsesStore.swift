@@ -158,7 +158,7 @@ public final class ResponsesStore: ObservableObject {
             model: model,
             previousResponseId: previousResponseId,
             stream: stream,
-            tools: webSearchEnabled ? [.WebSearchTool(.init(_type: .webSearchPreview))] : []
+            tools: webSearchEnabled ? [.webSearchTool(.init(_type: .webSearchPreview))] : []
         )
         
         if stream {
