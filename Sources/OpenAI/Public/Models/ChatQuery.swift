@@ -822,7 +822,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         case jsonObject
         /// JSON Schema response format. Used to generate structured JSON responses. Learn more about [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs).
         case jsonSchema(StructuredOutputConfigurationOptions)
-        case derivedJsonSchema(name: String, type: JSONSchemaConvertible.Type)
+        case derivedJsonSchema(name: String, type: any JSONSchemaConvertible.Type)
         case dynamicJsonSchema(DynamicJSONSchema)
         
         enum CodingKeys: String, CodingKey {
@@ -887,7 +887,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
     private struct DerivedStructuredOutputConfigurationOptions: Encodable {
         
         let name: String
-        let schema: JSONSchemaConvertible
+        let schema: any JSONSchemaConvertible
         
         enum CodingKeys: String, CodingKey {
             case name
@@ -895,7 +895,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             case strict
         }
         
-        init(name: String, schema: JSONSchemaConvertible) {
+        init(name: String, schema: any JSONSchemaConvertible) {
             
             func format(_ name: String) -> String {
                 var formattedName = name.replacingOccurrences(of: " ", with: "_")
