@@ -44,9 +44,10 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
     /// https://platform.openai.com/docs/guides/text-generation/parameter-details
     public let presencePenalty: Double?
-    /// An object specifying the format that the model must output. Compatible with gpt-4-1106-preview and gpt-3.5-turbo-1106.
-    /// Setting to { "type": "json_object" } enables JSON mode, which guarantees the message the model generates is valid JSON.
-    /// Important: when using JSON mode, you must also instruct the model to produce JSON yourself via a system or user message. Without this, the model may generate an unending stream of whitespace until the generation reaches the token limit, resulting in a long-running and seemingly "stuck" request. Also note that the message content may be partially cut off if finish_reason="length", which indicates the generation exceeded max_tokens or the conversation exceeded the max context length.
+    /// An object specifying the format that the model must output.
+    ///
+    /// Setting to `{ "type": "json_schema", "json_schema": {...} }` enables Structured Outputs which ensures the model will match your supplied JSON schema. Learn more in the [Structured Outputs guide](https://platform.openai.com/docs/guides/structured-outputs).
+    /// Setting to `{ "type": "json_object" }` enables the older JSON mode, which ensures the message the model generates is valid JSON. Using `json_schema` is preferred for models that support it.
     public let responseFormat: Self.ResponseFormat?
     /// This feature is in Beta. If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same seed and parameters should return the same result. Determinism is not guaranteed, and you should refer to the system_fingerprint response parameter to monitor changes in the backend.
     public let seed: Int? // BETA
@@ -815,10 +816,13 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
 
     // See more https://platform.openai.com/docs/guides/structured-outputs/introduction
     public enum ResponseFormat: Codable, Equatable, Sendable {
-        
+        /// Default response format. Used to generate text responses.
         case text
+        /// JSON object response format. An older method of generating JSON responses. Using `json_schema` is recommended for models that support it. Note that the model will not generate JSON without a system or user message instructing it to do so.
         case jsonObject
-        case jsonSchema(name: String, type: StructuredOutput.Type)
+        /// JSON Schema response format. Used to generate structured JSON responses. Learn more about [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs).
+        case jsonSchema(StructuredOutputConfigurationOptions)
+        case derivedJsonSchema(name: String, type: any JSONSchemaConvertible.Type)
         case dynamicJsonSchema(DynamicJSONSchema)
         
         enum CodingKeys: String, CodingKey {
@@ -834,9 +838,12 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
                 try container.encode("text", forKey: .type)
             case .jsonObject:
                 try container.encode("json_object", forKey: .type)
-            case .jsonSchema(let name, let type):
+            case .jsonSchema(let options):
                 try container.encode("json_schema", forKey: .type)
-                let schema = JSONSchema(name: name, schema: type.example)
+                try container.encode(options, forKey: .jsonSchema)
+            case .derivedJsonSchema(let name, let type):
+                try container.encode("json_schema", forKey: .type)
+                let schema = DerivedStructuredOutputConfigurationOptions(name: name, schema: type.example)
                 try container.encode(schema, forKey: .jsonSchema)
             case .dynamicJsonSchema(let dynamicJSONSchema):
                 try container.encode("json_schema", forKey: .type)
@@ -848,7 +855,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             switch (lhs, rhs) {
             case (.text, .text): return true
             case (.jsonObject, .jsonObject): return true
-            case (.jsonSchema(let lhsName, let lhsType), .jsonSchema(let rhsName, let rhsType)):
+            case (.derivedJsonSchema(let lhsName, let lhsType), .derivedJsonSchema(let rhsName, let rhsType)):
                 return lhsName == rhsName && lhsType == rhsType
             case (.dynamicJsonSchema(let lhsSchema), .dynamicJsonSchema(let rhsSchema)):
                 return lhsSchema == rhsSchema
@@ -862,12 +869,25 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         public init(from decoder: any Decoder) throws {
             self = .text
         }
+        
+        public struct StructuredOutputConfigurationOptions: Codable, Hashable, Sendable {
+            /// The name of the response format. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
+            let name: String
+            /// A description of what the response format is for, used by the model to determine how to respond in the format.
+            let description: String?
+            /// The schema for the response format, described as a JSON Schema object. Learn how to build JSON schemas [here](https://json-schema.org/).
+            let schema: AnyJSONSchema?
+            /// Whether to enable strict schema adherence when generating the output. If set to true, the model will always follow the exact schema defined in the `schema` field. Only a subset of JSON Schema is supported when `strict` is `true`. To learn more, read the [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) guide.
+            ///
+            /// Defaults to false
+            let strict: Bool?
+        }
     }
     
-    private struct JSONSchema: Encodable {
+    private struct DerivedStructuredOutputConfigurationOptions: Encodable {
         
         let name: String
-        let schema: StructuredOutput
+        let schema: any JSONSchemaConvertible
         
         enum CodingKeys: String, CodingKey {
             case name
@@ -875,7 +895,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             case strict
         }
         
-        init(name: String, schema: StructuredOutput) {
+        init(name: String, schema: any JSONSchemaConvertible) {
             
             func format(_ name: String) -> String {
                 var formattedName = name.replacingOccurrences(of: " ", with: "_")
@@ -1040,7 +1060,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
                         }
                         
                     case .enum:
-                        if let structuredEnum = value as? any StructuredOutputEnum {
+                        if let structuredEnum = value as? any JSONSchemaEnumConvertible {
                             self = .enum(cases: structuredEnum.caseNames, isOptional: isOptional)
                             return
                         } else {
@@ -1176,6 +1196,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
     public struct ChatCompletionToolParam: Codable, Equatable, Sendable {
 
         public let function: Self.FunctionDefinition
+        /// The type of the tool. Currently, only `function` is supported.
         public let type: Self.ToolsType
 
         public init(
@@ -1192,160 +1213,25 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             /// The description of what the function does.
             public let description: String?
 
-            /// The parameters the functions accepts, described as a JSON Schema object.
-            /// https://platform.openai.com/docs/guides/text-generation/function-calling
-            /// https://json-schema.org/understanding-json-schema/
-            /// **Python library defines only [String: Object] dictionary.
-            public let parameters: Self.FunctionParameters?
+            /// The parameters the functions accepts, described as a JSON Schema object. See the [guide](https://platform.openai.com/docs/guides/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
+            ///
+            /// Omitting `parameters` defines a function with an empty parameter list.
+            public let parameters: AnyJSONSchema?
+            /// Whether to enable strict schema adherence when generating the function call. If set to true, the model will follow the exact schema defined in the `parameters` field. Only a subset of JSON Schema is supported when `strict` is `true`. Learn more about Structured Outputs in the [function calling guide](https://platform.openai.com/docs/api-reference/chat/docs/guides/function-calling).
+            ///
+            /// Defaults to false
+            public let strict: Bool?
 
             public init(
                 name: String,
                 description: String? = nil,
-                parameters: Self.FunctionParameters? = nil
+                parameters: AnyJSONSchema? = nil,
+                strict: Bool? = nil
             ) {
                 self.name = name
                 self.description = description
                 self.parameters = parameters
-            }
-
-            /// See the [guide](/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
-            public struct FunctionParameters: Codable, Equatable, Sendable {
-
-                public let type: Self.JSONType
-                public let properties: [String: Property]?
-                public let required: [String]?
-                public let pattern: String?
-                public let const: String?
-                public let `enum`: [String]?
-                public let multipleOf: Int?
-                public let minimum: Int?
-                public let maximum: Int?
-
-                public init(
-                    type: Self.JSONType,
-                    properties: [String : Property]? = nil,
-                    required: [String]? = nil,
-                    pattern: String? = nil,
-                    const: String? = nil,
-                    enum: [String]? = nil,
-                    multipleOf: Int? = nil,
-                    minimum: Int? = nil,
-                    maximum: Int? = nil
-                ) {
-                    self.type = type
-                    self.properties = properties
-                    self.required = required
-                    self.pattern = pattern
-                    self.const = const
-                    self.`enum` = `enum`
-                    self.multipleOf = multipleOf
-                    self.minimum = minimum
-                    self.maximum = maximum
-                }
-
-                public struct Property: Codable, Equatable, Sendable {
-                    public typealias JSONType = ChatQuery.ChatCompletionToolParam.FunctionDefinition.FunctionParameters.JSONType
-
-                    public let type: Self.JSONType
-                    public let description: String?
-                    public let format: String?
-                    public let items: Self.Items?
-                    public let required: [String]?
-                    public let pattern: String?
-                    public let const: String?
-                    public let `enum`: [String]?
-                    public let multipleOf: Int?
-                    public let minimum: Double?
-                    public let maximum: Double?
-                    public let minItems: Int?
-                    public let maxItems: Int?
-                    public let uniqueItems: Bool?
-
-                    public init(
-                        type: Self.JSONType,
-                        description: String? = nil,
-                        format: String? = nil,
-                        items: Self.Items? = nil,
-                        required: [String]? = nil,
-                        pattern: String? = nil,
-                        const: String? = nil,
-                        enum: [String]? = nil,
-                        multipleOf: Int? = nil,
-                        minimum: Double? = nil,
-                        maximum: Double? = nil,
-                        minItems: Int? = nil,
-                        maxItems: Int? = nil,
-                        uniqueItems: Bool? = nil
-                    ) {
-                        self.type = type
-                        self.description = description
-                        self.format = format
-                        self.items = items
-                        self.required = required
-                        self.pattern = pattern
-                        self.const = const
-                        self.`enum` = `enum`
-                        self.multipleOf = multipleOf
-                        self.minimum = minimum
-                        self.maximum = maximum
-                        self.minItems = minItems
-                        self.maxItems = maxItems
-                        self.uniqueItems = uniqueItems
-                    }
-
-                    public struct Items: Codable, Equatable, Sendable {
-                        public typealias JSONType = ChatQuery.ChatCompletionToolParam.FunctionDefinition.FunctionParameters.JSONType
-
-                        public let type: Self.JSONType
-                        public let properties: [String: Property]?
-                        public let pattern: String?
-                        public let const: String?
-                        public let `enum`: [String]?
-                        public let multipleOf: Int?
-                        public let minimum: Double?
-                        public let maximum: Double?
-                        public let minItems: Int?
-                        public let maxItems: Int?
-                        public let uniqueItems: Bool?
-
-                        public init(
-                            type: Self.JSONType,
-                            properties: [String : Property]? = nil,
-                            pattern: String? = nil,
-                            const: String? = nil,
-                            `enum`: [String]? = nil,
-                            multipleOf: Int? = nil,
-                            minimum: Double? = nil,
-                            maximum: Double? = nil,
-                            minItems: Int? = nil,
-                            maxItems: Int? = nil,
-                            uniqueItems: Bool? = nil
-                        ) {
-                            self.type = type
-                            self.properties = properties
-                            self.pattern = pattern
-                            self.const = const
-                            self.`enum` = `enum`
-                            self.multipleOf = multipleOf
-                            self.minimum = minimum
-                            self.maximum = maximum
-                            self.minItems = minItems
-                            self.maxItems = maxItems
-                            self.uniqueItems = uniqueItems
-                        }
-                    }
-                }
-
-
-                public enum JSONType: String, Codable, Sendable {
-                    case integer
-                    case string
-                    case boolean
-                    case array
-                    case object
-                    case number
-                    case null
-                }
+                self.strict = strict
             }
         }
 
@@ -1435,122 +1321,6 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         case streamOptions = "stream_options"
         case audioOptions = "audio"
         case modalities = "modalities"
-    }
-}
-
-/// See the [guide](/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
-public struct JSONSchema: Codable, Hashable, Sendable {
-    public let type: JSONType
-    public let properties: [String: Property]?
-    public let required: [String]?
-    public let pattern: String?
-    public let const: String?
-    public let enumValues: [String]?
-    public let multipleOf: Int?
-    public let minimum: Int?
-    public let maximum: Int?
-
-    private enum CodingKeys: String, CodingKey {
-        case type, properties, required, pattern, const
-        case enumValues = "enum"
-        case multipleOf, minimum, maximum
-    }
-
-    public struct Property: Codable, Hashable, Sendable {
-        public let type: JSONType
-        public let description: String?
-        public let format: String?
-        public let items: Items?
-        public let required: [String]?
-        public let pattern: String?
-        public let const: String?
-        public let enumValues: [String]?
-        public let multipleOf: Int?
-        public let minimum: Double?
-        public let maximum: Double?
-        public let minItems: Int?
-        public let maxItems: Int?
-        public let uniqueItems: Bool?
-
-        private enum CodingKeys: String, CodingKey {
-            case type, description, format, items, required, pattern, const
-            case enumValues = "enum"
-            case multipleOf, minimum, maximum
-            case minItems, maxItems, uniqueItems
-        }
-
-        public init(type: JSONType, description: String? = nil, format: String? = nil, items: Items? = nil, required: [String]? = nil, pattern: String? = nil, const: String? = nil, enumValues: [String]? = nil, multipleOf: Int? = nil, minimum: Double? = nil, maximum: Double? = nil, minItems: Int? = nil, maxItems: Int? = nil, uniqueItems: Bool? = nil) {
-            self.type = type
-            self.description = description
-            self.format = format
-            self.items = items
-            self.required = required
-            self.pattern = pattern
-            self.const = const
-            self.enumValues = enumValues
-            self.multipleOf = multipleOf
-            self.minimum = minimum
-            self.maximum = maximum
-            self.minItems = minItems
-            self.maxItems = maxItems
-            self.uniqueItems = uniqueItems
-        }
-    }
-
-    public enum JSONType: String, Codable, Sendable {
-        case integer = "integer"
-        case string = "string"
-        case boolean = "boolean"
-        case array = "array"
-        case object = "object"
-        case number = "number"
-        case `null` = "null"
-    }
-
-    public struct Items: Codable, Hashable, Sendable {
-        public let type: JSONType
-        public let properties: [String: Property]?
-        public let pattern: String?
-        public let const: String?
-        public let enumValues: [String]?
-        public let multipleOf: Int?
-        public let minimum: Double?
-        public let maximum: Double?
-        public let minItems: Int?
-        public let maxItems: Int?
-        public let uniqueItems: Bool?
-
-        private enum CodingKeys: String, CodingKey {
-            case type, properties, pattern, const
-            case enumValues = "enum"
-            case multipleOf, minimum, maximum, minItems, maxItems, uniqueItems
-        }
-
-        public init(type: JSONType, properties: [String : Property]? = nil, pattern: String? = nil, const: String? = nil, enumValues: [String]? = nil, multipleOf: Int? = nil, minimum: Double? = nil, maximum: Double? = nil, minItems: Int? = nil, maxItems: Int? = nil, uniqueItems: Bool? = nil) {
-            self.type = type
-            self.properties = properties
-            self.pattern = pattern
-            self.const = const
-            self.enumValues = enumValues
-            self.multipleOf = multipleOf
-            self.minimum = minimum
-            self.maximum = maximum
-            self.minItems = minItems
-            self.maxItems = maxItems
-            self.uniqueItems = uniqueItems
-        }
-    }
-
-    public init(type: JSONType, properties: [String : Property]? = nil, required: [String]? = nil, pattern: String? = nil, const: String? = nil, enumValues: [String]? = nil, multipleOf: Int? = nil, minimum: Int? = nil, maximum: Int? = nil) {
-        self.type = type
-        self.properties = properties
-        self.required = required
-        self.pattern = pattern
-        self.const = const
-        self.enumValues = enumValues
-        self.multipleOf = multipleOf
-        self.minimum = minimum
-        self.maximum = maximum
     }
 }
 

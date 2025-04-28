@@ -195,7 +195,7 @@ class OpenAITestsDecoder: XCTestCase {
 
         XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
     }
-
+    
     func testChatQueryWithFunctionCall() async throws {
         let chatQuery = ChatQuery(
             messages: [
@@ -205,18 +205,7 @@ class OpenAITestsDecoder: XCTestCase {
             responseFormat: ChatQuery.ResponseFormat.jsonObject,
             toolChoice: .function("get_current_weather"),
             tools: [
-                .init(function: .init(
-                    name: "get_current_weather",
-                    description: "Get the current weather in a given location",
-                    parameters: .init(
-                        type: .object,
-                        properties: [
-                          "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
-                          "unit": .init(type: .string, enum: ["celsius", "fahrenheit"])
-                        ],
-                        required: ["location"]
-                      )
-                ))
+                .makeWeatherMock()
             ]
         )
         let expectedValue = """
@@ -670,5 +659,75 @@ class OpenAITestsDecoder: XCTestCase {
         """
         
         try encode(threadRunQuery, expectedValue)
+    }
+    
+    func testChatQueryWithStructuredOutputDerivedSchema() throws {        
+        let query = ChatQuery(
+            messages: [.system(.init(content: "Return a structured response."))],
+            model: .gpt4_o,
+            responseFormat: .derivedJsonSchema(name: "movie-info", type: MovieInfo.self)
+        )
+        
+        let data = try JSONEncoder().encode(query)
+        let dict = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        XCTAssertEqual(dict["model"] as! String, "gpt-4o")
+        XCTAssertEqual(dict["stream"] as! Bool, false)
+        
+        let responseFormat = dict["response_format"] as! [String: Any]
+        XCTAssertEqual(responseFormat["type"] as! String, "json_schema")
+        
+        let configOptions = responseFormat["json_schema"] as! [String: Any]
+        XCTAssertEqual(configOptions["name"] as! String, "movie-info")
+        XCTAssertEqual(configOptions.keys.contains(where: { $0 == "description" }), false)
+        XCTAssertEqual(configOptions["strict"] as! Bool, true)
+        
+        let jsonSchema = configOptions["schema"] as! [String: Any]
+        XCTAssertEqual(jsonSchema["type"] as! String, "object")
+        let properties = jsonSchema["properties"] as! [String: [String: Any]]
+        let titleSchema = properties["title"]!
+        XCTAssertEqual(titleSchema.count, 1)
+        XCTAssertEqual(titleSchema["type"] as! String, "string")
+    }
+    
+    func testChatQueryWithStructuredOutputJsonSchema() throws {
+        let query = ChatQuery(
+            messages: [.system(.init(content: "Return a structured response."))],
+            model: .gpt4_o,
+            responseFormat: .jsonSchema(
+                .init(
+                    name: "movie-info",
+                    description: "dezg",
+                    schema: .init(fields: [
+                        .type(.object),
+                        .properties([
+                            "title": .init(fields: [
+                                .type(.string)
+                            ])
+                        ])
+                    ]),
+                    strict: false
+                )
+            )
+        )
+        
+        let data = try JSONEncoder().encode(query)
+        let dict = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        XCTAssertEqual(dict["model"] as! String, "gpt-4o")
+        XCTAssertEqual(dict["stream"] as! Bool, false)
+        
+        let responseFormat = dict["response_format"] as! [String: Any]
+        XCTAssertEqual(responseFormat["type"] as! String, "json_schema")
+        
+        let configOptions = try XCTUnwrap(responseFormat["json_schema"] as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(configOptions["name"] as? String), "movie-info")
+        XCTAssertEqual(try XCTUnwrap(configOptions["description"] as? String), "dezg")
+        XCTAssertEqual(try XCTUnwrap(configOptions["strict"] as? Bool), false)
+        
+        let jsonSchema = configOptions["schema"] as! [String: Any]
+        XCTAssertEqual(try XCTUnwrap(jsonSchema["type"] as? String), "object")
+        let properties = try XCTUnwrap(jsonSchema["properties"] as? [String: [String: Any]])
+        let titleSchema = try XCTUnwrap(properties["title"])
+        XCTAssertEqual(titleSchema.count, 1)
+        XCTAssertEqual(try XCTUnwrap(titleSchema["type"] as? String), "string")
     }
 }

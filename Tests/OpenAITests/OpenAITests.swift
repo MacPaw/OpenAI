@@ -95,34 +95,10 @@ class OpenAITests: XCTestCase {
         )
         try self.stub(result: chatResult)
         
-        enum MovieGenre: String, Codable, StructuredOutputEnum {
-            case action, drama, comedy, scifi
-            var caseNames: [String] { Self.allCases.map { $0.rawValue } }
-        }
-        
-        struct MovieInfo: StructuredOutput {
-            
-            let title: String
-            let director: String
-            let release: Date
-            let genres: [MovieGenre]
-            let cast: [String]
-            
-            static let example: Self = {
-                .init(
-                    title: "Earth",
-                    director: "Alexander Dovzhenko",
-                    release: Calendar.current.date(from: DateComponents(year: 1930, month: 4, day: 1))!,
-                    genres: [.drama],
-                    cast: ["Stepan Shkurat", "Semyon Svashenko", "Yuliya Solntseva"]
-                )
-            }()
-        }
-        
         let query = ChatQuery(
             messages: [.system(.init(content: "Return a structured response."))],
             model: .gpt4_o,
-            responseFormat: .jsonSchema(name: "movie-info", type: MovieInfo.self)
+            responseFormat: .derivedJsonSchema(name: "movie-info", type: MovieInfo.self)
         )
         
         let result = try await openAI.chats(query: query)
@@ -195,15 +171,17 @@ class OpenAITests: XCTestCase {
     }
 
     func testChatsFunction() async throws {
-        let query = ChatQuery(messages: [
-            .system(.init(content: "You are Weather-GPT. You know everything about the weather.")),
-            .user(.init(content: .string("What's the weather like in Boston?"))),
-        ], model: .gpt3_5Turbo, toolChoice: .auto, tools: [
-            .init(function: .init(name: "get_current_weather", description: "Get the current weather in a given location", parameters: .init(type: .object, properties: [
-                "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
-                "unit": .init(type: .string, enum: ["celsius", "fahrenheit"])
-            ], required: ["location"])))
-        ])
+        let query = ChatQuery(
+            messages: [
+                .system(.init(content: "You are Weather-GPT. You know everything about the weather.")),
+                .user(.init(content: .string("What's the weather like in Boston?"))),
+            ],
+            model: .gpt3_5Turbo,
+            toolChoice: .auto,
+            tools: [
+                .makeWeatherMock()
+            ]
+        )
 
         let chatResult = makeChatResult()
         try self.stub(result: chatResult)
