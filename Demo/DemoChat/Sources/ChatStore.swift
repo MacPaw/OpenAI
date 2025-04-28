@@ -161,13 +161,16 @@ public final class ChatStore: ObservableObject {
             let weatherFunction = ChatQuery.ChatCompletionToolParam(function: .init(
                 name: "getWeatherData",
                 description: "Get the current weather in a given location",
-                parameters: .init(
-                    type: .object,
-                    properties: [
-                        "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA")
-                    ],
-                    required: ["location"]
-                )
+                parameters: .init(fields: [
+                    .type(.object),
+                    .properties([
+                        "location": .init(fields: [
+                            .type(.string),
+                            .description("The city and state, e.g. San Francisco, CA")
+                        ])
+                    ]),
+                    .required(["location"])
+                ])
             ))
 
             let functions = [weatherFunction]
@@ -251,9 +254,16 @@ public final class ChatStore: ObservableObject {
                 if let existingMessageIndex = existingMessages.firstIndex(where: { $0.id == partialChatResult.id }) {
                     // Meld into previous message
                     let previousMessage = existingMessages[existingMessageIndex]
+                    
+                    let role = if let new = choice.delta.role {
+                        new
+                    } else {
+                        previousMessage.role
+                    }
+                    
                     let combinedMessage = Message(
                         id: message.id, // id stays the same for different deltas
-                        role: message.role,
+                        role: role,
                         content: previousMessage.content + message.content,
                         createdAt: message.createdAt
                     )

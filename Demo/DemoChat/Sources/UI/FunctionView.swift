@@ -35,12 +35,14 @@ struct FunctionView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        let parameters = validateParameters()
+                        guard let parameters = validateParameters() else {
+                            return
+                        }
                         guard !isShowingAlert else {
                             return
                         }
                         
-                        function = FunctionDeclaration(name: name, description: description, parameters: parameters)
+                        function = FunctionDeclaration(name: name, description: description, parameters: .init(schema: parameters))
                         dismiss()
                     }
                 }
@@ -51,13 +53,13 @@ struct FunctionView: View {
         }
     }
     
-    private func validateParameters() -> JSONSchema? {
+    private func validateParameters() -> (any JSONSchema)? {
         guard !parameters.isEmpty, let parametersData = parameters.data(using: .utf8) else {
             return nil
         }
 
         do {
-            let parametersJSON = try JSONDecoder().decode(JSONSchema.self, from: parametersData)
+            let parametersJSON = try JSONDecoder().decode([String: AnyJSONDocument].self, from: parametersData)
             return parametersJSON
         } catch {
             alertMessage = error.localizedDescription

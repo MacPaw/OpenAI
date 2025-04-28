@@ -104,6 +104,12 @@ See `OpenAI.Configuration` for more values that can be passed on init for custom
 
 Once you posses the token, and the instance is initialized you are ready to make requests.
 
+#### Using the SDK for other providers except OpenAI
+
+This SDK is more focused on working with OpenAI Platform, but also works with other providers that support OpenAI-compatible API.
+
+Use `.relaxed` parsing option on Configuration, or see more details on the topic [here](#support-for-other-providers)
+
 ### Chats
 
 Using the OpenAI Chat API, you can build your own applications with `gpt-3.5-turbo` to do things like:
@@ -244,20 +250,25 @@ for try await result in openAI.chatsStream(query: query) {
 **Function calls**
 ```swift
 let openAI = OpenAI(apiToken: "...")
-// Declare functions which GPT-3 might decide to call.
+// Declare functions which model might decide to call.
 let functions = [
   FunctionDeclaration(
       name: "get_current_weather",
       description: "Get the current weather in a given location",
-      parameters:
-        JSONSchema(
-          type: .object,
-          properties: [
-            "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
-            "unit": .init(type: .string, enumValues: ["celsius", "fahrenheit"])
-          ],
-          required: ["location"]
-        )
+      parameters: .init(fields: [
+        .type(.object),
+        .properties([
+          "location": .init(fields: [
+            .type(.string),
+            .description("The city and state, e.g. San Francisco, CA")
+          ]),
+          "unit": .init(fields: [
+            .type(.string),
+            .enumValues(["celsius", "fahrenheit"])
+          ])
+        ]),
+        .required(["location"])
+      ])
   )
 ]
 let query = ChatQuery(
@@ -312,7 +323,7 @@ Structured Outputs is a feature that ensures the model will always generate resp
 **Example**
 
 ```swift
-struct MovieInfo: StructuredOutput {
+struct MovieInfo: JSONSchemaConvertible {
     
     let title: String
     let director: String
@@ -331,7 +342,7 @@ struct MovieInfo: StructuredOutput {
     }()
 }
 
-enum MovieGenre: String, Codable, StructuredOutputEnum {
+enum MovieGenre: String, Codable, JSONSchemaEnumConvertible {
     case action, drama, comedy, scifi
     
     var caseNames: [String] { Self.allCases.map { $0.rawValue } }
@@ -340,14 +351,14 @@ enum MovieGenre: String, Codable, StructuredOutputEnum {
 let query = ChatQuery(
     messages: [.system(.init(content: "Best Picture winner at the 2011 Oscars"))],
     model: .gpt4_o,
-    responseFormat: .jsonSchema(name: "movie-info", type: MovieInfo.self)
+    responseFormat: .derivedJsonSchema(name: "movie-info", type: MovieInfo.self)
 )
 let result = try await openAI.chats(query: query)
 ```
 
-- Use the `jsonSchema(name:type:)` response format when creating a `ChatQuery`
-- Provide a schema name and a type that conforms to `ChatQuery.StructuredOutput` and generates an instance as an example
-- Make sure all enum types within the provided type conform to `ChatQuery.StructuredOutputEnum` and generate an array of names for all cases
+- Use the `derivedJsonSchema(name:type:)` response format when creating a `ChatQuery`
+- Provide a schema name and a type that conforms to `JSONSchemaConvertible` and generates an instance as an example
+- Make sure all enum types within the provided type conform to `ChatQuery.JSONSchemaEnumConvertible` and generate an array of names for all cases
 
 
 Review [Structured Output Documentation](https://platform.openai.com/docs/guides/structured-outputs) for more info.
@@ -1143,13 +1154,20 @@ subscription.cancel()
 ```
 
 ## Support for other providers
+
+> TL;DR Use `.relaxed` parsing option on Configuration
+
 This SDK has a limited support for other providers like Gemini, Perplexity etc.
 
 The top priority of this SDK is OpenAI, and the main rule is for all the main types to be fully compatible with [OpenAI's API Reference](https://platform.openai.com/docs/api-reference/introduction). If it says a field should be optional, it must be optional in main subset of Query/Result types of this SDK. The same goes for other info declared in the reference, like default values.
 
 That said we still want to give a support for other providers.
 
-### Handling missing keys in responses with Parsing Options
+### Option 1: Use `.relaxed` parsing option
+`.relaxed` parsing option handles both missing and additional key/values in responses. It should be sufficient for most use-cases. Let us know if it doesn't cover any case you need.
+
+### Option 2: Specify parsing options separately
+#### Handle missing keys in responses
 Some providers return responses that don't completely satisfy OpenAI's scheme. Like, Gemini chat completion response ommits `id` field which is a required field in OpenAI's API Reference.
 
 In such case use `fillRequiredFieldIfKeyNotFound` Parsing Option, like this:
@@ -1157,9 +1175,13 @@ In such case use `fillRequiredFieldIfKeyNotFound` Parsing Option, like this:
 let configuration = OpenAI.Configuration(token: "", parsingOptions: .fillRequiredFieldIfKeyNotFound)
 ```
 
+#### Handle missing values in responses
+Some fields are required to be present (non-optional) by OpenAI, but other providers may return `null` for them.
 
-### What if a provider returns additional fields?
-Currently we handle such cases by simply adding additional fields to main model set. This is possible because optional fields wouldn't break or conflict with OpenAI's scheme. At the moment, such additional fields are added.
+Use `.fillRequiredFieldIfValueNotFound` to handle missing values
+
+#### What if a provider returns additional fields?
+Currently we handle such cases by simply adding additional fields to main model set. This is possible because optional fields wouldn't break or conflict with OpenAI's scheme. At the moment, such additional fields are added:
 
 `ChatResult`
 
@@ -1169,7 +1191,6 @@ Currently we handle such cases by simply adding additional fields to main model 
 
 * `reasoningContent` [Grok](https://docs.x.ai/docs/api-reference#chat-completions), [DeepSeek](https://api-docs.deepseek.com/api/create-chat-completion#responses)
 * `reasoning` [OpenRouter](https://openrouter.ai/docs/use-cases/reasoning-tokens#basic-usage-with-reasoning-tokens)
-
 
 ## Example Project
 

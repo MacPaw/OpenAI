@@ -1,5 +1,5 @@
 //
-//  StructuredOutputEnum.swift
+//  JSONSchemaEnumConvertible.swift
 //
 //
 //  Created by Andriy Gordiyenko on 8/29/24.
@@ -7,6 +7,6 @@
 
 import Foundation
 
-public protocol StructuredOutputEnum: CaseIterable {
+public protocol JSONSchemaEnumConvertible: CaseIterable {
     var caseNames: [String] { get }
 }
