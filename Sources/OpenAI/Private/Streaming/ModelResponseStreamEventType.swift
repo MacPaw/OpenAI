@@ -27,8 +27,8 @@ enum ModelResponseStreamEventType: String {
     case responseRefusalDelta = "response.refusal.delta"
     case responseRefusalDone = "response.refusal.done"
     
-    case responseFunctionCallArgumentsDelta = "response.function_call.arguments.delta"
-    case responseFunctionCallArgumentsDone = "response.function_call.arguments.done"
+    case responseFunctionCallArgumentsDelta = "response.function_call_arguments.delta"
+    case responseFunctionCallArgumentsDone = "response.function_call_arguments.done"
     
     case responseFileSearchCallInProgress = "response.file_search_call.in_progress"
     case responseFileSearchCallSearching = "response.file_search_call.searching"
