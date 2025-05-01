@@ -20,8 +20,17 @@ public struct ResponsesChatDetailView: View {
         
         elements.append("stream: \(settingsStore.stream ? "true" : "false")")
         
+        var tools: [String] = []
         if settingsStore.webSearchEnabled {
-            elements.append("tools: Web Search")
+            tools.append("Web Search")
+        }
+        
+        if settingsStore.functionCallingEnabled {
+            tools.append("Functions")
+        }
+        
+        if !tools.isEmpty {
+            elements.append("tools: \(tools.joined(separator: ", "))")
         }
         
         return elements.joined(separator: ", ")
@@ -82,7 +91,8 @@ public struct ResponsesChatDetailView: View {
                             message: draftMessage,
                             model: settingsStore.selectedModel,
                             stream: settingsStore.stream,
-                            webSearchEnabled: settingsStore.webSearchEnabled
+                            webSearchEnabled: settingsStore.webSearchEnabled,
+                            functionCallingEnabled: settingsStore.functionCallingEnabled
                         )
                     } catch {
                         errorTitle = error.localizedDescription

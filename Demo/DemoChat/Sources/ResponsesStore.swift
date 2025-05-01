@@ -91,7 +91,7 @@ public final class ResponsesStore: ObservableObject {
         self.client = client
     }
     
-    public func send(message: ExyteChat.DraftMessage, model: Model, stream: Bool, webSearchEnabled: Bool) async throws {
+    public func send(message: ExyteChat.DraftMessage, model: Model, stream: Bool, webSearchEnabled: Bool, functionCallingEnabled: Bool) async throws {
         guard !inProgress else {
             return
         }
@@ -153,12 +153,47 @@ public final class ResponsesStore: ObservableObject {
         }
         
         let previousResponseId = responses.last(where: { $0.type == .response })?.id
+        
+        var tools: [Tool] = []
+        
+        if webSearchEnabled {
+            tools.append(.webSearchTool(.init(_type: .webSearchPreview)))
+        }
+        
+        if functionCallingEnabled {
+            tools.append(
+                .functionTool(
+                    .init(
+                        name: "get_current_weather",
+                        description: "Get the current weather in a given location",
+                        parameters: .init(fields: [
+                            .type(.object),
+                            .properties([
+                                "location": .init(fields: [
+                                    .type(.string),
+                                    .description("The city and state, e.g. San Francisco, CA")
+                                ]),
+                                "unit": .init(fields: [
+                                    .type(.string),
+                                    .enumValues(["celsius", "fahrenheit"])
+                                ])
+                            ]),
+                            .required(["location", "unit"])
+                        ]),
+                        // strict: true gave me 400 Bad Request, not sure why
+                        strict: false
+                    )
+                )
+            )
+        }
+        
         let query = CreateModelResponseQuery(
             input: input,
             model: model,
             previousResponseId: previousResponseId,
             stream: stream,
-            tools: webSearchEnabled ? [.webSearchTool(.init(_type: .webSearchPreview))] : []
+            toolChoice: .ToolChoiceOptions(.auto),
+            tools: tools
         )
         
         if stream {
@@ -223,6 +258,8 @@ public final class ResponsesStore: ObservableObject {
             case .completed(_ /* let completedEvent */):
                 webSearchInProgress = false
             }
+        case .functionCallArguments(_ /* let functionCallArgumentsEvent */):
+            break
         case .contentPart(.added(let contentPartAddedEvent)):
             try updateMessageBeingStreamed(
                 messageId: contentPartAddedEvent.itemId,
@@ -262,6 +299,8 @@ public final class ResponsesStore: ObservableObject {
                 ))
             case .webSearchToolCall(_ /* let webSearchToolCall */):
                 webSearchInProgress = true
+            case .functionToolCall(_ /* let functionToolCall */):
+                break
             default:
                 throw StoreError.unhandledOutputItem(outputItem)
             }
@@ -281,6 +320,8 @@ public final class ResponsesStore: ObservableObject {
                 messageBeingStreamed = nil
             case .webSearchToolCall(_ /* let webSearchToolCall */):
                 webSearchInProgress = false
+            case .functionToolCall(let functionToolCall):
+                parseArgumentsAndCallFunction(arguments: functionToolCall.arguments)
             default:
                 throw StoreError.unhandledOutputItem(outputItem)
             }
@@ -421,6 +462,38 @@ public final class ResponsesStore: ObservableObject {
         replaceLastConversationTurn(
             with: conversationTurn(withResponseData: responseBeingStreamed, messageData: messageBeingStreamed)
         )
+    }
+    
+    private func parseArgumentsAndCallFunction(arguments: String) {
+        guard let data = arguments.data(using: .utf8) else {
+            print("outputItem functionToolCall - done, error: can't create data from arguments string: \(arguments)")
+            return
+        }
+        
+        do {
+            guard let dictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
+                print("outputItem functionToolCall - done, error, can't create jsonObject from data: \(data)")
+                return
+            }
+            
+            guard let location = dictionary["location"] as? String else {
+                print("outputItem functionToolCall - done, error: location argument (string) not found in dictionary: \(dictionary)")
+                return
+            }
+            
+            guard let unit = dictionary["unit"] as? String else {
+                print("outputItem functionToolCall - done, error: unit argument (string) not found in dictionary: \(dictionary)")
+                return
+            }
+            
+            getCurrentWeather(location: location, unit: unit)
+        } catch {
+            print("outputItem functionToolCall - done, error parsing JSON: \(error)")
+        }
+    }
+    
+    private func getCurrentWeather(location: String, unit: String) {
+        print("getCurrentWeather function called, location: \(location), unit: \(unit)")
     }
     
     private func conversationTurn(

@@ -26,6 +26,7 @@ struct ResponsesChatSettingsView: View {
             Section(header: Text("Options")) {
                 Toggle("Stream", isOn: $store.stream)
                 Toggle("Web Search", isOn: $store.webSearchEnabled)
+                Toggle("Function Calling", isOn: $store.functionCallingEnabled)
             }
         }
         .navigationTitle("Settings")

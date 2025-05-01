@@ -12,6 +12,7 @@ class ResponsesSettingsStore: ObservableObject {
     @Published public var selectedModel: Model = .gpt4_o
     @Published public var stream = true
     @Published public var webSearchEnabled = true
+    @Published public var functionCallingEnabled = false
     
     public let models = Model.allModels(satisfying: .init(supportedEndpoints: [.responses]))
 }

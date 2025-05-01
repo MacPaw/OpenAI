@@ -22,13 +22,13 @@ public struct FunctionTool: Codable, Hashable, Sendable {
     /// Creates a new `FunctionTool`.
     ///
     /// - Parameters:
-    ///   - _type: The type of the function tool. Always `function`.
+    ///   - type: The type of the function tool. Always `function`.
     ///   - name: The name of the function to call.
     ///   - description: A description of the function. Used by the model to determine whether
     ///   - parameters: A JSON schema object describing the parameters of the function.
     ///   - strict: Whether to enforce strict parameter validation. Default `true`.
     public init(
-        type: String,
+        type: String = "function",
         name: String,
         description: String? = nil,
         parameters: AnyJSONSchema,
