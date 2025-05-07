@@ -320,6 +320,34 @@ class OpenAITestsDecoder: XCTestCase {
         try decode(data, expectedValue)
     }
     
+    func testChatQueryWithReasoningEffort() throws {
+        let chatQuery = ChatQuery(
+            messages: [
+                .init(role: .user, content: "Who are you?")!
+            ],
+            model: .gpt4,
+            reasoningEffort: .low
+        )
+        let expectedValue = """
+            {
+                "model": "gpt-4",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "Who are you?"
+                    }
+                ],
+                "reasoning_effort": "low",
+                "stream": false
+            }
+            """
+        
+        let chatQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(chatQuery))
+        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
+        
+        XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
+    }
+    
     func testEmbeddings() async throws {
         let data = """
         {
