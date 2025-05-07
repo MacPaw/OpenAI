@@ -16,8 +16,9 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
     /// ID of the model to use. See the model endpoint compatibility table for details on which models work with the Chat API.
     /// https://platform.openai.com/docs/models/model-endpoint-compatibility
     public let model: Model
-    /// Constrains effort on reasoning for reasoning models. Currently supported values are low, medium, and high. Reducing reasoning effort can result in faster responses and fewer tokens used on reasoning in a response.
-    /// Applies only to reasoning models (o1, o3-mini, etc)
+    /// Constrains effort on reasoning for [reasoning models](https://platform.openai.com/docs/guides/reasoning). Currently supported values are low, medium, and high. Reducing reasoning effort can result in faster responses and fewer tokens used on reasoning in a response.
+    ///
+    /// - Note: o-series models only
     public let reasoningEffort: ReasoningEffort?
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
     /// Defaults to 0
@@ -808,10 +809,44 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         }
     }
     
-    public enum ReasoningEffort: String, Codable, Equatable, Sendable {
+    public enum ReasoningEffort: Codable, Equatable, Sendable {
         case low
         case medium
         case high
+        
+        /// Intended for use with other providers except OpenAI
+        /// For example, Gemini Flash 2.5 has "reasoning-disabled" mode. A developer would use `ReasoningEffort.customValue("reasoning-disable")` to specify the mode.
+        /// See https://github.com/MacPaw/OpenAI/issues/327 for more details about the case
+        case customValue(String)
+        
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.singleValueContainer()
+            switch self {
+            case .low:
+                try container.encode("low")
+            case .medium:
+                try container.encode("medium")
+            case .high:
+                try container.encode("high")
+            case .customValue(let value):
+                try container.encode(value)
+            }
+        }
+        
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            let rawValue = try container.decode(String.self)
+            switch rawValue {
+            case "low":
+                self = .low
+            case "medium":
+                self = .medium
+            case "high":
+                self = .high
+            default:
+                self = .customValue(rawValue)
+            }
+        }
     }
 
     // See more https://platform.openai.com/docs/guides/structured-outputs/introduction
