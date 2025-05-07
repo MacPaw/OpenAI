@@ -8,7 +8,7 @@
 import Foundation
 
 public final class ResponsesEndpoint: ResponsesEndpointProtocol, Sendable {
-    enum CreateResponseError: Error {
+    enum CreateResponseError: DescribedError {
         case invalidQueryExpectedStreamTrue
     }
     

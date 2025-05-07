@@ -11,15 +11,22 @@ import OpenAI
 
 @MainActor
 public final class ResponsesStore: ObservableObject {
-    public struct ConversationTurn: Identifiable, Hashable, Sendable {
+    struct ConversationTurn: Identifiable, Hashable, Sendable {
         public enum TurnType: Sendable {
             case userInput
             case response
         }
         
-        public let id: String
-        public let type: TurnType
-        public let chatMessage: ExyteChat.Message
+        let id: String
+        let type: TurnType
+        let chatMessage: ExyteChat.Message
+    }
+    
+    struct WeatherFunctionCall: Identifiable {
+        let id = UUID()
+        let functionName: String
+        let location: String
+        let unit: String
     }
     
     public enum StoreError: DescribedError {
@@ -32,16 +39,20 @@ public final class ResponsesStore: ObservableObject {
         case incompleteLocalTextOnOutputTextDoneEvent(local: String, remote: String)
         case noInputImageData(Sendable)
         case couldNotResizeInputImage
+        case unknownFunctionCalled(name: String)
+        case noFunctionToolCallToReply
     }
     
     private class ResponseData {
         let id: String
         
         var message: MessageData?
+        var functionCall: WeatherFunctionCall?
         
-        init(id: String, message: MessageData? = nil) {
+        init(id: String, message: MessageData? = nil, functionCall: WeatherFunctionCall? = nil) {
             self.id = id
             self.message = message
+            self.functionCall = functionCall
         }
     }
     
@@ -61,12 +72,34 @@ public final class ResponsesStore: ObservableObject {
         }
     }
     
+    private let weatherFunctionTool = FunctionTool(
+        name: "get_current_weather",
+        description: "Get the current weather in a given location",
+        parameters: .init(fields: [
+            .type(.object),
+            .properties([
+                "location": .init(fields: [
+                    .type(.string),
+                    .description("The city and state, e.g. San Francisco, CA")
+                ]),
+                "unit": .init(fields: [
+                    .type(.string),
+                    .enumValues(["celsius", "fahrenheit"])
+                ])
+            ]),
+            .required(["location", "unit"]),
+            .additionalProperties(false)
+        ]),
+        // all fields must be required and additionalProperties set to false, see property's documentation comment on more details
+        strict: true
+    )
+    
     private var responseBeingStreamed: ResponseData?
     private var currentUpdateTask: Task<Void, Never>?
     private var conversationTurnForNextUpdateTask: ConversationTurn?
-    private var responses: [ConversationTurn] = [] {
+    private var conversationTurns: [ConversationTurn] = [] {
         didSet {
-            chatMessages = responses.map(\.chatMessage)
+            chatMessages = conversationTurns.map(\.chatMessage)
         }
     }
     
@@ -81,11 +114,32 @@ public final class ResponsesStore: ObservableObject {
         }
     }
     
+    private var lastFinishedFunctionToolCall: OutputItem.Schemas.FunctionToolCall? {
+        didSet {
+            guard let call = lastFinishedFunctionToolCall else {
+                functionCall = nil
+                return
+            }
+            
+            let parsedArguments = parseWeatherFunctionCall(functionName: call.name, arguments: call.arguments)
+            functionCall = parsedArguments
+        }
+    }
+    
     public var client: ResponsesEndpointProtocol
     
-    @Published var chatMessages: [ExyteChat.Message] = []
-    @Published var inProgress = false
+    @Published private(set) var chatMessages: [ExyteChat.Message] = []
+    @Published private(set) var inProgress = false
     @Published var webSearchInProgress = false
+    @Published private(set) var functionCall: WeatherFunctionCall? = nil {
+        didSet {
+            if functionCall != nil {
+                onFunctionCalled?()
+            }
+        }
+    }
+    
+    var onFunctionCalled: (() -> Void)?
     
     public init(client: ResponsesEndpointProtocol) {
         self.client = client
@@ -103,7 +157,8 @@ public final class ResponsesStore: ObservableObject {
         
         let messageId = UUID().uuidString
         let currentUserId = UUID().uuidString
-        await responses.append(.init(
+        
+        await conversationTurns.append(.init(
             id: messageId,
             type: .userInput,
             chatMessage: .makeMessage(
@@ -152,7 +207,44 @@ public final class ResponsesStore: ObservableObject {
             input = .textInput(message.text)
         }
         
-        let previousResponseId = responses.last(where: { $0.type == .response })?.id
+        try await createResponse(
+            input: input,
+            model: model,
+            stream: stream,
+            webSearchEnabled: webSearchEnabled,
+            functionCallingEnabled: functionCallingEnabled
+        )
+    }
+    
+    func replyFunctionCall(result: String, model: Model, stream: Bool, webSearchEnabled: Bool, functionCallingEnabled: Bool) async throws {
+        guard let toolCall = lastFinishedFunctionToolCall else {
+            throw StoreError.noFunctionToolCallToReply
+        }
+        
+        try await createResponse(
+            input: .inputItemList([
+                .item(.functionToolCall(toolCall)),
+                .item(.functionToolCallOutput(.init(
+                    _type: .functionCallOutput,
+                    callId: toolCall.callId,
+                    output: result
+                )))
+            ]),
+            model: model,
+            stream: stream,
+            webSearchEnabled: webSearchEnabled,
+            functionCallingEnabled: functionCallingEnabled
+        )
+        
+        lastFinishedFunctionToolCall = nil
+    }
+    
+    func cancelFunctionCall() {
+        lastFinishedFunctionToolCall = nil
+    }
+    
+    private func createResponse(input: CreateModelResponseQuery.Input, model: Model, stream: Bool, webSearchEnabled: Bool, functionCallingEnabled: Bool) async throws {
+        let previousResponseId = conversationTurns.last(where: { $0.type == .response })?.id
         
         var tools: [Tool] = []
         
@@ -162,28 +254,7 @@ public final class ResponsesStore: ObservableObject {
         
         if functionCallingEnabled {
             tools.append(
-                .functionTool(
-                    .init(
-                        name: "get_current_weather",
-                        description: "Get the current weather in a given location",
-                        parameters: .init(fields: [
-                            .type(.object),
-                            .properties([
-                                "location": .init(fields: [
-                                    .type(.string),
-                                    .description("The city and state, e.g. San Francisco, CA")
-                                ]),
-                                "unit": .init(fields: [
-                                    .type(.string),
-                                    .enumValues(["celsius", "fahrenheit"])
-                                ])
-                            ]),
-                            .required(["location", "unit"])
-                        ]),
-                        // strict: true gave me 400 Bad Request, not sure why
-                        strict: false
-                    )
-                )
+                .functionTool(weatherFunctionTool)
             )
         }
         
@@ -192,7 +263,6 @@ public final class ResponsesStore: ObservableObject {
             model: model,
             previousResponseId: previousResponseId,
             stream: stream,
-            toolChoice: .ToolChoiceOptions(.auto),
             tools: tools
         )
         
@@ -215,7 +285,7 @@ public final class ResponsesStore: ObservableObject {
                     username: outputMessage.role.rawValue
                 )
                 
-                responses.append(
+                conversationTurns.append(
                     .init(
                         id: response.id,
                         type: .response,
@@ -233,6 +303,9 @@ public final class ResponsesStore: ObservableObject {
         
         var eventNumber = 1
         for try await event in stream {
+//            print("---event number: \(eventNumber)---")
+//            print(event)
+//            print("\n\n")
             try handleResponseStreamEvent(event)
             eventNumber += 1
         }
@@ -284,47 +357,55 @@ public final class ResponsesStore: ObservableObject {
     private func handleOutputItemEvent(_ event: ResponseStreamEvent.OutputItemEvent) throws {
         switch event {
         case .added(let outputItemAddedEvent):
-            let outputItem = outputItemAddedEvent.item
-            
-            switch outputItem {
-            case .outputMessage(let outputMessage):
-                // Message, role: assistant
-                let role = outputMessage.role.rawValue
-                // outputMessage.content is empty, but we can add empty message just to show a progress
-                try setMessageBeingStreamed(message: .init(
-                    id: outputMessage.id,
-                    user: systemUser(withId: role, username: role),
-                    text: "",
-                    annotations: []
-                ))
-            case .webSearchToolCall(_ /* let webSearchToolCall */):
-                webSearchInProgress = true
-            case .functionToolCall(_ /* let functionToolCall */):
-                break
-            default:
-                throw StoreError.unhandledOutputItem(outputItem)
-            }
+            try handleOutputItemAdded(outputItemAddedEvent.item)
         case .done(let outputItemDoneEvent):
-            let outputItem: OutputItem = outputItemDoneEvent.item
-            
-            switch outputItem {
-            case .outputMessage(let outputMessage):
-                // Message. Role: assistant
-                assert(outputMessage.id == messageBeingStreamed?.id)
-                for content in outputMessage.content {
-                    try updateMessageBeingStreamed(
-                        messageId: outputMessage.id,
-                        outputContent: content
-                    )
-                }
-                messageBeingStreamed = nil
-            case .webSearchToolCall(_ /* let webSearchToolCall */):
-                webSearchInProgress = false
-            case .functionToolCall(let functionToolCall):
-                parseArgumentsAndCallFunction(arguments: functionToolCall.arguments)
-            default:
-                throw StoreError.unhandledOutputItem(outputItem)
+            try handleOutputItemDone(outputItemDoneEvent.item)
+        }
+    }
+    
+    private func handleOutputItemAdded(_ outputItem: OutputItem) throws {
+        switch outputItem {
+        case .outputMessage(let outputMessage):
+            // Message, role: assistant
+            let role = outputMessage.role.rawValue
+            // outputMessage.content is empty, but we can add empty message just to show a progress
+            try setMessageBeingStreamed(message: .init(
+                id: outputMessage.id,
+                user: systemUser(withId: role, username: role),
+                text: "",
+                annotations: []
+            ))
+        case .webSearchToolCall(_ /* let webSearchToolCall */):
+            webSearchInProgress = true
+        case .functionToolCall(_ /* let functionToolCall */):
+            break
+        default:
+            throw StoreError.unhandledOutputItem(outputItem)
+        }
+    }
+    
+    private func handleOutputItemDone(_ outputItem: OutputItem) throws {
+        switch outputItem {
+        case .outputMessage(let outputMessage):
+            // Message. Role: assistant
+            assert(outputMessage.id == messageBeingStreamed?.id)
+            for content in outputMessage.content {
+                try updateMessageBeingStreamed(
+                    messageId: outputMessage.id,
+                    outputContent: content
+                )
             }
+            messageBeingStreamed = nil
+        case .webSearchToolCall(_ /* let webSearchToolCall */):
+            webSearchInProgress = false
+        case .functionToolCall(let functionToolCall):
+            guard functionToolCall.name == weatherFunctionTool.name else {
+                throw StoreError.unknownFunctionCalled(name: functionToolCall.name)
+            }
+            
+            lastFinishedFunctionToolCall = functionToolCall
+        default:
+            throw StoreError.unhandledOutputItem(outputItem)
         }
     }
     
@@ -355,12 +436,13 @@ public final class ResponsesStore: ObservableObject {
             fatalError()
         }
         
+        
         if let messageBeingStreamed, message.id == messageBeingStreamed.id {
-            responses.removeLast()
+            conversationTurns.removeLast()
         }
         
         messageBeingStreamed = message
-        responses.append(
+        conversationTurns.append(
             .init(
                 id: responseBeingStreamed.id,
                 type: .response,
@@ -420,10 +502,10 @@ public final class ResponsesStore: ObservableObject {
                 return
             }
             
-            var messages = self.responses
-            messages.removeLast()
-            messages.append(updatedTurn)
-            self.responses = messages
+            var turns = self.conversationTurns
+            turns.removeLast()
+            turns.append(updatedTurn)
+            self.conversationTurns = turns
             self.currentUpdateTask = nil
             
             if let pendingItem = conversationTurnForNextUpdateTask {
@@ -464,36 +546,33 @@ public final class ResponsesStore: ObservableObject {
         )
     }
     
-    private func parseArgumentsAndCallFunction(arguments: String) {
+    private func parseWeatherFunctionCall(functionName: String, arguments: String) -> WeatherFunctionCall? {
         guard let data = arguments.data(using: .utf8) else {
             print("outputItem functionToolCall - done, error: can't create data from arguments string: \(arguments)")
-            return
+            return nil
         }
         
         do {
             guard let dictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
                 print("outputItem functionToolCall - done, error, can't create jsonObject from data: \(data)")
-                return
+                return nil
             }
             
             guard let location = dictionary["location"] as? String else {
                 print("outputItem functionToolCall - done, error: location argument (string) not found in dictionary: \(dictionary)")
-                return
+                return nil
             }
             
             guard let unit = dictionary["unit"] as? String else {
                 print("outputItem functionToolCall - done, error: unit argument (string) not found in dictionary: \(dictionary)")
-                return
+                return nil
             }
             
-            getCurrentWeather(location: location, unit: unit)
+            return .init(functionName: functionName, location: location, unit: unit)
         } catch {
             print("outputItem functionToolCall - done, error parsing JSON: \(error)")
+            return nil
         }
-    }
-    
-    private func getCurrentWeather(location: String, unit: String) {
-        print("getCurrentWeather function called, location: \(location), unit: \(unit)")
     }
     
     private func conversationTurn(
@@ -561,7 +640,7 @@ public final class ResponsesStore: ObservableObject {
         .init(
             id: id,
             name: username,
-            avatarURL: .init(string: "https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/openai-icon.png"),
+            avatarURL: .init(string: "https://openai.com/apple-icon.png"),
             type: .system
         )
     }

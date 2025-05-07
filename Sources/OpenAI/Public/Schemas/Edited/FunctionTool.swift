@@ -18,6 +18,14 @@ public struct FunctionTool: Codable, Hashable, Sendable {
     /// A JSON schema object describing the parameters of the function.
     public let parameters: AnyJSONSchema
     /// Whether to enforce strict parameter validation. Default `true`.
+    ///
+    /// From [Function Calling Guide](https://platform.openai.com/docs/guides/function-calling#strict-mode):
+    ///
+    /// Under the hood, strict mode works by leveraging our structured outputs feature and therefore introduces a couple requirements:
+    /// - `additionalProperties` must be set to `false` for each object in the `parameters`.
+    /// - All fields in `properties` must be marked as `required`.
+    ///
+    /// You can denote optional fields by adding `null` as a `type`
     public let strict: Bool
     /// Creates a new `FunctionTool`.
     ///

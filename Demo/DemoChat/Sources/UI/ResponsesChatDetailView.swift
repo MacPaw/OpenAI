@@ -14,6 +14,10 @@ public struct ResponsesChatDetailView: View {
     @State private var errorTitle = ""
     @State private var errorAlertPresented = false
     @StateObject private var settingsStore = ResponsesSettingsStore()
+    @ObservedObject var store: ResponsesStore
+    
+    @State private var isFunctionCallViewPresented = false
+    @State private var functionCallResult: String?
     
     private var settingsDescription: String {
         var elements: [String] = ["Model: \(settingsStore.selectedModel)"]
@@ -35,8 +39,6 @@ public struct ResponsesChatDetailView: View {
         
         return elements.joined(separator: ", ")
     }
-    
-    @ObservedObject var store: ResponsesStore
     
     public init(store: ResponsesStore) {
         self.store = store
@@ -74,7 +76,50 @@ public struct ResponsesChatDetailView: View {
                 }
             })
             .navigationBarTitleDisplayMode(.inline)
-            .alert(errorTitle, isPresented: $errorAlertPresented, actions: {})
+        }
+        .alert(errorTitle, isPresented: $errorAlertPresented, actions: {})
+        .sheet(
+            isPresented: $isFunctionCallViewPresented,
+            onDismiss: {
+                store.cancelFunctionCall()
+            },
+            content: {
+                FunctionCallStubView(call: store.functionCall!) { stubResult in
+                    functionCallResult = stubResult
+                    isFunctionCallViewPresented = false
+                }
+            }
+        )
+        .onAppear(perform: {
+            store.onFunctionCalled = {
+                isFunctionCallViewPresented = true
+            }
+        })
+        .task(id: functionCallResult) {
+            guard let result = functionCallResult else {
+                return
+            }
+            
+            do {
+                try await store.replyFunctionCall(
+                    result: result,
+                    model: settingsStore.selectedModel,
+                    stream: settingsStore.stream,
+                    webSearchEnabled: settingsStore.webSearchEnabled,
+                    functionCallingEnabled: settingsStore.functionCallingEnabled
+                )
+            } catch {
+                errorTitle = error.localizedDescription
+                errorAlertPresented = true
+            }
+            
+            guard !Task.isCancelled else {
+                // Maybe there was some change to functionCallResult from outside
+                // In that case, we wouldn't want to continue this execution and mess with functionCallResult, let the outside code be in control
+                return
+            }
+            
+            functionCallResult = nil
         }
     }
     
@@ -102,6 +147,44 @@ public struct ResponsesChatDetailView: View {
         })
         .setAvailableInputs([.text, .media])
         .messageUseMarkdown(true)
+    }
+}
+
+private struct FunctionCallStubView: View {
+    let call: ResponsesStore.WeatherFunctionCall
+    let onSubmit: (String) -> Void
+    
+    @State private var stubResult: String = ""
+
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 20) {
+                Text("\(call.functionName) function has been called by the model with such arguments:")
+                    .font(.headline)
+                    .multilineTextAlignment(.center)
+
+                Text("Location: \(call.location), Unit: \(call.unit)")
+                    .font(.subheadline)
+
+                Text("Stub the function execution result to supply the model back with results, so it can incorporate them into its final response.")
+                    .font(.body)
+                    .multilineTextAlignment(.center)
+
+                TextField("Enter current weather (e.g., 21°C)", text: $stubResult)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding(.horizontal)
+
+                Button("Submit") {
+                    onSubmit(stubResult)
+                }
+                .buttonStyle(.borderedProminent)
+
+                Spacer()
+            }
+            .padding()
+            .navigationTitle("Stub Function Result")
+            .navigationBarTitleDisplayMode(.inline)
+        }
     }
 }
 
