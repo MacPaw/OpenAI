@@ -338,7 +338,7 @@ class OpenAITestsDecoder: XCTestCase {
                     }
                 ],
                 "reasoning_effort": "low",
-                "stream": 0
+                "stream": false
             }
             """
         
