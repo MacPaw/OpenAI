@@ -11,8 +11,8 @@ import FoundationNetworking
 #endif
 
 struct AssistantsRequest<ResultType>: URLRequestBuildable {
-    private enum Body {
-        case json(Codable?)
+    private enum Body: Sendable {
+        case json((Codable & Sendable)?)
         case multipartFormData(MultipartFormDataBodyEncodable)
     }
     
@@ -20,7 +20,7 @@ struct AssistantsRequest<ResultType>: URLRequestBuildable {
     private let body: Body
     private let method: String
     
-    static func jsonRequest(urlBuilder: URLBuilder, body: Codable?, method: String = "POST") -> AssistantsRequest<ResultType> {
+    static func jsonRequest(urlBuilder: URLBuilder, body: (Codable & Sendable)?, method: String = "POST") -> AssistantsRequest<ResultType> {
         return .init(urlBuilder: urlBuilder, body: .json(body), method: method)
     }
     

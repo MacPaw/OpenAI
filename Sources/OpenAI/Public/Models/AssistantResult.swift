@@ -12,7 +12,7 @@ public struct AssistantResult: Codable, Equatable, Sendable {
     public let name: String?
     public let description: String?
     public let instructions: String?
-    public let tools: [Tool]?
+    public let tools: [AssistantsTool]?
     public let toolResources: ToolResources?
 
     enum CodingKeys: String, CodingKey {

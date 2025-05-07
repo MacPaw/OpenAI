@@ -11,7 +11,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-public enum OpenAIError: Error {
+public enum OpenAIError: DescribedError {
     case emptyData
     case statusError(response: HTTPURLResponse, statusCode: Int)
 }

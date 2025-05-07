@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 
-@available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
 final class SendablePassthroughSubject<Output: Sendable, Failure: Error>: @unchecked Sendable {
     private let passthroughSubject: PassthroughSubject<Output, Failure>
     

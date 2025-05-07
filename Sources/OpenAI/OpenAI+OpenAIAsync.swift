@@ -7,7 +7,6 @@
 
 import Foundation
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension OpenAI: OpenAIAsync {
     public func images(query: ImagesQuery) async throws -> ImagesResult {
         try await performRequestAsync(
@@ -206,84 +205,10 @@ extension OpenAI: OpenAIAsync {
     }
     
     func performRequestAsync<ResultType: Codable & Sendable>(request: any URLRequestBuildable) async throws -> ResultType {
-        let urlRequest = try request.build(configuration: configuration)
-        let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
-            middleware.intercept(request: current)
-        }
-
-        if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
-            let (data, response) = try await session.data(for: interceptedRequest, delegate: nil)
-            let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
-                middleware.intercept(response: current.response, request: urlRequest, data: current.data)
-            }
-            let decoder = JSONDecoder()
-            decoder.userInfo[.parsingOptions] = configuration.parsingOptions
-            do {
-                return try decoder.decode(ResultType.self, from: interceptedData ?? data)
-            } catch {
-                if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: interceptedData ?? data) {
-                    throw decoded
-                } else {
-                    throw error
-                }
-            }
-        } else {
-            let dataTaskStore = URLSessionDataTaskStore()
-            return try await withTaskCancellationHandler {
-                return try await withCheckedThrowingContinuation { continuation in
-                    let dataTask = self.makeDataTask(forRequest: interceptedRequest) { (result: Result<ResultType, Error>) in
-                        continuation.resume(with: result)
-                    }
-                    
-                    dataTask.resume()
-                    
-                    Task {
-                        await dataTaskStore.setDataTask(dataTask)
-                    }
-                }
-            } onCancel: {
-                Task {
-                    await dataTaskStore.getDataTask()?.cancel()
-                }
-            }
-        }
+        try await asyncClient.performRequest(request: request)
     }
     
     func performSpeechRequestAsync(request: any URLRequestBuildable) async throws -> AudioSpeechResult {
-        let urlRequest = try request.build(configuration: configuration)
-        let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
-            middleware.intercept(request: current)
-        }
-        if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
-            let (data, response) = try await session.data(for: interceptedRequest, delegate: nil)
-            let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
-                middleware.intercept(response: current.response, request: urlRequest, data: current.data)
-            }
-            return .init(audio: interceptedData ?? data)
-        } else {
-            let dataTaskStore = URLSessionDataTaskStore()
-            return try await withTaskCancellationHandler {
-                return try await withCheckedThrowingContinuation { continuation in
-                    let dataTask = self.makeRawResponseDataTask(forRequest: interceptedRequest) { result in
-                        switch result {
-                        case .success(let success):
-                            continuation.resume(returning: .init(audio: success))
-                        case .failure(let failure):
-                            continuation.resume(throwing: failure)
-                        }
-                    }
-                    
-                    dataTask.resume()
-                    
-                    Task {
-                        await dataTaskStore.setDataTask(dataTask)
-                    }
-                }
-            } onCancel: {
-                Task {
-                    await dataTaskStore.getDataTask()?.cancel()
-                }
-            }
-        }
+        try await asyncClient.performSpeechRequestAsync(request: request)
     }
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol CancellablesFactory {
+protocol CancellablesFactory: Sendable {
     func makeTaskCanceller(task: URLSessionTaskProtocol) -> any CancellableRequest    
     func makeSessionCanceller(session: InvalidatableSession) -> any CancellableRequest
 }

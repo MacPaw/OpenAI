@@ -7,14 +7,14 @@
 
 import Foundation
 
-public struct AudioTranscriptionQuery: Codable {
+public struct AudioTranscriptionQuery: Codable, Sendable {
     
-    public enum TimestampGranularities: String, Codable, Equatable, CaseIterable {
+    public enum TimestampGranularities: String, Codable, Equatable, CaseIterable, Sendable {
         case word
         case segment
     }
 
-    public enum ResponseFormat: String, Codable, Equatable, CaseIterable {
+    public enum ResponseFormat: String, Codable, Equatable, CaseIterable, Sendable {
         case json
         case text
         case verboseJson = "verbose_json"
@@ -53,7 +53,7 @@ public struct AudioTranscriptionQuery: Codable {
         self.timestampGranularities = timestampGranularities
     }
 
-    public enum FileType: String, Codable, Equatable, CaseIterable {
+    public enum FileType: String, Codable, Equatable, CaseIterable, Sendable {
         case flac
         case mp3, mpga
         case mp4, m4a
