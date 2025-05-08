@@ -113,6 +113,29 @@ extension OpenAI: OpenAIAsync {
         )
     }
     
+    public func audioTranscriptionStream(
+        query: AudioTranscriptionQuery
+    ) -> AsyncThrowingStream<AudioTranscriptionStreamResult, Error> {
+        return AsyncThrowingStream { continuation in
+            let cancellableRequest = audioTranscriptionStream(query: query) { result in
+                continuation.yield(with: result)
+            } completion: { error in
+                continuation.finish(throwing: error)
+            }
+            
+            continuation.onTermination = { termination in
+                switch termination {
+                case .cancelled:
+                    cancellableRequest.cancelRequest()
+                case .finished:
+                    break
+                @unknown default:
+                    break
+                }
+            }
+        }
+    }
+    
     public func audioTranslations(query: AudioTranslationQuery) async throws -> AudioTranslationResult {
         try await performRequestAsync(
             request: makeAudioTranslationsRequest(query: query)

@@ -271,6 +271,14 @@ final public class OpenAI: @unchecked Sendable {
         performRequest(request: makeAudioTranscriptionsRequest(query: query), completion: completion)
     }
     
+    public func audioTranscriptionStream(query: AudioTranscriptionQuery, onResult: @escaping @Sendable (Result<AudioTranscriptionStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest {
+        performStreamingRequest(
+            request: makeAudioTranscriptionsRequest(query: query.makeStreamable()),
+            onResult: onResult,
+            completion: completion
+        )
+    }
+    
     public func audioTranslations(query: AudioTranslationQuery, completion: @escaping @Sendable (Result<AudioTranslationResult, Error>) -> Void) -> CancellableRequest {
         performRequest(request: makeAudioTranslationsRequest(query: query), completion: completion)
     }
