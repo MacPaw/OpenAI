@@ -40,23 +40,8 @@ extension OpenAI: OpenAIAsync {
     }
     
     public func chatsStream(query: ChatQuery) -> AsyncThrowingStream<ChatStreamResult, Error> {
-        return AsyncThrowingStream { continuation in
-            let cancellableRequest = chatsStream(query: query)  { result in
-                continuation.yield(with: result)
-            } completion: { error in
-                continuation.finish(throwing: error)
-            }
-            
-            continuation.onTermination = { termination in
-                switch termination {
-                case .cancelled:
-                    cancellableRequest.cancelRequest()
-                case .finished:
-                    break
-                @unknown default:
-                    break
-                }
-            }
+        makeAsyncStream { onResult, completion in
+            chatsStream(query: query, onResult: onResult, completion: completion)
         }
     }
     
@@ -87,23 +72,8 @@ extension OpenAI: OpenAIAsync {
     public func audioCreateSpeechStream(
         query: AudioSpeechQuery
     ) -> AsyncThrowingStream<AudioSpeechResult, Error> {
-        return AsyncThrowingStream { continuation in
-            let cancellableRequest = audioCreateSpeechStream(query: query)  { result in
-                continuation.yield(with: result)
-            } completion: { error in
-                continuation.finish(throwing: error)
-            }
-            
-            continuation.onTermination = { termination in
-                switch termination {
-                case .cancelled:
-                    cancellableRequest.cancelRequest()
-                case .finished:
-                    break
-                @unknown default:
-                    break
-                }
-            }
+        makeAsyncStream { onResult, completion in
+            audioCreateSpeechStream(query: query, onResult: onResult, completion: completion)
         }
     }
     
@@ -116,23 +86,8 @@ extension OpenAI: OpenAIAsync {
     public func audioTranscriptionStream(
         query: AudioTranscriptionQuery
     ) -> AsyncThrowingStream<AudioTranscriptionStreamResult, Error> {
-        return AsyncThrowingStream { continuation in
-            let cancellableRequest = audioTranscriptionStream(query: query) { result in
-                continuation.yield(with: result)
-            } completion: { error in
-                continuation.finish(throwing: error)
-            }
-            
-            continuation.onTermination = { termination in
-                switch termination {
-                case .cancelled:
-                    cancellableRequest.cancelRequest()
-                case .finished:
-                    break
-                @unknown default:
-                    break
-                }
-            }
+        makeAsyncStream { onResult, completion in
+            audioTranscriptionStream(query: query, onResult: onResult, completion: completion)
         }
     }
     
@@ -305,6 +260,34 @@ extension OpenAI: OpenAIAsync {
             } onCancel: {
                 Task {
                     await dataTaskStore.getDataTask()?.cancel()
+                }
+            }
+        }
+    }
+    
+    func makeAsyncStream<ResultType: Codable & Sendable>(
+        byWrapping call: (_ onResult: @escaping @Sendable (Result<ResultType, Error>) -> Void, _ completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest
+    ) -> AsyncThrowingStream<ResultType, Error> {
+        return AsyncThrowingStream { continuation in
+
+            let resultClosure: @Sendable (Result<ResultType, Error>) -> Void = {
+                continuation.yield(with: $0)
+            }
+            
+            let completionClosure: @Sendable (Error?) -> Void = {
+                continuation.finish(throwing: $0)
+            }
+            
+            let cancellableRequest = call(resultClosure, completionClosure)
+            
+            continuation.onTermination = { termination in
+                switch termination {
+                case .cancelled:
+                    cancellableRequest.cancelRequest()
+                case .finished:
+                    break
+                @unknown default:
+                    break
                 }
             }
         }
