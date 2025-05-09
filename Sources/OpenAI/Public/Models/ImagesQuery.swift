@@ -79,13 +79,40 @@ public enum ResponseFormat: String, Codable, Equatable {
     public enum Quality: String, Codable, CaseIterable {
         case standard
         case hd
+        case high, medium, low  /// for gpt-image-1
     }
 
+    /// The size of the generated images.
+    /// - For gpt-image-1, one of `1024x1024`, `1536x1024` (landscape), `1024x1536` (portrait), or `auto` (default value)
     public enum Size: String, Codable, CaseIterable {
         case _256 = "256x256"
         case _512 = "512x512"
         case _1024 = "1024x1024"
         case _1792_1024 = "1792x1024" // for dall-e-3 models
         case _1024_1792 = "1024x1792" // for dall-e-3 models
+        case _1536x1024 = "1536x1024" // only for gpt-image-1
+        case _1024x1536 = "1024x1536" // only for gpt-image-1
+        case auto                     // only for gpt-image-1
+    }
+
+    public enum InputImage {
+        case png(Data)
+        case jpeg(Data)
+
+        public var content: Data {
+            switch self {
+            case let .png(data), let .jpeg(data):
+                return data
+            }
+        }
+
+        public var contentType: String {
+            switch self {
+            case .png:
+                return "image/png"
+            case .jpeg:
+                return "image/jpeg"
+            }
+        }
     }
 }
