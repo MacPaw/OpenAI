@@ -19,7 +19,6 @@ public struct ImageView: View {
             List {
                 NavigationLink("Create Image", destination: ImageCreationView(store: store))
                 NavigationLink("Create Image Edit", destination: ImageEditView(store: store))
-                    .disabled(true)
                 NavigationLink("Create Image Variation", destination: ImageVariationView(store: store))
                     .disabled(true)
                 
@@ -27,22 +26,6 @@ public struct ImageView: View {
             .listStyle(.insetGrouped)
             .navigationTitle("Image")
         }
-    }
-}
-
-public struct ImageEditView: View {
-    @ObservedObject var store: ImageStore
-    
-    public init(store: ImageStore) {
-        self.store = store
-    }
-    
-    public var body: some View {
-        List {
-            
-        }
-        .listStyle(.insetGrouped)
-        .navigationTitle("Create Image Edit")
     }
 }
 
