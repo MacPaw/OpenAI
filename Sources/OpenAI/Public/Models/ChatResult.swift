@@ -205,7 +205,10 @@ public struct ChatResult: Codable, Equatable, Sendable {
     public let serviceTier: String?
     /// This fingerprint represents the backend configuration that the model runs with.
     /// Can be used in conjunction with the seed request parameter to understand when backend changes have been made that might impact determinism.
-    public let systemFingerprint: String
+    ///
+    /// Note: Even though [API Reference - The chat completion object - system_fingerprint](https://platform.openai.com/docs/api-reference/chat/object#chat/object-system_fingerprint) declares the type as non-optional `string` - the response object may not contain the value, so we have had to make it optional `String?` in the Swift type.
+    /// See https://github.com/MacPaw/OpenAI/issues/331 for more details on such a case
+    public let systemFingerprint: String?
     /// A list of chat completion choices. Can be more than one if n is greater than 1.
     public let choices: [Choice]
     /// Usage statistics for the completion request.
