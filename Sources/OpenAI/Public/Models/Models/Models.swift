@@ -171,7 +171,8 @@ public extension Model {
     
     static let dall_e_2 = "dall-e-2"
     static let dall_e_3 = "dall-e-3"
-    
+    static let gpt_image_1 = "gpt-image-1"
+
     // MARK: - Fine Tunes
     
     /// Most capable GPT-3 model. Can do any task the other models can do, often with higher quality.
