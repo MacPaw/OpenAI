@@ -10,7 +10,6 @@ import Foundation
 import XCTest
 @testable import OpenAI
 
-@available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
 class OpenAIStreamingTests: XCTestCase {
     private var configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
     private let streamingSessionFactory = MockStreamingSessionFactory()

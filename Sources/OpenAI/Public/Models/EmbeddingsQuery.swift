@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct EmbeddingsQuery: Codable {
+public struct EmbeddingsQuery: Codable, Sendable {
 
     /// Input text to embed, encoded as a string or array of tokens. To embed multiple inputs in a single request, pass an array of strings or array of token arrays. The input must not exceed the max input tokens for the model (8192 tokens for text-embedding-ada-002), cannot be an empty string, and any array must be 2048 dimensions or less.
     public let input: Self.Input
@@ -34,7 +34,7 @@ public struct EmbeddingsQuery: Codable {
         self.user = user
     }
 
-    public enum Input: Codable, Equatable {
+    public enum Input: Codable, Equatable, Sendable {
         case string(String)
         case stringList([String])
         case intList([Int])
@@ -71,12 +71,12 @@ public struct EmbeddingsQuery: Codable {
         }
     }
 
-    public enum EncodingFormat: String, Codable {
+    public enum EncodingFormat: String, Codable, Sendable {
         case float
         case base64
     }
 
-    public enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey, Sendable {
         case input
         case model
         case encodingFormat = "encoding_format"

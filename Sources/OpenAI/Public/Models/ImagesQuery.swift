@@ -9,13 +9,13 @@ import Foundation
 
 /// Given a prompt and/or an input image, the model will generate a new image.
 /// https://platform.openai.com/docs/guides/images
-public struct ImagesQuery: Codable, Equatable {
-
-public enum ResponseFormat: String, Codable, Equatable {
-    case url
-    case b64_json
-}
-
+public struct ImagesQuery: Codable, Equatable, Sendable {
+    
+    public enum ResponseFormat: String, Codable, Equatable, Sendable {
+        case url
+        case b64_json
+    }
+    
     /// A text description of the desired image(s). The maximum length is 1000 characters for dall-e-2 and 4000 characters for dall-e-3.
     public let prompt: String
     /// The model to use for image generation.
@@ -71,12 +71,12 @@ public enum ResponseFormat: String, Codable, Equatable {
         case quality
     }
 
-    public enum Style: String, Codable, CaseIterable {
+    public enum Style: String, Codable, CaseIterable, Sendable {
         case natural
         case vivid
     }
 
-    public enum Quality: String, Codable, CaseIterable {
+    public enum Quality: String, Codable, CaseIterable, Sendable {
         case standard
         case hd
         case high, medium, low  /// for gpt-image-1
@@ -84,7 +84,7 @@ public enum ResponseFormat: String, Codable, Equatable {
 
     /// The size of the generated images.
     /// - For gpt-image-1, one of `1024x1024`, `1536x1024` (landscape), `1024x1536` (portrait), or `auto` (default value)
-    public enum Size: String, Codable, CaseIterable {
+    public enum Size: String, Codable, CaseIterable, Sendable {
         case _256 = "256x256"
         case _512 = "512x512"
         case _1024 = "1024x1024"

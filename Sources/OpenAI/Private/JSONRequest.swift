@@ -12,11 +12,11 @@ import FoundationNetworking
 
 final class JSONRequest<ResultType> {
     
-    let body: Codable?
+    let body: (Codable & Sendable)?
     let url: URL
     let method: String
     
-    init(body: Codable? = nil, url: URL, method: String = "POST", customHeaders: [String: String] = [:]) {
+    init(body: (Codable & Sendable)? = nil, url: URL, method: String = "POST", customHeaders: [String: String] = [:]) {
         self.body = body
         self.url = url
         self.method = method

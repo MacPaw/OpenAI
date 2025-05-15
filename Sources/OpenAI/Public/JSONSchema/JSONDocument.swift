@@ -19,9 +19,11 @@ struct JSONNullValue: JSONDocument {}
 extension Int: JSONDocument {}
 extension String: JSONDocument {}
 extension Bool: JSONDocument {}
-extension Array: JSONDocument where Element: JSONDocument {}
-extension Dictionary: JSONDocument where Key == String, Value: JSONDocument {}
-
 /// [number](https://json-schema.org/draft/2020-12/json-schema-core#section-4.2.1-3.10)
 /// An arbitrary-precision, base-10 decimal number value, from the JSON "number" value
 extension Decimal: JSONDocument {}
+
+extension Array: JSONDocument where Element: JSONDocument {}
+extension Dictionary: JSONDocument where Key == String, Value: JSONDocument {}
+
+typealias JSONObject = Dictionary<String, AnyJSONDocument>

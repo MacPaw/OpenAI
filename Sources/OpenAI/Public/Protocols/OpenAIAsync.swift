@@ -7,8 +7,7 @@
 
 import Foundation
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-public protocol OpenAIAsync {
+public protocol OpenAIAsync: Sendable {
     func images(query: ImagesQuery) async throws -> ImagesResult
     func imageEdits(query: ImageEditsQuery) async throws -> ImagesResult
     func imageVariations(query: ImageVariationsQuery) async throws -> ImagesResult

@@ -270,8 +270,8 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// Validation succeeds if the schema validates against each value not matched by other object applicators in this vocabulary.
-    public static func additionalProperties(_ object: [String: AnyJSONSchema]) -> JSONSchemaField {
-        .init(keyword: "additionalProperties", value: .init(object))
+    public static func additionalProperties(_ schema: any JSONSchema) -> JSONSchemaField {
+        .init(keyword: "additionalProperties", value: .init(schema))
     }
     
     /// ### Kind
