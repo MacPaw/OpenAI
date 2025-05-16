@@ -179,7 +179,10 @@ public struct ChatStreamResult: Codable, Equatable, Sendable {
     /// Can be more than one if `n` is greater than 1.
     public let choices: [Choice]
     /// This fingerprint represents the backend configuration that the model runs with. Can be used in conjunction with the `seed` request parameter to understand when backend changes have been made that might impact determinism.
-    public let systemFingerprint: String
+    ///
+    /// Note: Even though [API Reference - The chat completion chunk object - system_fingerprint](https://platform.openai.com/docs/api-reference/chat-streaming/streaming#chat-streaming/streaming-system_fingerprint) declares the type as non-optional `string` - the response chunk may not contain the value, so we have had to make it optional `String?` in the Swift type
+    /// See https://github.com/MacPaw/OpenAI/issues/331 for more details on such a case.
+    public let systemFingerprint: String?
     /// Usage statistics for the completion request.
     public let usage: ChatResult.CompletionUsage?
 
