@@ -1316,6 +1316,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             case nova
             case sage
             case shimmer
+            case verse
         }
 
         public init(

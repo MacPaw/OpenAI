@@ -27,6 +27,7 @@ public struct AudioSpeechQuery: Codable, Sendable {
         case nova
         case sage
         case shimmer
+        case verse
     }
     
     /// Encapsulates the response formats available for audio data.
