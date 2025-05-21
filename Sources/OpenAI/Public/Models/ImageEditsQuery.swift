@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ImageEditsQuery {
+public struct ImageEditsQuery: Codable, Hashable, Sendable {
 
     public typealias InputImage = ImagesQuery.InputImage
     public typealias ResponseFormat = ImagesQuery.ResponseFormat
