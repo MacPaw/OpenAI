@@ -104,9 +104,9 @@ class OpenAITestsDecoder: XCTestCase {
 
     func testChatQueryWithVision() async throws {
         let chatQuery = ChatQuery(messages: [
-            .user(.init(content: .vision([
-                .chatCompletionContentPartTextParam(.init(text: "What's in this image?")),
-                .chatCompletionContentPartImageParam(.init(imageUrl: .init(url: "https://some.url/image.jpeg", detail: .auto)))
+            .user(.init(content: .contentParts([
+                .text(.init(text: "What's in this image?")),
+                .image(.init(imageUrl: .init(url: "https://some.url/image.jpeg", detail: .auto)))
             ])))
         ], model: Model.gpt4_o, maxTokens: 300)
         let expectedValue = """

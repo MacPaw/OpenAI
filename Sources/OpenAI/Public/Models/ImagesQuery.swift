@@ -95,7 +95,7 @@ public struct ImagesQuery: Codable, Equatable, Sendable {
         case auto                     // only for gpt-image-1
     }
 
-    public enum InputImage {
+    public enum InputImage: Codable, Hashable, Sendable {
         case png(Data)
         case jpeg(Data)
 

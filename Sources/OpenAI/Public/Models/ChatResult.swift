@@ -280,18 +280,30 @@ extension ChatQuery.ChatCompletionMessageParam {
 }
 
 extension ChatQuery.ChatCompletionMessageParam.UserMessageParam.Content {
+    enum ContentDecodingError: Error {
+        case unableToDecodeNeitherOfPossibleTypes(Decoder, [Error])
+    }
+    
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
+        
+        var errors: [Error] = []
         do {
             let string = try container.decode(String.self)
             self = .string(string)
             return
-        } catch {}
+        } catch {
+            errors.append(error)
+        }
+        
         do {
-            let vision = try container.decode([VisionContent].self)
-            self = .vision(vision)
+            let contentParts = try container.decode([ChatQuery.ChatCompletionMessageParam.UserMessageParam.Content.ContentPart].self)
+            self = .contentParts(contentParts)
             return
-        } catch {}
-        throw DecodingError.typeMismatch(Self.self, .init(codingPath: [Self.CodingKeys.string, Self.CodingKeys.vision], debugDescription: "Content: expected String || Vision"))
+        } catch {
+            errors.append(error)
+        }
+        
+        throw ContentDecodingError.unableToDecodeNeitherOfPossibleTypes(decoder, errors)
     }
 }
