@@ -108,7 +108,7 @@ final class ServerSentEventsStreamParser: @unchecked Sendable {
             previousCharacter = currentChar
         }
         
-        if lineBeginningIndex < streamData.count - 1 {
+        if lineBeginningIndex < streamData.count {
             return (lines, streamData.subdata(in: lineBeginningIndex..<streamData.count))
         } else {
             return (lines, nil)

@@ -10,6 +10,19 @@ import XCTest
 
 final class ServerSentEventsParserTests: XCTestCase {
     private let parser = ServerSentEventsStreamParser()
+    private let resultsHolder = ResultsHolder()
+    
+    private var events: [ServerSentEventsStreamParser.Event] {
+        resultsHolder.results
+    }
+    
+    override func setUp() async throws {
+        parser.setCallbackClosures(onEventDispatched: { event in
+            dispatchPrecondition(condition: .onQueue(.main))
+            self.resultsHolder.results.append(event)
+        }, onError: { error in
+        })
+    }
     
     func testSingleDataLine() {
         let input = "data: Hello\n\n"
@@ -87,17 +100,34 @@ final class ServerSentEventsParserTests: XCTestCase {
         XCTAssertEqual(events[0].decodedData, "real")
     }
     
+    func testIncomplete() {
+        let input1 = "data: Hello\n\nda"
+        process(input1)
+        XCTAssertEqual(resultsHolder.results.count, 1)
+        let input2 = "ta: How are you\n\n"
+        process(input2)
+        XCTAssertEqual(events[0].decodedData, "Hello")
+        XCTAssertEqual(events[1].decodedData, "How are you")
+    }
+    
+    func testIncompleteOfSingleLength() {
+        let input1 = "data: Hello\n\nd"
+        process(input1)
+        XCTAssertEqual(resultsHolder.results.count, 1)
+        let input2 = "ata: How are you\n\n"
+        process(input2)
+        XCTAssertEqual(events[0].decodedData, "Hello")
+        XCTAssertEqual(events[1].decodedData, "How are you")
+    }
+    
     // Helper
-    func parse(_ raw: String) -> [ServerSentEventsStreamParser.Event] {
-        let parser = ServerSentEventsStreamParser()
-        let resultsHolder = ResultsHolder()
-        parser.setCallbackClosures(onEventDispatched: { event in
-            dispatchPrecondition(condition: .onQueue(.main))
-            resultsHolder.results.append(event)
-        }, onError: { error in
-        })
-        parser.processData(data: raw.data(using: .utf8)!)
+    private func parse(_ raw: String) -> [ServerSentEventsStreamParser.Event] {
+        process(raw)
         return resultsHolder.results
+    }
+    
+    private func process(_ raw: String) {
+        parser.processData(data: raw.data(using: .utf8)!)
     }
     
     private class ResultsHolder: @unchecked Sendable {
