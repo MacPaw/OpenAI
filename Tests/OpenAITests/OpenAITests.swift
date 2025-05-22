@@ -38,7 +38,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testImageEdit() async throws {
-        let query = ImageEditsQuery(image: Data(), prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", mask: Data(), n: 1, size: ._1024)
+        let query = ImageEditsQuery(images: [.jpeg(Data())], prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", mask: Data(), n: 1, size: ._1024)
         let imagesResult = ImagesResult(created: 100, data: [
             .init(b64Json: nil, revisedPrompt: nil, url: "http://foo.bar")
         ])
@@ -48,7 +48,7 @@ class OpenAITests: XCTestCase {
     }
     
     func testImageEditError() async throws {
-        let query = ImageEditsQuery(image: Data(), prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", mask: Data(), n: 1, size: ._1024)
+        let query = ImageEditsQuery(images: [.jpeg(Data())], prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", mask: Data(), n: 1, size: ._1024)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         

@@ -58,15 +58,28 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
     /// Configuration for a Predicted Output, which can greatly improve response times when large parts of the model response are known ahead of time. This is most common when you are regenerating a file with only minor changes to most of the content.
     public let prediction: PredictedOutputConfig?
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-    /// https://platform.openai.com/docs/guides/text-generation/parameter-details
+    ///
+    /// Defaults to 0
     public let presencePenalty: Double?
     /// An object specifying the format that the model must output.
     ///
     /// Setting to `{ "type": "json_schema", "json_schema": {...} }` enables Structured Outputs which ensures the model will match your supplied JSON schema. Learn more in the [Structured Outputs guide](https://platform.openai.com/docs/guides/structured-outputs).
+    ///
     /// Setting to `{ "type": "json_object" }` enables the older JSON mode, which ensures the message the model generates is valid JSON. Using `json_schema` is preferred for models that support it.
     public let responseFormat: Self.ResponseFormat?
-    /// This feature is in Beta. If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same seed and parameters should return the same result. Determinism is not guaranteed, and you should refer to the system_fingerprint response parameter to monitor changes in the backend.
+    /// This feature is in Beta. If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same `seed` and parameters should return the same result. Determinism is not guaranteed, and you should refer to the `system_fingerprint` response parameter to monitor changes in the backend.
     public let seed: Int? // BETA
+    /// Specifies the latency tier to use for processing the request.
+    ///
+    /// This parameter is relevant for customers subscribed to the scale tier service:
+    /// * If set to 'auto', and the Project is Scale tier enabled, the system will utilize scale tier credits until they are exhausted.
+    /// * If set to 'auto', and the Project is not Scale tier enabled, the request will be processed using the default service tier with a lower uptime SLA and no latency guarentee.
+    /// * If set to 'default', the request will be processed using the default service tier with a lower uptime SLA and no latency guarentee.
+    /// * If set to 'flex', the request will be processed with the Flex Processing service tier. [Learn more](https://platform.openai.com/docs/guides/flex-processing).
+    /// * When not set, the default behavior is 'auto'.
+    ///
+    /// When this parameter is set, the response body will include the `service_tier` utilized.
+    public let serviceTier: ServiceTier?
     /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
     /// Defaults to null
     public let stop: Stop?
@@ -119,6 +132,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         presencePenalty: Double? = nil,
         responseFormat: Self.ResponseFormat? = nil,
         seed: Int? = nil,
+        serviceTier: ServiceTier? = nil,
         stop: Self.Stop? = nil,
         temperature: Double? = nil,
         toolChoice: Self.ChatCompletionFunctionCallOptionParam? = nil,
@@ -143,6 +157,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         self.presencePenalty = presencePenalty
         self.responseFormat = responseFormat
         self.seed = seed
+        self.serviceTier = serviceTier
         self.stop = stop
         self.temperature = temperature
         self.toolChoice = toolChoice
@@ -1410,6 +1425,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         case presencePenalty = "presence_penalty"
         case responseFormat = "response_format"
         case seed
+        case serviceTier = "service_tier"
         case stop
         case temperature
         case toolChoice = "tool_choice"

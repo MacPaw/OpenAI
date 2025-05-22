@@ -57,7 +57,7 @@ struct ChatQueryCodingTests {
         #expect(encodedQuery == decodedExpectation)
     }
     
-    @Test func encodesPredictionWithTextContent() async throws {
+    @Test func encodePredictionWithTextContent() async throws {
         let query = ChatQuery(
             messages: [],
             model: .gpt4_o,
@@ -76,13 +76,28 @@ struct ChatQueryCodingTests {
         }
         """
         
+        #expect(try equal(query, expected))
+    }
+    
+    @Test func encodeServiceTier() throws {
+        let query = ChatQuery(messages: [], model: .gpt4_o, serviceTier: .flexTier)
+        
+        let expected = """
+        {
+            "model": "gpt-4o",
+            "messages": [],
+            "service_tier": "flex",
+            "stream": false
+        }
+        """
+        
+        #expect(try equal(query, expected))
+    }
+    
+    private func equal(_ query: Codable, _ expected: String) throws -> Bool {
         let encodedQuery = try encodedAndComparable(query)
         let decodedExpectation = try decodedAndComparable(expected)
-        #expect(encodedQuery == decodedExpectation)
-    }
-
-    @Test func decodesPredictionWithTextContent() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+        return encodedQuery == decodedExpectation
     }
     
     private func encodedAndComparable(_ candidate: Codable) throws -> NSDictionary {

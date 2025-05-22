@@ -103,12 +103,16 @@ class OpenAITestsDecoder: XCTestCase {
     }
 
     func testChatQueryWithVision() async throws {
-        let chatQuery = ChatQuery(messages: [
-            .user(.init(content: .contentParts([
-                .text(.init(text: "What's in this image?")),
-                .image(.init(imageUrl: .init(url: "https://some.url/image.jpeg", detail: .auto)))
-            ])))
-        ], model: Model.gpt4_o, maxTokens: 300)
+        let chatQuery = ChatQuery(
+            messages: [
+                .user(.init(content: .contentParts([
+                    .text(.init(text: "What's in this image?")),
+                    .image(.init(imageUrl: .init(url: "https://some.url/image.jpeg", detail: .auto)))
+                ])))
+            ],
+            model: Model.gpt4_o,
+            maxCompletionTokens: 300
+        )
         let expectedValue = """
         {
             "model": "gpt-4o",
@@ -130,7 +134,7 @@ class OpenAITestsDecoder: XCTestCase {
                     ]
                 }
             ],
-            "max_tokens": 300,
+            "max_completion_tokens": 300,
             "stream": false
         }
         """
