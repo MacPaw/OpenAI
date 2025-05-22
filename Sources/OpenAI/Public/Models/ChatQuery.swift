@@ -40,7 +40,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
     /// The total length of input tokens and generated tokens is limited by the model's context length.
     /// https://platform.openai.com/tokenizer
     @available(*, deprecated, message: "This value is now deprecated in favor of max_completion_tokens, and is not compatible with o-series models.")
-    public let maxTokens: Int?
+    public var maxTokens: Int? = nil
     /// Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format, and querying for objects via API or the dashboard.
     ///
     /// Keys are strings with a maximum length of 64 characters. Values are strings with a maximum length of 512 characters.
@@ -111,7 +111,6 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         frequencyPenalty: Double? = nil,
         logitBias: [String : Int]? = nil,
         logprobs: Bool? = nil,
-        maxTokens: Int? = nil,
         maxCompletionTokens: Int? = nil,
         metadata: [String: String]? = nil,
         n: Int? = nil,
@@ -136,7 +135,6 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         self.frequencyPenalty = frequencyPenalty
         self.logitBias = logitBias
         self.logprobs = logprobs
-        self.maxTokens = maxTokens
         self.maxCompletionTokens = maxCompletionTokens
         self.metadata = metadata
         self.n = n
@@ -575,16 +573,16 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
                 public let url: String
                 /// Specifies the detail level of the image. Learn more in the
                 /// Vision guide https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding
-                public let detail: Detail
+                public let detail: Detail?
                 
-                public init(url: String, detail: Detail) {
+                public init(url: String, detail: Detail?) {
                     self.url = url
                     self.detail = detail
                 }
                 
-                public init(url: Data, detail: Detail) {
+                public init(imageData: Data, detail: Detail?) {
                     self.init(
-                        url: "data:image/jpeg;base64,\(url.base64EncodedString())",
+                        url: "data:image/jpeg;base64,\(imageData.base64EncodedString())",
                         detail: detail)
                 }
                 

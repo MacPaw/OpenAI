@@ -10,6 +10,53 @@ import Testing
 import Foundation
 
 struct ChatQueryCodingTests {
+    @Test func encodeUserMessageWithImageContentParts() async throws {
+        let query = ChatQuery(
+            messages: [
+                .user(.init(
+                    content: .contentParts([
+                        .text(.init(text: "What is in this image?")),
+                        .image(.init(
+                            imageUrl: .init(
+                                url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
+                                detail: nil
+                            )
+                        )),
+                    ])
+                ))
+            ],
+            model: .gpt4_1
+        )
+        
+        let expected = """
+        {
+            "model": "gpt-4.1",
+            "messages": [
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "What is in this image?"
+                  },
+                  {
+                    "type": "image_url",
+                    "image_url": {
+                      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
+                    }
+                  }
+                ]
+              }
+            ],
+            "stream": false
+        }
+        """
+        
+        let encodedQuery = try encodedAndComparable(query)
+        let decodedExpectation = try decodedAndComparable(expected)
+        #expect(encodedQuery == decodedExpectation)
+    }
+    
     @Test func encodesPredictionWithTextContent() async throws {
         let query = ChatQuery(
             messages: [],
