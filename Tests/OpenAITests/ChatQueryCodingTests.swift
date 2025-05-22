@@ -94,6 +94,46 @@ struct ChatQueryCodingTests {
         #expect(try equal(query, expected))
     }
     
+    @Test func encodeWebSearchOptions() throws {
+        let query = ChatQuery(
+            messages: [],
+            model: .gpt4_o,
+            webSearchOptions: .init(
+                userLocation: .init(
+                    approximate: .init(
+                        country: "Ukraine",
+                        region: "Oblast",
+                        city: "Kyiv",
+                        timezone: "EET"
+                    )
+                ),
+                searchContextSize: .medium
+            )
+        )
+        
+        let expected = """
+        {
+            "model": "gpt-4o",
+            "messages": [],
+            "web_search_options": {
+                "user_location": {
+                  "type": "approximate",
+                  "approximate": {
+                    "country": "Ukraine",
+                    "region": "Oblast",
+                    "city": "Kyiv",
+                    "timezone": "EET"
+                  }
+                },
+                "search_context_size": "medium"
+              },
+            "stream": false
+        }
+        """
+        
+        #expect(try equal(query, expected))
+    }
+    
     private func equal(_ query: Codable, _ expected: String) throws -> Bool {
         let encodedQuery = try encodedAndComparable(query)
         let decodedExpectation = try decodedAndComparable(expected)

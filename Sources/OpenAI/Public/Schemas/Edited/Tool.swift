@@ -18,10 +18,10 @@
     case functionTool(FunctionTool)
     /// A tool that controls a virtual computer. Learn more about the
     /// [computer tool](/docs/guides/tools-computer-use).
-    case computerTool(Schemas.ComputerTool)
+    case computerTool(Schemas.ComputerUsePreviewTool)
     /// This tool searches the web for relevant results to use in a response.
     /// Learn more about the [web search tool](/docs/guides/tools-web-search).
-    case webSearchTool(Schemas.WebSearchTool)
+    case webSearchTool(Schemas.WebSearchPreviewTool)
     
     public init(from decoder: any Decoder) throws {
         var errors: [any Error] = []
