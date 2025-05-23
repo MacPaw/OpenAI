@@ -9,6 +9,8 @@ import XCTest
 @testable import OpenAI
 
 final class ChatResultTests: XCTestCase {
+    private let decoder = JSONDecoder()
+    
     func testDecodeFailsForMissingId() {
         let jsonString = """
             {
@@ -17,10 +19,9 @@ final class ChatResultTests: XCTestCase {
             }
             """
         
-        let decoder = JSONDecoder()
         // no relaxing options
         do {
-            _ = try decoder.decode(ChatResult.self, from: jsonString.data(using: .utf8)!)
+            _ = try decode(jsonString)
             XCTFail("Should throw error")
         } catch let error as DecodingError {
             switch error {
@@ -46,9 +47,8 @@ final class ChatResultTests: XCTestCase {
             }
             """
         
-        let decoder = JSONDecoder()
         decoder.userInfo = [.parsingOptions: ParsingOptions.relaxed]
-        let chatResult = try decoder.decode(ChatResult.self, from: jsonString.data(using: .utf8)!)
+        let chatResult = try decode(jsonString)
         XCTAssertEqual(chatResult.id, "")
     }
     
@@ -62,10 +62,9 @@ final class ChatResultTests: XCTestCase {
             }
             """
         
-        let decoder = JSONDecoder()
         decoder.userInfo = [.parsingOptions: ParsingOptions.fillRequiredFieldIfValueNotFound]
         do {
-            _ = try decoder.decode(ChatResult.self, from: jsonString.data(using: .utf8)!)
+            _ = try decode(jsonString)
             XCTFail("Should throw error")
         } catch let error as DecodingError {
             switch error {
@@ -95,9 +94,29 @@ final class ChatResultTests: XCTestCase {
         
         XCTAssertEqual(jsonDict["model"] as! String, "gpt-4", "Invalid json mock")
         XCTAssertTrue(jsonDict["system_fingerprint"] is NSNull, "The field is expected to be missing or null")
-        let jsonData = jsonString.data(using: .utf8)!
-        let chatResult = try JSONDecoder().decode(ChatResult.self, from: jsonData)
+        let chatResult = try decode(jsonString)
         XCTAssertEqual(chatResult.model, "gpt-4")
         XCTAssertEqual(chatResult.systemFingerprint, nil)
+    }
+    
+    func testDecodeServiceTier() throws {
+        let jsonString = """
+            {
+                "id": "some_id",
+                "object": "chat.completion",
+                "created": 1677652288,
+                "model": "gpt-4",
+                "choices": [],
+                "service_tier": "flex"
+            }
+            """
+        
+        let result = try decode(jsonString)
+        XCTAssertEqual(result.serviceTier, .flexTier)
+    }
+    
+    private func decode(_ jsonString: String) throws -> ChatResult {
+        let jsonData = jsonString.data(using: .utf8)!
+        return try decoder.decode(ChatResult.self, from: jsonData)
     }
 }
