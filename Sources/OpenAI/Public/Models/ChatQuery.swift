@@ -241,24 +241,6 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         /// Tool message
         case tool(Self.ToolMessageParam)
         
-        public var content: Self.UserMessageParam.Content? { get {
-            switch self {
-            case .system(let systemMessage):
-                return Self.UserMessageParam.Content.string(systemMessage.content)
-            case .developer(let developerMessage):
-                return Self.UserMessageParam.Content.string(developerMessage.content)
-            case .user(let userMessage):
-                return userMessage.content
-            case .assistant(let assistantMessage):
-                if let content = assistantMessage.content {
-                    return Self.UserMessageParam.Content.string(content)
-                }
-                return nil
-            case .tool(let toolMessage):
-                return Self.UserMessageParam.Content.string(toolMessage.content)
-            }
-        }}
-        
         public var role: Role { get {
             switch self {
             case .system(let systemMessage):
@@ -310,6 +292,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         public init?(
             role: Role,
             content: String? = nil,
+            imageData: Data? = nil,
             name: String? = nil,
             toolCalls: [Self.AssistantMessageParam.ToolCallParam]? = nil,
             toolCallId: String? = nil
@@ -317,13 +300,13 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             switch role {
             case .system:
                 if let content {
-                    self = .system(.init(content: content, name: name))
+                    self = .system(.init(content: .textContent(content), name: name))
                 } else {
                     return nil
                 }
             case .developer:
                 if let content {
-                    self = .developer(.init(content: content, name: name))
+                    self = .developer(.init(content: .textContent(content), name: name))
                 } else {
                     return nil
                 }
@@ -334,10 +317,14 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
                     return nil
                 }
             case .assistant:
-                self = .assistant(.init(content: content, name: name, toolCalls: toolCalls))
+                if let content {
+                    self = .assistant(.init(content: .textContent(content), name: name, toolCalls: toolCalls))
+                } else {
+                    self = .assistant(.init(content: nil, name: name, toolCalls: toolCalls))
+                }
             case .tool:
                 if let content, let toolCallId {
-                    self = .tool(.init(content: content, toolCallId: toolCallId))
+                    self = .tool(.init(content: .textContent(content), toolCallId: toolCallId))
                 } else {
                     return nil
                 }
@@ -350,9 +337,9 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             name: String? = nil
         ) {
             if role == .system {
-                self = .system(.init(content: content, name: name))
+                self = .system(.init(content: .textContent(content), name: name))
             } else if role == .developer {
-                self = .developer(.init(content: content, name: name))
+                self = .developer(.init(content: .textContent(content), name: name))
             } else {
                 return nil
             }
@@ -377,7 +364,11 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             toolCalls: [Self.AssistantMessageParam.ToolCallParam]? = nil
         ) {
             if role == .assistant {
-                self = .assistant(.init(content: content, name: name, toolCalls: toolCalls))
+                if let content {
+                    self = .assistant(.init(content: .textContent(content), name: name, toolCalls: toolCalls))
+                } else {
+                    self = .assistant(.init(name: name, toolCalls: toolCalls))
+                }
             } else {
                 return nil
             }
@@ -389,7 +380,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             toolCallId: String
         ) {
             if role == .tool {
-                self = .tool(.init(content: content, toolCallId: toolCallId))
+                self = .tool(.init(content: .textContent(content), toolCallId: toolCallId))
             } else {
                 return nil
             }
@@ -423,14 +414,14 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
             
             /// The contents of the system message.
-            public let content: String
+            public let content: TextContent
             /// The role of the messages author, in this case system.
             public let role: Self.Role = .system
             /// An optional name for the participant. Provides the model information to differentiate between participants of the same role.
             public let name: String?
             
             public init(
-                content: String,
+                content: TextContent,
                 name: String? = nil
             ) {
                 self.content = content
@@ -448,14 +439,14 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
             
             /// The contents of the developer message.
-            public let content: String
+            public let content: TextContent
             /// The role of the messages author, in this case developer.
             public let role: Self.Role = .developer
             /// An optional name for the participant. Provides the model information to differentiate between participants of the same role.
             public let name: String?
             
             public init(
-                content: String,
+                content: TextContent,
                 name: String? = nil
             ) {
                 self.content = content
@@ -567,6 +558,72 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
                     case .contentParts(let parts):
                         try container.encode(parts)
                     }
+                }
+            }
+        }
+        
+        public enum TextContent: Codable, Equatable, Sendable {
+            case textContent(String)
+            /// An array of content parts with a defined type. For system, developer messages, only type `text` is supported.
+            case contentParts([ContentPartTextParam])
+            
+            public func encode(to encoder: Encoder) throws {
+                var container = encoder.singleValueContainer()
+                switch self {
+                case .textContent(let a0):
+                    try container.encode(a0)
+                case .contentParts(let parts):
+                    try container.encode(parts)
+                }
+            }
+        }
+        
+        public enum TextOrRefusalContent: Codable, Equatable, Sendable {
+            public enum ContentPart: Codable, Hashable, Sendable {
+                /// Learn about [text inputs](https://platform.openai.com/docs/guides/text-generation).
+                case text(ContentPartTextParam)
+                case refusal(Components.Schemas.RefusalContent)
+                
+                public init(from decoder: Decoder) throws {
+                    let container = try decoder.singleValueContainer()
+                    
+                    if let value = try? container.decode(ContentPartTextParam.self) {
+                        self = .text(value)
+                        return
+                    }
+                    if let value = try? container.decode(Components.Schemas.RefusalContent.self) {
+                        self = .refusal(value)
+                        return
+                    }
+                    
+                    throw DecodingError.dataCorruptedError(
+                        in: container,
+                        debugDescription: "ContentPart could not be decoded into any known type"
+                    )
+                }
+                
+                public func encode(to encoder: Encoder) throws {
+                    var container = encoder.singleValueContainer()
+                    
+                    switch self {
+                    case .text(let value):
+                        try container.encode(value)
+                    case .refusal(let value):
+                        try container.encode(value)
+                    }
+                }
+            }
+            
+            case textContent(String)
+            case contentParts([ContentPart])
+            
+            public func encode(to encoder: Encoder) throws {
+                var container = encoder.singleValueContainer()
+                switch self {
+                case .textContent(let a0):
+                    try container.encode(a0)
+                case .contentParts(let parts):
+                    try container.encode(parts)
                 }
             }
         }
@@ -724,8 +781,8 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
 
             //// The role of the messages author, in this case assistant.
             public let role: Self.Role = .assistant
-            /// The contents of the assistant message. Required unless tool_calls is specified.
-            public let content: String?
+            /// The contents of the assistant message. Required unless `tool_calls` is specified.
+            public let content: TextOrRefusalContent?
             /// Data about a previous audio response from the model.
             public let audio: Audio?
             /// The name of the author of this message. `name` is required if role is `function`, and it should be the name of the function whose response is in the `content`. May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
@@ -734,7 +791,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             public let toolCalls: [Self.ToolCallParam]?
 
             public init(
-                content: String? = nil,
+                content: TextOrRefusalContent? = nil,
                 audio: Audio? = nil,
                 name: String? = nil,
                 toolCalls: [Self.ToolCallParam]? = nil
@@ -801,14 +858,14 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             public typealias Role = ChatQuery.ChatCompletionMessageParam.Role
 
             /// The contents of the tool message.
-            public let content: String
+            public let content: TextContent
             /// The role of the messages author, in this case tool.
             public let role: Self.Role = .tool
             /// Tool call that this message is responding to.
             public let toolCallId: String
 
             public init(
-                content: String,
+                content: TextContent,
                 toolCallId: String
             ) {
                 self.content = content

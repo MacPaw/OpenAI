@@ -70,7 +70,7 @@ class OpenAITestsDecoder: XCTestCase {
                     finishReason: "stop"
                 )
             ],
-            usage: .init(completionTokens: 12, promptTokens: 9, totalTokens: 21),
+            usage: .init(completionTokens: 12, promptTokens: 9, totalTokens: 21, promptTokensDetails: nil),
             citations: nil
         )
         try decode(data, expectedValue)
@@ -313,7 +313,7 @@ class OpenAITestsDecoder: XCTestCase {
                     finishReason: "tool_calls"
                 )
             ],
-            usage: .init(completionTokens: 18, promptTokens: 82, totalTokens: 100),
+            usage: .init(completionTokens: 18, promptTokens: 82, totalTokens: 100, promptTokensDetails: nil),
             citations: nil
         )
         try decode(data, expectedValue)
@@ -690,7 +690,7 @@ class OpenAITestsDecoder: XCTestCase {
     
     func testChatQueryWithStructuredOutputDerivedSchema() throws {        
         let query = ChatQuery(
-            messages: [.system(.init(content: "Return a structured response."))],
+            messages: [.system(.init(content: .textContent("Return a structured response.")))],
             model: .gpt4_o,
             responseFormat: .derivedJsonSchema(name: "movie-info", type: MovieInfo.self)
         )
@@ -718,7 +718,7 @@ class OpenAITestsDecoder: XCTestCase {
     
     func testChatQueryWithStructuredOutputJsonSchema() throws {
         let query = ChatQuery(
-            messages: [.system(.init(content: "Return a structured response."))],
+            messages: [.system(.init(content: .textContent("Return a structured response.")))],
             model: .gpt4_o,
             responseFormat: .jsonSchema(
                 .init(

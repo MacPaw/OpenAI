@@ -89,13 +89,13 @@ class OpenAITests: XCTestCase {
         let chatResult = ChatResult(
             id: "id-12312", created: 100, model: .gpt3_5Turbo, object: "foo", serviceTier: nil, systemFingerprint: "fing",
             choices: [],
-            usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300),
+            usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300, promptTokensDetails: nil),
             citations: nil
         )
         try self.stub(result: chatResult)
         
         let query = ChatQuery(
-            messages: [.system(.init(content: "Return a structured response."))],
+            messages: [.system(.init(content: .textContent("Return a structured response.")))],
             model: .gpt4_o,
             responseFormat: .derivedJsonSchema(name: "movie-info", type: MovieInfo.self)
         )
@@ -109,7 +109,7 @@ class OpenAITests: XCTestCase {
         let chatResult = ChatResult(
             id: "id-12312", created: 100, model: .gpt3_5Turbo, object: "foo", serviceTier: nil, systemFingerprint: "fing",
             choices: [],
-            usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300),
+            usage: .init(completionTokens: 200, promptTokens: 100, totalTokens: 300, promptTokensDetails: nil),
             citations: nil
         )
         try self.stub(result: chatResult)
@@ -155,7 +155,7 @@ class OpenAITests: XCTestCase {
             "additionalProperties": AnyEncodable(false)
         ]
         let query = ChatQuery(
-            messages: [.system(.init(content: "Return a structured response."))],
+            messages: [.system(.init(content: .textContent("Return a structured response.")))],
             model: .gpt4_o,
             responseFormat: .dynamicJsonSchema(
                 .init(
@@ -172,7 +172,7 @@ class OpenAITests: XCTestCase {
     func testChatsFunction() async throws {
         let query = ChatQuery(
             messages: [
-                .system(.init(content: "You are Weather-GPT. You know everything about the weather.")),
+                .system(.init(content: .textContent("You are Weather-GPT. You know everything about the weather."))),
                 .user(.init(content: .string("What's the weather like in Boston?"))),
             ],
             model: .gpt3_5Turbo,
@@ -191,7 +191,7 @@ class OpenAITests: XCTestCase {
     
     func testChatsError() async throws {
         let query = ChatQuery(messages: [
-            .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
+            .system(.init(content: .textContent("You are Librarian-GPT. You know everything about the books."))),
             .user(.init(content: .string("Who wrote Harry Potter?")))
         ], model: .gpt3_5Turbo)
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
@@ -788,7 +788,7 @@ class OpenAITests: XCTestCase {
     
     private func makeChatQuery() -> ChatQuery {
         .init(messages: [
-            .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
+            .system(.init(content: .textContent("You are Librarian-GPT. You know everything about the books."))),
             .user(.init(content: .string("Who wrote Harry Potter?")))
         ], model: .gpt3_5Turbo)
     }
