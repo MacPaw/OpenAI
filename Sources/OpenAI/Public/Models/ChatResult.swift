@@ -63,7 +63,7 @@ public struct ChatResult: Codable, Equatable, Sendable {
         case citations
     }
     
-    init(id: String, created: Int, model: String, object: String, serviceTier: ServiceTier? = nil, systemFingerprint: String, choices: [Choice], usage: Self.CompletionUsage? = nil, citations: [String]? = nil) {
+    init(id: String, created: Int, model: String, object: String, serviceTier: ServiceTier? = nil, systemFingerprint: String? = nil, choices: [Choice], usage: Self.CompletionUsage? = nil, citations: [String]? = nil) {
         self.id = id
         self.created = created
         self.model = model
@@ -258,18 +258,32 @@ public struct ChatResult: Codable, Equatable, Sendable {
     }
 
     public struct CompletionUsage: Codable, Equatable, Sendable {
-
         /// Number of tokens in the generated completion.
         public let completionTokens: Int
         /// Number of tokens in the prompt.
         public let promptTokens: Int
         /// Total number of tokens used in the request (prompt + completion).
         public let totalTokens: Int
-
+        /// Breakdown of tokens used in the prompt.
+        public let promptTokensDetails: PromptTokensDetails?
+        
+        public struct PromptTokensDetails: Codable, Equatable, Sendable {
+            /// Audio input tokens present in the prompt.
+            public let audioTokens: Int
+            /// Cached tokens present in the prompt.
+            public let cachedTokens: Int
+            
+            enum CodingKeys: String, CodingKey {
+                case audioTokens = "audio_tokens"
+                case cachedTokens = "cached_tokens"
+            }
+        }
+        
         enum CodingKeys: String, CodingKey {
             case completionTokens = "completion_tokens"
             case promptTokens = "prompt_tokens"
             case totalTokens = "total_tokens"
+            case promptTokensDetails = "prompt_tokens_details"
         }
     }
 }
