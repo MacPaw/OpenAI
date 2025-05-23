@@ -11,7 +11,7 @@ import Foundation
 /// https://platform.openai.com/docs/guides/images
 public struct ImagesQuery: Codable, Equatable, Sendable {
     
-    public enum ResponseFormat: String, Codable, Equatable, Sendable {
+    public enum ResponseFormat: String, Codable, Hashable, Sendable {
         case url
         case b64_json
     }
@@ -71,12 +71,12 @@ public struct ImagesQuery: Codable, Equatable, Sendable {
         case quality
     }
 
-    public enum Style: String, Codable, CaseIterable, Sendable {
+    public enum Style: String, Codable, CaseIterable, Hashable, Sendable {
         case natural
         case vivid
     }
 
-    public enum Quality: String, Codable, CaseIterable, Sendable {
+    public enum Quality: String, Codable, CaseIterable, Hashable, Sendable {
         case standard
         case hd
         case high, medium, low  /// for gpt-image-1
@@ -84,7 +84,7 @@ public struct ImagesQuery: Codable, Equatable, Sendable {
 
     /// The size of the generated images.
     /// - For gpt-image-1, one of `1024x1024`, `1536x1024` (landscape), `1024x1536` (portrait), or `auto` (default value)
-    public enum Size: String, Codable, CaseIterable, Sendable {
+    public enum Size: String, Codable, CaseIterable, Hashable, Sendable {
         case _256 = "256x256"
         case _512 = "512x512"
         case _1024 = "1024x1024"

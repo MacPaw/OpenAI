@@ -207,7 +207,7 @@ public struct ChatStreamResult: Codable, Equatable, Sendable {
         self.model = try container.decodeString(forKey: .model, parsingOptions: parsingOptions)
         self.citations = try container.decodeIfPresent([String].self, forKey: .citations)
         self.choices = try container.decode([ChatStreamResult.Choice].self, forKey: .choices)
-        self.systemFingerprint = try container.decodeString(forKey: .systemFingerprint, parsingOptions: parsingOptions)
+        self.systemFingerprint = try? container.decodeString(forKey: .systemFingerprint, parsingOptions: parsingOptions)
         self.usage = try container.decodeIfPresent(ChatResult.CompletionUsage.self, forKey: .usage)
     }
 }
