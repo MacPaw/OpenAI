@@ -224,9 +224,9 @@ public final class ResponsesStore: ObservableObject {
         try await createResponse(
             input: .inputItemList([
                 .item(.functionToolCall(toolCall)),
-                .item(.functionToolCallOutput(.init(
-                    _type: .functionCallOutput,
+                .item(.functionCallOutputItemParam(.init(
                     callId: toolCall.callId,
+                    _type: .functionCallOutput,
                     output: result
                 )))
             ]),
@@ -453,14 +453,14 @@ public final class ResponsesStore: ObservableObject {
     
     private func updateMessageBeingStreamed(
         messageId: String,
-        outputContent: ResponseStreamEvent.Schemas.OutputContent,
+        outputContent: ResponseStreamEvent.Schemas.OutputContent
     ) throws {
         try updateMessageBeingStreamed(messageId: messageId) { message in
             switch outputContent {
-            case .OutputText(let outputText):
+            case .OutputTextContent(let outputText):
                 message.text = outputText.text
                 message.annotations = outputText.annotations
-            case .Refusal(let refusal):
+            case .RefusalContent(let refusal):
                 message.refusalText = refusal.refusal
             }
         }
@@ -604,14 +604,14 @@ public final class ResponsesStore: ObservableObject {
         username: String
     ) -> ExyteChat.Message {
         switch outputContent {
-        case .OutputText(let outputText):
+        case .OutputTextContent(let outputText):
             return makeChatMessage(
                 withText: outputText.text,
                 annotations: outputText.annotations,
                 messageId: messageId,
                 user: systemUser(withId: userId, username: username)
             )
-        case .Refusal(let refusal):
+        case .RefusalContent(let refusal):
             let message = ExyteChat.Message(
                 id: messageId,
                 user: systemUser(withId: userId, username: username),

@@ -12,7 +12,7 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
     public typealias Schemas = Components.Schemas
     public typealias OutputItem = Components.Schemas.OutputItem
     public typealias OutputContent = Components.Schemas.OutputContent
-    public typealias OutputText = Components.Schemas.OutputText
+    public typealias OutputText = Components.Schemas.OutputTextContent
     public typealias Annotation = Components.Schemas.Annotation
     
     public enum OutputItemEvent: Codable, Equatable, Sendable {
@@ -226,21 +226,21 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
             self = .functionCallArguments(.delta(value))
         } else if let value = rawEvent.value19 {
             self = .functionCallArguments(.done(value))
-        } else if let value = rawEvent.value25 {
-            self = .refusal(.delta(value))
-        } else if let value = rawEvent.value26 {
-            self = .refusal(.done(value))
-        } else if let value = rawEvent.value27 {
-            self = .outputText(.annotationAdded(value))
-        } else if let value = rawEvent.value28 {
-            self = .outputText(.delta(value))
         } else if let value = rawEvent.value29 {
-            self = .outputText(.done(value))
+            self = .refusal(.delta(value))
         } else if let value = rawEvent.value30 {
-            self = .webSearchCall(.completed(value))
+            self = .refusal(.done(value))
         } else if let value = rawEvent.value31 {
-            self = .webSearchCall(.inProgress(value))
+            self = .outputText(.annotationAdded(value))
         } else if let value = rawEvent.value32 {
+            self = .outputText(.delta(value))
+        } else if let value = rawEvent.value33 {
+            self = .outputText(.done(value))
+        } else if let value = rawEvent.value34 {
+            self = .webSearchCall(.completed(value))
+        } else if let value = rawEvent.value35 {
+            self = .webSearchCall(.inProgress(value))
+        } else if let value = rawEvent.value36 {
             self = .webSearchCall(.searching(value))
         } else {
             throw ResponseStreamEventDecodingError.unknownEvent(rawEvent)

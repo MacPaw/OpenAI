@@ -21,7 +21,7 @@ public struct ModerationChatView: View {
         DetailView(
             availableAssistants: [], conversation: store.moderationConversation, 
             error: store.moderationConversationError,
-            sendMessage: { message, _, _ in
+            sendMessage: { message, _, _, _ in
                 Task {
                     await store.sendModerationMessage(
                         Message(

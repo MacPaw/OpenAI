@@ -95,7 +95,7 @@ class OpenAIStreamingTests: XCTestCase {
     
     private func makeChatQuery() -> ChatQuery {
         .init(messages: [
-            .system(.init(content: "You are Librarian-GPT. You know everything about the books.")),
+            .system(.init(content: .textContent("You are Librarian-GPT. You know everything about the books."))),
             .user(.init(content: .string("Who wrote Harry Potter?")))
         ], model: .gpt3_5Turbo)
     }

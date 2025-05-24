@@ -10,12 +10,12 @@ import Foundation
 
 public enum InputContent: Codable, Hashable, Sendable {
     /// A text input to the model.
-    case inputText(Components.Schemas.InputText)
+    case inputText(Components.Schemas.InputTextContent)
     /// An image input to the model.
     /// Learn about [image inputs](https://platform.openai.com/docs/guides/vision).
     case inputImage(InputImage)
     /// A file input to the model.
-    case inputFile(Components.Schemas.InputFile)
+    case inputFile(Components.Schemas.InputFileContent)
     
     public init(from decoder: any Decoder) throws {
         var errors: [any Error] = []
