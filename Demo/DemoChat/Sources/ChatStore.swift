@@ -15,9 +15,16 @@ public final class ChatStore: ObservableObject {
     public var openAIClient: OpenAIProtocol
     let idProvider: () -> String
 
-    @Published var conversations: [Conversation] = []
+    private var conversations: [Conversation] = [] {
+        didSet {
+            updateDebouncedConversations(with: conversations)
+        }
+    }
+    
+    @Published var debouncedConversations: [Conversation] = []
     @Published var conversationErrors: [Conversation.ID: Error] = [:]
     @Published var selectedConversationID: Conversation.ID?
+    @Published var isSendingMessage = false
 
     // Used for assistants API state.
     private var timer: Timer?
@@ -25,8 +32,8 @@ public final class ChatStore: ObservableObject {
     private var currentRunId: String?
     private var currentThreadId: String?
     private var currentConversationId: String?
-
-    @Published var isSendingMessage = false
+    private var currentUpdateTask: Task<Void, Never>?
+    private var conversationsForNextUpdateTask: [Conversation]?
 
     var selectedConversation: Conversation? {
         selectedConversationID.flatMap { id in
@@ -75,6 +82,7 @@ public final class ChatStore: ObservableObject {
 
         switch conversations[conversationIndex].type  {
         case .normal:
+            isSendingMessage = true
             conversations[conversationIndex].messages.append(message)
 
             await completeChat(
@@ -82,6 +90,7 @@ public final class ChatStore: ObservableObject {
                 model: model,
                 stream: isStreamEnabled
             )
+            isSendingMessage = false
             // For assistant case we send chats to thread and then poll, polling will receive sent chat + new assistant messages.
         case .assistant:
 
@@ -177,7 +186,37 @@ public final class ChatStore: ObservableObject {
             
             let chatQuery = ChatQuery(
                 messages: conversation.messages.map { message in
-                    ChatQuery.ChatCompletionMessageParam(role: message.role, content: message.content)!
+                    switch message.role {
+                    case .developer:
+                        return ChatQuery.ChatCompletionMessageParam.developer(.init(content: .textContent(message.content)))
+                    case .system:
+                        return ChatQuery.ChatCompletionMessageParam.system(.init(content: .textContent(message.content)))
+                    case .user:
+                        if let image = message.image {
+                            return ChatQuery.ChatCompletionMessageParam.user(
+                                .init(content: .contentParts([
+                                    .text(.init(text: message.content)),
+                                    .image(.init(imageUrl: .init(imageData: image.data, detail: nil)))
+                                ]))
+                            )
+                        } else {
+                            return ChatQuery.ChatCompletionMessageParam.user(.init(content: .string(message.content)))
+                        }
+                    case .assistant:
+                        if message.isRefusal {
+                            return ChatQuery.ChatCompletionMessageParam.assistant(.init(
+                                content: .contentParts(
+                                    [.refusal(.init(_type: .refusal, refusal: message.content))]
+                                )
+                            ))
+                        } else {
+                            return ChatQuery.ChatCompletionMessageParam.assistant(.init(
+                                content: .textContent(message.content)
+                            ))
+                        }
+                    case .tool:
+                        return ChatQuery.ChatCompletionMessageParam.system(.init(content: .textContent(message.content)))
+                    }
                 },
                 model: model,
                 tools: functions
@@ -276,7 +315,7 @@ public final class ChatStore: ObservableObject {
     }
 
     // Start Polling section
-    func startPolling(conversationId: Conversation.ID, runId: String, threadId: String) {
+    private func startPolling(conversationId: Conversation.ID, runId: String, threadId: String) {
         currentRunId = runId
         currentThreadId = threadId
         currentConversationId = conversationId
@@ -288,7 +327,7 @@ public final class ChatStore: ObservableObject {
         }
     }
 
-    func stopPolling() {
+    private func stopPolling() {
         isSendingMessage = false
         timer?.invalidate()
         timer = nil
@@ -443,5 +482,34 @@ public final class ChatStore: ObservableObject {
         else {
             conversations[conversationIndex].messages.append(message)
         }
+    }
+    
+    private func updateDebouncedConversations(with conversations: [Conversation]) {
+        if currentUpdateTask == nil {
+            scheduleReplaceDebouncedConversations(withConversations: conversations)
+        } else {
+            conversationsForNextUpdateTask = conversations
+        }
+    }
+    
+    private func scheduleReplaceDebouncedConversations(withConversations conversations: [Conversation]) {
+        currentUpdateTask = .init(operation: {
+            // Debouncing because otherwise it's hard for ExyteChat to handle very quick updates
+            do {
+                // 1000 nano == 1 micro, 1000 micro == 1 milli, 100 milli = 0.1s
+                try await Task.sleep(nanoseconds: 1000 * 1000 * 100)
+            } catch {
+                assert(error is CancellationError)
+                return
+            }
+            
+            self.debouncedConversations = conversations
+            self.currentUpdateTask = nil
+            
+            if let pendingItem = conversationsForNextUpdateTask {
+                conversationsForNextUpdateTask = nil
+                scheduleReplaceDebouncedConversations(withConversations: pendingItem)
+            }
+        })
     }
 }

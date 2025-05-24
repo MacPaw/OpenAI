@@ -13,6 +13,8 @@ import AppKit
 import OpenAI
 import SwiftUI
 
+import ExyteChat
+
 struct DetailView: View {
     @State var inputText: String = ""
     @FocusState private var isFocused: Bool
@@ -20,59 +22,34 @@ struct DetailView: View {
     @State private var selectedChatModel: Model = .gpt4_o_mini
     @State private var streamEnabled = true
     var availableAssistants: [Assistant]
-
+    
     private static let availableChatModels: [Model] = [.gpt4_o_mini]
-
+    
     let conversation: Conversation
     let error: Error?
-    let sendMessage: (String, Model, Bool) -> Void
-
+    let sendMessage: (String, Message.Image?, Model, Bool) -> Void
+    
     @Binding var isSendingMessage: Bool
-
+    
     private var fillColor: Color {
-        #if os(iOS)
+#if os(iOS)
         return Color(uiColor: UIColor.systemBackground)
-        #elseif os(macOS)
+#elseif os(macOS)
         return Color(nsColor: NSColor.textBackgroundColor)
-        #endif
+#endif
     }
-
+    
     private var strokeColor: Color {
-        #if os(iOS)
+#if os(iOS)
         return Color(uiColor: UIColor.systemGray5)
-        #elseif os(macOS)
+#elseif os(macOS)
         return Color(nsColor: NSColor.lightGray)
-        #endif
+#endif
     }
-
+    
     var body: some View {
         NavigationStack {
-            ScrollViewReader { scrollViewProxy in
-                VStack {
-                    List {
-                        ForEach(conversation.messages) { message in
-                            ChatBubble(message: message)
-                        }
-                        .listRowSeparator(.hidden)
-                    }
-                    // Tapping on the message bubble area should dismiss the keyboard.
-                    .onTapGesture {
-                        self.hideKeyboard()
-                    }
-                    .listStyle(.plain)
-                    .animation(.default, value: conversation.messages)
-//                    .onChange(of: conversation) { newValue in
-//                        if let lastMessage = newValue.messages.last {
-//                            scrollViewProxy.scrollTo(lastMessage.id, anchor: .bottom)
-//                        }
-//                    }
-
-                    if let error = error {
-                        errorMessage(error: error)
-                    }
-
-                    inputBar(scrollViewProxy: scrollViewProxy)
-                }
+            chatView()
                 .navigationTitle(conversation.type == .assistant ? "Assistant: \(currentAssistantName())" : "Chat")
                 .safeAreaInset(edge: .top) {
                     HStack {
@@ -89,7 +66,7 @@ struct DetailView: View {
                 .toolbar {
                     if conversation.type == .assistant {
                         ToolbarItem(placement: .navigationBarTrailing) {
-
+                            
                             Menu {
                                 ForEach(availableAssistants, id: \.self) { item in
                                     Button(item.name) {
@@ -130,7 +107,7 @@ struct DetailView: View {
                         } label: {
                             Text(streamEnabled ? "Disable streaming" : "Enable streaming")
                         }
-
+                        
                         Button("Cancel", role: .cancel) {
                             showsModelSelectionSheet = false
                         }
@@ -142,165 +119,73 @@ struct DetailView: View {
                         .font(.caption)
                     }
                 )
-            }
+        }
+    }
+    
+    @ViewBuilder
+    private func chatView() -> some View {
+        ExyteChat.ChatView(
+            messages: conversation.exyteChatMessages,
+            chatType: .conversation,
+            replyMode: .answer,
+            didSendMessage: { draftMessage in
+                Task {
+                    let image: Message.Image?
+                    
+                    if let media = draftMessage.medias.first,
+                       media.type == .image,
+                       let url = await media.getThumbnailURL(),
+                       let data = await media.getThumbnailData() {
+                        image = .init(
+                            attachmentId: media.id.uuidString,
+                            thumbnailURL: url,
+                            data: data
+                        )
+                    } else {
+                        image = nil
+                    }
+                    
+                    sendMessage(
+                        draftMessage.text,
+                        image,
+                        selectedChatModel,
+                        streamEnabled
+                    )
+                }
+        })
+        .setAvailableInputs([.text, .media])
+        .messageUseMarkdown(true)
+        .betweenListAndInputViewBuilder(infoMessage)
+    }
+    
+    @ViewBuilder func infoMessage() -> some View {
+        if isSendingMessage {
+            infoMessage("Sending...", isError: false)
+        } else if let error {
+            infoMessage(error.localizedDescription, isError: false)
+        } else {
+            EmptyView()
         }
     }
 
-    @ViewBuilder private func errorMessage(error: Error) -> some View {
+    @ViewBuilder
+    private func infoMessage(_ string: String, isError: Bool) -> some View {
         Text(
-            error.localizedDescription
+            string
         )
         .font(.caption)
         .foregroundColor({
             #if os(iOS)
-            return Color(uiColor: .systemRed)
+            return Color(uiColor: isError ? .systemRed : .secondaryLabel)
             #elseif os(macOS)
-            return Color(.systemRed)
+            return Color(isError ? .systemRed : .secondaryLabel)
             #endif
         }())
         .padding(.horizontal)
     }
-
-    @ViewBuilder private func inputBar(scrollViewProxy: ScrollViewProxy) -> some View {
-        HStack {
-            TextEditor(
-                text: $inputText
-            )
-            .padding(.vertical, -8)
-            .padding(.horizontal, -4)
-            .frame(minHeight: 22, maxHeight: 300)
-            .foregroundColor(.primary)
-            .padding(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
-            .background(
-                RoundedRectangle(
-                    cornerRadius: 16,
-                    style: .continuous
-                )
-                .fill(fillColor)
-                .overlay(
-                    RoundedRectangle(
-                        cornerRadius: 16,
-                        style: .continuous
-                    )
-                    .stroke(
-                        strokeColor,
-                        lineWidth: 1
-                    )
-                )
-            )
-            .fixedSize(horizontal: false, vertical: true)
-            .onSubmit {
-                withAnimation {
-                    tapSendMessage(scrollViewProxy: scrollViewProxy)
-                }
-            }
-            .padding(.leading)
-
-            if isSendingMessage {
-                 ProgressView()
-                     .progressViewStyle(CircularProgressViewStyle())
-                     .padding(.trailing)
-            } else {
-                Button(action: {
-                    withAnimation {
-                        tapSendMessage(scrollViewProxy: scrollViewProxy)
-                    }
-                }) {
-                    Image(systemName: "paperplane")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 24, height: 24)
-                        .padding(.trailing)
-                }
-                .disabled(inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
-        }
-        .padding(.bottom)
-    }
     
-    private func tapSendMessage(
-        scrollViewProxy: ScrollViewProxy
-    ) {
-        let message = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if message.isEmpty {
-            return
-        }
-        
-        sendMessage(message, selectedChatModel, streamEnabled)
-        inputText = ""
-        
-//        if let lastMessage = conversation.messages.last {
-//            scrollViewProxy.scrollTo(lastMessage.id, anchor: .bottom)
-//        }
-    }
-
     func currentAssistantName() -> String {
         availableAssistants.filter { conversation.assistantId == $0.id }.first?.name ?? ""
-    }
-    func hideKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-    }
-}
-
-struct ChatBubble: View {
-    let message: Message
-
-    private var assistantBackgroundColor: Color {
-        #if os(iOS)
-        return Color(uiColor: UIColor.systemGray5)
-        #elseif os(macOS)
-        return Color(nsColor: NSColor.lightGray)
-        #endif
-    }
-
-    private var userForegroundColor: Color {
-        #if os(iOS)
-        return Color(uiColor: .white)
-        #elseif os(macOS)
-        return Color(nsColor: NSColor.white)
-        #endif
-    }
-
-    private var userBackgroundColor: Color {
-        #if os(iOS)
-        return Color(uiColor: .systemBlue)
-        #elseif os(macOS)
-        return Color(nsColor: NSColor.systemBlue)
-        #endif
-    }
-
-    var body: some View {
-        HStack {
-            switch message.role {
-            case .assistant:
-                Text(message.content)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(assistantBackgroundColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                Spacer(minLength: 24)
-            case .user:
-                Spacer(minLength: 24)
-                Text(message.content)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .foregroundColor(userForegroundColor)
-                    .background(userBackgroundColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            case .tool:
-              Text(message.content)
-                  .font(.footnote.monospaced())
-                  .padding(.horizontal, 16)
-                  .padding(.vertical, 12)
-                  .background(assistantBackgroundColor)
-                  .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-              Spacer(minLength: 24)
-            case .system:
-                EmptyView()
-            case .developer:
-                EmptyView()
-            }
-        }
     }
 }
 
@@ -324,7 +209,7 @@ struct DetailView_Previews: PreviewProvider {
                 ]
             ),
             error: nil,
-            sendMessage: { _, _, _ in }, isSendingMessage: Binding.constant(false)
+            sendMessage: { _, _, _, _  in }, isSendingMessage: Binding.constant(false)
         )
     }
 }
