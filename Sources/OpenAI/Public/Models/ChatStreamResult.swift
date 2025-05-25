@@ -208,6 +208,12 @@ public struct ChatStreamResult: Codable, Equatable, Sendable {
         self.citations = try container.decodeIfPresent([String].self, forKey: .citations)
         self.choices = try container.decode([ChatStreamResult.Choice].self, forKey: .choices)
         self.systemFingerprint = try? container.decodeString(forKey: .systemFingerprint, parsingOptions: parsingOptions)
-        self.usage = try container.decodeIfPresent(ChatResult.CompletionUsage.self, forKey: .usage)
+        
+        // Even though API Reference declares that usage field should be either informative or null: https://platform.openai.com/docs/api-reference/chat/create#chat-create-stream_options
+        // In some cases it can be present, but empty: https://github.com/MacPaw/OpenAI/issues/338
+        //
+        // To make things simpler, we're not going to check the correctnes of payload before trying to decode
+        // We're just going to ignore all the errors here by using optional try and fallback to nil `usage`
+        self.usage = try? container.decodeIfPresent(ChatResult.CompletionUsage.self, forKey: .usage)
     }
 }

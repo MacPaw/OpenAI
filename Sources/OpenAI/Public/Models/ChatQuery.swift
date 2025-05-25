@@ -1277,10 +1277,10 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
     
     public struct StreamOptions: Codable, Equatable, Sendable {
         
-        /// If set, an additional chunk will be streamed before the data: [DONE] message.
-        /// The usage field on this chunk shows the token usage statistics for the entire request,
-        /// and the choices field will always be an empty array. All other chunks will also
-        /// include a usage field, but with a null value.
+        /// If set, an additional chunk will be streamed before the `data: [DONE]` message. The `usage` field on this chunk shows the token usage statistics for the entire request, and the `choices` field will always be an empty array.
+        ///
+        /// All other chunks will also include a `usage` field, but with a null value.
+        /// - Note: If the stream is interrupted, you may not receive the final usage chunk which contains the total token usage for the request.
         public let includeUsage: Bool
         
         public init(includeUsage: Bool) {
@@ -1290,7 +1290,6 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         public enum CodingKeys: String, CodingKey {
             case includeUsage = "include_usage"
         }
-
     }
 
     public struct AudioOptions: Codable, Equatable, Sendable {
