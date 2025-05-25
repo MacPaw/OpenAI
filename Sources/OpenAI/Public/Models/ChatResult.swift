@@ -255,7 +255,10 @@ public struct ChatResult: Codable, Equatable, Sendable {
         self.choices = try container.decode([ChatResult.Choice].self, forKey: .choices)
         self.serviceTier = try container.decodeIfPresent(String.self, forKey: .serviceTier)
         self.systemFingerprint = try container.decodeIfPresent(String.self, forKey: .systemFingerprint)
-        self.usage = try container.decodeIfPresent(ChatResult.CompletionUsage.self, forKey: .usage)
+        // It seems to be possible that in some cases `usage` may be neither a full object nor `null`
+        // For example, whem model's response is not a content, but `refusal`
+        // See: https://github.com/MacPaw/OpenAI/issues/338 for more details
+        self.usage = try? container.decodeIfPresent(ChatResult.CompletionUsage.self, forKey: .usage)
         self.citations = try container.decodeIfPresent([String].self, forKey: .citations)
     }
 }

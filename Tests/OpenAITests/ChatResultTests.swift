@@ -100,4 +100,42 @@ final class ChatResultTests: XCTestCase {
         XCTAssertEqual(chatResult.model, "gpt-4")
         XCTAssertEqual(chatResult.systemFingerprint, nil)
     }
+    
+    /// [Issue 338](https://github.com/MacPaw/OpenAI/issues/338)
+    func testParseEmptyUsage() throws {
+        let jsonString = """
+            {
+                "id": "some_id",
+                "object": "chat.completion",
+                "created": 1677652288,
+                "model": "gpt-4",
+                "choices": [],
+                "usage": {}
+            }
+            """
+        
+        let jsonData = jsonString.data(using: .utf8)!
+        let chatResult = try JSONDecoder().decode(ChatResult.self, from: jsonData)
+        XCTAssertEqual(chatResult.model, "gpt-4")
+        XCTAssertEqual(chatResult.usage, nil)
+    }
+    
+    /// [Issue 338](https://github.com/MacPaw/OpenAI/issues/338)
+    func testParseEmptyUsageStream() throws {
+        let jsonString = """
+            {
+                "id": "some_id",
+                "object": "chat.completion",
+                "created": 1677652288,
+                "model": "gpt-4",
+                "choices": [],
+                "usage": {}
+            }
+            """
+        
+        let jsonData = jsonString.data(using: .utf8)!
+        let chatStreamResult = try JSONDecoder().decode(ChatStreamResult.self, from: jsonData)
+        XCTAssertEqual(chatStreamResult.model, "gpt-4")
+        XCTAssertEqual(chatStreamResult.usage, nil)
+    }
 }
