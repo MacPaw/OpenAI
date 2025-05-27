@@ -1,14 +1,14 @@
 //
-//  ChatResultTests.swift
+//  ChatStreamResultTests.swift
 //  OpenAI
 //
-//  Created by Oleksii Nezhyborets on 02.04.2025.
+//  Created by Oleksii Nezhyborets on 23.05.2025.
 //
 
 import XCTest
 @testable import OpenAI
 
-final class ChatResultTests: XCTestCase {
+final class ChatStreamResultTests: XCTestCase {
     private let decoder = JSONDecoder()
     
     func testDecodeFailsForMissingId() {
@@ -26,7 +26,7 @@ final class ChatResultTests: XCTestCase {
         } catch let error as DecodingError {
             switch error {
             case .keyNotFound(let key, _):
-                XCTAssertEqual(key as! ChatResult.CodingKeys, ChatResult.CodingKeys.id)
+                XCTAssertEqual(key as! ChatStreamResult.CodingKeys, ChatStreamResult.CodingKeys.id)
             default:
                 XCTFail("Unexpected error")
             }
@@ -48,8 +48,8 @@ final class ChatResultTests: XCTestCase {
             """
         
         decoder.userInfo = [.parsingOptions: ParsingOptions.relaxed]
-        let chatResult = try decode(jsonString)
-        XCTAssertEqual(chatResult.id, "")
+        let result = try decode(jsonString)
+        XCTAssertEqual(result.id, "")
     }
     
     func testThrowsErrorIfOptionsNotSufficient() throws {
@@ -69,7 +69,7 @@ final class ChatResultTests: XCTestCase {
         } catch let error as DecodingError {
             switch error {
             case .keyNotFound(let key, _):
-                XCTAssertEqual(key as! ChatResult.CodingKeys, ChatResult.CodingKeys.id)
+                XCTAssertEqual(key as! ChatStreamResult.CodingKeys, ChatStreamResult.CodingKeys.id)
             default:
                 XCTFail("Unexpected error")
             }
@@ -94,47 +94,9 @@ final class ChatResultTests: XCTestCase {
         
         XCTAssertEqual(jsonDict["model"] as! String, "gpt-4", "Invalid json mock")
         XCTAssertTrue(jsonDict["system_fingerprint"] is NSNull, "The field is expected to be missing or null")
-        let chatResult = try decode(jsonString)
-        XCTAssertEqual(chatResult.model, "gpt-4")
-        XCTAssertEqual(chatResult.systemFingerprint, nil)
-    }
-    
-    /// [Issue 338](https://github.com/MacPaw/OpenAI/issues/338)
-    func testParseEmptyUsage() throws {
-        let jsonString = """
-            {
-                "id": "some_id",
-                "object": "chat.completion",
-                "created": 1677652288,
-                "model": "gpt-4",
-                "choices": [],
-                "usage": {}
-            }
-            """
-        
-        let jsonData = jsonString.data(using: .utf8)!
-        let chatResult = try JSONDecoder().decode(ChatResult.self, from: jsonData)
-        XCTAssertEqual(chatResult.model, "gpt-4")
-        XCTAssertEqual(chatResult.usage, nil)
-    }
-    
-    /// [Issue 338](https://github.com/MacPaw/OpenAI/issues/338)
-    func testParseEmptyUsageStream() throws {
-        let jsonString = """
-            {
-                "id": "some_id",
-                "object": "chat.completion",
-                "created": 1677652288,
-                "model": "gpt-4",
-                "choices": [],
-                "usage": {}
-            }
-            """
-        
-        let jsonData = jsonString.data(using: .utf8)!
-        let chatStreamResult = try JSONDecoder().decode(ChatStreamResult.self, from: jsonData)
-        XCTAssertEqual(chatStreamResult.model, "gpt-4")
-        XCTAssertEqual(chatStreamResult.usage, nil)
+        let result = try decode(jsonString)
+        XCTAssertEqual(result.model, "gpt-4")
+        XCTAssertEqual(result.systemFingerprint, nil)
     }
     
     func testDecodeServiceTier() throws {
@@ -153,8 +115,8 @@ final class ChatResultTests: XCTestCase {
         XCTAssertEqual(result.serviceTier, .flexTier)
     }
     
-    private func decode(_ jsonString: String) throws -> ChatResult {
+    private func decode(_ jsonString: String) throws -> ChatStreamResult {
         let jsonData = jsonString.data(using: .utf8)!
-        return try decoder.decode(ChatResult.self, from: jsonData)
+        return try decoder.decode(ChatStreamResult.self, from: jsonData)
     }
 }

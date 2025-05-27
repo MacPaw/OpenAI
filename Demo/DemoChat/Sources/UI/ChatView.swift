@@ -26,7 +26,7 @@ public struct ChatView: View {
         ZStack {
             NavigationSplitView {
                 ListView(
-                    conversations: $store.conversations,
+                    conversations: $store.debouncedConversations,
                     selectedConversationId: Binding<Conversation.ID?>(
                         get: {
                             store.selectedConversationID
@@ -51,23 +51,26 @@ public struct ChatView: View {
             } detail: {
                 if let conversation = store.selectedConversation {
                     DetailView(
-                        availableAssistants: assistantStore.availableAssistants, conversation: conversation,
+                        availableAssistants: assistantStore.availableAssistants,
+                        conversation: conversation,
                         error: store.conversationErrors[conversation.id],
-                        sendMessage: { message, selectedModel, streamEnabled in
+                        sendMessage: { message, image, selectedModel, streamEnabled in
                             self.sendMessageTask = Task {
                                 await store.sendMessage(
                                     Message(
                                         id: idProvider(),
                                         role: .user,
                                         content: message,
-                                        createdAt: dateProvider()
+                                        createdAt: dateProvider(),
+                                        image: image
                                     ),
                                     conversationId: conversation.id,
                                     model: selectedModel,
                                     isStreamEnabled: streamEnabled
                                 )
                             }
-                        }, isSendingMessage: $store.isSendingMessage
+                        },
+                        isSendingMessage: $store.isSendingMessage
                     )
                 }
             }

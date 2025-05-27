@@ -148,7 +148,7 @@ public struct ImageEditView: View {
                 .disabled(prompt.isEmpty || selectedImages.isEmpty || isLoading)
             }
         }
-        .onChange(of: selectedModel) { newModel in
+        .onChange(of: selectedModel) { _, newModel in
             switch newModel {
             case .gpt_image_1:
                 selectedPhotoItems = []
@@ -160,12 +160,12 @@ public struct ImageEditView: View {
                 maxPhotos = 1
             }
         }
-        .onChange(of: selectedMaskItem) { newMaskItem in
+        .onChange(of: selectedMaskItem) { _, newMaskItem in
             Task {
                 await loadMaskImage(from: newMaskItem)
             }
         }
-        .onChange(of: selectedPhotoItems) { newItems in
+        .onChange(of: selectedPhotoItems) { _, newItems in
             Task {
                 await loadSelectedImages(from: newItems)
             }
