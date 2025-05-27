@@ -85,7 +85,10 @@ public struct ChatResult: Codable, Equatable, Sendable {
         self.choices = try container.decode([ChatResult.Choice].self, forKey: .choices)
         self.serviceTier = try container.decodeIfPresent(ServiceTier.self, forKey: .serviceTier)
         self.systemFingerprint = try container.decodeIfPresent(String.self, forKey: .systemFingerprint)
-        self.usage = try container.decodeIfPresent(ChatResult.CompletionUsage.self, forKey: .usage)
+        // It seems to be possible that in some cases `usage` may be neither a full object nor `null`
+        // For example, whem model's response is not a content, but `refusal`
+        // See: https://github.com/MacPaw/OpenAI/issues/338 for more details
+        self.usage = try? container.decodeIfPresent(ChatResult.CompletionUsage.self, forKey: .usage)
         self.citations = try container.decodeIfPresent([String].self, forKey: .citations)
     }
     
@@ -285,75 +288,6 @@ public struct ChatResult: Codable, Equatable, Sendable {
             case totalTokens = "total_tokens"
             case promptTokensDetails = "prompt_tokens_details"
         }
-    }
-
-    /// A unique identifier for the chat completion.
-    public let id: String
-    /// The Unix timestamp (in seconds) of when the chat completion was created.
-    public let created: Int
-    /// The model used for the chat completion.
-    public let model: String
-    /// The object type, which is always `chat.completion`.
-    public let object: String
-    /// The service tier used for processing the request.
-    public let serviceTier: String?
-    /// This fingerprint represents the backend configuration that the model runs with.
-    /// Can be used in conjunction with the seed request parameter to understand when backend changes have been made that might impact determinism.
-    ///
-    /// Note: Even though [API Reference - The chat completion object - system_fingerprint](https://platform.openai.com/docs/api-reference/chat/object#chat/object-system_fingerprint) declares the type as non-optional `string` - the response object may not contain the value, so we have had to make it optional `String?` in the Swift type.
-    /// See https://github.com/MacPaw/OpenAI/issues/331 for more details on such a case
-    public let systemFingerprint: String?
-    /// A list of chat completion choices. Can be more than one if n is greater than 1.
-    public let choices: [Choice]
-    /// Usage statistics for the completion request.
-    public let usage: Self.CompletionUsage?
-    
-    /// Following are fields that are not part of OpenAI API Reference, but are present in responses from other providers
-    ///
-    /// Perplexity
-    /// Citations for the generated answer.
-    /// https://docs.perplexity.ai/api-reference/chat-completions#response-citations
-    public let citations: [String]?
-
-    public enum CodingKeys: String, CodingKey {
-        case id
-        case object
-        case created
-        case model
-        case choices
-        case serviceTier = "service_tier"
-        case systemFingerprint = "system_fingerprint"
-        case usage
-        case citations
-    }
-    
-    init(id: String, created: Int, model: String, object: String, serviceTier: String? = nil, systemFingerprint: String? = nil, choices: [Choice], usage: Self.CompletionUsage? = nil, citations: [String]? = nil) {
-        self.id = id
-        self.created = created
-        self.model = model
-        self.object = object
-        self.serviceTier = serviceTier
-        self.systemFingerprint = systemFingerprint
-        self.choices = choices
-        self.usage = usage
-        self.citations = citations
-    }
-    
-    public init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let parsingOptions = decoder.userInfo[.parsingOptions] as? ParsingOptions ?? []
-        self.id = try container.decodeString(forKey: .id, parsingOptions: parsingOptions)
-        self.object = try container.decodeString(forKey: .object, parsingOptions: parsingOptions)
-        self.created = try container.decode(Int.self, forKey: .created)
-        self.model = try container.decodeString(forKey: .model, parsingOptions: parsingOptions)
-        self.choices = try container.decode([ChatResult.Choice].self, forKey: .choices)
-        self.serviceTier = try container.decodeIfPresent(String.self, forKey: .serviceTier)
-        self.systemFingerprint = try container.decodeIfPresent(String.self, forKey: .systemFingerprint)
-        // It seems to be possible that in some cases `usage` may be neither a full object nor `null`
-        // For example, whem model's response is not a content, but `refusal`
-        // See: https://github.com/MacPaw/OpenAI/issues/338 for more details
-        self.usage = try? container.decodeIfPresent(ChatResult.CompletionUsage.self, forKey: .usage)
-        self.citations = try container.decodeIfPresent([String].self, forKey: .citations)
     }
 }
 
