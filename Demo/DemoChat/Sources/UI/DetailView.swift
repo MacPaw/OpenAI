@@ -22,9 +22,9 @@ struct DetailView: View {
     @State private var selectedChatModel: Model = .gpt4_o_mini
     @State private var streamEnabled = true
     var availableAssistants: [Assistant]
-    
-    private static let availableChatModels: [Model] = [.gpt4_o_mini]
-    
+
+    private static let availableChatModels: [Model] = Array(Model.allModels(satisfying: .init(supportedEndpoints: [.chatCompletions]))).sorted(by: >)
+
     let conversation: Conversation
     let error: Error?
     let sendMessage: (String, Message.Image?, Model, Bool) -> Void
@@ -94,6 +94,12 @@ struct DetailView: View {
                     isPresented: $showsModelSelectionSheet,
                     titleVisibility: .visible,
                     actions: {
+                        Button {
+                            streamEnabled.toggle()
+                        } label: {
+                            Text(streamEnabled ? "Disable streaming" : "Enable streaming")
+                        }
+                        
                         ForEach(DetailView.availableChatModels, id: \.self) { model in
                             Button {
                                 selectedChatModel = model
@@ -101,13 +107,7 @@ struct DetailView: View {
                                 Text(model)
                             }
                         }
-                        
-                        Button {
-                            streamEnabled.toggle()
-                        } label: {
-                            Text(streamEnabled ? "Disable streaming" : "Enable streaming")
-                        }
-                        
+
                         Button("Cancel", role: .cancel) {
                             showsModelSelectionSheet = false
                         }

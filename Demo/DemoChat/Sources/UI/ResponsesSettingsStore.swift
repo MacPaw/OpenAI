@@ -14,5 +14,5 @@ class ResponsesSettingsStore: ObservableObject {
     @Published public var webSearchEnabled = true
     @Published public var functionCallingEnabled = false
     
-    public let models = Model.allModels(satisfying: .init(supportedEndpoints: [.responses]))
+    public let models = Array(Model.allModels(satisfying: .init(supportedEndpoints: [.responses]))).sorted(by: >)
 }

@@ -13,7 +13,22 @@ public extension Model {
     // MARK: - Reasoning Models
     // o-series models that excel at complex, multi-step tasks.
     
+    // MARK: o4 series
+    /// Faster, more affordable reasoning model
+    ///
+    /// o4-mini is our latest small o-series model. It's optimized for fast, effective reasoning with exceptionally efficient performance in coding and visual tasks.
+    ///
+    /// Learn more about how to use our reasoning models in our [reasoning](https://platform.openai.com/docs/guides/reasoning) guide.
+    static let o4_mini = "o4-mini"
+    
     // MARK: o3 series
+    /// OpenAI's most powerful reasoning model
+    ///
+    /// o3 is a well-rounded and powerful model across domains. It sets a new standard for math, science, coding, and visual reasoning tasks. It also excels at technical writing and instruction-following. Use it to think through multi-step problems that involve analysis across text, code, and images.
+    ///
+    /// Learn more about how to use our reasoning models in the [reasoning](https://platform.openai.com/docs/guides/reasoning) guide.
+    static let o3 = "o3"
+    
     /// `o3-mini`: small reasoning model providing high intelligence at the same cost and latency targets of o1-mini.
     static let o3_mini = "o3-mini"
     
@@ -24,6 +39,7 @@ public extension Model {
     static let o1 = "o1"
     
     /// `o1-mini`: fast and affordable reasoning model for specialized tasks
+    @available(*, deprecated, message: "On April 28th, 2025, developers using o1-preview and o1-mini were notified of these models deprecations and removal from the API in three months and six months respectively. Recommended replacement for o1-mini: o4-mini")
     static let o1_mini = "o1-mini"
     
     /// `o1-pro`: A version of o1 with more compute for better responses
@@ -34,6 +50,7 @@ public extension Model {
     
     /// `gpt-4.5-preview`: Largest and most capable GPT model
     /// https://platform.openai.com/docs/models/gpt-4.5-preview
+    @available(*, deprecated, message: "On April 14th, 2025, developers were notified that the gpt-4.5-preview model is deprecated and will be removed from the API in the coming months. Recommended replacement: gpt-4.1")
     static let gpt4_5_preview = "gpt-4.5-preview"
 
     // GPT-4.1
@@ -69,7 +86,7 @@ public extension Model {
     /// `gpt-4o-mini-audio-preview`, this is a preview release of the smaller GPT-4o Audio mini model. It's designed to input audio or create audio outputs via the REST API.
     static let gpt_4o_mini_audio_preview = "gpt-4o-mini-audio-preview"
 
-    // MARK: Realtime models
+    // MARK: - Realtime models
     // Models capable of realtime text and audio inputs and outputs.
     
     /// GPT-4o Realtime: Model capable of realtime text and audio inputs and outputs
@@ -86,7 +103,7 @@ public extension Model {
     /// This is a preview release of the GPT-4o-mini Realtime model, capable of responding to audio and text inputs in realtime over WebRTC or a WebSocket interface.
     static let gpt_4o_mini_realtime_preview = "gpt-4o-mini-realtime-preview"
     
-    // MARK: Older GPT models
+    // MARK: - Older GPT models
     // Supported older versions of our general purpose and chat models.
     
     // MARK: GPT-4 Turbo
@@ -204,6 +221,16 @@ public extension Model {
     // MARK: - Tool-specific models
     // Models to support specific built-in tools.
     
+    /// GPT model for web search in Chat Completions
+    ///
+    /// GPT-4o Search Preview is a specialized model trained to understand and execute [web search](https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat) queries with the Chat Completions API. In addition to token fees, web search queries have a fee per tool call. Learn more in the [pricing](https://platform.openai.com/docs/pricing) page.
+    static let gpt_4o_search_preview = "gpt-4o-search-preview"
+    
+    /// Fast, affordable small model for web search
+    ///
+    /// GPT-4o mini Search Preview is a specialized model trained to understand and execute [web search](https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat) queries with the Chat Completions API. In addition to token fees, web search queries have a fee per tool call. Learn more in the [pricing](https://platform.openai.com/docs/pricing) page.
+    static let gpt_4o_mini_search_preview = "gpt-4o-mini-search-preview"
+    
     /// computer-use-preview: Specialized model for computer use tool
     ///
     /// `computer-use-preview`
@@ -215,25 +242,52 @@ public extension Model {
     /// Responses API: https://platform.openai.com/docs/api-reference/responses
     static let computer_use_preview = "computer-use-preview"
     
-    static func allModels(satisfying filter: Filter) -> [Model] {
-        guard filter.supportedEndpoints == [.responses] else {
-            // This is a temporary implementation of the method just to use in Responses API demo
-            return []
-        }
+    static func allModels(satisfying filter: Filter) -> Set<Model> {
+        let chatCompletionsEndpoint: Set<Model> = [
+            // reasoning
+            .o4_mini, o3, o3_mini, .o1,
+            // flagship
+            .gpt4_1, .gpt4_o, .gpt_4o_audio_preview, chatgpt_4o_latest,
+            // cost-optimized
+            .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini, .gpt_4o_mini_audio_preview,
+            // tool-specific
+            .gpt_4o_search_preview, .gpt_4o_mini_search_preview,
+            // older
+            .gpt4_turbo, .gpt4, .gpt3_5Turbo
+        ]
         
-        return [
-            .o3_mini, .o1, .o1_mini, .o1_pro,
-            .gpt4_5_preview, .gpt4_o, .chatgpt_4o_latest,
-            .gpt4_o_mini,
+        let responsesEndpoint: Set<Model> = [
+            // reasoning
+            .o4_mini, .o3, .o3_mini, .o1, .o1_pro,
+            // flagship
+            .gpt4_1, .gpt4_o, .chatgpt_4o_latest,
+            // cost-optimized
+            .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini,
             .gpt4_turbo, .gpt4, .gpt3_5Turbo,
             .computer_use_preview
         ]
+        
+        let allModels = chatCompletionsEndpoint.union(responsesEndpoint)
+        
+        var final: Set<Model> = allModels
+        
+        for endpoint in filter.supportedEndpoints {
+            switch endpoint {
+            case .chatCompletions:
+                final.formIntersection(chatCompletionsEndpoint)
+            case .responses:
+                final.formIntersection(responsesEndpoint)
+            }
+        }
+        
+        return final
     }
     
     struct Filter {
         enum Modality {}
         
         public enum Endpoint {
+            case chatCompletions
             case responses
         }
         

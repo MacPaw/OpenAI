@@ -1394,7 +1394,6 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         public enum CodingKeys: String, CodingKey {
             case includeUsage = "include_usage"
         }
-
     }
 
     public struct AudioOptions: Codable, Equatable, Sendable {
