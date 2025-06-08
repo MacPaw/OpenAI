@@ -40,6 +40,7 @@ actor AsyncClient {
                 middleware.intercept(response: current.response, request: urlRequest, data: current.data)
             }
             let decoder = JSONDecoder()
+            decoder.userInfo[.parsingOptions] = configuration.parsingOptions
             do {
                 return try decoder.decode(ResultType.self, from: interceptedData ?? data)
             } catch {
