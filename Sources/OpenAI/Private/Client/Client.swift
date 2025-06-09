@@ -50,18 +50,13 @@ final class Client: Sendable {
                 middleware.intercept(request: current)
             }
 
-            let task = session.dataTask(with: interceptedRequest) { data, response, error in
-                if let error {
-                    return completion(.failure(error))
+            let task = dataTaskFactory.makeRawResponseDataTask(forRequest: urlRequest) { result in
+                switch result {
+                case .success(let success):
+                    completion(.success(.init(audio: success)))
+                case .failure(let failure):
+                    completion(.failure(failure))
                 }
-                let (_, data) = self.middlewares.reduce((response, data)) { current, middleware in
-                    middleware.intercept(response: current.response, request: urlRequest, data: current.data)
-                }
-                guard let data else {
-                    return completion(.failure(OpenAIError.emptyData))
-                }
-                
-                completion(.success(AudioSpeechResult(audio: data)))
             }
             task.resume()
             return cancellablesFactory.makeTaskCanceller(task: task)

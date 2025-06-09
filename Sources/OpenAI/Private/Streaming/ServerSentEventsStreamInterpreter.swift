@@ -66,18 +66,13 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
                 onError?(StreamingError.unknownContent)
                 return
             }
-            let decoder = JSONDecoder()
-            decoder.userInfo[.parsingOptions] = parsingOptions
+            
+            let decoder = JSONResponseDecoder(parsingOptions: parsingOptions)
             do {
-                let object = try decoder.decode(ResultType.self, from: jsonData)
+                let object: ResultType = try decoder.decodeResponseData(jsonData)
                 onEventDispatched?(object)
             } catch {
-                if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: jsonData) {
-                    onError?(decoded)
-                    return
-                } else {
-                    onError?(error)
-                }
+                onError?(error)
             }
         default:
             onError?(InterpeterError.unhandledStreamEventType(event.eventType))

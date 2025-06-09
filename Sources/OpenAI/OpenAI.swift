@@ -116,7 +116,10 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
     ) {
         self.configuration = configuration
         
-        let dataTaskFactory = DataTaskFactory(configuration: configuration, session: session, middlewares: middlewares)
+        let dataTaskFactory = DataTaskFactory(
+            session: session,
+            responseHandler: .init(middlewares: middlewares, configuration: configuration)
+        )
         
         self.client = .init(
             configuration: configuration,
@@ -138,10 +141,16 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
             configuration: configuration,
             middlewares: middlewares,
             session: session,
-            dataTaskFactory: dataTaskFactory
+            dataTaskFactory: dataTaskFactory,
+            responseHandler: .init(middlewares: middlewares, configuration: configuration)
         )
         
-        self.combineClient = .init(configuration: configuration, session: session, middlewares: middlewares)
+        self.combineClient = .init(
+            configuration: configuration,
+            session: session,
+            middlewares: middlewares,
+            responseHandler: .init(middlewares: middlewares, configuration: configuration)
+        )
         
         self.responses = ResponsesEndpoint(
             client: client,

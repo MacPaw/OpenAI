@@ -15,17 +15,20 @@ actor AsyncClient {
     private let middlewares: [OpenAIMiddleware]
     private let session: URLSessionProtocol
     private let dataTaskFactory: DataTaskFactory
+    private let responseHandler: URLResponseHandler
     
     init(
         configuration: OpenAI.Configuration,
         middlewares: [OpenAIMiddleware],
         session: URLSessionProtocol,
-        dataTaskFactory: DataTaskFactory
+        dataTaskFactory: DataTaskFactory,
+        responseHandler: URLResponseHandler
     ) {
         self.configuration = configuration
         self.middlewares = middlewares
         self.session = session
         self.dataTaskFactory = dataTaskFactory
+        self.responseHandler = responseHandler
     }
     
     func performRequest<ResultType: Codable & Sendable>(request: any URLRequestBuildable) async throws -> ResultType {
@@ -36,16 +39,7 @@ actor AsyncClient {
 
         if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
             let (data, response) = try await session.data(for: interceptedRequest, delegate: nil)
-            let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
-                middleware.intercept(response: current.response, request: urlRequest, data: current.data)
-            }
-            let decoder = JSONDecoder()
-            decoder.userInfo[.parsingOptions] = configuration.parsingOptions
-            do {
-                return try decoder.decode(ResultType.self, from: interceptedData ?? data)
-            } catch {
-                throw (try? decoder.decode(APIErrorResponse.self, from: interceptedData ?? data)) ?? error
-            }
+            return try responseHandler.interceptAndDecode(response: response, urlRequest: urlRequest, responseData: data)
         } else {
             let dataTaskStore = URLSessionDataTaskStore()
             return try await withTaskCancellationHandler {
@@ -75,10 +69,8 @@ actor AsyncClient {
         }
         if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
             let (data, response) = try await session.data(for: interceptedRequest, delegate: nil)
-            let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
-                middleware.intercept(response: current.response, request: urlRequest, data: current.data)
-            }
-            return .init(audio: interceptedData ?? data)
+            let finalData = try responseHandler.interceptAndDecodeRaw(response: response, urlRequest: urlRequest, responseData: data)
+            return .init(audio: finalData)
         } else {
             let dataTaskStore = URLSessionDataTaskStore()
             return try await withTaskCancellationHandler {
