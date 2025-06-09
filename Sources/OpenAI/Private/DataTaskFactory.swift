@@ -11,54 +11,43 @@ import FoundationNetworking
 #endif
 
 final class DataTaskFactory: Sendable {
-    private let configuration: OpenAI.Configuration
     private let session: URLSessionProtocol
-    private let middlewares: [OpenAIMiddleware]
+    private let responseHandler: URLResponseHandler
     
-    init(configuration: OpenAI.Configuration, session: URLSessionProtocol, middlewares: [OpenAIMiddleware]) {
-        self.configuration = configuration
+    init(session: URLSessionProtocol, responseHandler: URLResponseHandler) {
         self.session = session
-        self.middlewares = middlewares
+        self.responseHandler = responseHandler
     }
     
     func makeDataTask<ResultType: Codable>(forRequest request: URLRequest, completion: @escaping @Sendable (Result<ResultType, Error>) -> Void) -> URLSessionDataTaskProtocol {
         session.dataTask(with: request) { data, response, error in
-            if let error {
-                return completion(.failure(error))
-            }
-            let (_, data) = self.middlewares.reduce((response, data)) { current, middleware in
-                middleware.intercept(response: current.response, request: request, data: current.data)
-            }
-            guard let data else {
-                return completion(.failure(OpenAIError.emptyData))
-            }
-            let decoder = JSONDecoder()
-            decoder.userInfo[.parsingOptions] = self.configuration.parsingOptions
             do {
-                completion(.success(try decoder.decode(ResultType.self, from: data)))
+                let decoded: ResultType = try self.responseHandler.interceptAndDecode(
+                    response: response,
+                    urlRequest: request,
+                    error: error,
+                    responseData: data
+                )
+                completion(.success(decoded))
             } catch {
-                if let decoded = JSONResponseErrorDecoder(decoder: decoder).decodeErrorResponse(data: data) {
-                    completion(.failure(decoded))
-                } else {
-                    completion(.failure(error))
-                }
+                completion(.failure(error))
             }
         }
     }
     
     func makeRawResponseDataTask(forRequest request: URLRequest, completion: @escaping @Sendable (Result<Data, Error>) -> Void) -> URLSessionDataTaskProtocol {
         session.dataTask(with: request) { data, response, error in
-            if let error {
-                return completion(.failure(error))
+            do {
+                let decoded: Data = try self.responseHandler.interceptAndDecodeRaw(
+                    response: response,
+                    urlRequest: request,
+                    error: error,
+                    responseData: data
+                )
+                completion(.success(decoded))
+            } catch {
+                completion(.failure(error))
             }
-            let (_, data) = self.middlewares.reduce((response, data)) { current, middleware in
-                middleware.intercept(response: current.response, request: request, data: current.data)
-            }
-            guard let data else {
-                return completion(.failure(OpenAIError.emptyData))
-            }
-            
-            completion(.success(data))
         }
     }
 }

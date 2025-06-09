@@ -15,11 +15,13 @@ final class CombineClient: Sendable {
     private let configuration: OpenAI.Configuration
     private let session: URLSessionProtocol
     private let middlewares: [OpenAIMiddleware]
+    private let responseHandler: URLResponseHandler
     
-    init(configuration: OpenAI.Configuration, session: URLSessionProtocol, middlewares: [OpenAIMiddleware]) {
+    init(configuration: OpenAI.Configuration, session: URLSessionProtocol, middlewares: [OpenAIMiddleware], responseHandler: URLResponseHandler) {
         self.configuration = configuration
         self.session = session
         self.middlewares = middlewares
+        self.responseHandler = responseHandler
     }
     
 #if canImport(Combine)
@@ -29,21 +31,11 @@ final class CombineClient: Sendable {
             let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
                 middleware.intercept(request: current)
             }
-
-            let parsingOptions = configuration.parsingOptions
+            
             return session
                 .dataTaskPublisher(for: interceptedRequest)
                 .tryMap { (data, response) in
-                    let decoder = JSONDecoder()
-                    decoder.userInfo[.parsingOptions] = parsingOptions
-                    let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
-                        middleware.intercept(response: current.response, request: urlRequest, data: current.data)
-                    }
-                    do {
-                        return try decoder.decode(ResultType.self, from: interceptedData ?? data)
-                    } catch {
-                        throw (try? decoder.decode(APIErrorResponse.self, from: interceptedData ?? data)) ?? error
-                    }
+                    try self.responseHandler.interceptAndDecode(response: response, urlRequest: urlRequest, responseData: data)
                 }.eraseToAnyPublisher()
         } catch {
             return Fail(outputType: ResultType.self, failure: error)
@@ -60,10 +52,8 @@ final class CombineClient: Sendable {
             return session
                 .dataTaskPublisher(for: interceptedRequest)
                 .tryMap { (data, response) in
-                    let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
-                        middleware.intercept(response: current.response, request: urlRequest, data: current.data)
-                    }
-                    return .init(audio: interceptedData ?? data)
+                    let finalData: Data = try self.responseHandler.interceptAndDecodeRaw(response: response, urlRequest: urlRequest, responseData: data)
+                    return .init(audio: finalData)
                 }.eraseToAnyPublisher()
         } catch {
             return Fail(outputType: AudioSpeechResult.self, failure: error)
