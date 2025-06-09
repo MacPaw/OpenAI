@@ -186,28 +186,52 @@ struct ChatResult: Codable, Equatable {
 **Example**
 
 ```swift
-let query = ChatQuery(model: .gpt3_5Turbo, messages: [.init(role: .user, content: "who are you")])
+let query = ChatQuery(
+    messages: [
+        .user(.init(content: .string("Who are you?")))
+    ],
+    model: .gpt4_o
+)
 let result = try await openAI.chats(query: query)
 ```
 
 ```
 (lldb) po result
 ▿ ChatResult
-  - id : "chatcmpl-6pwjgxGV2iPP4QGdyOLXnTY0LE3F8"
+  - id : "chatcmpl-BgWJTzbVczdJDusTqVpnR6AQ2w6Fd"
+  - created : 1749473687
+  - model : "gpt-4o-2024-08-06"
   - object : "chat.completion"
-  - created : 1677838528.0
-  - model : "gpt-3.5-turbo-0301"
+  ▿ serviceTier : Optional<ServiceTier>
+    - some : OpenAI.ServiceTier.defaultTier
+  ▿ systemFingerprint : Optional<String>
+    - some : "fp_07871e2ad8"
   ▿ choices : 1 element
     ▿ 0 : Choice
       - index : 0
-      ▿ message : Chat
+      - logprobs : nil
+      ▿ message : Message
+        ▿ content : Optional<String>
+          - some : "I am an AI language model created by OpenAI, known as ChatGPT. I\'m here to assist with answering questions, providing explanations, and engaging in conversation on a wide range of topics. If you have any questions or need assistance, feel free to ask!"
+        - refusal : nil
         - role : "assistant"
-        - content : "\n\nI\'m an AI language model developed by OpenAI, created to provide assistance and support for various tasks such as answering questions, generating text, and providing recommendations. Nice to meet you!"
-      - finish_reason : "stop"
-  ▿ usage : Usage
-    - prompt_tokens : 10
-    - completion_tokens : 39
-    - total_tokens : 49
+        ▿ annotations : Optional<Array<Annotation>>
+          - some : 0 elements
+        - audio : nil
+        - toolCalls : nil
+        - _reasoning : nil
+        - _reasoningContent : nil
+      - finishReason : "stop"
+  ▿ usage : Optional<CompletionUsage>
+    ▿ some : CompletionUsage
+      - completionTokens : 52
+      - promptTokens : 11
+      - totalTokens : 63
+      ▿ promptTokensDetails : Optional<PromptTokensDetails>
+        ▿ some : PromptTokensDetails
+          - audioTokens : 0
+          - cachedTokens : 0
+  - citations : nil
 ```
 
 #### Chats Streaming
