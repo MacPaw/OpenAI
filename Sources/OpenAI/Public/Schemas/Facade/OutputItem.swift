@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  OutputItem.swift
 //  OpenAI
 //
 //  Created by Oleksii Nezhyborets on 15.04.2025.
@@ -8,6 +8,7 @@
 import Foundation
 
 /// Improved interface to use instead of generated `Components.Schemas.OutputItem`
+/// When editing the list of tool calls - also check Tool type if the list of tools should be updated
 public enum OutputItem: Codable, Hashable, Sendable {
     public typealias Schemas = Components.Schemas
     
@@ -27,21 +28,45 @@ public enum OutputItem: Codable, Hashable, Sendable {
     case computerToolCall(Schemas.ComputerToolCall)
     /// A description of the chain of thought used by a reasoning model while generating a response.
     case reasoning(Schemas.ReasoningItem)
+    /// An image generation request made by the model.
+    case imageGenerationCall(Schemas.ImageGenToolCall)
+    /// A tool call to run code.
+    case codeInterpreterToolCall(Schemas.CodeInterpreterToolCall)
+    /// A tool call to run a command on the local shell.
+    case localShellCall(Schemas.LocalShellToolCall)
+    /// An invocation of a tool on an MCP server.
+    case mcpToolCall(Schemas.MCPToolCall)
+    /// A list of tools available on an MCP server.
+    case mcpListTools(Schemas.MCPListTools)
+    /// A request for human approval of a tool invocation.
+    case mcpApprovalRequest(Schemas.MCPApprovalRequest)
     
     public init(from decoder: any Decoder) throws {
         let generated = try Schemas.OutputItem(from: decoder)
-        if let v1 = generated.value1 {
-            self = .outputMessage(v1)
-        } else if let v2 = generated.value2 {
-            self = .fileSearchToolCall(v2)
-        } else if let v3 = generated.value3 {
-            self = .functionToolCall(v3)
-        } else if let v4 = generated.value4 {
-            self = .webSearchToolCall(v4)
-        } else if let v5 = generated.value5 {
-            self = .computerToolCall(v5)
-        } else if let v6 = generated.value6 {
-            self = .reasoning(v6)
+        if let value = generated.value1 {
+            self = .outputMessage(value)
+        } else if let value = generated.value2 {
+            self = .fileSearchToolCall(value)
+        } else if let value = generated.value3 {
+            self = .functionToolCall(value)
+        } else if let value = generated.value4 {
+            self = .webSearchToolCall(value)
+        } else if let value = generated.value5 {
+            self = .computerToolCall(value)
+        } else if let value = generated.value6 {
+            self = .reasoning(value)
+        } else if let value = generated.value7 {
+            self = .imageGenerationCall(value)
+        } else if let value = generated.value8 {
+            self = .codeInterpreterToolCall(value)
+        } else if let value = generated.value9 {
+            self = .localShellCall(value)
+        } else if let value = generated.value10 {
+            self = .mcpToolCall(value)
+        } else if let value = generated.value11 {
+            self = .mcpListTools(value)
+        } else if let value = generated.value12 {
+            self = .mcpApprovalRequest(value)
         } else {
             throw DecodingError.dataCorrupted(
                 DecodingError.Context(

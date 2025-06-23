@@ -25,11 +25,18 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     /// Refer to the [model guide](https://platform.openai.com/docs/models) to browse and compare available models.
     public let model: String
     
-    /// Specify additional output data to include in the model response. Currently supported values are:
-    /// * `file_search_call.results`: Include the search results of the file search tool call.
-    /// * `message.input_image.image_url`: Include image urls from the input message.
-    /// * `computer_call_output.output.image_url`: Include image urls from the computer call output.
+    /// Specify additional output data to include in the model response.
+    ///
+    /// Currently supported values are:
+    /// - `file_search_call.results`: Include the search results of the file search tool call.
+    /// - `message.input_image.image_url`: Include image urls from the input message.
+    /// - `computer_call_output.output.image_url`: Include image urls from the computer call output.
+    /// - `reasoning.encrypted_content`: Includes an encrypted version of reasoning tokens in reasoning item outputs. This enables reasoning items to be used in multi-turn conversations when using the Responses API statelessly (like when the `store` parameter is set to `false`, or when an organization is enrolled in the zero data retention program).
+    /// - `code_interpreter_call.outputs`: Includes the outputs of python code execution in code interpreter tool call items.
     public let include: [Schemas.Includable]?
+    
+    /// Whether to run the model response in the background. [Learn more](https://platform.openai.com/docs/guides/background).
+    public let background: Bool?
     
     /// Inserts a system (or developer) message as the first item in the model's context.
     ///
@@ -54,10 +61,25 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     /// Learn more about [conversation state](https://platform.openai.com/docs/guides/conversation-state).
     public let previousResponseId: String?
     
+    /// Reference to a prompt template and its variables. [Learn more](https://platform.openai.com/docs/guides/text?api-mode=responses#reusable-prompts).
+    public let prompt: Schemas.Prompt?
+    
     /// **o-series models only**
     ///
     /// Configuration options for [reasoning models](https://platform.openai.com/docs/guides/reasoning).
     public let reasoning: Schemas.Reasoning?
+    
+    /// Specifies the latency tier to use for processing the request. This parameter is relevant for customers subscribed to the scale tier service:
+    ///
+    /// - If set to 'auto', and the Project is Scale tier enabled, the system
+    ///   will utilize scale tier credits until they are exhausted.
+    /// - If set to 'auto', and the Project is not Scale tier enabled, the request will be processed using the default service tier with a lower uptime SLA and no latency guarantee.
+    /// - If set to 'default', the request will be processed using the default service tier with a lower uptime SLA and no latency guarantee.
+    /// - If set to 'flex', the request will be processed with the Flex Processing service tier. [Learn more](https://platform.openai.com/docs/guides/flex-processing).
+    /// - When not set, the default behavior is 'auto'.
+    ///
+    /// When this parameter is set, the response body will include the `service_tier` utilized.
+    public let serviceTier: ServiceTier?
     
     /// Whether to store the generated model response for later retrieval via API.
     public let store: Bool?
@@ -108,12 +130,15 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
         input: Input,
         model: String,
         include: [Schemas.Includable]? = nil,
+        background: Bool? = nil,
         instructions: String? = nil,
         maxOutputTokens: Int? = nil,
         metadata: Schemas.Metadata? = nil,
         parallelToolCalls: Bool? = nil,
         previousResponseId: String? = nil,
+        prompt: Schemas.Prompt? = nil,
         reasoning: Schemas.Reasoning? = nil,
+        serviceTier: ServiceTier? = nil,
         store: Bool? = nil,
         stream: Bool? = nil,
         temperature: Double? = nil,
@@ -127,12 +152,15 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
         self.input = input
         self.model = model
         self.include = include
+        self.background = background
         self.instructions = instructions
         self.maxOutputTokens = maxOutputTokens
         self.metadata = metadata
         self.parallelToolCalls = parallelToolCalls
         self.previousResponseId = previousResponseId
+        self.prompt = prompt
         self.reasoning = reasoning
+        self.serviceTier = serviceTier
         self.store = store
         self.stream = stream
         self.temperature = temperature
@@ -148,12 +176,15 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
         case input
         case model
         case include
+        case background
         case instructions
         case maxOutputTokens = "max_output_tokens"
         case metadata
         case parallelToolCalls = "parallel_tool_calls"
         case previousResponseId = "previous_response_id"
+        case prompt
         case reasoning
+        case serviceTier = "service_tier"
         case store
         case stream
         case temperature
