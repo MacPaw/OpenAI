@@ -71,7 +71,7 @@ public struct EasyInputMessage: Codable, Hashable, Sendable {
     /// - Parameters:
     ///   - role: The role of the message input. One of `user`, `assistant`, `system`, or
     ///   - content: Text, image, or audio input to the model, used to generate a response.
-    ///   - _type: The type of the message input. Always `message`.
+    ///   - type: The type of the message input. Always `message`.
     public init(
         role: EasyInputMessage.RolePayload,
         content: EasyInputMessage.ContentPayload,
