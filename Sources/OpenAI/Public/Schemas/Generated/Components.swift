@@ -19,12 +19,18 @@ import struct Foundation.Date
 /**
  The code here is generated using OpenAPI document provided by OpenAI.
  
- # OpenAI OpenAPI commit: #
- 498c71dd Update openapi.yaml
- https://github.com/openai/openai-openapi/commit/498c71ddf6f1c45b983f972ccabca795da211a3e
+ # OpenAI OpenAPI yaml link: #
+ https://app.stainless.com/api/spec/documented/openai/openapi.documented.yml
+ 
+ OpenAI generate few bugs on this yaml, need fix with the following sed command
+ # Fix the problematic values
+ sed -i '' 's/minimum: -9223372036854776000/minimum: -9223372036854775808/g' openapi.documented.yml
+ sed -i '' 's/maximum: 9223372036854776000/maximum: 9223372036854775807/g' openapi.documented.yml
+ # Fix null issue
+ sed -i '' "s/- type: 'null'/- type: null/g" openapi.documented.yml
  
  # Command that was used to generate the code #
- `swift run swift-openapi-generator generate --config openapi-generator-config.yaml openapi.yaml`
+ `swift run swift-openapi-generator generate --config openapi-generator-config.yaml openapi.documented.yml`
  
  # Contents of config that was used to generate the code #
  generate:
@@ -1945,6 +1951,8 @@ public enum Components {
             case item(Components.Schemas.Item)
             /// - Remark: Generated from `#/components/schemas/InputItem/ItemReferenceParam`.
             case itemReferenceParam(Components.Schemas.ItemReferenceParam)
+            /// - Remark: Generated from `#/components/schemas/InputItem/MCPApprovalResponseItem`.
+            case mcpApprovalResponseItem(Components.Schemas.MCPApprovalResponseItem)
             public enum CodingKeys: String, CodingKey {
                 case _type = "type"
             }
@@ -1961,6 +1969,8 @@ public enum Components {
                     self = .item(try .init(from: decoder))
                 case "ItemReferenceParam", "#/components/schemas/ItemReferenceParam":
                     self = .itemReferenceParam(try .init(from: decoder))
+                case "mcp_approval_response", "#/components/schemas/MCPApprovalResponseItem":
+                    self = .mcpApprovalResponseItem(try .init(from: decoder))
                 default:
                     throw Swift.DecodingError.unknownOneOfDiscriminator(
                         discriminatorKey: CodingKeys._type,
@@ -1976,6 +1986,8 @@ public enum Components {
                 case let .item(value):
                     try value.encode(to: encoder)
                 case let .itemReferenceParam(value):
+                    try value.encode(to: encoder)
+                case let .mcpApprovalResponseItem(value):
                     try value.encode(to: encoder)
                 }
             }
@@ -2645,6 +2657,12 @@ public enum Components {
             public var value5: Components.Schemas.ComputerToolCall?
             /// - Remark: Generated from `#/components/schemas/OutputItem/value6`.
             public var value6: Components.Schemas.ReasoningItem?
+            /// - Remark: Generated from `#/components/schemas/OutputItem/value7`.
+            public var value7: Components.Schemas.MCPListToolsItem?
+            /// - Remark: Generated from `#/components/schemas/OutputItem/value8`.
+            public var value8: Components.Schemas.MCPCallItem?
+            /// - Remark: Generated from `#/components/schemas/OutputItem/value9`.
+            public var value9: Components.Schemas.MCPApprovalRequestItem?
             /// Creates a new `OutputItem`.
             ///
             /// - Parameters:
@@ -2654,13 +2672,19 @@ public enum Components {
             ///   - value4:
             ///   - value5:
             ///   - value6:
+            ///   - value7:
+            ///   - value8:
+            ///   - value9:
             public init(
                 value1: Components.Schemas.OutputMessage? = nil,
                 value2: Components.Schemas.FileSearchToolCall? = nil,
                 value3: Components.Schemas.FunctionToolCall? = nil,
                 value4: Components.Schemas.WebSearchToolCall? = nil,
                 value5: Components.Schemas.ComputerToolCall? = nil,
-                value6: Components.Schemas.ReasoningItem? = nil
+                value6: Components.Schemas.ReasoningItem? = nil,
+                value7: Components.Schemas.MCPListToolsItem? = nil,
+                value8: Components.Schemas.MCPCallItem? = nil,
+                value9: Components.Schemas.MCPApprovalRequestItem? = nil
             ) {
                 self.value1 = value1
                 self.value2 = value2
@@ -2668,6 +2692,9 @@ public enum Components {
                 self.value4 = value4
                 self.value5 = value5
                 self.value6 = value6
+                self.value7 = value7
+                self.value8 = value8
+                self.value9 = value9
             }
             public init(from decoder: any Decoder) throws {
                 var errors: [any Error] = []
@@ -2701,6 +2728,21 @@ public enum Components {
                 } catch {
                     errors.append(error)
                 }
+                do {
+                    self.value7 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value8 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
+                do {
+                    self.value9 = try .init(from: decoder)
+                } catch {
+                    errors.append(error)
+                }
                 try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
                     [
                         self.value1,
@@ -2708,7 +2750,10 @@ public enum Components {
                         self.value3,
                         self.value4,
                         self.value5,
-                        self.value6
+                        self.value6,
+                        self.value7,
+                        self.value8,
+                        self.value9
                     ],
                     type: Self.self,
                     codingPath: decoder.codingPath,
@@ -2722,6 +2767,9 @@ public enum Components {
                 try self.value4?.encode(to: encoder)
                 try self.value5?.encode(to: encoder)
                 try self.value6?.encode(to: encoder)
+                try self.value7?.encode(to: encoder)
+                try self.value8?.encode(to: encoder)
+                try self.value9?.encode(to: encoder)
             }
         }
         /// An output message from the model.
@@ -8517,6 +8565,296 @@ public enum Components {
             public enum CodingKeys: String, CodingKey {
                 case _type = "type"
                 case id
+            }
+        }
+
+        /// MCP list tools output item.
+        ///
+        /// - Remark: Generated from `#/components/schemas/MCPListToolsItem`.
+        public struct MCPListToolsItem: Codable, Hashable, Sendable {
+            /// The type of the output item. Always `mcp_list_tools`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPListToolsItem/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case mcpListTools = "mcp_list_tools"
+            }
+            /// The type of the output item. Always `mcp_list_tools`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPListToolsItem/type`.
+            public var _type: Components.Schemas.MCPListToolsItem._TypePayload
+            /// The MCP server label
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPListToolsItem/server_label`.
+            public var serverLabel: Swift.String
+            /// The list of available tools from the MCP server
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPListToolsItem/tools`.
+            public var tools: [Components.Schemas.MCPToolInfo]
+            /// Whether the tool list was cached
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPListToolsItem/cached`.
+            public var cached: Swift.Bool?
+
+            /// Creates a new `MCPListToolsItem`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the output item. Always `mcp_list_tools`.
+            ///   - serverLabel: The MCP server label
+            ///   - tools: The list of available tools from the MCP server
+            ///   - cached: Whether the tool list was cached
+            public init(
+                _type: Components.Schemas.MCPListToolsItem._TypePayload = .mcpListTools,
+                serverLabel: Swift.String,
+                tools: [Components.Schemas.MCPToolInfo],
+                cached: Swift.Bool? = nil
+            ) {
+                self._type = _type
+                self.serverLabel = serverLabel
+                self.tools = tools
+                self.cached = cached
+            }
+
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case serverLabel = "server_label"
+                case tools
+                case cached
+            }
+        }
+
+        /// MCP approval response input item.
+        ///
+        /// - Remark: Generated from `#/components/schemas/MCPApprovalResponseItem`.
+        public struct MCPApprovalResponseItem: Codable, Hashable, Sendable {
+            /// The type of the input item. Always `mcp_approval_response`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPApprovalResponseItem/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case mcpApprovalResponse = "mcp_approval_response"
+            }
+
+            /// The type of the input item. Always `mcp_approval_response`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPApprovalResponseItem/type`.
+            public var _type: Components.Schemas.MCPApprovalResponseItem._TypePayload
+            /// Whether to approve the MCP tool call
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPApprovalResponseItem/approve`.
+            public var approve: Swift.Bool
+            /// The ID of the approval request being responded to
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPApprovalResponseItem/approval_request_id`.
+            public var approvalRequestId: Swift.String
+
+            /// Creates a new `MCPApprovalResponseItem`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the input item. Always `mcp_approval_response`.
+            ///   - approve: Whether to approve the MCP tool call
+            ///   - approvalRequestId: The ID of the approval request being responded to
+            public init(
+                _type: Components.Schemas.MCPApprovalResponseItem._TypePayload = .mcpApprovalResponse,
+                approve: Swift.Bool,
+                approvalRequestId: Swift.String
+            ) {
+                self._type = _type
+                self.approve = approve
+                self.approvalRequestId = approvalRequestId
+            }
+
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case approve
+                case approvalRequestId = "approval_request_id"
+            }
+        }
+
+        /// MCP approval request output item.
+        ///
+        /// - Remark: Generated from `#/components/schemas/MCPApprovalRequestItem`.
+        public struct MCPApprovalRequestItem: Codable, Hashable, Sendable {
+            /// The type of the output item. Always `mcp_approval_request`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPApprovalRequestItem/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case mcpApprovalRequest = "mcp_approval_request"
+            }
+
+            /// The type of the output item. Always `mcp_approval_request`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPApprovalRequestItem/type`.
+            public var _type: Components.Schemas.MCPApprovalRequestItem._TypePayload
+            /// The ID of the MCP approval request
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPApprovalRequestItem/id`.
+            public var id: Swift.String
+            /// The MCP server label
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPApprovalRequestItem/server_label`.
+            public var serverLabel: Swift.String
+            /// The name of the tool being requested for approval
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPApprovalRequestItem/name`.
+            public var name: Swift.String
+            /// The arguments for the tool call
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPApprovalRequestItem/arguments`.
+            public var arguments: Swift.String?
+
+            /// Creates a new `MCPApprovalRequestItem`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the output item. Always `mcp_approval_request`.
+            ///   - id: The ID of the MCP approval request
+            ///   - serverLabel: The MCP server label
+            ///   - name: The name of the tool being requested for approval
+            ///   - arguments: The arguments for the tool call
+            public init(
+                _type: Components.Schemas.MCPApprovalRequestItem._TypePayload = .mcpApprovalRequest,
+                id: Swift.String,
+                serverLabel: Swift.String,
+                name: Swift.String,
+                arguments: Swift.String? = nil
+            ) {
+                self._type = _type
+                self.id = id
+                self.serverLabel = serverLabel
+                self.name = name
+                self.arguments = arguments
+            }
+
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case id
+                case serverLabel = "server_label"
+                case name
+                case arguments
+            }
+        }
+
+        /// MCP call output item.
+        ///
+        /// - Remark: Generated from `#/components/schemas/MCPCallItem`.
+        public struct MCPCallItem: Codable, Hashable, Sendable {
+            /// The type of the output item. Always `mcp_call`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPCallItem/type`.
+            @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case mcpCall = "mcp_call"
+            }
+            /// The type of the output item. Always `mcp_call`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPCallItem/type`.
+            public var _type: Components.Schemas.MCPCallItem._TypePayload
+            /// The ID of the MCP call
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPCallItem/id`.
+            public var id: Swift.String
+            /// The name of the tool being called
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPCallItem/name`.
+            public var name: Swift.String
+            /// The MCP server label
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPCallItem/server_label`.
+            public var serverLabel: Swift.String
+            /// The approval request ID that this call is responding to
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPCallItem/approval_request_id`.
+            public var approvalRequestId: Swift.String?
+            /// The arguments for the tool call
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPCallItem/arguments`.
+            public var arguments: Swift.String?
+            /// The result of the tool call
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPCallItem/output`.
+            public var output: Swift.String?
+            /// Error information if the call failed
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPCallItem/error`.
+            public var error: Swift.String?
+
+            /// Creates a new `MCPCallItem`.
+            ///
+            /// - Parameters:
+            ///   - _type: The type of the output item. Always `mcp_call`.
+            ///   - id: The ID of the MCP call
+            ///   - name: The name of the tool being called
+            ///   - serverLabel: The MCP server label
+            ///   - approvalRequestId: The approval request ID that this call is responding to
+            ///   - arguments: The arguments for the tool call
+            ///   - output: The result of the tool call
+            ///   - error: Error information if the call failed
+            public init(
+                _type: Components.Schemas.MCPCallItem._TypePayload = .mcpCall,
+                id: Swift.String,
+                name: Swift.String,
+                serverLabel: Swift.String,
+                approvalRequestId: Swift.String? = nil,
+                arguments: Swift.String? = nil,
+                output: Swift.String? = nil,
+                error: Swift.String? = nil
+            ) {
+                self._type = _type
+                self.id = id
+                self.name = name
+                self.serverLabel = serverLabel
+                self.approvalRequestId = approvalRequestId
+                self.arguments = arguments
+                self.output = output
+                self.error = error
+            }
+
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case id
+                case name
+                case serverLabel = "server_label"
+                case approvalRequestId = "approval_request_id"
+                case arguments
+                case output
+                case error
+            }
+        }
+
+        /// MCP tool information.
+        ///
+        /// - Remark: Generated from `#/components/schemas/MCPToolInfo`.
+        public struct MCPToolInfo: Codable, Hashable, Sendable {
+            /// The name of the tool
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPToolInfo/name`.
+            public var name: Swift.String
+            /// The description of the tool
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPToolInfo/description`.
+            public var description: Swift.String?
+            /// The input schema for the tool
+            ///
+            /// - Remark: Generated from `#/components/schemas/MCPToolInfo/input_schema`.
+            public var inputSchema: OpenAPIRuntime.OpenAPIValueContainer?
+
+            /// Creates a new `MCPToolInfo`.
+            ///
+            /// - Parameters:
+            ///   - name: The name of the tool
+            ///   - description: The description of the tool
+            ///   - inputSchema: The input schema for the tool
+            public init(
+                name: Swift.String,
+                description: Swift.String? = nil,
+                inputSchema: OpenAPIRuntime.OpenAPIValueContainer? = nil
+            ) {
+                self.name = name
+                self.description = description
+                self.inputSchema = inputSchema
+            }
+
+            public enum CodingKeys: String, CodingKey {
+                case name
+                case description
+                case inputSchema = "input_schema"
             }
         }
     }
