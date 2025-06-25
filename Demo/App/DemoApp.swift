@@ -12,6 +12,7 @@ import SwiftUI
 @main
 struct DemoApp: App {
     @AppStorage("apiKey") var apiKey: String = ""
+    @AppStorage("githubToken") var githubToken: String = ""
     @State var isShowingAPIConfigModal: Bool = true
 
     let idProvider: () -> String
@@ -29,6 +30,7 @@ struct DemoApp: App {
             Group {
                 APIProvidedView(
                     apiKey: $apiKey,
+                    githubToken: $githubToken,
                     idProvider: idProvider
                 )
             }

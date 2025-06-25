@@ -14,7 +14,8 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "OpenAI", path: "../.."),
-        .package(url: "https://github.com/exyte/Chat.git", from: "2.5.7")
+        .package(url: "https://github.com/exyte/Chat.git", from: "2.5.7"),
+        .package(url: "https://github.com/modelcontextprotocol/swift-sdk.git", from: "0.9.0")
     ],
     targets: [
         .target(
@@ -22,6 +23,7 @@ let package = Package(
             dependencies: [
                 "OpenAI",
                 .product(name: "ExyteChat", package: "Chat"),
+                .product(name: "MCP", package: "swift-sdk")
             ],
             path: "Sources"
         ),

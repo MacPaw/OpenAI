@@ -13,6 +13,7 @@ class ResponsesSettingsStore: ObservableObject {
     @Published public var stream = true
     @Published public var webSearchEnabled = true
     @Published public var functionCallingEnabled = false
+    @Published public var mcpEnabled = false
     
     public let models = Array(Model.allModels(satisfying: .init(supportedEndpoints: [.responses]))).sorted(by: >)
 }
