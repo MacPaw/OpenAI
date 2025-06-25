@@ -144,9 +144,9 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
         case .responseImageGenerationCallPartialImage:
                 .imageGenerationCall(.partialImage(try decode(data: data)))
         case .responseMcpCallArgumentsDelta:
-                .mcpCall(.arguments(.delta(try decode(data: data))))
+                .mcpCallArguments(.delta(try decode(data: data)))
         case .responseMcpCallArgumentsDone:
-                .mcpCall(.arguments(.done(try decode(data: data))))
+                .mcpCallArguments(.done(try decode(data: data)))
         case .responseMcpCallCompleted:
                 .mcpCall(.completed(try decode(data: data)))
         case .responseMcpCallFailed:

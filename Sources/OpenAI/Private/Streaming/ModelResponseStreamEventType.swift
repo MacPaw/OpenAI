@@ -49,8 +49,12 @@ enum ModelResponseStreamEventType: String {
     case responseImageGenerationCallInProgress = "response.image_generation_call.in_progress"
     case responseImageGenerationCallPartialImage = "response.image_generation_call.partial_image"
     
-    case responseMcpCallArgumentsDelta = "response.mcp_call.arguments.delta"
-    case responseMcpCallArgumentsDone = "response.mcp_call.arguments.done"
+    // 😌(🤬) Once OpenAI fixed the issue, please rename this back to
+    // response.mcp_call.arguments.delta
+    // response.mcp_call.arguments.done
+    case responseMcpCallArgumentsDelta = "response.mcp_call_arguments.delta"
+    case responseMcpCallArgumentsDone = "response.mcp_call_arguments.done"
+    
     case responseMcpCallCompleted = "response.mcp_call.completed"
     case responseMcpCallFailed = "response.mcp_call.failed"
     case responseMcpCallInProgress = "response.mcp_call.in_progress"
