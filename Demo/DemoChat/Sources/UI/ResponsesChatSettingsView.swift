@@ -27,6 +27,7 @@ struct ResponsesChatSettingsView: View {
                 Toggle("Stream", isOn: $store.stream)
                 Toggle("Web Search", isOn: $store.webSearchEnabled)
                 Toggle("Function Calling", isOn: $store.functionCallingEnabled)
+                Toggle("MCP Tools", isOn: $store.mcpEnabled)
             }
         }
         .navigationTitle("Settings")

@@ -102,15 +102,14 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
         case partialImage(Schemas.ResponseImageGenCallPartialImageEvent)
     }
     
+    public enum MCPCallArgumentsEvent: Codable, Equatable, Sendable {
+        /// Emitted when there is a delta (partial update) to the arguments of an MCP tool call.
+        case delta(ResponseMCPCallArgumentsDeltaEvent)
+        /// Emitted when the arguments for an MCP tool call are finalized.
+        case done(ResponseMCPCallArgumentsDoneEvent)
+    }
+    
     public enum MCPCallEvent: Codable, Equatable, Sendable {
-        public enum Arguments: Codable, Equatable, Sendable {
-            /// Emitted when there is a delta (partial update) to the arguments of an MCP tool call.
-            case delta(Schemas.ResponseMCPCallArgumentsDeltaEvent)
-            /// Emitted when the arguments for an MCP tool call are finalized.
-            case done(Schemas.ResponseMCPCallArgumentsDoneEvent)
-        }
-        
-        case arguments(Arguments)
         /// Emitted when an MCP tool call has completed successfully.
         case completed(Schemas.ResponseMCPCallCompletedEvent)
         /// Emitted when an MCP tool call has failed.
@@ -197,6 +196,7 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
     case reasoningSummaryText(ReasoningSummaryTextEvent)
     case imageGenerationCall(ImageGenerationCallEvent)
     case mcpCall(MCPCallEvent)
+    case mcpCallArguments(MCPCallArgumentsEvent)
     case mcpListTools(MCPListToolsEvent)
     case outputTextAnnotation(OutputTextAnnotationEvent)
     case reasoning(ReasoningEvent)
@@ -252,8 +252,27 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
             // Do nothing, will try other coding types
         }
         
+        // Decoding MCPCallArgumentsEvent
+        // Once OPENAI fix the response issue, can put back below code to rawEvent
+        //        else if let value = rawEvent.value40 {
+        //            self = .mcpCallArguments(.delta(value))
+        //        } else if let value = rawEvent.value41 {
+        //            self = .mcpCallArguments(.done(value))
+        //        }
+        do {
+            let mcpCallArgumentsEvent = try MCPCallArgumentsEvent(from: decoder)
+            switch mcpCallArgumentsEvent {
+            case .delta(let deltaEvent):
+                self = .mcpCallArguments(.delta(deltaEvent))
+            case .done(let doneEvent):
+                self = .mcpCallArguments(.done(doneEvent))
+            }
+        } catch {
+            //
+        }
+        
         let rawEvent = try Components.Schemas.ResponseStreamEvent(from: decoder)
-        if rawEvent.value10 != nil || rawEvent.value13 != nil || rawEvent.value20 != nil || rawEvent.value21 != nil, rawEvent.value22 != nil, rawEvent.value49 != nil {
+        if rawEvent.value10 != nil || rawEvent.value13 != nil || rawEvent.value20 != nil || rawEvent.value21 != nil, rawEvent.value22 != nil, rawEvent.value40 != nil, rawEvent.value41 != nil, rawEvent.value49 != nil {
             // The following events are handled elsewhere by non-generated types
             // (search "Decoding Response Event")
             //
@@ -263,6 +282,8 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
             // `response.failed`
             // `response.incomplete`
             // `response.queued`
+            // `response.response.mcp_call_arguments.delta`
+            // `response.mcp_call_arguments.done`
             throw ResponseStreamEventDecodingError.unexpectedParsingCase
         } else if rawEvent.value23 != nil || rawEvent.value24 != nil {
             // The following events are handled elsewhere by non-generated types
@@ -335,10 +356,6 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
             self = .imageGenerationCall(.inProgress(value))
         } else if let value = rawEvent.value39 {
             self = .imageGenerationCall(.partialImage(value))
-        } else if let value = rawEvent.value40 {
-            self = .mcpCall(.arguments(.delta(value)))
-        } else if let value = rawEvent.value41 {
-            self = .mcpCall(.arguments(.done(value)))
         } else if let value = rawEvent.value42 {
             self = .mcpCall(.completed(value))
         } else if let value = rawEvent.value43 {

@@ -11,11 +11,13 @@ import SwiftUI
 
 struct APIProvidedView: View {
     @Binding var apiKey: String
+    @Binding var githubToken: String
     @StateObject var chatStore: ChatStore
     @StateObject var imageStore: ImageStore
     @StateObject var assistantStore: AssistantStore
     @StateObject var miscStore: MiscStore
     @StateObject var responsesStore: ResponsesStore
+    @StateObject var mcpToolsStore: MCPToolsStore
 
     @State var isShowingAPIConfigModal: Bool = true
 
@@ -24,9 +26,11 @@ struct APIProvidedView: View {
 
     init(
         apiKey: Binding<String>,
+        githubToken: Binding<String>,
         idProvider: @escaping () -> String
     ) {
         self._apiKey = apiKey
+        self._githubToken = githubToken
         
         let client = APIProvidedView.makeClient(apiKey: apiKey.wrappedValue)
         self._chatStore = StateObject(
@@ -59,6 +63,9 @@ struct APIProvidedView: View {
                 ).responses
             )
         )
+        self._mcpToolsStore = StateObject(
+            wrappedValue: MCPToolsStore(githubToken: githubToken)
+        )
     }
 
     var body: some View {
@@ -67,8 +74,13 @@ struct APIProvidedView: View {
             imageStore: imageStore,
             assistantStore: assistantStore,
             miscStore: miscStore,
-            responsesStore: responsesStore
+            responsesStore: responsesStore,
+            mcpToolsStore: mcpToolsStore
         )
+        .onAppear {
+            // Connect MCP tools store to responses store
+            responsesStore.mcpToolsStore = mcpToolsStore
+        }
         .onChange(of: apiKey) { _, newApiKey in
             let client = APIProvidedView.makeClient(apiKey: newApiKey)
             chatStore.openAIClient = client

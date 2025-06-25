@@ -28,9 +28,13 @@ public struct ResponsesChatDetailView: View {
         if settingsStore.webSearchEnabled {
             tools.append("Web Search")
         }
-        
+
         if settingsStore.functionCallingEnabled {
             tools.append("Functions")
+        }
+
+        if settingsStore.mcpEnabled {
+            tools.append("MCP")
         }
         
         if !tools.isEmpty {
@@ -90,6 +94,58 @@ public struct ResponsesChatDetailView: View {
                 }
             }
         )
+        .overlay(
+            // MCP Approval Dialog
+            store.showMCPApprovalDialog && store.pendingMCPApprovalRequest != nil ?
+            ZStack {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        store.cancelMCPApprovalRequest()
+                    }
+
+                MCPApprovalDialogView(
+                    approvalRequest: store.pendingMCPApprovalRequest!,
+                    onApprove: {
+                        Task {
+                            do {
+                                try await store.respondToMCPApprovalRequest(
+                                    approve: true,
+                                    model: settingsStore.selectedModel,
+                                    stream: settingsStore.stream,
+                                    webSearchEnabled: settingsStore.webSearchEnabled,
+                                    functionCallingEnabled: settingsStore.functionCallingEnabled,
+                                    mcpEnabled: settingsStore.mcpEnabled
+                                )
+                            } catch {
+                                errorTitle = error.localizedDescription
+                                errorAlertPresented = true
+                            }
+                        }
+                    },
+                    onDeny: {
+                        Task {
+                            do {
+                                try await store.respondToMCPApprovalRequest(
+                                    approve: false,
+                                    model: settingsStore.selectedModel,
+                                    stream: settingsStore.stream,
+                                    webSearchEnabled: settingsStore.webSearchEnabled,
+                                    functionCallingEnabled: settingsStore.functionCallingEnabled,
+                                    mcpEnabled: settingsStore.mcpEnabled
+                                )
+                            } catch {
+                                errorTitle = error.localizedDescription
+                                errorAlertPresented = true
+                            }
+                        }
+                    },
+                    onCancel: {
+                        store.cancelMCPApprovalRequest()
+                    }
+                )
+            } : nil
+        )
         .onAppear(perform: {
             store.onFunctionCalled = {
                 isFunctionCallViewPresented = true
@@ -106,7 +162,8 @@ public struct ResponsesChatDetailView: View {
                     model: settingsStore.selectedModel,
                     stream: settingsStore.stream,
                     webSearchEnabled: settingsStore.webSearchEnabled,
-                    functionCallingEnabled: settingsStore.functionCallingEnabled
+                    functionCallingEnabled: settingsStore.functionCallingEnabled,
+                    mcpEnabled: settingsStore.mcpEnabled
                 )
             } catch {
                 errorTitle = error.localizedDescription
@@ -137,10 +194,10 @@ public struct ResponsesChatDetailView: View {
                             model: settingsStore.selectedModel,
                             stream: settingsStore.stream,
                             webSearchEnabled: settingsStore.webSearchEnabled,
-                            functionCallingEnabled: settingsStore.functionCallingEnabled
+                            functionCallingEnabled: settingsStore.functionCallingEnabled,
+                            mcpEnabled: settingsStore.mcpEnabled
                         )
                     } catch {
-                        print("store.send error: \(error)")
                         errorTitle = error.localizedDescription
                         errorAlertPresented = true
                     }

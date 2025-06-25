@@ -59,11 +59,11 @@ public final class ResponsesStore: ObservableObject {
     private class MessageData {
         let id: String
         let user: User
-        
+
         var text: String = ""
         var refusalText: String = ""
         var annotations: [ResponseStreamEvent.Annotation] = []
-        
+
         init(id: String, user: User, text: String, annotations: [ResponseStreamEvent.Annotation]) {
             self.id = id
             self.user = user
@@ -138,14 +138,25 @@ public final class ResponsesStore: ObservableObject {
             }
         }
     }
-    
+
+    // MCP approval request handling
+    @Published var pendingMCPApprovalRequest: Components.Schemas.MCPApprovalRequest?
+    @Published var showMCPApprovalDialog = false
+    private var mcpApprovalRequestResponseId: String?
+
+    // Track the actual OpenAI response IDs for API continuity (separate from conversation turn IDs)
+    private var lastOpenAIResponseId: String?
+
     var onFunctionCalled: (() -> Void)?
     
+    /// Reference to MCP tools store for getting enabled tools
+    public weak var mcpToolsStore: MCPToolsStore?
+
     public init(client: ResponsesEndpointProtocol) {
         self.client = client
     }
     
-    public func send(message: ExyteChat.DraftMessage, model: Model, stream: Bool, webSearchEnabled: Bool, functionCallingEnabled: Bool) async throws {
+    public func send(message: ExyteChat.DraftMessage, model: Model, stream: Bool, webSearchEnabled: Bool, functionCallingEnabled: Bool, mcpEnabled: Bool = false) async throws {
         guard !inProgress else {
             return
         }
@@ -212,11 +223,12 @@ public final class ResponsesStore: ObservableObject {
             model: model,
             stream: stream,
             webSearchEnabled: webSearchEnabled,
-            functionCallingEnabled: functionCallingEnabled
+            functionCallingEnabled: functionCallingEnabled,
+            mcpEnabled: mcpEnabled
         )
     }
     
-    func replyFunctionCall(result: String, model: Model, stream: Bool, webSearchEnabled: Bool, functionCallingEnabled: Bool) async throws {
+    func replyFunctionCall(result: String, model: Model, stream: Bool, webSearchEnabled: Bool, functionCallingEnabled: Bool, mcpEnabled: Bool = false) async throws {
         guard let toolCall = lastFinishedFunctionToolCall else {
             throw StoreError.noFunctionToolCallToReply
         }
@@ -233,7 +245,8 @@ public final class ResponsesStore: ObservableObject {
             model: model,
             stream: stream,
             webSearchEnabled: webSearchEnabled,
-            functionCallingEnabled: functionCallingEnabled
+            functionCallingEnabled: functionCallingEnabled,
+            mcpEnabled: mcpEnabled
         )
         
         lastFinishedFunctionToolCall = nil
@@ -242,39 +255,215 @@ public final class ResponsesStore: ObservableObject {
     func cancelFunctionCall() {
         lastFinishedFunctionToolCall = nil
     }
+
+    // MARK: - MCP Approval Request Handling
+
+    private func handleMCPApprovalRequest(_ approvalRequest: Components.Schemas.MCPApprovalRequest) {
+        print("🔐 MCP Approval Request received:")
+        print("  ID: \(approvalRequest.id)")
+        print("  Server: \(approvalRequest.serverLabel)")
+        print("  Tool: \(approvalRequest.name)")
+        print("  Arguments: \(approvalRequest.arguments)")
+
+        // Store the approval request and show dialog
+        pendingMCPApprovalRequest = approvalRequest
+        showMCPApprovalDialog = true
+
+        // Store the current response ID for the approval response
+        mcpApprovalRequestResponseId = responseBeingStreamed?.id
+    }
+
+    func respondToMCPApprovalRequest(approve: Bool, model: Model, stream: Bool, webSearchEnabled: Bool, functionCallingEnabled: Bool, mcpEnabled: Bool = true) async throws {
+        guard let approvalRequest = pendingMCPApprovalRequest else {
+            print("❌ No pending MCP approval request to respond to")
+            return
+        }
+
+        print("\(approve ? "✅" : "❌") Responding to MCP approval request: \(approve ? "APPROVED" : "DENIED")")
+
+        // Create approval response
+        let approvalResponse = InputItem.item(.mcpApprovalResponse(.init(_type: .mcpApprovalResponse, approvalRequestId: approvalRequest.id, approve: approve)))
+
+        // Get the stored response ID for the approval response
+        let responseIdForApproval = mcpApprovalRequestResponseId
+
+        // Clear the pending request and hide dialog
+        pendingMCPApprovalRequest = nil
+        showMCPApprovalDialog = false
+        mcpApprovalRequestResponseId = nil
+
+        // Send the approval response to continue the conversation
+        try await createResponseWithSpecificPreviousId(
+            input: .inputItemList([approvalResponse]),
+            model: model,
+            stream: stream,
+            webSearchEnabled: webSearchEnabled,
+            functionCallingEnabled: functionCallingEnabled,
+            mcpEnabled: mcpEnabled,
+            previousResponseId: responseIdForApproval
+        )
+    }
+
+    func cancelMCPApprovalRequest() {
+        pendingMCPApprovalRequest = nil
+        showMCPApprovalDialog = false
+        mcpApprovalRequestResponseId = nil
+    }
     
-    private func createResponse(input: CreateModelResponseQuery.Input, model: Model, stream: Bool, webSearchEnabled: Bool, functionCallingEnabled: Bool) async throws {
-        let previousResponseId = conversationTurns.last(where: { $0.type == .response })?.id
-        
+    private func createResponse(input: CreateModelResponseQuery.Input, model: Model, stream: Bool, webSearchEnabled: Bool, functionCallingEnabled: Bool, mcpEnabled: Bool = false) async throws {
+        // Use the actual OpenAI response ID for API continuity, not the conversation turn ID
+        let previousResponseId = lastOpenAIResponseId
+        try await createResponseWithSpecificPreviousId(
+            input: input,
+            model: model,
+            stream: stream,
+            webSearchEnabled: webSearchEnabled,
+            functionCallingEnabled: functionCallingEnabled,
+            mcpEnabled: mcpEnabled,
+            previousResponseId: previousResponseId
+        )
+    }
+
+    private func createResponseWithSpecificPreviousId(input: CreateModelResponseQuery.Input, model: Model, stream: Bool, webSearchEnabled: Bool, functionCallingEnabled: Bool, mcpEnabled: Bool = false, previousResponseId: String?) async throws {
         var tools: [Tool] = []
-        
+
         if webSearchEnabled {
             tools.append(.webSearchTool(.init(_type: .webSearchPreview)))
         }
-        
+
         if functionCallingEnabled {
-            tools.append(
-                .functionTool(weatherFunctionTool)
-            )
+            tools.append(.functionTool(weatherFunctionTool))
         }
-        
+
+        if mcpEnabled {
+            // Check if model supports MCP tools
+            let mcpCompatibleModels: Set<String> = [
+                Model.gpt4_o, Model.gpt4_1, Model.chatgpt_4o_latest,
+                Model.gpt4_o_mini, Model.gpt4_1_mini, Model.gpt4_1_nano
+            ]
+
+            if !mcpCompatibleModels.contains(model) {
+                print("Warning: Model '\(model)' may not support MCP tools. Recommended models: \(mcpCompatibleModels.joined(separator: ", "))")
+            }
+            
+            // make it flexiable
+
+            // Add GitHub MCP server tool using OpenAI's native MCP support
+            let enabledTools = mcpToolsStore?.enabledTools ?? []
+            let authHeaders = mcpToolsStore?.authHeaders
+
+            if !enabledTools.isEmpty, let authHeaders = authHeaders {
+
+                let githubMCPTool = Tool.mcpTool(
+                    .init(
+                        _type: .mcp,
+                        serverLabel: "GitHub_MCP_Server",
+                        serverUrl: "https://api.githubcopilot.com/mcp/",
+                        headers: .init(additionalProperties: authHeaders),
+                        allowedTools: mcpToolsStore?.allowedTools,
+                        requireApproval: .case2(.always)
+                    )
+                )
+                
+                tools.append(githubMCPTool)
+                print("Added GitHub MCP server tool with \(enabledTools.count) enabled tools: \(enabledTools)")
+                print("MCP tool includes authentication headers: \(authHeaders.keys.joined(separator: ", "))")
+            } else if enabledTools.isEmpty {
+                print("MCP enabled but no tools selected. Please configure tools in the MCP Tools tab.")
+            } else if authHeaders == nil {
+                print("MCP enabled but no GitHub token provided. Please enter your GitHub token in the MCP Tools tab.")
+            }
+        }
+
+        // Debug: Check if previousResponseId might be causing issues
+        if let prevId = previousResponseId {
+            print("🔍 Using previous OpenAI response ID: \(prevId)")
+        } else {
+            print("🔍 No previous response ID (first message in conversation)")
+        }
+
         let query = CreateModelResponseQuery(
             input: input,
             model: model,
             previousResponseId: previousResponseId,
             stream: stream,
-            tools: tools
+            toolChoice: tools.isEmpty ? nil : .ToolChoiceOptions(.auto),
+            tools: tools.isEmpty ? nil : tools
         )
-        
-        if stream {
-            try await createResponseStreaming(query: query)
-        } else {
-            try await createResponse(query: query)
+
+        // Debug logging
+        print("=== OpenAI Request Debug ===")
+        print("Model: \(model)")
+        print("Stream: \(stream)")
+        print("Tools count: \(tools.count)")
+        if !tools.isEmpty {
+            for (index, tool) in tools.enumerated() {
+                print("Tool \(index): \(tool)")
+            }
+        }
+
+        // Try to serialize the query to JSON for debugging
+        do {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            let jsonData = try encoder.encode(query)
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                print("Request JSON:")
+                print(jsonString)
+            }
+        } catch {
+            print("Failed to serialize request to JSON: \(error)")
+        }
+        print("==========================")
+
+        do {
+            if stream {
+                try await createResponseStreaming(query: query)
+            } else {
+                try await createResponse(query: query)
+            }
+        } catch {
+            print("=== OpenAI Request Error ===")
+            print("Error: \(error)")
+            if let statusError = error as? OpenAIError {
+                print("OpenAI Error: \(statusError)")
+            }
+
+            // Check if it's an unhandled event error
+            if let storeError = error as? StoreError,
+               case .unhandledResponseStreamEvent(let event) = storeError {
+                print("❌ Unhandled ResponseStreamEvent: \(event)")
+                print("Event type: \(type(of: event))")
+            }
+
+            // Provide specific guidance for common errors
+            if let urlResponse = (error as NSError).userInfo["response"] as? HTTPURLResponse {
+                switch urlResponse.statusCode {
+                case 400:
+                    print("❌ 400 Bad Request - This could be due to:")
+                    print("   • MCP tools not being supported by the current OpenAI API")
+                    print("   • Invalid tool configuration format")
+                    print("   • Unsupported model for the requested features")
+                    print("   • Try disabling MCP tools or using a different model")
+                case 401:
+                    print("❌ 401 Unauthorized - Check your OpenAI API key")
+                case 429:
+                    print("❌ 429 Rate Limited - Too many requests, try again later")
+                default:
+                    print("❌ HTTP \(urlResponse.statusCode) - Unexpected error")
+                }
+            }
+            print("===========================")
+            throw error
         }
     }
     
     private func createResponse(query: CreateModelResponseQuery) async throws {
         let response = try await client.createResponse(query: query)
+
+        // Track the actual OpenAI response ID for API continuity
+        lastOpenAIResponseId = response.id
+
         for output in response.output {
             switch output {
             case .outputMessage(let outputMessage):
@@ -284,20 +473,17 @@ public final class ResponsesStore: ObservableObject {
                     userId: outputMessage.role.rawValue,
                     username: outputMessage.role.rawValue
                 )
-                
+
+                // Generate a unique ID for each conversation turn to prevent duplicates
+                let conversationTurnId = UUID().uuidString
+
                 conversationTurns.append(
                     .init(
-                        id: response.id,
+                        id: conversationTurnId,
                         type: .response,
                         chatMessage: message
                     )
                 )
-            case .webSearchToolCall/*(let webSearchToolCall)*/:
-                // see where output_item.done is handled for handling tool calls
-                break
-            case .functionToolCall(let functionToolCall):
-                // see where output_item.done is handled for handling tool calls
-                break
             default:
                 throw StoreError.unhandledOutputItem(output)
             }
@@ -309,9 +495,9 @@ public final class ResponsesStore: ObservableObject {
         
         var eventNumber = 1
         for try await event in stream {
-//            print("---event number: \(eventNumber)---")
-//            print(event)
-//            print("\n\n")
+            print("---event number: \(eventNumber)---")
+            print(event)
+            print("\n\n")
             try handleResponseStreamEvent(event)
             eventNumber += 1
         }
@@ -323,6 +509,8 @@ public final class ResponsesStore: ObservableObject {
             // #1
             inProgress = true
             responseBeingStreamed = .init(id: responseEvent.response.id)
+            // Track the actual OpenAI response ID for API continuity
+            lastOpenAIResponseId = responseEvent.response.id
         case .inProgress(_ /* let responseInProgressEvent */):
             // #2
             inProgress = true
@@ -346,13 +534,6 @@ public final class ResponsesStore: ObservableObject {
             )
         case .outputText(let outputTextEvent):
             try handleOutputTextEvent(outputTextEvent)
-        case .outputTextAnnotation(let outputTextAnnotationEvent):
-            switch outputTextAnnotationEvent {
-            case .added/*(let added)*/:
-                // TODO: ResponseStreamEvent.Annotation have become OpenAPIObjectContainer for some reason, needs update
-                // applyOutputTextAnnotationDeltaToMessageBeingStreamed(messageId: added.itemId, addedAnnotation: added.annotation)
-                break
-            }
         case .contentPart(.done(let contentPartDoneEvent)):
             try updateMessageBeingStreamed(
                 messageId: contentPartDoneEvent.itemId,
@@ -362,8 +543,82 @@ public final class ResponsesStore: ObservableObject {
             // # 29
             responseBeingStreamed = nil
             inProgress = false
-        default:
-            throw StoreError.unhandledResponseStreamEvent(event)
+        case .mcpCall(let mcpCallEvent):
+            try handleMCPCallEvent(mcpCallEvent)
+        case .mcpCallArguments(let mcpCallArgumentsEvent):
+            try handleMCPCallArgumentsEvent(mcpCallArgumentsEvent)
+        case .mcpListTools(let mcpListToolsEvent):
+            try handleMCPListToolsEvent(mcpListToolsEvent)
+        case .queued(_ /* let responseEvent */):
+            // Response is queued - no action needed
+            break
+        case .failed(_ /* let responseEvent */):
+            // Response failed - could show error in UI
+            print("Response failed")
+            break
+        case .incomplete(_ /* let responseEvent */):
+            // Response incomplete - could show warning in UI
+            print("Response incomplete")
+            break
+        case .error(let errorEvent):
+            // Error event - log the error
+            print("Response error: \(errorEvent)")
+            break
+        case .refusal(let refusalEvent):
+            // Refusal event - handle refusal
+            print("Response refusal: \(refusalEvent)")
+            break
+        case .outputTextAnnotation(let annotationEvent):
+            // Handle text annotations
+            switch annotationEvent {
+            case .added(let event):
+                // TODO: Implement proper annotation handling when type conversion is resolved
+                print("Text annotation added: itemId=\(event.itemId), annotationIndex=\(event.annotationIndex)")
+            }
+        case .reasoning(let reasoningEvent):
+            // Handle reasoning events - could show reasoning in UI
+            switch reasoningEvent {
+            case .delta(let event):
+                print("Reasoning delta: \(event.sequenceNumber)")
+            case .done(let event):
+                print("Reasoning done: \(event.sequenceNumber)")
+            }
+        case .reasoningSummary(let reasoningSummaryEvent):
+            // Handle reasoning summary events
+            switch reasoningSummaryEvent {
+            case .delta(let event):
+                print("Reasoning summary delta: \(event.sequenceNumber)")
+            case .done(let event):
+                print("Reasoning summary done: \(event.sequenceNumber)")
+            }
+        case .audio(_ /* let audioEvent */):
+            // Audio events - not implemented yet
+            print("Audio event received (not implemented)")
+            break
+        case .audioTranscript(_ /* let audioTranscriptEvent */):
+            // Audio transcript events - not implemented yet
+            print("Audio transcript event received (not implemented)")
+            break
+        case .codeInterpreterCall(_ /* let codeInterpreterCallEvent */):
+            // Code interpreter events - not implemented yet
+            print("Code interpreter call event received (not implemented)")
+            break
+        case .fileSearchCall(_ /* let fileSearchCallEvent */):
+            // File search events - not implemented yet
+            print("File search call event received (not implemented)")
+            break
+        case .imageGenerationCall(_ /* let imageGenerationCallEvent */):
+            // Image generation events - not implemented yet
+            print("Image generation call event received (not implemented)")
+            break
+        case .reasoningSummaryPart(_ /* let reasoningSummaryPartEvent */):
+            // Reasoning summary part events - not implemented yet
+            print("Reasoning summary part event received (not implemented)")
+            break
+        case .reasoningSummaryText(_ /* let reasoningSummaryTextEvent */):
+            // Reasoning summary text events - not implemented yet
+            print("Reasoning summary text event received (not implemented)")
+            break
         }
     }
     
@@ -392,6 +647,15 @@ public final class ResponsesStore: ObservableObject {
             webSearchInProgress = true
         case .functionToolCall(_ /* let functionToolCall */):
             break
+        case .mcpApprovalRequest(let approvalRequest):
+            // Handle MCP approval request - show approval prompt to user
+            handleMCPApprovalRequest(approvalRequest)
+        case .mcpListTools(_ /* let mcpListTools */):
+            // MCP tools listed - no UI action needed
+            break
+        case .mcpToolCall(_ /* let mcpCall */):
+            // MCP tool call in progress - no UI action needed
+            break
         default:
             throw StoreError.unhandledOutputItem(outputItem)
         }
@@ -415,8 +679,20 @@ public final class ResponsesStore: ObservableObject {
             guard functionToolCall.name == weatherFunctionTool.name else {
                 throw StoreError.unknownFunctionCalled(name: functionToolCall.name)
             }
-            
+
             lastFinishedFunctionToolCall = functionToolCall
+        case .mcpApprovalRequest(_ /* let approvalRequest */):
+            // MCP approval request completed - no additional action needed
+            break
+        case .mcpListTools(_ /* let mcpListTools */):
+            // MCP tools listing completed - no additional action needed
+            break
+        case .mcpToolCall(let mcpCall):
+            // MCP tool call completed - could show result in UI
+            print("MCP tool call completed: \(mcpCall.name)")
+            if let output = mcpCall.output {
+                print("Result: \(output)")
+            }
         default:
             throw StoreError.unhandledOutputItem(outputItem)
         }
@@ -429,6 +705,7 @@ public final class ResponsesStore: ObservableObject {
                 messageId: responseTextDeltaEvent.itemId,
                 newText: responseTextDeltaEvent.delta
             )
+        // Note: Annotations are now handled via separate outputTextAnnotation events
         case .done(let responseTextDoneEvent):
             if messageBeingStreamed?.text != responseTextDoneEvent.text {
                 throw StoreError.incompleteLocalTextOnOutputTextDoneEvent(
@@ -439,12 +716,42 @@ public final class ResponsesStore: ObservableObject {
         }
     }
     
+    private func handleMCPCallArgumentsEvent(_ mcpCallEvent: ResponseStreamEvent.MCPCallArgumentsEvent) throws {
+        switch mcpCallEvent {
+        case .delta(let event):
+            print("MCP Call Arguments Delta, sequence: \(event.sequenceNumber)")
+        case .done(let event):
+            print("MCP Call Arguments Done, sequence: \(event.sequenceNumber)")
+        }
+    }
+
+    private func handleMCPCallEvent(_ mcpCallEvent: ResponseStreamEvent.MCPCallEvent) throws {
+        switch mcpCallEvent {
+        case .completed(let event):
+            print("MCP Tool Call Completed, sequence: \(event.sequenceNumber)")
+        case .failed(let event):
+            print("MCP Tool Call Failed, sequence: \(event.sequenceNumber)")
+        case .inProgress(let event):
+            print("MCP Tool Call In Progress, sequence: \(event.sequenceNumber)")
+        }
+    }
+
+    private func handleMCPListToolsEvent(_ mcpListToolsEvent: ResponseStreamEvent.MCPListToolsEvent) throws {
+        switch mcpListToolsEvent {
+        case .completed(let event):
+            print("MCP Tools Listed, sequence: \(event.sequenceNumber)")
+        case .failed(let event):
+            print("MCP List Tools Failed, sequence: \(event.sequenceNumber)")
+        case .inProgress(let event):
+            print("MCP List Tools In Progress, sequence: \(event.sequenceNumber)")
+        }
+    }
+    
     private func setMessageBeingStreamed(message: MessageData) throws {
         guard let responseBeingStreamed else {
             fatalError()
         }
-        
-        
+
         if let messageBeingStreamed, message.id == messageBeingStreamed.id {
             conversationTurns.removeLast()
         }
@@ -529,11 +836,7 @@ public final class ResponsesStore: ObservableObject {
         }
     }
     
-    private func applyOutputTextAnnotationDeltaToMessageBeingStreamed(messageId: String, addedAnnotation: ResponseStreamEvent.Annotation) throws {
-        try updateMessageBeingStreamed(messageId: messageId) { message in
-            message.annotations.append(addedAnnotation)
-        }
-    }
+
     
     private func updateMessageBeingStreamed(messageId: String, _ updateClosure: (MessageData) -> Void) throws {
         guard let responseBeingStreamed else {
