@@ -19,6 +19,8 @@ This repository contains Swift community-maintained implementation over [OpenAI]
         - [Chats Streaming](#chats-streaming) 
         - [Structured Output](#structured-output)
     - [Responses](#responses)
+    - [MCP (Model Context Protocol)](#mcp-model-context-protocol)
+        - [MCP Tool Integration](#mcp-tool-integration)
     - [Images](#images)
         - [Create Image](#create-image)
         - [Create Image Edit](#create-image-edit)
@@ -407,6 +409,115 @@ let response = client.responses.createResponse(query: query) { (result: Result<R
 ```
 
 `client.responses` is a an instance of `ResponsesEndpointProtocol` type. It has streaming/non-streaming methods, that have closure-based/async/Combine variations. See more information in [Chats](#chats) section, as `createResponse` and `createResponseStreaming` methods of `ResponsesEndpointProtocol` are following the design and form of `chats` and `chatsStream` methods of `OpenAIProtocol`.
+
+### MCP (Model Context Protocol)
+
+The Model Context Protocol (MCP) enables AI models to securely connect to external data sources and tools through standardized server connections. This OpenAI Swift library supports MCP integration, allowing you to extend model capabilities with remote tools and services.
+
+You can use the [MCP Swift library](https://github.com/modelcontextprotocol/swift-sdk) to connect to MCP servers and discover available tools, then integrate those tools with OpenAI's chat completions.
+
+#### MCP Tool Integration
+
+**Request**
+
+```swift
+// Create an MCP tool for connecting to a remote server
+let mcpTool = Tool.mcpTool(
+    .init(
+        _type: .mcp,
+        serverLabel: "GitHub_MCP_Server",
+        serverUrl: "https://api.githubcopilot.com/mcp/",
+        headers: .init(additionalProperties: [
+            "Authorization": "Bearer YOUR_TOKEN_HERE"
+        ]),
+        allowedTools: .case1(["search_repositories", "get_file_contents"]),
+        requireApproval: .case2(.always)
+    )
+)
+
+let query = ChatQuery(
+    messages: [
+        .user(.init(content: .string("Search for Swift repositories on GitHub")))
+    ],
+    model: .gpt4_o,
+    tools: [mcpTool]
+)
+```
+
+**MCP Tool Properties**
+
+- `serverLabel`: A unique identifier for the MCP server
+- `serverUrl`: The URL endpoint of the MCP server
+- `headers`: Authentication headers and other HTTP headers required by the server
+- `allowedTools`: Specific tools to enable from the server (optional - if not specified, all tools are available)
+- `requireApproval`: Whether tool calls require user approval (`.always`, `.never`, or conditional)
+
+**Example with MCP Swift Library**
+
+```swift
+import MCP
+import OpenAI
+
+// Connect to MCP server using the MCP Swift library
+let mcpClient = MCP.Client(name: "MyApp", version: "1.0.0")
+
+let transport = HTTPClientTransport(
+    endpoint: URL(string: "https://api.githubcopilot.com/mcp/")!,
+    configuration: URLSessionConfiguration.default
+)
+
+let result = try await mcpClient.connect(transport: transport)
+let toolsResponse = try await mcpClient.listTools()
+
+// Create OpenAI MCP tool with discovered tools
+let enabledToolNames = toolsResponse.tools.map { $0.name }
+let mcpTool = Tool.mcpTool(
+    .init(
+        _type: .mcp,
+        serverLabel: "GitHub_MCP_Server",
+        serverUrl: "https://api.githubcopilot.com/mcp/",
+        headers: .init(additionalProperties: authHeaders),
+        allowedTools: .case1(enabledToolNames),
+        requireApproval: .case2(.always)
+    )
+)
+
+// Use in chat completion
+let query = ChatQuery(
+    messages: [.user(.init(content: .string("Help me search GitHub repositories")))],
+    model: .gpt4_o,
+    tools: [mcpTool]
+)
+
+let chatResult = try await openAI.chats(query: query)
+```
+
+**MCP Tool Call Handling**
+
+When using MCP tools, the model may generate tool calls that are executed on the remote MCP server. Handle MCP-specific output items in your response processing:
+
+```swift
+// Handle MCP tool calls in streaming responses
+for try await result in openAI.chatsStream(query: query) {
+    for choice in result.choices {
+        if let outputItem = choice.delta.content {
+            switch outputItem {
+            case .mcpToolCall(let mcpCall):
+                print("MCP tool call: \(mcpCall.name)")
+                if let output = mcpCall.output {
+                    print("Result: \(output)")
+                }
+            case .mcpApprovalRequest(let approvalRequest):
+                // Handle approval request if requireApproval is enabled
+                print("MCP tool requires approval: \(approvalRequest)")
+            default:
+                // Handle other output types
+                break
+            }
+        }
+    }
+}
+```
 
 ### Images
 
