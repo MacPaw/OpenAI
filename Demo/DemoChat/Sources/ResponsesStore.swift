@@ -292,6 +292,12 @@ public final class ResponsesStore: ObservableObject {
                         chatMessage: message
                     )
                 )
+            case .webSearchToolCall/*(let webSearchToolCall)*/:
+                // see where output_item.done is handled for handling tool calls
+                break
+            case .functionToolCall(let functionToolCall):
+                // see where output_item.done is handled for handling tool calls
+                break
             default:
                 throw StoreError.unhandledOutputItem(output)
             }
@@ -340,6 +346,13 @@ public final class ResponsesStore: ObservableObject {
             )
         case .outputText(let outputTextEvent):
             try handleOutputTextEvent(outputTextEvent)
+        case .outputTextAnnotation(let outputTextAnnotationEvent):
+            switch outputTextAnnotationEvent {
+            case .added/*(let added)*/:
+                // TODO: ResponseStreamEvent.Annotation have become OpenAPIObjectContainer for some reason, needs update
+                // applyOutputTextAnnotationDeltaToMessageBeingStreamed(messageId: added.itemId, addedAnnotation: added.annotation)
+                break
+            }
         case .contentPart(.done(let contentPartDoneEvent)):
             try updateMessageBeingStreamed(
                 messageId: contentPartDoneEvent.itemId,
@@ -415,11 +428,6 @@ public final class ResponsesStore: ObservableObject {
             try applyOutputTextDeltaToMessageBeingStreamed(
                 messageId: responseTextDeltaEvent.itemId,
                 newText: responseTextDeltaEvent.delta
-            )
-        case .annotationAdded(let annotationDeltaEvent):
-            try applyOutputTextAnnotationDeltaToMessageBeingStreamed(
-                messageId: annotationDeltaEvent.itemId,
-                addedAnnotation: annotationDeltaEvent.annotation
             )
         case .done(let responseTextDoneEvent):
             if messageBeingStreamed?.text != responseTextDoneEvent.text {

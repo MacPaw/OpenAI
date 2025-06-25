@@ -38,9 +38,9 @@ extension Components.Schemas.ResponseTextDeltaEvent: CustomStringConvertible {
     }
 }
 
-extension Components.Schemas.ResponseTextAnnotationDeltaEvent: CustomStringConvertible {
+extension Components.Schemas.ResponseOutputTextAnnotationAddedEvent: CustomStringConvertible {
     public var description: String {
-        "ResponseTextAnnotationDeltaEvent(itemId: \"\(itemId)\", outputIndex: \(outputIndex), contentIndex: \(contentIndex), annotationIndex: \(annotationIndex), annotation: \(annotation))"
+        "ResponseOutputTextAnnotationAddedEvent(itemId: \"\(itemId)\", outputIndex: \(outputIndex), contentIndex: \(contentIndex), annotationIndex: \(annotationIndex), annotation: \(annotation))"
     }
 }
 

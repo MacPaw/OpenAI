@@ -55,11 +55,22 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
     }
     
     private func processEvent(_ event: ServerSentEventsStreamParser.Event) throws {
-        guard let modelResponseEventType = ModelResponseStreamEventType(rawValue: event.eventType) else {
-            throw InterpreterError.unknownEventType(event.eventType)
+        var finalEvent = event
+        if event.eventType == "response.output_text.annotation.added" {
+            // Remove when they have fixed (unified)!
+            //
+            // By looking at [API Reference](https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text_annotation/added)
+            // and generated type `Schemas.ResponseOutputTextAnnotationAddedEvent`
+            // We can see that "output_text.annotation" is incorrect, whereas output_text_annotation is the correct one
+            let fixedDataString = event.decodedData.replacingOccurrences(of: "response.output_text.annotation.added", with: "response.output_text_annotation.added")
+            finalEvent = .init(id: event.id, data: fixedDataString.data(using: .utf8) ?? event.data, decodedData: fixedDataString, eventType: "response.output_text_annotation.added", retry: event.retry)
         }
         
-        let responseStreamEvent = try responseStreamEvent(modelResponseEventType: modelResponseEventType, data: event.data)
+        guard let modelResponseEventType = ModelResponseStreamEventType(rawValue: finalEvent.eventType) else {
+            throw InterpreterError.unknownEventType(finalEvent.eventType)
+        }
+        
+        let responseStreamEvent = try responseStreamEvent(modelResponseEventType: modelResponseEventType, data: finalEvent.data)
         onEventDispatched?(responseStreamEvent)
     }
     
@@ -75,37 +86,35 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
     ) throws -> ResponseStreamEvent {
         switch modelResponseEventType {
         case .responseCreated:
-                .created(try decoder.decode(ResponseEvent.self, from: data))
+                .created(try decode(data: data))
         case .responseInProgress:
-                .inProgress(try decoder.decode(ResponseEvent.self, from: data))
+                .inProgress(try decode(data: data))
         case .responseCompleted:
-                .completed(try decoder.decode(ResponseEvent.self, from: data))
+                .completed(try decode(data: data))
         case .responseFailed:
-                .failed(try decoder.decode(ResponseEvent.self, from: data))
+                .failed(try decode(data: data))
         case .responseIncomplete:
-                .incomplete(try decoder.decode(ResponseEvent.self, from: data))
+                .incomplete(try decode(data: data))
         case .responseOutputItemAdded:
-                .outputItem(.added(try decoder.decode(ResponseOutputItemAddedEvent.self, from: data)))
+                .outputItem(.added(try decode(data: data)))
         case .responseOutputItemDone:
-                .outputItem(.done(try decoder.decode(ResponseOutputItemDoneEvent.self, from: data)))
+                .outputItem(.done(try decode(data: data)))
         case .responseContentPartAdded:
-                .contentPart(.added(try decoder.decode(Schemas.ResponseContentPartAddedEvent.self, from: data)))
+                .contentPart(.added(try decode(data: data)))
         case .responseContentPartDone:
-                .contentPart(.done(try decoder.decode(Schemas.ResponseContentPartDoneEvent.self, from: data)))
+                .contentPart(.done(try decode(data: data)))
         case .responseOutputTextDelta:
-                .outputText(.delta(try decoder.decode(Schemas.ResponseTextDeltaEvent.self, from: data)))
-        case .responseOutputTextAnnotationAdded:
-                .outputText(.annotationAdded(try decoder.decode(Schemas.ResponseTextAnnotationDeltaEvent.self, from: data)))
+                .outputText(.delta(try decode(data: data)))
         case .responseOutputTextDone:
-                .outputText(.done(try decoder.decode(Schemas.ResponseTextDoneEvent.self, from: data)))
+                .outputText(.done(try decode(data: data)))
         case .responseRefusalDelta:
-                .refusal(.delta(try decoder.decode(Schemas.ResponseRefusalDeltaEvent.self, from: data)))
+                .refusal(.delta(try decode(data: data)))
         case .responseRefusalDone:
-                .refusal(.done(try decoder.decode(Schemas.ResponseRefusalDoneEvent.self, from: data)))
+                .refusal(.done(try decode(data: data)))
         case .responseFunctionCallArgumentsDelta:
-                .functionCallArguments(.delta(try decoder.decode(Schemas.ResponseFunctionCallArgumentsDeltaEvent.self, from: data)))
+                .functionCallArguments(.delta(try decode(data: data)))
         case .responseFunctionCallArgumentsDone:
-                .functionCallArguments(.done(try decoder.decode(Schemas.ResponseFunctionCallArgumentsDoneEvent.self, from: data)))
+                .functionCallArguments(.done(try decode(data: data)))
         case .responseFileSearchCallInProgress:
                 .fileSearchCall(.inProgress(try decode(data: data)))
         case .responseFileSearchCallSearching:
@@ -118,7 +127,53 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
                 .webSearchCall(.searching(try decode(data: data)))
         case .responseWebSearchCallCompleted:
                 .webSearchCall(.completed(try decode(data: data)))
+        case .responseReasoningSummaryPartAdded:
+                .reasoningSummaryPart(.added(try decode(data: data)))
+        case .responseReasoningSummaryPartDone:
+                .reasoningSummaryPart(.done(try decode(data: data)))
+        case .responseReasoningSummaryTextDelta:
+                .reasoningSummaryText(.delta(try decode(data: data)))
+        case .responseReasoningSummaryTextDone:
+                .reasoningSummaryText(.done(try decode(data: data)))
+        case .responseImageGenerationCallCompleted:
+                .imageGenerationCall(.completed(try decode(data: data)))
+        case .responseImageGenerationCallGenerating:
+                .imageGenerationCall(.generating(try decode(data: data)))
+        case .responseImageGenerationCallInProgress:
+                .imageGenerationCall(.inProgress(try decode(data: data)))
+        case .responseImageGenerationCallPartialImage:
+                .imageGenerationCall(.partialImage(try decode(data: data)))
+        case .responseMcpCallArgumentsDelta:
+                .mcpCall(.arguments(.delta(try decode(data: data))))
+        case .responseMcpCallArgumentsDone:
+                .mcpCall(.arguments(.done(try decode(data: data))))
+        case .responseMcpCallCompleted:
+                .mcpCall(.completed(try decode(data: data)))
+        case .responseMcpCallFailed:
+                .mcpCall(.failed(try decode(data: data)))
+        case .responseMcpCallInProgress:
+                .mcpCall(.inProgress(try decode(data: data)))
+        case .responseMcpListToolsCompleted:
+                .mcpListTools(.completed(try decode(data: data)))
+        case .responseMcpListToolsFailed:
+                .mcpListTools(.failed(try decode(data: data)))
+        case .responseMcpListToolsInProgress:
+                .mcpListTools(.inProgress(try decode(data: data)))
+        case .responseQueued:
+                .queued(try decode(data: data))
+        case .responseReasoningDelta:
+                .reasoning(.delta(try decode(data: data)))
+        case .responseReasoningDone:
+                .reasoning(.done(try decode(data: data)))
+        case .responseReasoningSummaryDelta:
+                .reasoningSummary(.delta(try decode(data: data)))
+        case .responseReasoningSummaryDone:
+                .reasoningSummary(.done(try decode(data: data)))
+        case .responseOutputTextAnnotationAdded:
+                .outputTextAnnotation(.added(try decode(data: data)))
         case .responseAudioDelta:
+            // Audio, AudioTranscript and CodeInterpreter events are not part of API Reference at the moment
+            // But they are present in code generated from OpenAPI spec, so we also include it
                 .audio(.delta(try decode(data: data)))
         case .responseAudioDone:
                 .audio(.done(try decode(data: data)))

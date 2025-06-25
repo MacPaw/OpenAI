@@ -140,6 +140,7 @@ public struct ResponsesChatDetailView: View {
                             functionCallingEnabled: settingsStore.functionCallingEnabled
                         )
                     } catch {
+                        print("store.send error: \(error)")
                         errorTitle = error.localizedDescription
                         errorAlertPresented = true
                     }
