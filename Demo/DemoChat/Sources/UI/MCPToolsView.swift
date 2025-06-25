@@ -116,12 +116,39 @@ public struct MCPToolsView: View {
             HStack {
                 Text("Available Tools")
                     .font(.headline)
-                
+
                 Spacer()
-                
+
                 Text("\(mcpStore.enabledTools.count) enabled")
                     .font(.caption)
                     .foregroundColor(.secondary)
+            }
+
+            // Toggle All Tools Section
+            if !mcpStore.availableTools.isEmpty {
+                HStack {
+                    Text("Enable All Tools")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+
+                    Spacer()
+
+                    Toggle("", isOn: Binding(
+                        get: { mcpStore.areAllToolsEnabled },
+                        set: { isEnabled in
+                            if isEnabled {
+                                mcpStore.enableAllTools()
+                            } else {
+                                mcpStore.disableAllTools()
+                            }
+                        }
+                    ))
+                    .labelsHidden()
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
             }
             
             if mcpStore.availableTools.isEmpty {

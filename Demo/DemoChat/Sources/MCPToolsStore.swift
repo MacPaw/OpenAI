@@ -142,6 +142,23 @@ public final class MCPToolsStore: ObservableObject {
         }
         saveEnabledTools()
     }
+
+    /// Enable all available tools
+    public func enableAllTools() {
+        enabledTools = Set(availableTools.map { $0.name })
+        saveEnabledTools()
+    }
+
+    /// Disable all tools
+    public func disableAllTools() {
+        enabledTools.removeAll()
+        saveEnabledTools()
+    }
+
+    /// Check if all available tools are enabled
+    public var areAllToolsEnabled: Bool {
+        !availableTools.isEmpty && enabledTools.count == availableTools.count
+    }
     
     /// Get list of enabled tool names for OpenAI API
     public var allowedTools: Components.Schemas.MCPTool.AllowedToolsPayload? {
