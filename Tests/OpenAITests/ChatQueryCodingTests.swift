@@ -1,5 +1,5 @@
 //
-//  Test.swift
+//  ChatQueryCodingTests.swift
 //  OpenAI
 //
 //  Created by Oleksii Nezhyborets on 20.05.2025.
