@@ -131,16 +131,16 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         
         self.streamingClient = .init(
             configuration: configuration,
-            middlewares: middlewares,
             streamingSessionFactory: streamingSessionFactory,
+            middlewares: middlewares,
             cancellablesFactory: cancellablesFactory,
             executionSerializer: executionSerializer
         )
         
         self.asyncClient = .init(
             configuration: configuration,
-            middlewares: middlewares,
             session: session,
+            middlewares: middlewares,
             dataTaskFactory: dataTaskFactory,
             responseHandler: .init(middlewares: middlewares, configuration: configuration)
         )

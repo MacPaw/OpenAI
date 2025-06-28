@@ -187,7 +187,7 @@ extension OpenAI: OpenAIAsync {
     }
     
     func performSpeechRequestAsync(request: any URLRequestBuildable) async throws -> AudioSpeechResult {
-        try await asyncClient.performSpeechRequestAsync(request: request)
+        try await asyncClient.performSpeechRequest(request: request)
     }
     
     func makeAsyncStream<ResultType: Codable & Sendable>(

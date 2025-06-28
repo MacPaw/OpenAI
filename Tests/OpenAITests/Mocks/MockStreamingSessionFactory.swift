@@ -61,10 +61,12 @@ class MockStreamingSessionFactory: StreamingSessionFactory, @unchecked Sendable 
         onComplete: @Sendable @escaping (StreamingSession<ModelResponseEventsStreamInterpreter>, (any Error)?) -> Void
     ) -> StreamingSession<ModelResponseEventsStreamInterpreter> {
         .init(
+            urlSessionFactory: urlSessionFactory,
             urlRequest: urlRequest,
             interpreter: .init(),
             sslDelegate: nil,
             middlewares: [],
+            executionSerializer: executionSerializer,
             onReceiveContent: onReceiveContent,
             onProcessingError: onProcessingError,
             onComplete: onComplete
@@ -72,8 +74,4 @@ class MockStreamingSessionFactory: StreamingSessionFactory, @unchecked Sendable 
     }
 }
 
-struct NoDispatchExecutionSerializer: ExecutionSerializer {
-    func dispatch(_ closure: @escaping () -> Void) {
-        closure()
-    }
-}
+

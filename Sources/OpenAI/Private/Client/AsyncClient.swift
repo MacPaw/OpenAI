@@ -19,14 +19,14 @@ actor AsyncClient {
     
     init(
         configuration: OpenAI.Configuration,
-        middlewares: [OpenAIMiddleware],
         session: URLSessionProtocol,
+        middlewares: [OpenAIMiddleware],
         dataTaskFactory: DataTaskFactory,
         responseHandler: URLResponseHandler
     ) {
         self.configuration = configuration
-        self.middlewares = middlewares
         self.session = session
+        self.middlewares = middlewares
         self.dataTaskFactory = dataTaskFactory
         self.responseHandler = responseHandler
     }
@@ -62,7 +62,7 @@ actor AsyncClient {
         }
     }
     
-    func performSpeechRequestAsync(request: any URLRequestBuildable) async throws -> AudioSpeechResult {
+    func performSpeechRequest(request: any URLRequestBuildable) async throws -> AudioSpeechResult {
         let urlRequest = try request.build(configuration: configuration)
         let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
             middleware.intercept(request: current)
