@@ -73,7 +73,7 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
         _ session: URLSessionProtocol,
         dataTask: URLSessionDataTaskProtocol,
         didReceive response: URLResponse,
-        completionHandler: @escaping (URLSession.ResponseDisposition) -> Void
+        completionHandler: @escaping @Sendable (URLSession.ResponseDisposition) -> Void
     ) {
         executionSerializer.dispatch {
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode >= 400 {
@@ -89,7 +89,7 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
     func urlSession(
         _ session: URLSession,
         didReceive challenge: URLAuthenticationChallenge,
-        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+        completionHandler: @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
     ) {
         guard let sslDelegate else { return completionHandler(.performDefaultHandling, nil) }
         sslDelegate.urlSession(session, didReceive: challenge, completionHandler: completionHandler)
