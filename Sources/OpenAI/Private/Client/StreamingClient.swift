@@ -17,14 +17,14 @@ final class StreamingClient: @unchecked Sendable {
     
     init(
         configuration: OpenAI.Configuration,
-        middlewares: [OpenAIMiddleware],
         streamingSessionFactory: StreamingSessionFactory,
+        middlewares: [OpenAIMiddleware],
         cancellablesFactory: CancellablesFactory,
         executionSerializer: ExecutionSerializer
     ) {
         self.configuration = configuration
-        self.middlewares = middlewares
         self.streamingSessionFactory = streamingSessionFactory
+        self.middlewares = middlewares
         self.cancellablesFactory = cancellablesFactory
         self.executionSerializer = executionSerializer
     }
