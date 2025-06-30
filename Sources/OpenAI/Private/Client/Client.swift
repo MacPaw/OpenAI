@@ -50,7 +50,7 @@ final class Client: Sendable {
                 middleware.intercept(request: current)
             }
 
-            let task = dataTaskFactory.makeRawResponseDataTask(forRequest: urlRequest) { result in
+            let task = dataTaskFactory.makeRawResponseDataTask(forRequest: interceptedRequest) { result in
                 switch result {
                 case .success(let success):
                     completion(.success(.init(audio: success)))

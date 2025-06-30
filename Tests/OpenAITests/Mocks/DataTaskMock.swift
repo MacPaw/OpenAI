@@ -32,6 +32,15 @@ class DataTaskMock: URLSessionDataTaskProtocol, @unchecked Sendable {
 }
 
 extension DataTaskMock {
+    static func successfulJson(with codable: Codable) throws -> DataTaskMock {
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(codable)
+        
+        let task = DataTaskMock()
+        task.data = data
+        task.response = HTTPURLResponse(url: URL(fileURLWithPath: ""), statusCode: 200, httpVersion: nil, headerFields: nil)
+        return task
+    }
     
     static func successful(with data: Data) -> DataTaskMock {
         let task = DataTaskMock()

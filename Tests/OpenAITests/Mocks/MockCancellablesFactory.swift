@@ -9,7 +9,7 @@ import Foundation
 @testable import OpenAI
 
 class MockCancellablesFactory: CancellablesFactory, @unchecked Sendable {
-    var taskCanceller: MockTaskCanceller!
+    var taskCanceller = MockTaskCanceller()
     
     func makeTaskCanceller(task: any URLSessionTaskProtocol) -> any CancellableRequest {
         taskCanceller
