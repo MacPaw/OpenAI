@@ -17,7 +17,7 @@ protocol URLSessionDelegateProtocol: Sendable { // Sendable to make a better mat
     func urlSession(
         _ session: URLSession,
         didReceive challenge: URLAuthenticationChallenge,
-        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+        completionHandler: @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
     )
 }
 
@@ -28,6 +28,6 @@ protocol URLSessionDataDelegateProtocol: URLSessionDelegateProtocol {
         _ session: URLSessionProtocol,
         dataTask: URLSessionDataTaskProtocol,
         didReceive response: URLResponse,
-        completionHandler: @escaping (URLSession.ResponseDisposition) -> Void
+        completionHandler: @escaping @Sendable (URLSession.ResponseDisposition) -> Void
     )
 }
