@@ -952,20 +952,17 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
     }
 
     // See more https://platform.openai.com/docs/guides/structured-outputs/introduction
-    public enum ResponseFormat: Codable, Equatable, Sendable {
+    public enum ResponseFormat: Codable, Hashable, Sendable {
         /// Default response format. Used to generate text responses.
         case text
         /// JSON object response format. An older method of generating JSON responses. Using `json_schema` is recommended for models that support it. Note that the model will not generate JSON without a system or user message instructing it to do so.
         case jsonObject
         /// JSON Schema response format. Used to generate structured JSON responses. Learn more about [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs).
         case jsonSchema(StructuredOutputConfigurationOptions)
-        case derivedJsonSchema(name: String, type: any JSONSchemaConvertible.Type)
-        case dynamicJsonSchema(DynamicJSONSchema)
         
         enum CodingKeys: String, CodingKey {
             case type
             case jsonSchema = "json_schema"
-            case dynamicJsonSchema
         }
         
         public func encode(to encoder: any Encoder) throws {
@@ -978,24 +975,17 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             case .jsonSchema(let options):
                 try container.encode("json_schema", forKey: .type)
                 try container.encode(options, forKey: .jsonSchema)
-            case .derivedJsonSchema(let name, let type):
-                try container.encode("json_schema", forKey: .type)
-                let schema = DerivedStructuredOutputConfigurationOptions(name: name, schema: type.example)
-                try container.encode(schema, forKey: .jsonSchema)
-            case .dynamicJsonSchema(let dynamicJSONSchema):
-                try container.encode("json_schema", forKey: .type)
-                try container.encode(dynamicJSONSchema, forKey: .jsonSchema)
             }
         }
         
         public static func == (lhs: ResponseFormat, rhs: ResponseFormat) -> Bool {
             switch (lhs, rhs) {
-            case (.text, .text): return true
-            case (.jsonObject, .jsonObject): return true
-            case (.derivedJsonSchema(let lhsName, let lhsType), .derivedJsonSchema(let rhsName, let rhsType)):
-                return lhsName == rhsName && lhsType == rhsType
-            case (.dynamicJsonSchema(let lhsSchema), .dynamicJsonSchema(let rhsSchema)):
-                return lhsSchema == rhsSchema
+            case (.text, .text):
+                return true
+            case (.jsonObject, .jsonObject):
+                return true
+            case (.jsonSchema(let lhsFormat), .jsonSchema(let rhsFormat)):
+                return lhsFormat == rhsFormat
             default:
                 return false
             }
@@ -1006,281 +996,64 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         public init(from decoder: any Decoder) throws {
             self = .text
         }
-        
-        public struct StructuredOutputConfigurationOptions: Codable, Hashable, Sendable {
-            /// The name of the response format. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
-            let name: String
-            /// A description of what the response format is for, used by the model to determine how to respond in the format.
-            let description: String?
-            /// The schema for the response format, described as a JSON Schema object. Learn how to build JSON schemas [here](https://json-schema.org/).
-            let schema: AnyJSONSchema?
-            /// Whether to enable strict schema adherence when generating the output. If set to true, the model will always follow the exact schema defined in the `schema` field. Only a subset of JSON Schema is supported when `strict` is `true`. To learn more, read the [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) guide.
-            ///
-            /// Defaults to false
-            let strict: Bool?
-        }
     }
     
-    private struct DerivedStructuredOutputConfigurationOptions: Encodable {
-        
+    public struct StructuredOutputConfigurationOptions: Codable, Hashable, Sendable {
+        /// The name of the response format. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
         let name: String
-        let schema: any JSONSchemaConvertible
-        
-        enum CodingKeys: String, CodingKey {
-            case name
-            case schema
-            case strict
-        }
-        
-        init(name: String, schema: any JSONSchemaConvertible) {
-            
-            func format(_ name: String) -> String {
-                var formattedName = name.replacingOccurrences(of: " ", with: "_")
-                let regex = try! NSRegularExpression(pattern: "[^a-zA-Z0-9_-]", options: [])
-                let range = NSRange(location: 0, length: formattedName.utf16.count)
-                formattedName = regex.stringByReplacingMatches(in: formattedName, options: [], range: range, withTemplate: "")
-                formattedName = formattedName.isEmpty ? "sample" : formattedName
-                formattedName = String(formattedName.prefix(64))
-                return formattedName
-            }
-            
-            self.name = format(name)
-            self.schema = schema
-            
-            if self.name != name {
-                print("The name was changed to \(self.name) to satisfy the API requirements. See more: https://platform.openai.com/docs/api-reference/chat/create")
-            }
-        }
-        
-        public func encode(to encoder: any Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(name, forKey: .name)
-            try container.encode(true, forKey: .strict)
-            try container.encode(try PropertyValue(from: schema), forKey: .schema)
-        }
-    }
-    
-    private indirect enum PropertyValue: Codable {
-        
-        enum SimpleType: String, Codable {
-            case string, integer, number, boolean
-        }
-        
-        enum ComplexType: String, Codable {
-            case object, array, date
-        }
-        
-        enum SpecialType: String, Codable {
-            case null
-        }
-        
-        case simple(SimpleType, isOptional: Bool)
-        case date(isOptional: Bool)
-        case `enum`(cases: [String], isOptional: Bool)
-        case object([String: PropertyValue], isOptional: Bool)
-        case array(PropertyValue, isOptional: Bool)
-        
-        enum CodingKeys: String, CodingKey {
-            case type
-            case description
-            case properties
-            case items
-            case additionalProperties
-            case required
-            case `enum`
-        }
-        
-        enum ValueType: String, Codable {
-            case string
-            case date
-            case integer
-            case number
-            case boolean
-            case object
-            case array
-        }
-        
-        func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            
-            switch self {
-            case .simple(let type, let isOptional):
-                if isOptional {
-                    try container.encode([type.rawValue, SpecialType.null.rawValue], forKey: .type)
-                } else {
-                    try container.encode(type.rawValue, forKey: .type)
-                }
-            case .date(let isOptional):
-                if isOptional {
-                    try container.encode([SimpleType.string.rawValue, SpecialType.null.rawValue], forKey: .type)
-                } else {
-                    try container.encode(SimpleType.string.rawValue, forKey: .type)
-                }
-                try container.encode("String that represents a date formatted in iso8601", forKey: .description)
-            case .enum(let cases, let isOptional):
-                if isOptional {
-                    try container.encode([SimpleType.string.rawValue, SpecialType.null.rawValue], forKey: .type)
-                } else {
-                    try container.encode(SimpleType.string.rawValue, forKey: .type)
-                }
-                try container.encode(cases, forKey: .enum)
-            case .object(let object, let isOptional):
-                if isOptional {
-                    try container.encode([ComplexType.object.rawValue, SpecialType.null.rawValue], forKey: .type)
-                } else {
-                    try container.encode(ComplexType.object.rawValue, forKey: .type)
-                }
-                try container.encode(false, forKey: .additionalProperties)
-                try container.encode(object, forKey: .properties)
-                let fields = object.map { key, value in key }
-                try container.encode(fields, forKey: .required)
-            case .array(let items, let isOptional):
-                if isOptional {
-                    try container.encode([ComplexType.array.rawValue, SpecialType.null.rawValue], forKey: .type)
-                } else {
-                    try container.encode(ComplexType.array.rawValue, forKey: .type)
-                }
-                try container.encode(items, forKey: .items)
-            }
-        }
-        
-        init<T: Any>(from value: T) throws {
-            let mirror = Mirror(reflecting: value)
-            let isOptional = mirror.displayStyle == .optional
-            
-            switch value {
-            case _ as String:
-                self = .simple(.string, isOptional: isOptional)
-                return
-            case _ as Bool:
-                self = .simple(.boolean, isOptional: isOptional)
-                return
-            case _ as Int, _ as Int8, _ as Int16, _ as Int32, _ as Int64, _ as UInt, _ as UInt8, _ as UInt16, _ as UInt32, _ as UInt64:
-                self = .simple(.integer, isOptional: isOptional)
-                return
-            case _ as Double, _ as Float, _ as CGFloat:
-                self = .simple(.number, isOptional: isOptional)
-                return
-            case _ as Date:
-                self = .date(isOptional: isOptional)
-                return
-            default:
-                
-                var unwrappedMirror: Mirror!
-                if isOptional {
-                    guard let child = mirror.children.first else {
-                        throw StructuredOutputError.nilFoundInExample
-                    }
-                    unwrappedMirror = Mirror(reflecting: child.value)
-                } else {
-                    unwrappedMirror = mirror
-                }
-                
-                if let displayStyle = unwrappedMirror.displayStyle {
-                    
-                    switch displayStyle {
-                        
-                    case .struct, .class:
-                        var dict = [String: PropertyValue]()
-                        for child in unwrappedMirror.children {
-                            dict[child.label!] = try Self(from: child.value)
-                        }
-                        self = .object(dict, isOptional: isOptional)
-                        return
-                        
-                    case .collection:
-                        if let child = unwrappedMirror.children.first {
-                            self = .array(try Self(from: child.value), isOptional: isOptional)
-                            return
-                        } else {
-                            throw StructuredOutputError.typeUnsupported
-                        }
-                        
-                    case .enum:
-                        if let structuredEnum = value as? any JSONSchemaEnumConvertible {
-                            self = .enum(cases: structuredEnum.caseNames, isOptional: isOptional)
-                            return
-                        } else {
-                            throw StructuredOutputError.enumsConformance
-                        }
-                        
-                    default:
-                        throw StructuredOutputError.typeUnsupported
-                    }
-                }
-                throw StructuredOutputError.typeUnsupported
-            }
-        }
-        
-        
-        /// A formal initializer reqluired for the inherited Decodable conformance.
-        /// This type is never returned from the server and is never decoded into.
-        init(from decoder: Decoder) throws {
-            self = .simple(.boolean, isOptional: false)
-        }
-    }
-    
-    public enum StructuredOutputError: LocalizedError {
-        case enumsConformance
-        case typeUnsupported
-        case nilFoundInExample
-        
-        public var errorDescription: String? {
-            switch self {
-            case .enumsConformance:
-                return "Conform the enum types to StructuredOutputEnum and provide the `caseNames` property with a list of available cases."
-            case .typeUnsupported:
-                return "Unsupported type. Supported types: String, Bool, Int, Double, Array, and Codable struct/class instances."
-            case .nilFoundInExample:
-                return "Found nils when serializing the StructuredOutput‘s example. Provide values for all optional properties in the example."
-            }
-        }
-    }
-    
-    public struct DynamicJSONSchema: Encodable, Sendable, Equatable {
-        let name: String
+        /// A description of what the response format is for, used by the model to determine how to respond in the format.
         let description: String?
-        let schema: Encodable & Sendable
+        /// The schema for the response format, described as a JSON Schema object. Learn how to build JSON schemas [here](https://json-schema.org/).
+        let schema: JSONSchemaDefinition?
+        /// Whether to enable strict schema adherence when generating the output. If set to true, the model will always follow the exact schema defined in the `schema` field. Only a subset of JSON Schema is supported when `strict` is `true`. To learn more, read the [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs) guide.
+        ///
+        /// Defaults to false
         let strict: Bool?
         
-        enum CodingKeys: String, CodingKey {
-            case name
-            case description
-            case schema
-            case strict
-        }
-        
-        public init(
-            name: String,
-            description: String? = nil,
-            schema: Encodable & Sendable,
-            strict: Bool? = nil
-        ) {
+        public init(name: String, description: String? = nil, schema: JSONSchemaDefinition? = nil, strict: Bool? = nil) {
             self.name = name
             self.description = description
             self.schema = schema
             self.strict = strict
         }
         
-        public func encode(to encoder: any Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(name, forKey: .name)
-            if let description {
-                try container.encode(description, forKey: .description)
-            }
-            try container.encode(schema, forKey: .schema)
-            if let strict {
-                try container.encode(strict, forKey: .strict)
-            }
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.name = try container.decode(String.self, forKey: .name)
+            self.description = try container.decodeIfPresent(String.self, forKey: .description)
+            self.strict = try container.decodeIfPresent(Bool.self, forKey: .strict)
+            self.schema = try container.decodeIfPresent(JSONSchemaDefinition.self, forKey: .schema)
         }
         
-        public static func == (lhs: DynamicJSONSchema, rhs: DynamicJSONSchema) -> Bool {
-            guard lhs.name == rhs.name else { return false }
-            guard lhs.description == rhs.description else { return false }
-            guard lhs.strict == rhs.strict else { return false }
-            let lhsData = try? JSONEncoder().encode(lhs.schema)
-            let rhsData = try? JSONEncoder().encode(rhs.schema)
-            return lhsData == rhsData
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(self.name, forKey: CodingKeys.name)
+            try container.encodeIfPresent(self.description, forKey: CodingKeys.description)
+            try container.encodeIfPresent(self.schema, forKey: CodingKeys.schema)
+            try container.encodeIfPresent(self.strict, forKey: CodingKeys.strict)
+        }
+        
+        enum CodingKeys: CodingKey {
+            case name
+            case description
+            case schema
+            case strict
+        }
+        
+        public static func == (lhs: ChatQuery.StructuredOutputConfigurationOptions, rhs: ChatQuery.StructuredOutputConfigurationOptions) -> Bool {
+            guard lhs.name == rhs.name,
+                  lhs.description == rhs.description,
+                  lhs.strict == rhs.strict else {
+                return false
+            }
+            
+            if let rhsSchema = rhs.schema, let lhsSchema = lhs.schema {
+                return rhsSchema == lhsSchema
+            } else if rhs.schema == nil, lhs.schema == nil {
+                return true
+            } else {
+                return false
+            }
         }
     }
 

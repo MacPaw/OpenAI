@@ -692,65 +692,125 @@ class OpenAITestsDecoder: XCTestCase {
         let query = ChatQuery(
             messages: [.system(.init(content: .textContent("Return a structured response.")))],
             model: .gpt4_o,
-            responseFormat: .derivedJsonSchema(name: "movie-info", type: MovieInfo.self)
+            responseFormat: .jsonSchema(
+                .init(
+                    name: "movie-info",
+                    description: "dezg",
+                    schema: .derivedJsonSchema(MovieInfo.self),
+                    strict: true
+                )
+            )
         )
         
         let data = try JSONEncoder().encode(query)
-        let dict = try JSONSerialization.jsonObject(with: data) as! [String: Any]
-        XCTAssertEqual(dict["model"] as! String, "gpt-4o")
-        XCTAssertEqual(dict["stream"] as! Bool, false)
-        
-        let responseFormat = dict["response_format"] as! [String: Any]
-        XCTAssertEqual(responseFormat["type"] as! String, "json_schema")
-        
-        let configOptions = responseFormat["json_schema"] as! [String: Any]
-        XCTAssertEqual(configOptions["name"] as! String, "movie-info")
-        XCTAssertEqual(configOptions.keys.contains(where: { $0 == "description" }), false)
-        XCTAssertEqual(configOptions["strict"] as! Bool, true)
-        
-        let jsonSchema = configOptions["schema"] as! [String: Any]
-        XCTAssertEqual(jsonSchema["type"] as! String, "object")
-        let properties = jsonSchema["properties"] as! [String: [String: Any]]
-        let titleSchema = properties["title"]!
-        XCTAssertEqual(titleSchema.count, 1)
-        XCTAssertEqual(titleSchema["type"] as! String, "string")
+        try testEncodedChatQueryWithStructuredOutput(data)
     }
     
     func testChatQueryWithStructuredOutputJsonSchema() throws {
         let query = ChatQuery(
             messages: [.system(.init(content: .textContent("Return a structured response.")))],
             model: .gpt4_o,
-            responseFormat: .jsonSchema(
-                .init(
-                    name: "movie-info",
-                    description: "dezg",
-                    schema: .init(fields: [
+            responseFormat: .jsonSchema(.init(
+                name: "movie-info",
+                description: "dezg",
+                schema: .jsonSchema(.init(
+                    fields: [
                         .type(.object),
                         .properties([
                             "title": .init(fields: [
                                 .type(.string)
                             ])
                         ])
-                    ]),
-                    strict: false
+                    ])),
+                strict: true
+            ))
+        )
+        
+        let data = try JSONEncoder().encode(query)
+        try testEncodedChatQueryWithStructuredOutput(data)
+    }
+    
+    func testCreateResponseQueryWithStructuredOutputDerivedSchema() throws {
+        let query = CreateModelResponseQuery(
+            input: .textInput("Return a structured response."),
+            model: .gpt4_o,
+            text: .init(format: .jsonSchema(
+                .init(
+                    name: "movie-info",
+                    schema: .derivedJsonSchema(MovieInfo.self),
+                    description: "dezg",
+                    strict: true
+                )
+            ))
+        )
+        
+        let data = try JSONEncoder().encode(query)
+        try testEncodedCreateResponseQueryWithStructuredOutput(data)
+    }
+    
+    func testCreateResponseQueryWithStructuredOutputJsonSchema() throws {
+        let query = CreateModelResponseQuery(
+            input: .textInput("Return a structured response."),
+            model: .gpt4_o,
+            text: .init(
+                format: .jsonSchema(
+                    .init(
+                        name: "movie-info",
+                        schema: .jsonSchema(.init(
+                            fields: [
+                                .type(.object),
+                                .properties([
+                                    "title": .init(fields: [
+                                        .type(.string)
+                                    ])
+                                ])
+                            ])),
+                        description: "dezg",
+                        strict: true
+                    )
                 )
             )
         )
         
         let data = try JSONEncoder().encode(query)
-        let dict = try JSONSerialization.jsonObject(with: data) as! [String: Any]
-        XCTAssertEqual(dict["model"] as! String, "gpt-4o")
-        XCTAssertEqual(dict["stream"] as! Bool, false)
+        try testEncodedCreateResponseQueryWithStructuredOutput(data)
+    }
+    
+    private func testEncodedChatQueryWithStructuredOutput(_ data: Data) throws {
+        let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(dict["model"] as? String), "gpt-4o")
+        XCTAssertEqual(try XCTUnwrap(dict["stream"] as? Bool), false)
         
-        let responseFormat = dict["response_format"] as! [String: Any]
-        XCTAssertEqual(responseFormat["type"] as! String, "json_schema")
+        let responseFormat = try XCTUnwrap(dict["response_format"] as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(responseFormat["type"] as? String), "json_schema")
         
         let configOptions = try XCTUnwrap(responseFormat["json_schema"] as? [String: Any])
         XCTAssertEqual(try XCTUnwrap(configOptions["name"] as? String), "movie-info")
         XCTAssertEqual(try XCTUnwrap(configOptions["description"] as? String), "dezg")
-        XCTAssertEqual(try XCTUnwrap(configOptions["strict"] as? Bool), false)
+        XCTAssertEqual(try XCTUnwrap(configOptions["strict"] as? Bool), true)
         
-        let jsonSchema = configOptions["schema"] as! [String: Any]
+        let jsonSchema = try XCTUnwrap(configOptions["schema"] as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(jsonSchema["type"] as? String), "object")
+        let properties = try XCTUnwrap(jsonSchema["properties"] as? [String: [String: Any]])
+        let titleSchema = try XCTUnwrap(properties["title"])
+        XCTAssertEqual(titleSchema.count, 1)
+        XCTAssertEqual(try XCTUnwrap(titleSchema["type"] as? String), "string")
+    }
+    
+    private func testEncodedCreateResponseQueryWithStructuredOutput(_ data: Data) throws {
+        let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(dict["model"] as? String), "gpt-4o")
+        
+        let textResponseConfigurationOptions = try XCTUnwrap(dict["text"] as? [String: Any])
+        let outputFormat = try XCTUnwrap(textResponseConfigurationOptions["format"] as? [String: Any])
+        
+        XCTAssertEqual(try XCTUnwrap(outputFormat["type"] as? String), "json_schema")
+        
+        XCTAssertEqual(try XCTUnwrap(outputFormat["name"] as? String), "movie-info")
+        XCTAssertEqual(try XCTUnwrap(outputFormat["description"] as? String), "dezg")
+        XCTAssertEqual(try XCTUnwrap(outputFormat["strict"] as? Bool), true)
+        
+        let jsonSchema = try XCTUnwrap(outputFormat["schema"] as? [String: Any])
         XCTAssertEqual(try XCTUnwrap(jsonSchema["type"] as? String), "object")
         let properties = try XCTUnwrap(jsonSchema["properties"] as? [String: [String: Any]])
         let titleSchema = try XCTUnwrap(properties["title"])
