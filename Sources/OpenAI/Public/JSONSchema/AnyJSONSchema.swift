@@ -7,7 +7,8 @@
 
 
 public struct AnyJSONSchema: JSONSchema {
-    private let value: any JSONSchema
+    // The value is internal instead of private for testability
+    let value: any JSONSchema
     
     public static func boolean(_ value: Bool) -> AnyJSONSchema {
         .init(schema: value)
