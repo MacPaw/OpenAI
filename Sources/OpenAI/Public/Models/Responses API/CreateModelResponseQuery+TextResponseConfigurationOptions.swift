@@ -19,11 +19,21 @@ extension CreateModelResponseQuery {
         /// Setting to `{ "type": "json_object" }` enables the older JSON mode, which ensures the message the model generates is valid JSON. Using `json_schema` is preferred for models that support it.
         let format: OutputFormat?
         
+        public static let text = TextResponseConfigurationOptions(format: .text)
+        public static let jsonObject = TextResponseConfigurationOptions(format: .jsonObject)
+        public static func jsonSchema(_ config: OutputFormat.StructuredOutputsConfig) -> TextResponseConfigurationOptions {
+            .init(format: .jsonSchema(config))
+        }
+        
+        public init(format: OutputFormat?) {
+            self.format = format
+        }
+        
         public enum OutputFormat: Codable, Hashable, Sendable {
             /// Default response format. Used to generate text responses.
             case text
             /// JSON Schema response format. Used to generate structured JSON responses. Learn more about [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs).
-            case jsonSchema(ResponseFormatJsonSchema)
+            case jsonSchema(StructuredOutputsConfig)
             /// JSON object response format. An older method of generating JSON responses. Using `json_schema` is recommended for models that support it. Note that the model will not generate JSON without a system or user message instructing it to do so.
             case jsonObject
             
@@ -39,19 +49,19 @@ extension CreateModelResponseQuery {
                 }
             }
             
-            public struct ResponseFormatJsonSchema: Codable, Hashable, Sendable {
+            public struct StructuredOutputsConfig: Codable, Hashable, Sendable {
                 /// The name of the response format. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
-                let name: String
+                public let name: String
                 /// The schema for the response format, described as a JSON Schema object. Learn how to build JSON schemas [here](https://json-schema.org/).
-                let schema: JSONSchemaDefinition
+                public let schema: JSONSchemaDefinition
                 /// The type of response format being defined. Always `json_schema`.
-                let type: String
+                public let type: String
                 /// A description of what the response format is for, used by the model to determine how to respond in the format.
-                let description: String?
+                public let description: String?
                 /// Whether to enable strict schema adherence when generating the output. If set to true, the model will always follow the exact schema defined in the `schema` field. Only a subset of JSON Schema is supported when `strict` is `true`. To learn more, read the [Structured Outputs guide](https://platform.openai.com/docs/guides/structured-outputs).
-                let strict: Bool?
+                public let strict: Bool?
                 
-                init(name: String, schema: JSONSchemaDefinition, type: String = "json_schema", description: String?, strict: Bool?) {
+                public init(name: String, schema: JSONSchemaDefinition, type: String = "json_schema", description: String?, strict: Bool?) {
                     self.name = name
                     self.schema = schema
                     self.type = type

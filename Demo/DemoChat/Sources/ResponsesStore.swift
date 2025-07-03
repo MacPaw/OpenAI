@@ -75,21 +75,21 @@ public final class ResponsesStore: ObservableObject {
     private let weatherFunctionTool = FunctionTool(
         name: "get_current_weather",
         description: "Get the current weather in a given location",
-        parameters: .init(fields: [
+        parameters: .init(
             .type(.object),
             .properties([
-                "location": .init(fields: [
+                "location": .init(
                     .type(.string),
                     .description("The city and state, e.g. San Francisco, CA")
-                ]),
-                "unit": .init(fields: [
+                ),
+                "unit": .init(
                     .type(.string),
                     .enumValues(["celsius", "fahrenheit"])
-                ])
+                )
             ]),
             .required(["location", "unit"]),
-            .additionalProperties(false)
-        ]),
+            .additionalProperties(.boolean(false))
+        ),
         // all fields must be required and additionalProperties set to false, see property's documentation comment on more details
         strict: true
     )

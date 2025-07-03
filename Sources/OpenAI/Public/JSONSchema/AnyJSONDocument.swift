@@ -8,7 +8,7 @@
 import Foundation
 
 public struct AnyJSONDocument: JSONDocument {
-    let value: any JSONDocument
+    private let value: any JSONDocument
 
     public init(_ value: any JSONDocument) {
         self.value = value
