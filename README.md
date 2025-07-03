@@ -775,9 +775,9 @@ Review [Audio Documentation](https://platform.openai.com/docs/api-reference/audi
 
 > [!NOTE] This section focuses on non-function calling use cases in the Responses and Chat Completions APIs. To learn more about how to use Structured Outputs with function calling, check out the [Function Calling](#function-calling).
 
-In order to configure structured outputs you would defina a JSONSchema and pass it to a query.
+To configure structured outputs you would define a JSON Schema and pass it to a query.
 
-This SDK support multiple ways to defina a schema, choose the one you like.
+This SDK supports multiple ways to define a schema; choose the one you prefer.
 
 <details>
 
@@ -787,7 +787,7 @@ This SDK support multiple ways to defina a schema, choose the one you like.
 
 This definition accepts `AnyJSONSchema` which type-erases `any JSONSchema` and can be initialized with an array of `JSONSchemaField` instances.
 
-If needed, you could also initialize `AnyJSONSchema` directly with dictionary or bool, because `Dictionary<String, AnyJSONDocument>` and `Bool` conform to `JSONSchema`
+If needed, you can also initialize `AnyJSONSchema` directly with a dictionary or boolean, because `Dictionary<String, AnyJSONDocument>` and Bool conform to `JSONSchema`.
 
 #### Example
 
@@ -853,7 +853,7 @@ for output in response.output {
 
 <summary>JSONSchemaDefinition.derivedJsonSchema</summary>
 
-#### Implement a types that describes a schema
+#### Implement a type that describes a schema
 
 Use [Pydantic](https://docs.pydantic.dev/latest/) or [Zod](https://zod.dev) fashion to define schemas.
 
