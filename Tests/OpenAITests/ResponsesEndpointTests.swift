@@ -95,30 +95,7 @@ class ResponsesEndpointTests: XCTestCase {
         )
 
         // Dummy response object
-        let dummy = ResponseObject(
-            createdAt: 123,
-            error: nil,
-            id: "resp-1",
-            incompleteDetails: nil,
-            instructions: nil,
-            maxOutputTokens: nil,
-            metadata: [:],
-            model: "test-model",
-            object: "response",
-            output: [],
-            parallelToolCalls: false,
-            previousResponseId: nil,
-            reasoning: nil,
-            status: "completed",
-            temperature: nil,
-            text: .init(format: nil),
-            toolChoice: .ToolChoiceOptions(.auto),
-            tools: [tool],
-            topP: nil,
-            truncation: nil,
-            usage: nil,
-            user: nil
-        )
+        let dummy = makeResponse(tools: [tool])
         try stub(dummy)
 
         let result = try await openAI.responses.createResponse(query: query)
@@ -141,5 +118,31 @@ class ResponsesEndpointTests: XCTestCase {
         default:
             XCTFail("Expected tool in response to be a function")
         }
+    }
+    private func makeResponse(output: [OutputItem] = [], tools: [Tool] = []) -> ResponseObject {
+        .init(
+            createdAt: 123,
+            error: nil,
+            id: "resp-1",
+            incompleteDetails: nil,
+            instructions: nil,
+            maxOutputTokens: nil,
+            metadata: [:],
+            model: "test-model",
+            object: "response",
+            output: output,
+            parallelToolCalls: false,
+            previousResponseId: nil,
+            reasoning: nil,
+            status: "completed",
+            temperature: nil,
+            text: .init(format: nil),
+            toolChoice: .ToolChoiceOptions(.auto),
+            tools: tools,
+            topP: nil,
+            truncation: nil,
+            usage: nil,
+            user: nil
+        )
     }
 }

@@ -97,7 +97,9 @@ class OpenAITests: XCTestCase {
         let query = ChatQuery(
             messages: [.system(.init(content: .textContent("Return a structured response.")))],
             model: .gpt4_o,
-            responseFormat: .derivedJsonSchema(name: "movie-info", type: MovieInfo.self)
+            responseFormat: .jsonSchema(
+                .init(name: "movie-info", schema: .derivedJsonSchema(MovieInfo.self))
+            )
         )
         
         let result = try await openAI.chats(query: query)
@@ -157,12 +159,7 @@ class OpenAITests: XCTestCase {
         let query = ChatQuery(
             messages: [.system(.init(content: .textContent("Return a structured response.")))],
             model: .gpt4_o,
-            responseFormat: .dynamicJsonSchema(
-                .init(
-                    name: "movie-info",
-                    schema: schema
-                )
-            )
+            responseFormat: .jsonSchema(.init(name: "movie-info", schema: .dynamicJsonSchema(schema)))
         )
         
         let result = try await openAI.chats(query: query)
