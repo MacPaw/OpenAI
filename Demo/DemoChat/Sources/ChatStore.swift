@@ -170,16 +170,16 @@ public final class ChatStore: ObservableObject {
             let weatherFunction = ChatQuery.ChatCompletionToolParam(function: .init(
                 name: "getWeatherData",
                 description: "Get the current weather in a given location",
-                parameters: .init(fields: [
+                parameters: .init(
                     .type(.object),
                     .properties([
-                        "location": .init(fields: [
+                        "location": .init(
                             .type(.string),
                             .description("The city and state, e.g. San Francisco, CA")
-                        ])
+                        )
                     ]),
                     .required(["location"])
-                ])
+                )
             ))
 
             let functions = [weatherFunction]

@@ -17,7 +17,6 @@ This repository contains Swift community-maintained implementation over [OpenAI]
     - [Initialization](#initialization)
     - [Chats](#chats)
         - [Chats Streaming](#chats-streaming) 
-        - [Structured Output](#structured-output)
     - [Responses](#responses)
     - [MCP (Model Context Protocol)](#mcp-model-context-protocol)
         - [MCP Tool Integration](#mcp-tool-integration)
@@ -29,6 +28,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
         - [Audio Create Speech](#audio-create-speech)
         - [Audio Transcriptions](#audio-transcriptions)
         - [Audio Translations](#audio-translations)
+    - [Structured Outputs](#structured-outputs)
     - [Embeddings](#embeddings)
     - [Models](#models)
         - [List Models](#list-models)
@@ -339,55 +339,6 @@ Result will be (serialized as JSON here for readability):
 ```
 
 Review [Chat Documentation](https://platform.openai.com/docs/guides/chat) for more info.
-
-#### Structured Output
-
-JSON is one of the most widely used formats in the world for applications to exchange data.
-
-Structured Outputs is a feature that ensures the model will always generate responses that adhere to your supplied JSON Schema, so you don't need to worry about the model omitting a required key, or hallucinating an invalid enum value.
-
-**Example**
-
-```swift
-struct MovieInfo: JSONSchemaConvertible {
-    
-    let title: String
-    let director: String
-    let release: Date
-    let genres: [MovieGenre]
-    let cast: [String]
-    
-    static let example: Self = { 
-        .init(
-            title: "Earth",
-            director: "Alexander Dovzhenko",
-            release: Calendar.current.date(from: DateComponents(year: 1930, month: 4, day: 1))!,
-            genres: [.drama],
-            cast: ["Stepan Shkurat", "Semyon Svashenko", "Yuliya Solntseva"]
-        )
-    }()
-}
-
-enum MovieGenre: String, Codable, JSONSchemaEnumConvertible {
-    case action, drama, comedy, scifi
-    
-    var caseNames: [String] { Self.allCases.map { $0.rawValue } }
-}
-
-let query = ChatQuery(
-    messages: [.system(.init(content: "Best Picture winner at the 2011 Oscars"))],
-    model: .gpt4_o,
-    responseFormat: .derivedJsonSchema(name: "movie-info", type: MovieInfo.self)
-)
-let result = try await openAI.chats(query: query)
-```
-
-- Use the `derivedJsonSchema(name:type:)` response format when creating a `ChatQuery`
-- Provide a schema name and a type that conforms to `JSONSchemaConvertible` and generates an instance as an example
-- Make sure all enum types within the provided type conform to `ChatQuery.JSONSchemaEnumConvertible` and generate an array of names for all cases
-
-
-Review [Structured Output Documentation](https://platform.openai.com/docs/guides/structured-outputs) for more info.
 
 ### Responses
 
@@ -819,6 +770,194 @@ let result = try await openAI.audioTranslations(query: query)
 ```
 
 Review [Audio Documentation](https://platform.openai.com/docs/api-reference/audio) for more info.
+
+### Structured Outputs
+
+> [!NOTE] This section focuses on non-function calling use cases in the Responses and Chat Completions APIs. To learn more about how to use Structured Outputs with function calling, check out the [Function Calling](#function-calling).
+
+To configure structured outputs you would define a JSON Schema and pass it to a query.
+
+This SDK supports multiple ways to define a schema; choose the one you prefer.
+
+<details>
+
+<summary>JSONSchemaDefinition.jsonSchema</summary>
+
+#### Build a schema by specifying fields
+
+This definition accepts `AnyJSONSchema` which type-erases `any JSONSchema` and can be initialized with an array of `JSONSchemaField` instances.
+
+If needed, you can also initialize `AnyJSONSchema` directly with a dictionary or boolean, because `Dictionary<String, AnyJSONDocument>` and Bool conform to `JSONSchema`.
+
+#### Example
+
+```swift
+let query = CreateModelResponseQuery(
+    input: .textInput("Return structured output"),
+    model: .gpt4_o,
+    text: .jsonSchema(.init(
+        name: "research_paper_extraction",
+        schema: .jsonSchema(.init(
+            .type(.object),
+            .properties([
+                "title": Schema.buildBlock(
+                    .type(.string)
+                ),
+                "authors": .init(
+                    .type(.array),
+                    .items(.init(
+                        .type(.string)
+                    ))
+                ),
+                "abstract": .init(
+                    .type(.string)
+                ),
+                "keywords": .init(
+                    .type(.array),
+                    .items(.init(
+                        .type(.string))
+                    )
+                )
+            ]),
+            .required(["title, authors, abstract, keywords"]),
+            .additionalProperties(.boolean(false))
+        )),
+        description: "desc",
+        strict: false
+    ))
+)
+
+let response = try await openAIClient.responses.createResponse(query: query)
+for output in response.output {
+    switch output {
+    case .outputMessage(let message):
+        for content in message.content {
+            switch content {
+            case .OutputTextContent(let textContent):
+                print("json output structured by the schema: ", textContent.text)
+            case .RefusalContent(let refusal):
+                // Handle refusal
+                break
+            }
+        }
+    default:
+        // Handle other OutputItems
+        break
+    }
+}
+```
+
+</details>
+
+<details>
+
+<summary>JSONSchemaDefinition.derivedJsonSchema</summary>
+
+#### Implement a type that describes a schema
+
+Use [Pydantic](https://docs.pydantic.dev/latest/) or [Zod](https://zod.dev) fashion to define schemas.
+
+- Use the `derivedJsonSchema(_ type:)` response format when creating a `ChatQuery` or `CreateModelResponseQuery`
+- Provide a type that conforms to `JSONSchemaConvertible` and generates an instance as an example
+- Make sure all enum types within the provided type conform to `JSONSchemaEnumConvertible` and generate an array of names for all cases
+
+#### Example
+
+```swift
+struct MovieInfo: JSONSchemaConvertible {
+    
+    let title: String
+    let director: String
+    let release: Date
+    let genres: [MovieGenre]
+    let cast: [String]
+    
+    static let example: Self = { 
+        .init(
+            title: "Earth",
+            director: "Alexander Dovzhenko",
+            release: Calendar.current.date(from: DateComponents(year: 1930, month: 4, day: 1))!,
+            genres: [.drama],
+            cast: ["Stepan Shkurat", "Semyon Svashenko", "Yuliya Solntseva"]
+        )
+    }()
+}
+
+enum MovieGenre: String, Codable, JSONSchemaEnumConvertible {
+    case action, drama, comedy, scifi
+    
+    var caseNames: [String] { Self.allCases.map { $0.rawValue } }
+}
+
+let query = ChatQuery(
+    messages: [.system(.init(content: "Best Picture winner at the 2011 Oscars"))],
+    model: .gpt4_o,
+    responseFormat: .jsonSchema(.derivedJsonSchema(name: "movie-info", type: MovieInfo.self))
+)
+let result = try await openAI.chats(query: query)
+```
+
+</details>
+
+<details>
+
+<summary>JSONSchemaDefinition.dynamicJsonSchema</summary>
+
+#### Define a schema with an instance of any type that conforms to Encodable
+
+Define your JSON schema using simple Dictionaries, or specify JSON schema with a library like https://github.com/kevinhermawan/swift-json-schema.
+
+#### Example
+
+```swift
+struct AnyEncodable: Encodable {
+    private let _encode: (Encoder) throws -> Void
+    public init<T: Encodable>(_ wrapped: T) {
+        _encode = wrapped.encode
+    }
+    func encode(to encoder: Encoder) throws {
+        try _encode(encoder)
+    }
+}
+let schema = [
+    "type": AnyEncodable("object"),
+    "properties": AnyEncodable([
+        "title": AnyEncodable([
+            "type": "string"
+        ]),
+        "director": AnyEncodable([
+            "type": "string"
+        ]),
+        "release": AnyEncodable([
+            "type": "string"
+        ]),
+        "genres": AnyEncodable([
+            "type": AnyEncodable("array"),
+            "items": AnyEncodable([
+                "type": AnyEncodable("string"),
+                "enum": AnyEncodable(["action", "drama", "comedy", "scifi"])
+            ])
+        ]),
+        "cast": AnyEncodable([
+            "type": AnyEncodable("array"),
+            "items": AnyEncodable([
+                "type": "string"
+            ])
+        ])
+    ]),
+    "additionalProperties": AnyEncodable(false)
+]
+let query = ChatQuery(
+    messages: [.system(.init(content: .textContent("Return a structured response.")))],
+    model: .gpt4_o,
+    responseFormat: .jsonSchema(.init(name: "movie-info", schema: .dynamicJsonSchema(schema)))
+)
+let result = try await openAI.chats(query: query)
+```
+
+</details>
+
+Review [Structured Output Documentation](https://platform.openai.com/docs/guides/structured-outputs) for more info.
 
 ### Embeddings
 

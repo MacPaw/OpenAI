@@ -7,10 +7,23 @@
 
 
 public struct AnyJSONSchema: JSONSchema {
+    // The value is internal instead of private for testability
     let value: any JSONSchema
+    
+    public static func boolean(_ value: Bool) -> AnyJSONSchema {
+        .init(schema: value)
+    }
+    
+    public static func schema(_ fields: JSONSchemaField...) -> AnyJSONSchema {
+        .init(fields: fields)
+    }
 
     public init(schema: any JSONSchema) {
         self.value = schema
+    }
+    
+    public init(_ fieldsVarg: JSONSchemaField...) {
+        self.init(fields: fieldsVarg)
     }
     
     public init(fields: [JSONSchemaField]) {
