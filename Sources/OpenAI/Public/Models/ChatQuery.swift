@@ -822,7 +822,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
                 public typealias ToolsType = ChatQuery.ChatCompletionToolParam.ToolsType
 
                 /// The ID of the tool call.
-                public let id: String
+                public let id: String?
                 /// The function that the model called.
                 public let function: Self.FunctionCall
                 /// The type of the tool. Currently, only `function` is supported.
