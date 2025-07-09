@@ -822,7 +822,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
                 public typealias ToolsType = ChatQuery.ChatCompletionToolParam.ToolsType
 
                 /// The ID of the tool call.
-                public let id: String?
+                public let id: String
                 /// The function that the model called.
                 public let function: Self.FunctionCall
                 /// The type of the tool. Currently, only `function` is supported.
@@ -839,7 +839,10 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
 
                 public init(from decoder: any Decoder) throws {
                     let container = try decoder.container(keyedBy: CodingKeys.self)
-                    self.id = try container.decodeIfPresent(String.self, forKey: .id)
+                    let parsingOptions = decoder.userInfo[.parsingOptions] as? ParsingOptions ?? []
+                    // Some API providers for some AI models (e.g. openrouter.ai for Qwen model, mistral.ai for their models) don't return id and type parameters for ToolCallParam.
+                    // See https://github.com/MacPaw/OpenAI/pull/366
+                    self.id = try container.decodeString(forKey: .id, parsingOptions: parsingOptions)
                     self.function = try container.decode(FunctionCall.self, forKey: .function)
                     self.type = try container.decodeIfPresent(ToolsType.self, forKey: .type) ?? .function
                 }
