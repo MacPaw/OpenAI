@@ -69,10 +69,10 @@ class ResponsesEndpointTests: XCTestCase {
 
     func testCreateResponseWithFunctionTool() async throws {
         // Build a simple JSON schema: { "type":"object", "properties":{ "foo":{ "type":"string" } }, "required":["foo"] }
-        let propSchema = AnyJSONSchema(fields: [
+        let propSchema = JSONSchema(fields: [
             JSONSchemaField.type(.string)
         ])
-        let schema = AnyJSONSchema(fields: [
+        let schema = JSONSchema(fields: [
             JSONSchemaField.type(.object),
             JSONSchemaField.properties(["foo": propSchema]),
             JSONSchemaField.required(["foo"])
@@ -101,7 +101,7 @@ class ResponsesEndpointTests: XCTestCase {
         let result = try await openAI.responses.createResponse(query: query)
         switch result.tools[0] {
         case .functionTool(let responseTool):
-            guard let jsonSchemaObject = responseTool.parameters.value as? JSONSchemaObject else {
+            guard case let JSONSchema.object(jsonSchemaObject) = responseTool.parameters else {
                 XCTFail("Expected function.parameters to be object")
                 return
             }

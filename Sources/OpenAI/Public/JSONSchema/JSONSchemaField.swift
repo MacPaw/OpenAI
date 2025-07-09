@@ -111,7 +111,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// Inline reusable schema definitions.
-    public static func defs(_ value: [String: AnyJSONSchema]) -> JSONSchemaField {
+    public static func defs(_ value: [String: JSONSchema]) -> JSONSchemaField {
         .init(keyword: "$defs", value: .init(value))
     }
     
@@ -174,7 +174,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// An instance validates successfully against this keyword if it validates successfully against all schemas defined by this keyword’s value.
-    public static func allOf(_ schemas: [AnyJSONSchema]) -> JSONSchemaField {
+    public static func allOf(_ schemas: [JSONSchema]) -> JSONSchemaField {
         .init(keyword: "allOf", value: .init(schemas))
     }
     
@@ -186,7 +186,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// An instance validates successfully against this keyword if it validates successfully against at least one schema defined by this keyword’s value.
-    public static func anyOf(_ schemas: [AnyJSONSchema]) -> JSONSchemaField {
+    public static func anyOf(_ schemas: [JSONSchema]) -> JSONSchemaField {
         .init(keyword: "anyOf", value: .init(schemas))
     }
     
@@ -198,7 +198,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// An instance validates successfully against this keyword if it validates successfully against exactly one schema defined by this keyword’s value.
-    public static func oneOf(_ schemas: [AnyJSONSchema]) -> JSONSchemaField {
+    public static func oneOf(_ schemas: [JSONSchema]) -> JSONSchemaField {
         .init(keyword: "oneOf", value: .init(schemas))
     }
     
@@ -210,7 +210,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// This keyword declares a condition based on the validation result of the given schema.
-    public static func ifCondition(_ schema: AnyJSONSchema) -> JSONSchemaField {
+    public static func ifCondition(_ schema: JSONSchema) -> JSONSchemaField {
         .init(keyword: "if", value: .init(schema))
     }
     
@@ -222,7 +222,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// When `if` is present, and the instance successfully validates against its subschema, then validation succeeds if the instance also successfully validates against this keyword’s subschema.
-    public static func thenCondition(_ schema: AnyJSONSchema) -> JSONSchemaField {
+    public static func thenCondition(_ schema: JSONSchema) -> JSONSchemaField {
         .init(keyword: "then", value: .init(schema))
     }
     
@@ -234,7 +234,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// When `if` is present, and the instance fails to validate against its subschema, then validation succeeds if the instance successfully validates against this keyword’s subschema.
-    public static func elseCondition(_ schema: AnyJSONSchema) -> JSONSchemaField {
+    public static func elseCondition(_ schema: JSONSchema) -> JSONSchemaField {
         .init(keyword: "else", value: .init(schema))
     }
     
@@ -246,7 +246,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// An instance is valid against this keyword if it fails to validate successfully against the schema defined by this keyword.
-    public static func not(_ schema: AnyJSONSchema) -> JSONSchemaField {
+    public static func not(_ schema: JSONSchema) -> JSONSchemaField {
         .init(keyword: "not", value: .init(schema))
     }
     
@@ -258,7 +258,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// Validation succeeds if, for each name that appears in both the instance and as a name within this keyword’s value, the child instance for that name successfully validates against the corresponding schema.
-    public static func properties(_ object: [String: AnyJSONSchema]) -> JSONSchemaField {
+    public static func properties(_ object: [String: JSONSchema]) -> JSONSchemaField {
         .init(keyword: "properties", value: .init(object))
     }
     
@@ -270,7 +270,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// Validation succeeds if the schema validates against each value not matched by other object applicators in this vocabulary.
-    public static func additionalProperties(_ schema: AnyJSONSchema) -> JSONSchemaField {
+    public static func additionalProperties(_ schema: JSONSchema) -> JSONSchemaField {
         .init(keyword: "additionalProperties", value: .init(schema))
     }
     
@@ -282,7 +282,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// Validation succeeds if, for each instance name that matches any regular expressions that appear as a property name in this keyword’s value, the child instance for that name successfully validates against each schema that corresponds to a matching regular expression.
-    public static func patternProperties(_ object: [String: AnyJSONSchema]) -> JSONSchemaField {
+    public static func patternProperties(_ object: [String: JSONSchema]) -> JSONSchemaField {
         .init(keyword: "patternProperties", value: .init(object))
     }
     
@@ -294,7 +294,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// This keyword specifies subschemas that are evaluated if the instance is an object and contains a certain property.
-    public static func dependentSchemas(_ object: [String: AnyJSONSchema]) -> JSONSchemaField {
+    public static func dependentSchemas(_ object: [String: JSONSchema]) -> JSONSchemaField {
         .init(keyword: "dependentSchemas", value: .init(object))
     }
     
@@ -306,7 +306,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// Validation succeeds if the schema validates against every property name in the instance.
-    public static func propertyNames(_ schema: AnyJSONSchema) -> JSONSchemaField {
+    public static func propertyNames(_ schema: JSONSchema) -> JSONSchemaField {
         .init(keyword: "propertyNames", value: .init(schema))
     }
     
@@ -318,7 +318,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// Validation succeeds if the instance contains an element that validates against this schema.
-    public static func contains(_ schema: AnyJSONSchema) -> JSONSchemaField {
+    public static func contains(_ schema: JSONSchema) -> JSONSchemaField {
         .init(keyword: "contains", value: .init(schema))
     }
     
@@ -330,7 +330,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// Validation succeeds if each element of the instance not covered by `prefixItems` validates against this schema.
-    public static func items(_ schema: AnyJSONSchema) -> JSONSchemaField {
+    public static func items(_ schema: JSONSchema) -> JSONSchemaField {
         .init(keyword: "items", value: .init(schema))
     }
     
@@ -342,7 +342,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// Validation succeeds if each element of the instance validates against the schema at the same position, if any.
-    public static func prefixItems(_ schema: AnyJSONSchema) -> JSONSchemaField {
+    public static func prefixItems(_ schema: JSONSchema) -> JSONSchemaField {
         .init(keyword: "prefixItems", value: .init(schema))
     }
     
@@ -712,7 +712,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// Validates array elements that did not successfully validate against other standard array applicators.
-    public static func unevaluatedItems(_ schema: AnyJSONSchema) -> JSONSchemaField {
+    public static func unevaluatedItems(_ schema: JSONSchema) -> JSONSchemaField {
         .init(keyword: "unevaluatedItems", value: .init(schema))
     }
     
@@ -724,7 +724,7 @@ public struct JSONSchemaField {
     ///
     /// ### Summary
     /// Validates object properties that did not successfully validate against other standard object applicators.
-    public static func unevaluatedProperties(_ schema: AnyJSONSchema) -> JSONSchemaField {
+    public static func unevaluatedProperties(_ schema: JSONSchema) -> JSONSchemaField {
         .init(keyword: "unevaluatedProperties", value: .init(schema))
     }
 }

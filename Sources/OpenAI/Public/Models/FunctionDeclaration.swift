@@ -15,9 +15,9 @@ public struct FunctionDeclaration: Codable, Hashable, Sendable {
     public let description: String?
     
     /// The parameters the functions accepts, described as a JSON Schema object.
-    public let parameters: AnyJSONSchema?
+    public let parameters: JSONSchema?
   
-    public init(name: String, description: String?, parameters: AnyJSONSchema?) {
+    public init(name: String, description: String?, parameters: JSONSchema?) {
       self.name = name
       self.description = description
       self.parameters = parameters
