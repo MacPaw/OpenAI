@@ -15,6 +15,8 @@ public struct EmbeddingsQuery: Codable, Sendable {
     /// https://platform.openai.com/docs/api-reference/models/list
     /// https://platform.openai.com/docs/models/overview
     public let model: Model
+    /// The number of dimensions the resulting output embeddings should have. Only supported in text-embedding-3 and later models.
+    public let dimensions: Int?
     /// The format to return the embeddings in. Can be either float or base64.
     /// https://pypi.org/project/pybase64/
     public let encodingFormat: Self.EncodingFormat?
@@ -25,11 +27,13 @@ public struct EmbeddingsQuery: Codable, Sendable {
     public init(
         input: Self.Input,
         model: Model,
+        dimensions: Int? = nil,
         encodingFormat: Self.EncodingFormat? = nil,
         user: String? = nil
     ) {
         self.input = input
         self.model = model
+        self.dimensions = dimensions
         self.encodingFormat = encodingFormat
         self.user = user
     }
@@ -79,6 +83,7 @@ public struct EmbeddingsQuery: Codable, Sendable {
     public enum CodingKeys: String, CodingKey, Sendable {
         case input
         case model
+        case dimensions
         case encodingFormat = "encoding_format"
         case user
     }
