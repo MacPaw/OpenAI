@@ -39,25 +39,9 @@ extension OpenAI: OpenAICombine {
     }
     
     public func chatsStream(query: ChatQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
-        let progress = SendablePassthroughSubject(
-            passthroughSubject: PassthroughSubject<Result<ChatStreamResult, Error>, Error>()
-        )
-        
-        let cancellable = chatsStream(query: query) { result in
-            progress.send(result)
-        } completion: { error in
-            if let error {
-                progress.send(completion: .failure(error))
-            } else {
-                progress.send(completion: .finished)
-            }
+        makeStreamPublisher { onResult, completion in
+            chatsStream(query: query, onResult: onResult, completion: completion)
         }
-        return progress
-            .publisher()
-            .handleEvents(receiveCancel: {
-                cancellable.cancelRequest()
-            })
-            .eraseToAnyPublisher()
     }
     
     public func model(query: ModelQuery) -> AnyPublisher<ModelResult, Error> {
@@ -85,31 +69,32 @@ extension OpenAI: OpenAICombine {
     }
     
     func audioCreateSpeechStream(query: AudioSpeechQuery) -> AnyPublisher<Result<AudioSpeechResult, Error>, Error> {
-        let progress = SendablePassthroughSubject(
-            passthroughSubject: PassthroughSubject<Result<AudioSpeechResult, Error>, Error>()
-        )
-        
-        let cancellable = audioCreateSpeechStream(query: query) { result in
-            progress.send(result)
-        } completion: { error in
-            if let error {
-                progress.send(completion: .failure(error))
-            } else {
-                progress.send(completion: .finished)
-            }
+        makeStreamPublisher { onResult, completion in
+            audioCreateSpeechStream(query: query, onResult: onResult, completion: completion)
         }
-        return progress
-            .publisher()
-            .handleEvents(receiveCancel: {
-                cancellable.cancelRequest()
-            })
-            .eraseToAnyPublisher()
     }
     
     public func audioTranscriptions(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionResult, Error> {
         performRequestCombine(
             request: makeAudioTranscriptionsRequest(query: query)
         )
+    }
+    
+    public func audioTranscriptionsVerbose(query: AudioTranscriptionQuery) -> AnyPublisher<AudioTranscriptionVerboseResult, Error> {
+        guard query.responseFormat == .verboseJson else {
+            return Fail(error: AudioTranscriptionError.invalidQuery(expectedResponseFormat: .verboseJson))
+                .eraseToAnyPublisher()
+        }
+        
+        return performRequestCombine(
+            request: makeAudioTranscriptionsRequest(query: query)
+        )
+    }
+    
+    func audioTranscriptionStream(query: AudioTranscriptionQuery) -> AnyPublisher<Result<AudioTranscriptionStreamResult, Error>, Error> {
+        makeStreamPublisher { onResult, completion in
+            audioTranscriptionStream(query: query, onResult: onResult, completion: completion)
+        }
     }
     
     public func audioTranslations(query: AudioTranslationQuery) -> AnyPublisher<AudioTranslationResult, Error> {
@@ -208,6 +193,35 @@ extension OpenAI: OpenAICombine {
     
     func performSpeechRequestCombine(request: any URLRequestBuildable) -> AnyPublisher<AudioSpeechResult, Error> {
         combineClient.performSpeechRequest(request: request)
+    }
+    
+    private func makeStreamPublisher<ResultType: Codable & Sendable>(
+        byWrapping call: (_ onResult: @escaping @Sendable (Result<ResultType, Error>) -> Void, _ completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest
+    ) -> AnyPublisher<Result<ResultType, Error>, Error> {
+        let progress = SendablePassthroughSubject(
+            passthroughSubject: PassthroughSubject<Result<ResultType, Error>, Error>()
+        )
+        
+        let resultClosure: @Sendable (Result<ResultType, Error>) -> Void = {
+            progress.send($0)
+        }
+        
+        let completionClosure: @Sendable (Error?) -> Void = { error in
+            if let error {
+                progress.send(completion: .failure(error))
+            } else {
+                progress.send(completion: .finished)
+            }
+        }
+        
+        let cancellable = call(resultClosure, completionClosure)
+        
+        return progress
+            .publisher()
+            .handleEvents(receiveCancel: {
+                cancellable.cancelRequest()
+            })
+            .eraseToAnyPublisher()
     }
 }
 #endif

@@ -307,6 +307,18 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         performRequest(request: makeAudioTranscriptionsRequest(query: query), completion: completion)
     }
     
+    public func audioTranscriptionsVerbose(
+        query: AudioTranscriptionQuery,
+        completion: @escaping @Sendable (Result<AudioTranscriptionVerboseResult, Error>) -> Void
+    ) -> CancellableRequest {
+        guard query.responseFormat == .verboseJson else {
+            completion(.failure(AudioTranscriptionError.invalidQuery(expectedResponseFormat: .verboseJson)))
+            return NoOpCancellableRequest()
+        }
+        
+        return performRequest(request: makeAudioTranscriptionsRequest(query: query), completion: completion)
+    }
+    
     public func audioTranscriptionStream(query: AudioTranscriptionQuery, onResult: @escaping @Sendable (Result<AudioTranscriptionStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest {
         performStreamingRequest(
             request: makeAudioTranscriptionsRequest(query: query.makeStreamable()),

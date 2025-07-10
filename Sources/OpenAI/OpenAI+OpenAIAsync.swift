@@ -82,6 +82,16 @@ extension OpenAI: OpenAIAsync {
         )
     }
     
+    public func audioTranscriptionsVerbose(query: AudioTranscriptionQuery) async throws -> AudioTranscriptionVerboseResult {
+        guard query.responseFormat == .verboseJson else {
+            throw AudioTranscriptionError.invalidQuery(expectedResponseFormat: .verboseJson)
+        }
+        
+        return try await performRequestAsync(
+            request: makeAudioTranscriptionsRequest(query: query)
+        )
+    }
+    
     public func audioTranscriptionStream(
         query: AudioTranscriptionQuery
     ) -> AsyncThrowingStream<AudioTranscriptionStreamResult, Error> {
