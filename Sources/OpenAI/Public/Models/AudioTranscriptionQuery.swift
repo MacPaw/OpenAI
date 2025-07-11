@@ -7,6 +7,10 @@
 
 import Foundation
 
+enum AudioTranscriptionError: DescribedError {
+    case invalidQuery(expectedResponseFormat: AudioTranscriptionQuery.ResponseFormat)
+}
+
 public struct AudioTranscriptionQuery: Codable, Streamable, Sendable {
     
     public enum TimestampGranularities: String, Codable, Equatable, CaseIterable, Sendable {
