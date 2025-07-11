@@ -19,6 +19,8 @@ public protocol OpenAIAsync: Sendable {
     func moderations(query: ModerationsQuery) async throws -> ModerationsResult
     func audioCreateSpeech(query: AudioSpeechQuery) async throws -> AudioSpeechResult
     func audioTranscriptions(query: AudioTranscriptionQuery) async throws -> AudioTranscriptionResult
+    func audioTranscriptionsVerbose(query: AudioTranscriptionQuery) async throws -> AudioTranscriptionVerboseResult
+    func audioTranscriptionStream(query: AudioTranscriptionQuery) -> AsyncThrowingStream<AudioTranscriptionStreamResult, Error>
     func audioTranslations(query: AudioTranslationQuery) async throws -> AudioTranslationResult
     func assistants() async throws -> AssistantsResult
     func assistants(after: String?) async throws -> AssistantsResult

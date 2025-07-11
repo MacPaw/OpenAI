@@ -1136,7 +1136,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             /// The parameters the functions accepts, described as a JSON Schema object. See the [guide](https://platform.openai.com/docs/guides/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
             ///
             /// Omitting `parameters` defines a function with an empty parameter list.
-            public let parameters: AnyJSONSchema?
+            public let parameters: JSONSchema?
             /// Whether to enable strict schema adherence when generating the function call. If set to true, the model will follow the exact schema defined in the `parameters` field. Only a subset of JSON Schema is supported when `strict` is `true`. Learn more about Structured Outputs in the [function calling guide](https://platform.openai.com/docs/api-reference/chat/docs/guides/function-calling).
             ///
             /// Defaults to false
@@ -1145,7 +1145,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             public init(
                 name: String,
                 description: String? = nil,
-                parameters: AnyJSONSchema? = nil,
+                parameters: JSONSchema? = nil,
                 strict: Bool? = nil
             ) {
                 self.name = name

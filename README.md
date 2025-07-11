@@ -751,9 +751,11 @@ This SDK supports multiple ways to define a schema; choose the one you prefer.
 
 ### Build a schema by specifying fields
 
-This definition accepts `AnyJSONSchema` which type-erases `any JSONSchema` and can be initialized with an array of `JSONSchemaField` instances.
+This definition accepts `JSONSchema` which is either `boolean` or `object` JSON Document.
 
-If needed, you can also initialize `AnyJSONSchema` directly with a dictionary or boolean, because `Dictionary<String, AnyJSONDocument>` and Bool conform to `JSONSchema`.
+Instead of providing schema yourself you can build one in a type-safe manner using initializers that accept `[JSONSchemaField]`, as shown in the example below.
+
+While this method of defining a schema is direct, it can be verbose. For alternative ways to define a schema, see the options below.
 
 ### Example
 

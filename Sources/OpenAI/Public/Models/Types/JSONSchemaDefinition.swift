@@ -8,7 +8,7 @@
 import Foundation
 
 public enum JSONSchemaDefinition: Codable, Hashable, Sendable {
-    case jsonSchema(AnyJSONSchema)
+    case jsonSchema(JSONSchema)
     case derivedJsonSchema(any JSONSchemaConvertible.Type)
     case dynamicJsonSchema(Encodable & Sendable)
     
@@ -28,7 +28,7 @@ public enum JSONSchemaDefinition: Codable, Hashable, Sendable {
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
-        self = .jsonSchema(try container.decode(AnyJSONSchema.self))
+        self = .jsonSchema(try container.decode(JSONSchema.self))
     }
     
     public func encode(to encoder: any Encoder) throws {
