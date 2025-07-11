@@ -42,7 +42,7 @@ struct FunctionView: View {
                             return
                         }
                         
-                        function = FunctionDeclaration(name: name, description: description, parameters: .init(schema: parameters))
+                        function = FunctionDeclaration(name: name, description: description, parameters: parameters)
                         dismiss()
                     }
                 }
@@ -53,14 +53,14 @@ struct FunctionView: View {
         }
     }
     
-    private func validateParameters() -> (any JSONSchema)? {
+    private func validateParameters() -> JSONSchema? {
         guard !parameters.isEmpty, let parametersData = parameters.data(using: .utf8) else {
             return nil
         }
 
         do {
-            let parametersJSON = try JSONDecoder().decode([String: AnyJSONDocument].self, from: parametersData)
-            return parametersJSON
+            let schema = try JSONDecoder().decode(JSONSchemaObject.self, from: parametersData)
+            return .object(schema)
         } catch {
             alertMessage = error.localizedDescription
             isShowingAlert = true

@@ -16,7 +16,7 @@ public struct FunctionTool: Codable, Hashable, Sendable {
     /// or not to call the function.
     public let description: String?
     /// A JSON schema object describing the parameters of the function.
-    public let parameters: AnyJSONSchema
+    public let parameters: JSONSchema
     /// Whether to enforce strict parameter validation. Default `true`.
     ///
     /// From [Function Calling Guide](https://platform.openai.com/docs/guides/function-calling#strict-mode):
@@ -39,7 +39,7 @@ public struct FunctionTool: Codable, Hashable, Sendable {
         type: String = "function",
         name: String,
         description: String? = nil,
-        parameters: AnyJSONSchema,
+        parameters: JSONSchema,
         strict: Bool
     ) {
         self.type = type
