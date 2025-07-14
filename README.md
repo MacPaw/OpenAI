@@ -840,7 +840,7 @@ struct MovieInfo: JSONSchemaConvertible {
     let genres: [MovieGenre]
     let cast: [String]
     
-    static let example: Self = { 
+    static let example: Self = {
         .init(
             title: "Earth",
             director: "Alexander Dovzhenko",
@@ -850,17 +850,26 @@ struct MovieInfo: JSONSchemaConvertible {
         )
     }()
 }
-
 enum MovieGenre: String, Codable, JSONSchemaEnumConvertible {
     case action, drama, comedy, scifi
     
     var caseNames: [String] { Self.allCases.map { $0.rawValue } }
 }
-
 let query = ChatQuery(
-    messages: [.system(.init(content: "Best Picture winner at the 2011 Oscars"))],
+    messages: [
+        .system(
+            .init(content: .textContent("Best Picture winner at the 2011 Oscars"))
+        )
+    ],
     model: .gpt4_o,
-    responseFormat: .jsonSchema(.derivedJsonSchema(name: "movie-info", type: MovieInfo.self))
+    responseFormat: .jsonSchema(
+        .init(
+            name: "movie-info",
+            description: nil,
+            schema: .derivedJsonSchema(MovieInfo.self),
+            strict: true
+        )
+    )
 )
 let result = try await openAI.chats(query: query)
 ```
