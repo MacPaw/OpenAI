@@ -1159,6 +1159,11 @@ Models are represented as a typealias `typealias Model = String`.
 
 ```swift
 public extension Model {
+    static let gpt5 = "gpt-5"
+    static let gpt5_mini = "gpt-5-mini"
+    static let gpt5_nano = "gpt-5-nano"
+    static let gpt5_chat = "gpt-5-chat"
+    
     static let gpt4_1 = "gpt-4.1"
     static let gpt4_1_mini = "gpt-4.1-mini"
     static let gpt4_1_nano = "gpt-4.1-nano"

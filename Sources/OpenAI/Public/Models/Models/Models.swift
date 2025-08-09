@@ -53,6 +53,20 @@ public extension Model {
     @available(*, deprecated, message: "On April 14th, 2025, developers were notified that the gpt-4.5-preview model is deprecated and will be removed from the API in the coming months. Recommended replacement: gpt-4.1")
     static let gpt4_5_preview = "gpt-4.5-preview"
 
+    // GPT-5
+
+    /// `gpt-5` OpenAI's best AI system with significant leap in intelligence, designed for logic and multi-step tasks with deep reasoning
+    static let gpt5 = "gpt-5"
+
+    /// `gpt-5-mini` Lightweight GPT-5 version for cost-sensitive applications
+    static let gpt5_mini = "gpt-5-mini"
+
+    /// `gpt-5-nano` Optimized for ultra-low latency and fast execution
+    static let gpt5_nano = "gpt-5-nano"
+
+    /// `gpt-5-chat` Built for advanced, natural, multimodal conversations
+    static let gpt5_chat = "gpt-5-chat"
+
     // GPT-4.1
 
     /// `gpt-4.1` Smartest model for complex tasks
@@ -247,7 +261,7 @@ public extension Model {
             // reasoning
             .o4_mini, o3, o3_mini, .o1,
             // flagship
-            .gpt4_1, .gpt4_o, .gpt_4o_audio_preview, chatgpt_4o_latest,
+            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt4_1, .gpt4_o, .gpt_4o_audio_preview, chatgpt_4o_latest,
             // cost-optimized
             .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini, .gpt_4o_mini_audio_preview,
             // tool-specific
@@ -260,7 +274,7 @@ public extension Model {
             // reasoning
             .o4_mini, .o3, .o3_mini, .o1, .o1_pro,
             // flagship
-            .gpt4_1, .gpt4_o, .chatgpt_4o_latest,
+            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt4_1, .gpt4_o, .chatgpt_4o_latest,
             // cost-optimized
             .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini,
             .gpt4_turbo, .gpt4, .gpt3_5Turbo,
