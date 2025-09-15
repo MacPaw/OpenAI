@@ -18,16 +18,14 @@ struct LinkPreview: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIViewType, context: Context) {
-        LPMetadataProvider().startFetchingMetadata(for: previewURL) { metadata, error in
-            if let error = error {
-                print(error.localizedDescription)
-                return
-            }
-            guard let metadata = metadata else {
-                print("Metadata missing for \(previewURL.absoluteString)")
-                return
-            }
-            uiView.metadata = metadata
+        Task { @MainActor in
+            uiView.metadata = try await fetchMetadata()
         }
     }
+    
+    private func fetchMetadata() async throws -> LPLinkMetadata{
+        let metadata = try await LPMetadataProvider().startFetchingMetadata(for: previewURL)
+        return metadata
+    }
 }
+
