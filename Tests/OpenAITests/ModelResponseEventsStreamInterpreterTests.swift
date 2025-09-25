@@ -56,8 +56,9 @@ final class ModelResponseEventsStreamInterpreterTests: XCTestCase {
         }
 
         interpreter.processData(
-            MockServerSentEvent.responseOutputTextDelta(
+            MockServerSentEvent.responseStreamEvent(
                 itemId: "msg_1",
+                payloadType: "response.output_text.delta",
                 outputIndex: 0,
                 contentIndex: 0,
                 delta: "Hi",
