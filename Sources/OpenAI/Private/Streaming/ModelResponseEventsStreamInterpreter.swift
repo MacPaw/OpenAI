@@ -55,17 +55,20 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
     }
     
     private func processEvent(_ event: ServerSentEventsStreamParser.Event) throws {
-        var eventType = event.fixMappingError().eventType
+        let finalEvent = event.fixMappingError()
+        var eventType = finalEvent.eventType
 
-        if eventType == "message" { // This is currently the default if no SSE event name is specified
-            eventType = self.getPayloadType()
+        // "message" is currently the default if no SSE event name is specified
+        if eventType == "message" || eventType.isEmpty,
+           let payloadEventType = finalEvent.getPayloadType() {
+            eventType = payloadEventType
         }
 
         guard let modelResponseEventType = ModelResponseStreamEventType(rawValue: eventType) else {
             throw InterpreterError.unknownEventType(eventType)
         }
         
-        let responseStreamEvent = try responseStreamEvent(modelResponseEventType: modelResponseEventType, data: event.data)
+        let responseStreamEvent = try responseStreamEvent(modelResponseEventType: modelResponseEventType, data: finalEvent.data)
         onEventDispatched?(responseStreamEvent)
     }
 
@@ -221,19 +224,19 @@ private extension ServerSentEventsStreamParser.Event {
             return self
         }
 
-        let fixedDataString = event.decodedData.replacingOccurrences(of: incorrectEventType, with: correctEventType)
+        let fixedDataString = self.decodedData.replacingOccurrences(of: incorrectEventType, with: correctEventType)
         return .init(
-            id: event.id,
-            data: fixedDataString.data(using: .utf8) ?? event.data,
+            id: self.id,
+            data: fixedDataString.data(using: .utf8) ?? self.data,
             decodedData: fixedDataString,
             eventType: correctEventType,
-            retry: event.retry
+            retry: self.retry
         )
     }
 
     struct TypeEnvelope: Decodable { let type: String }
 
     func getPayloadType() -> String? {
-        try? JSONDecoder().decode(TypeEnvelope.self, from: event.data).type
+        try? JSONDecoder().decode(TypeEnvelope.self, from: self.data).type
     }
 }
