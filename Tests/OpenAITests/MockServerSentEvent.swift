@@ -20,4 +20,18 @@ struct MockServerSentEvent {
     static func chatCompletionError() -> Data {
         "{\n    \"error\": {\n        \"message\": \"The model `o3-mini` does not exist or you do not have access to it.\",\n        \"type\": \"invalid_request_error\",\n        \"param\": null,\n        \"code\": \"model_not_found\"\n    }\n}\n".data(using: .utf8)!
     }
+
+    static func responseStreamEvent(
+        itemId: String = "msg_1",
+        payloadType: String,
+        outputIndex: Int = 0,
+        contentIndex: Int = 0,
+        delta: String = "",
+        sequenceNumber: Int = 1
+    ) -> Data {
+        let json = """
+        {"type":"\(payloadType)","output_index":\(outputIndex),"item_id":"\(itemId)","content_index":\(contentIndex),"delta":"\(delta)","sequence_number":\(sequenceNumber)}
+        """
+        return "data: \(json)\n\n".data(using: .utf8)!
+    }
 }

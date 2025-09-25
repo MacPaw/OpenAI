@@ -39,4 +39,49 @@ final class ModelResponseEventsStreamInterpreterTests: XCTestCase {
         XCTAssertNotNil(receivedError, "Expected an error to be received, but got nil.")
         XCTAssertTrue(receivedError is APIErrorResponse, "Expected received error to be of type APIErrorResponse.")
     }
+
+    func testParsesOutputTextDeltaUsingPayloadType() async throws {
+        let expectation = XCTestExpectation(description: "OutputText delta event received")
+        var receivedEvent: ResponseStreamEvent?
+
+        interpreter.setCallbackClosures { event in
+            Task {
+                await MainActor.run {
+                    receivedEvent = event
+                    expectation.fulfill()
+                }
+            }
+        } onError: { error in
+            XCTFail("Unexpected error received: \(error)")
+        }
+
+        interpreter.processData(
+            MockServerSentEvent.responseStreamEvent(
+                itemId: "msg_1",
+                payloadType: "response.output_text.delta",
+                outputIndex: 0,
+                contentIndex: 0,
+                delta: "Hi",
+                sequenceNumber: 1
+            )
+        )
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        guard let receivedEvent else {
+            XCTFail("No event received")
+            return
+        }
+
+        switch receivedEvent {
+        case .outputText(.delta(let deltaEvent)):
+            XCTAssertEqual(deltaEvent.itemId, "msg_1")
+            XCTAssertEqual(deltaEvent.outputIndex, 0)
+            XCTAssertEqual(deltaEvent.contentIndex, 0)
+            XCTAssertEqual(deltaEvent.delta, "Hi")
+            XCTAssertEqual(deltaEvent.sequenceNumber, 1)
+        default:
+            XCTFail("Expected .outputText(.delta), got \(receivedEvent)")
+        }
+    }
 }

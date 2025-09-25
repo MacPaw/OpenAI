@@ -55,25 +55,24 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
     }
     
     private func processEvent(_ event: ServerSentEventsStreamParser.Event) throws {
-        var finalEvent = event
-        if event.eventType == "response.output_text.annotation.added" {
-            // Remove when they have fixed (unified)!
-            //
-            // By looking at [API Reference](https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text_annotation/added)
-            // and generated type `Schemas.ResponseOutputTextAnnotationAddedEvent`
-            // We can see that "output_text.annotation" is incorrect, whereas output_text_annotation is the correct one
-            let fixedDataString = event.decodedData.replacingOccurrences(of: "response.output_text.annotation.added", with: "response.output_text_annotation.added")
-            finalEvent = .init(id: event.id, data: fixedDataString.data(using: .utf8) ?? event.data, decodedData: fixedDataString, eventType: "response.output_text_annotation.added", retry: event.retry)
+        let finalEvent = event.fixMappingError()
+        var eventType = finalEvent.eventType
+
+        /// If the SSE `event` property is not specified by the provider service, our parser defaults it to "message" which is not a valid model response type.
+        /// In this case we check the `data.type` property for a valid model response type.
+        if eventType == "message" || eventType.isEmpty,
+           let payloadEventType = finalEvent.getPayloadType() {
+            eventType = payloadEventType
         }
-        
-        guard let modelResponseEventType = ModelResponseStreamEventType(rawValue: finalEvent.eventType) else {
-            throw InterpreterError.unknownEventType(finalEvent.eventType)
+
+        guard let modelResponseEventType = ModelResponseStreamEventType(rawValue: eventType) else {
+            throw InterpreterError.unknownEventType(eventType)
         }
         
         let responseStreamEvent = try responseStreamEvent(modelResponseEventType: modelResponseEventType, data: finalEvent.data)
         onEventDispatched?(responseStreamEvent)
     }
-    
+
     private func processError(_ error: Error) {
         onError?(error)
     }
@@ -208,5 +207,37 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
     
     private func decode<T: Codable>(data: Data) throws -> T {
         try decoder.decode(T.self, from: data)
+    }
+}
+
+private extension ServerSentEventsStreamParser.Event {
+
+    // Remove when they have fixed (unified)!
+    //
+    // By looking at [API Reference](https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text_annotation/added)
+    // and generated type `Schemas.ResponseOutputTextAnnotationAddedEvent`
+    // We can see that "output_text.annotation" is incorrect, whereas output_text_annotation is the correct one
+    func fixMappingError() -> Self {
+        let incorrectEventType = "response.output_text.annotation.added"
+        let correctEventType = "response.output_text_annotation.added"
+
+        guard self.eventType == incorrectEventType || self.getPayloadType() == incorrectEventType else {
+            return self
+        }
+
+        let fixedDataString = self.decodedData.replacingOccurrences(of: incorrectEventType, with: correctEventType)
+        return .init(
+            id: self.id,
+            data: fixedDataString.data(using: .utf8) ?? self.data,
+            decodedData: fixedDataString,
+            eventType: correctEventType,
+            retry: self.retry
+        )
+    }
+
+    struct TypeEnvelope: Decodable { let type: String }
+
+    func getPayloadType() -> String? {
+        try? JSONDecoder().decode(TypeEnvelope.self, from: self.data).type
     }
 }
