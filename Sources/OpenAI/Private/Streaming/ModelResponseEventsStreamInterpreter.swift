@@ -58,7 +58,8 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
         let finalEvent = event.fixMappingError()
         var eventType = finalEvent.eventType
 
-        // "message" is currently the default if no SSE event name is specified
+        /// If the SSE `event` property is not specified by the provider service, our parser defaults it to "message" which is not a valid model response type.
+    /// In this case we check the `data.type` property for a valid model response type.
         if eventType == "message" || eventType.isEmpty,
            let payloadEventType = finalEvent.getPayloadType() {
             eventType = payloadEventType
