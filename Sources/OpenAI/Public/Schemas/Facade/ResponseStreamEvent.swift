@@ -232,6 +232,7 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
             default:
                 throw ResponseStreamEventDecodingError.unknownEventType(responseEvent.type)
             }
+            return
         } catch {
             // Do nothing, will try other coding types
         }
@@ -240,6 +241,7 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
             // Decoding Output Item events
             let outputItemAddedEvent = try ResponseOutputItemAddedEvent(from: decoder)
             self = .outputItem(.added(outputItemAddedEvent))
+            return
         } catch {
             // Do nothing, will try other coding types
         }
@@ -248,6 +250,7 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
             // Decoding Output Item events
             let outputItemDoneEvent = try ResponseOutputItemDoneEvent(from: decoder)
             self = .outputItem(.done(outputItemDoneEvent))
+            return
         } catch {
             // Do nothing, will try other coding types
         }
@@ -267,6 +270,7 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
             case .done(let doneEvent):
                 self = .mcpCallArguments(.done(doneEvent))
             }
+            return
         } catch {
             //
         }
