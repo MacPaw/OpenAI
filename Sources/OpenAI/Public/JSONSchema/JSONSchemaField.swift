@@ -361,7 +361,15 @@ public struct JSONSchemaField {
     /// ### Summary
     /// A numeric instance is valid only if division by this keyword’s value results in an integer.
     public static func multipleOf(_ value: Decimal) -> JSONSchemaField {
-        .init(keyword: "maximum", value: .init(value))
+        .init(keyword: "multipleOf", value: .init(value))
+    }
+
+    public static func multipleOf(_ value: Double) -> JSONSchemaField {
+        .init(keyword: "multipleOf", value: .init(value))
+    }
+
+    public static func multipleOf(_ value: Int) -> JSONSchemaField {
+        .init(keyword: "multipleOf", value: .init(value))
     }
     
     /// ### Kind
@@ -373,6 +381,14 @@ public struct JSONSchemaField {
     /// ### Summary
     /// Validation succeeds if the numeric instance is less than or equal to the given number.
     public static func maximum(_ value: Decimal) -> JSONSchemaField {
+        .init(keyword: "maximum", value: .init(value))
+    }
+
+    public static func maximum(_ value: Double) -> JSONSchemaField {
+        .init(keyword: "maximum", value: .init(value))
+    }
+
+    public static func maximum(_ value: Int) -> JSONSchemaField {
         .init(keyword: "maximum", value: .init(value))
     }
     
@@ -387,6 +403,14 @@ public struct JSONSchemaField {
     public static func exclusiveMaximum(_ value: Decimal) -> JSONSchemaField {
         .init(keyword: "exclusiveMaximum", value: .init(value))
     }
+
+    public static func exclusiveMaximum(_ value: Double) -> JSONSchemaField {
+        .init(keyword: "exclusiveMaximum", value: .init(value))
+    }
+
+    public static func exclusiveMaximum(_ value: Int) -> JSONSchemaField {
+        .init(keyword: "exclusiveMaximum", value: .init(value))
+    }
     
     /// ### Kind
     /// Assertion
@@ -399,6 +423,14 @@ public struct JSONSchemaField {
     public static func minimum(_ value: Decimal) -> JSONSchemaField {
         .init(keyword: "minimum", value: .init(value))
     }
+
+    public static func minimum(_ value: Double) -> JSONSchemaField {
+        .init(keyword: "minimum", value: .init(value))
+    }
+
+    public static func minimum(_ value: Int) -> JSONSchemaField {
+        .init(keyword: "minimum", value: .init(value))
+    }
     
     /// ### Kind
     /// Assertion
@@ -409,6 +441,14 @@ public struct JSONSchemaField {
     /// ### Summary
     /// Validation succeeds if the numeric instance is greater than the given number.
     public static func exclusiveMinimum(_ value: Decimal) -> JSONSchemaField {
+        .init(keyword: "exclusiveMinimum", value: .init(value))
+    }
+
+    public static func exclusiveMinimum(_ value: Double) -> JSONSchemaField {
+        .init(keyword: "exclusiveMinimum", value: .init(value))
+    }
+
+    public static func exclusiveMinimum(_ value: Int) -> JSONSchemaField {
         .init(keyword: "exclusiveMinimum", value: .init(value))
     }
     

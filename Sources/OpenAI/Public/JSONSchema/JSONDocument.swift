@@ -17,6 +17,7 @@ public protocol JSONDocument: Codable, Hashable, Sendable {
 /// A JSON "null" value
 struct JSONNullValue: JSONDocument {}
 extension Int: JSONDocument {}
+extension Double: JSONDocument {}
 extension String: JSONDocument {}
 extension Bool: JSONDocument {}
 /// [number](https://json-schema.org/draft/2020-12/json-schema-core#section-4.2.1-3.10)
