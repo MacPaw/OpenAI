@@ -390,7 +390,7 @@ class OpenAITestsDecoder: XCTestCase {
                 .init(role: .user, content: "Who are you?")!
             ],
             model: .gpt5_1,
-            reasoningEffort: .none
+            reasoningEffort: ChatQuery.ReasoningEffort.none
         )
         let expectedValue = """
             {
@@ -418,7 +418,7 @@ class OpenAITestsDecoder: XCTestCase {
         """
         let data = json.data(using: .utf8)!
         let decoded = try JSONDecoder().decode(Components.Schemas.Reasoning.self, from: data)
-        XCTAssertEqual(decoded.effort, .none)
+        XCTAssertEqual(decoded.effort, Components.Schemas.ReasoningEffort.none)
     }
 
     func testEmbeddings() async throws {
