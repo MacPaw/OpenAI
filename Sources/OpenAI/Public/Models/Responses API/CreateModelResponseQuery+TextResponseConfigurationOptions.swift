@@ -18,15 +18,21 @@ extension CreateModelResponseQuery {
         ///
         /// Setting to `{ "type": "json_object" }` enables the older JSON mode, which ensures the message the model generates is valid JSON. Using `json_schema` is preferred for models that support it.
         let format: OutputFormat?
-        
+
+        /// Controls the verbosity of the model's text output.
+        ///
+        /// Possible values: "low", "medium", "high"
+        let verbosity: Verbosity?
+
         public static let text = TextResponseConfigurationOptions(format: .text)
         public static let jsonObject = TextResponseConfigurationOptions(format: .jsonObject)
         public static func jsonSchema(_ config: OutputFormat.StructuredOutputsConfig) -> TextResponseConfigurationOptions {
             .init(format: .jsonSchema(config))
         }
-        
-        public init(format: OutputFormat?) {
+
+        public init(format: OutputFormat?, verbosity: Verbosity? = nil) {
             self.format = format
+            self.verbosity = verbosity
         }
         
         public enum OutputFormat: Codable, Hashable, Sendable {
@@ -36,7 +42,36 @@ extension CreateModelResponseQuery {
             case jsonSchema(StructuredOutputsConfig)
             /// JSON object response format. An older method of generating JSON responses. Using `json_schema` is recommended for models that support it. Note that the model will not generate JSON without a system or user message instructing it to do so.
             case jsonObject
-            
+
+            public init(from decoder: any Decoder) throws {
+                let container = try decoder.singleValueContainer()
+
+                // Try to decode as ResponseFormatText
+                if let _ = try? container.decode(Schemas.ResponseFormatText.self) {
+                    self = .text
+                    return
+                }
+
+                // Try to decode as StructuredOutputsConfig (json_schema)
+                if let config = try? container.decode(StructuredOutputsConfig.self) {
+                    self = .jsonSchema(config)
+                    return
+                }
+
+                // Try to decode as ResponseFormatJsonObject
+                if let _ = try? container.decode(Schemas.ResponseFormatJsonObject.self) {
+                    self = .jsonObject
+                    return
+                }
+
+                throw DecodingError.dataCorrupted(
+                    DecodingError.Context(
+                        codingPath: decoder.codingPath,
+                        debugDescription: "Unable to decode OutputFormat"
+                    )
+                )
+            }
+
             public func encode(to encoder: any Encoder) throws {
                 var container = encoder.singleValueContainer()
                 switch self {
@@ -69,6 +104,12 @@ extension CreateModelResponseQuery {
                     self.strict = strict
                 }
             }
+        }
+
+        public enum Verbosity: String, Codable, Hashable, Sendable {
+            case low
+            case medium
+            case high
         }
     }
 }
