@@ -4861,13 +4861,14 @@ public enum Components {
         ///
         /// Constrains effort on reasoning for
         /// [reasoning models](https://platform.openai.com/docs/guides/reasoning).
-        /// Currently supported values are `minimal`, `low`, `medium`, and `high`. Reducing
+        /// Currently supported values are `none`, `minimal`, `low`, `medium`, and `high`. Reducing
         /// reasoning effort can result in faster responses and fewer tokens used
         /// on reasoning in a response.
         ///
         ///
         /// - Remark: Generated from `#/components/schemas/ReasoningEffort`.
         @frozen public enum ReasoningEffort: String, Codable, Hashable, Sendable, CaseIterable {
+            case none = "none"
             case minimal = "minimal"
             case low = "low"
             case medium = "medium"

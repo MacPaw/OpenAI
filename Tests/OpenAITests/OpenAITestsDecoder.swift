@@ -418,6 +418,43 @@ class OpenAITestsDecoder: XCTestCase {
         XCTAssertNil(decodedNil.verbosity)
     }
 
+    func testChatQueryWithReasoningEffortNone() throws {
+        let chatQuery = ChatQuery(
+            messages: [
+                .init(role: .user, content: "Who are you?")!
+            ],
+            model: .gpt5_1,
+            reasoningEffort: ChatQuery.ReasoningEffort.none
+        )
+        let expectedValue = """
+            {
+                "model": "gpt-5.1",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "Who are you?"
+                    }
+                ],
+                "reasoning_effort": "none",
+                "stream": false
+            }
+            """
+
+        let chatQueryAsDict = try jsonDataAsNSDictionary(JSONEncoder().encode(chatQuery))
+        let expectedValueAsDict = try jsonDataAsNSDictionary(expectedValue.data(using: .utf8)!)
+
+        XCTAssertEqual(chatQueryAsDict, expectedValueAsDict)
+    }
+
+    func testReasoningEffortDecodingNone() throws {
+        let json = """
+        { "effort": "none" }
+        """
+        let data = json.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(Components.Schemas.Reasoning.self, from: data)
+        XCTAssertEqual(decoded.effort, Components.Schemas.ReasoningEffort.none)
+    }
+
     func testEmbeddings() async throws {
         let data = """
         {

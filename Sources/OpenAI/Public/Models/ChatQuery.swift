@@ -15,7 +15,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
     public let messages: [Self.ChatCompletionMessageParam]
     /// Model ID used to generate the response, like `gpt-4o` or `o3`. OpenAI offers a wide range of models with different capabilities, performance characteristics, and price points. Refer to the [model guide](https://platform.openai.com/docs/models) to browse and compare available models.
     public let model: Model
-    /// Constrains effort on reasoning for [reasoning models](https://platform.openai.com/docs/guides/reasoning). Currently supported values are minimal, low, medium, and high. Reducing reasoning effort can result in faster responses and fewer tokens used on reasoning in a response.
+    /// Constrains effort on reasoning for [reasoning models](https://platform.openai.com/docs/guides/reasoning). Currently supported values are none, minimal, low, medium, and high. Reducing reasoning effort can result in faster responses and fewer tokens used on reasoning in a response.
     ///
     /// - Note: o-series models only
     public let reasoningEffort: ReasoningEffort?
@@ -922,6 +922,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
     }
     
     public enum ReasoningEffort: Codable, Equatable, Sendable {
+        case none
         case minimal
         case low
         case medium
@@ -935,6 +936,8 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         public func encode(to encoder: any Encoder) throws {
             var container = encoder.singleValueContainer()
             switch self {
+            case .none:
+                try container.encode("none")
             case .minimal:
                 try container.encode("minimal")
             case .low:
@@ -952,6 +955,8 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             let container = try decoder.singleValueContainer()
             let rawValue = try container.decode(String.self)
             switch rawValue {
+            case "none":
+                self = .none
             case "minimal":
                 self = .minimal
             case "low":
