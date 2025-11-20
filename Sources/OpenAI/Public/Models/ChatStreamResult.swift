@@ -71,7 +71,7 @@ public struct ChatStreamResult: Codable, Equatable, Sendable {
 
             public struct ChoiceDeltaToolCall: Codable, Equatable, Sendable {
 
-                public let index: Int?
+                public let index: Int
                 /// The ID of the tool call.
                 public let id: String?
                 /// The function that the model called.
@@ -88,6 +88,15 @@ public struct ChatStreamResult: Codable, Equatable, Sendable {
                     self.id = id
                     self.function = function
                     self.type = "function"
+                }
+                
+                public init(from decoder: any Decoder) throws {
+                    let container: KeyedDecodingContainer<ChoiceDeltaToolCall.CodingKeys> = try decoder.container(keyedBy: ChoiceDeltaToolCall.CodingKeys.self)
+                    let parsingOptions = decoder.userInfo[.parsingOptions] as? ParsingOptions ?? []
+                    self.index = try container.decodeInt(forKey: ChoiceDeltaToolCall.CodingKeys.index, parsingOptions: parsingOptions)
+                    self.id = try container.decodeIfPresent(String.self, forKey: ChoiceDeltaToolCall.CodingKeys.id)
+                    self.function = try container.decodeIfPresent(ChoiceDeltaToolCallFunction.self, forKey: ChoiceDeltaToolCall.CodingKeys.function)
+                    self.type = try container.decodeIfPresent(String.self, forKey: ChoiceDeltaToolCall.CodingKeys.type)
                 }
 
                 public struct ChoiceDeltaToolCallFunction: Codable, Equatable, Sendable {
