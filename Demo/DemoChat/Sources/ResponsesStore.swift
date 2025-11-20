@@ -656,6 +656,8 @@ public final class ResponsesStore: ObservableObject {
         case .mcpToolCall(_ /* let mcpCall */):
             // MCP tool call in progress - no UI action needed
             break
+        case .reasoning(let reasoningItem):
+            print("reasoning output item added, summary: \(reasoningItem.summary)")
         default:
             throw StoreError.unhandledOutputItem(outputItem)
         }
@@ -693,6 +695,8 @@ public final class ResponsesStore: ObservableObject {
             if let output = mcpCall.output {
                 print("Result: \(output)")
             }
+        case .reasoning(let reasoningItem):
+            print("reasoning output item done, summary: \(reasoningItem.summary)")
         default:
             throw StoreError.unhandledOutputItem(outputItem)
         }
