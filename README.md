@@ -362,6 +362,29 @@ print(result.choices.first?.message.content ?? "")
 
 ## Structured Outputs -->
 
+### Provider-specific fields
+
+When calling OpenAI-compatible gateways that expect additional JSON fields, supply them through the optional `vendorParameters` argument on chat APIs. The SDK merges these values into the top-level payload without disturbing the documented schema.
+
+For example, Volcengine's Deepseek models expose a `thinking` object that controls deep-thinking behaviour:
+
+```swift
+let vendorParameters: [String: JSONValue] = [
+    "thinking": .object([
+        "type": .string("disabled") // "enabled" and "auto" are also available.
+    ])
+]
+
+let result = try await openAI.chats(
+    query: query,
+    vendorParameters: vendorParameters
+)
+
+for try await chunk in openAI.chatsStream(query: query, vendorParameters: vendorParameters) {
+    // Handle streamed result with the same vendor-specific field applied.
+}
+```
+
 ## Function calling
 
 See [OpenAI Platform Guide: Function calling](https://platform.openai.com/docs/guides/function-calling?api-mode=responses) for more details.
@@ -371,7 +394,6 @@ See [OpenAI Platform Guide: Function calling](https://platform.openai.com/docs/g
 <summary>Chat Completions API Examples</summary>
 
 ### Function calling with get_weather function
-
 ```swift
 let openAI = OpenAI(apiToken: "...")
 // Declare functions which model might decide to call.

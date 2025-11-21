@@ -25,8 +25,8 @@ extension OpenAI {
         .init(body: query, url: buildURL(path: .embeddings))
     }
     
-    func makeChatsRequest(query: ChatQuery) -> JSONRequest<ChatResult> {
-        .init(body: query, url: buildURL(path: .chats))
+    func makeChatsRequest(query: ChatQuery, vendorParameters: [String: JSONValue]? = nil) -> JSONRequest<ChatResult> {
+        .init(body: makeChatBody(query: query, vendorParameters: vendorParameters), url: buildURL(path: .chats))
     }
     
     func makeModelRequest(query: ModelQuery) -> JSONRequest<ModelResult> {
@@ -152,5 +152,12 @@ extension OpenAI {
             urlBuilder: DefaultURLBuilder(configuration: configuration, path: .Assistants.files.stringValue),
             body: query
         )
+    }
+
+    private func makeChatBody(query: ChatQuery, vendorParameters: [String: JSONValue]?) -> Codable {
+        guard let vendorParameters, !vendorParameters.isEmpty else {
+            return query
+        }
+        return ChatVendorRequestBody(query: query, vendorParameters: vendorParameters)
     }
 }
