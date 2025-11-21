@@ -32,15 +32,15 @@ extension OpenAI: OpenAICombine {
         )
     }
     
-    public func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error> {
+    public func chats(query: ChatQuery, vendorParameters: [String: JSONValue]? = nil) -> AnyPublisher<ChatResult, Error> {
         performRequestCombine(
-            request: makeChatsRequest(query: query)
+            request: makeChatsRequest(query: query.makeNonStreamable(), vendorParameters: vendorParameters)
         )
     }
     
-    public func chatsStream(query: ChatQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
+    public func chatsStream(query: ChatQuery, vendorParameters: [String: JSONValue]? = nil) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
         makeStreamPublisher { onResult, completion in
-            chatsStream(query: query, onResult: onResult, completion: completion)
+            chatsStream(query: query, vendorParameters: vendorParameters, onResult: onResult, completion: completion)
         }
     }
     
