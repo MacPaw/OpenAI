@@ -105,7 +105,21 @@ extension OpenAI: OpenAIAsync {
             request: makeAudioTranslationsRequest(query: query)
         )
     }
-    
+
+    public func audioChats(query: AudioChatQuery) async throws -> AudioChatResult {
+        try await performRequestAsync(
+            request: makeAudioChatsRequest(query: query)
+        )
+    }
+
+    public func audioChatsStream(
+        query: AudioChatQuery
+    ) -> AsyncThrowingStream<AudioChatStreamResult, Error> {
+        makeAsyncStream { onResult, completion in
+            audioChatsStream(query: query, onResult: onResult, completion: completion)
+        }
+    }
+
     public func assistants() async throws -> AssistantsResult {
         try await assistants(after: nil)
     }
