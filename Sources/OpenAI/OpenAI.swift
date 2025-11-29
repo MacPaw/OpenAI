@@ -330,7 +330,19 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
     public func audioTranslations(query: AudioTranslationQuery, completion: @escaping @Sendable (Result<AudioTranslationResult, Error>) -> Void) -> CancellableRequest {
         performRequest(request: makeAudioTranslationsRequest(query: query), completion: completion)
     }
-    
+
+    public func audioChats(query: AudioChatQuery, completion: @escaping @Sendable (Result<AudioChatResult, Error>) -> Void) -> CancellableRequest {
+        performRequest(request: makeAudioChatsRequest(query: query.makeNonStreamable()), completion: completion)
+    }
+
+    public func audioChatsStream(query: AudioChatQuery, onResult: @escaping @Sendable (Result<AudioChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest {
+        performStreamingRequest(
+            request: JSONRequest<AudioChatStreamResult>(body: query.makeStreamable(), url: buildURL(path: .chats)),
+            onResult: onResult,
+            completion: completion
+        )
+    }
+
     public func audioCreateSpeech(query: AudioSpeechQuery, completion: @escaping @Sendable (Result<AudioSpeechResult, Error>) -> Void) -> CancellableRequest {
         performSpeechRequest(request: makeAudioCreateSpeechRequest(query: query), completion: completion)
     }
