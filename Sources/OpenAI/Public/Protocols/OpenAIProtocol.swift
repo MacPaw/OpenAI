@@ -252,7 +252,33 @@ public protocol OpenAIProtocol: OpenAIModern {
      Returns a `Result` of type `AudioTranslationResult` if successful, or an `Error` if an error occurs.
      **/
     @discardableResult func audioTranslations(query: AudioTranslationQuery, completion: @escaping @Sendable (Result<AudioTranslationResult, Error>) -> Void) -> CancellableRequest
-    
+
+    /**
+     Performs audio chat completion using OpenAI's audio chat API and completes the operation asynchronously.
+     This enables audio-to-audio conversations using the gpt-4o-audio-preview model.
+
+     - Parameter query: The `AudioChatQuery` instance containing the conversation messages and audio configuration.
+     - Parameter completion: The completion handler to be executed upon completion of the audio chat request.
+     Returns a `Result` of type `AudioChatResult` if successful, or an `Error` if an error occurs.
+     **/
+    @discardableResult func audioChats(query: AudioChatQuery, completion: @escaping @Sendable (Result<AudioChatResult, Error>) -> Void) -> CancellableRequest
+
+    /**
+     Performs audio chat completion by streaming the results in real-time using OpenAI's audio chat API.
+
+     This method establishes a connection that remains open, receiving and delivering audio chunks incrementally as they are processed by the API.
+
+     - Parameter query: The `AudioChatQuery` instance containing the conversation messages and audio configuration.
+     - Parameter onResult: A closure that is called multiple times as new audio chat results become available. It provides either a partial `AudioChatStreamResult` or an error encountered during the stream.
+     - Parameter completion: An optional closure executed once the stream is fully closed. It receives an `Error` if the stream terminated unexpectedly, or `nil` if it completed successfully.
+     - Returns: A `CancellableRequest` object that allows you to cancel the ongoing audio chat stream.
+     **/
+    func audioChatsStream(
+        query: AudioChatQuery,
+        onResult: @escaping @Sendable (Result<AudioChatStreamResult, Error>) -> Void,
+        completion: (@Sendable (Error?) -> Void)?
+    ) -> CancellableRequest
+
     /**
      This function sends a assistants query to the OpenAI API to list assistants that have been created.
      
