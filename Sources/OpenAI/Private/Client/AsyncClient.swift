@@ -98,6 +98,41 @@ actor AsyncClient {
         }
     }
     
+    func performRawDataRequest(request: any URLRequestBuildable) async throws -> Data {
+        let urlRequest = try request.build(configuration: configuration)
+        let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
+            middleware.intercept(request: current)
+        }
+        if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
+            let (data, response) = try await session.data(for: interceptedRequest, delegate: nil)
+            return try responseHandler.interceptAndDecodeRaw(response: response, urlRequest: urlRequest, responseData: data)
+        } else {
+            let dataTaskStore = URLSessionDataTaskStore()
+            return try await withTaskCancellationHandler {
+                return try await withCheckedThrowingContinuation { continuation in
+                    let dataTask = self.dataTaskFactory.makeRawResponseDataTask(forRequest: interceptedRequest) { result in
+                        switch result {
+                        case .success(let success):
+                            continuation.resume(returning: success)
+                        case .failure(let failure):
+                            continuation.resume(throwing: failure)
+                        }
+                    }
+
+                    dataTask.resume()
+
+                    Task {
+                        await dataTaskStore.setDataTask(dataTask)
+                    }
+                }
+            } onCancel: {
+                Task {
+                    await dataTaskStore.getDataTask()?.cancel()
+                }
+            }
+        }
+    }
+
     private func makeDataTask<ResultType: Codable>(
         forRequest request: URLRequest,
         completion: @escaping @Sendable (Result<ResultType, Error>) -> Void

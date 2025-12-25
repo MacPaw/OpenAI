@@ -37,4 +37,18 @@ public protocol OpenAIAsync: Sendable {
     func threadsMessages(threadId: String, before: String?) async throws -> ThreadsMessagesResult
     func threadsAddMessage(threadId: String, query: MessageQuery) async throws -> ThreadAddMessageResult
     func files(query: FilesQuery) async throws -> FilesResult
+    func retrieveFileContent(id: String) async throws -> Data
+    func deleteFile(id: String) async throws -> FileDeleteResult
+
+    // MARK: - Batch API
+
+    func createBatch(query: BatchQuery) async throws -> BatchResult
+    func retrieveBatch(id: String) async throws -> BatchResult
+    func listBatches(after: String?, limit: Int) async throws -> BatchListResult
+    func cancelBatch(id: String) async throws -> BatchResult
+
+    // MARK: - Batch API Convenience
+
+    func submitBatch(requests: [BatchRequestLine], fileName: String, endpoint: BatchEndpoint, metadata: [String: String]?) async throws -> BatchResult
+    func waitForBatch(id batchId: String, pollingInterval: TimeInterval, timeout: TimeInterval) async throws -> [BatchResponseLine]
 }
