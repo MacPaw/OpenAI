@@ -19,11 +19,11 @@ public protocol URLSessionProtocol: InvalidatableSession, URLSessionCombine {
 }
 
 extension URLSession: URLSessionProtocol {
-    func dataTask(with request: URLRequest) -> URLSessionDataTaskProtocol {
+    public func dataTask(with request: URLRequest) -> URLSessionDataTaskProtocol {
         dataTask(with: request) as URLSessionDataTask
     }
-    
-    func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTaskProtocol {
+
+    public func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTaskProtocol {
         dataTask(with: request, completionHandler: completionHandler) as URLSessionDataTask
     }
 }
