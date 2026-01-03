@@ -14,19 +14,19 @@ import FoundationNetworking
 #if canImport(Combine)
 import Combine
 
-protocol URLSessionCombine {
+public protocol URLSessionCombine {
     func dataTaskPublisher(for request: URLRequest) -> AnyPublisher<(data: Data, response: URLResponse), URLError>
 }
 
 extension URLSession: URLSessionCombine {
-    func dataTaskPublisher(for request: URLRequest) -> AnyPublisher<(data: Data, response: URLResponse), URLError> {
+    public func dataTaskPublisher(for request: URLRequest) -> AnyPublisher<(data: Data, response: URLResponse), URLError> {
         let typedPublisher: URLSession.DataTaskPublisher = dataTaskPublisher(for: request)
         return typedPublisher.eraseToAnyPublisher()
     }
 }
 
 #else
-protocol URLSessionCombine {
+public protocol URLSessionCombine {
 }
 
 extension URLSession: URLSessionCombine {}

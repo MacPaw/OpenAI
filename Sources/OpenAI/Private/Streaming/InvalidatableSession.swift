@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol InvalidatableSession: Sendable {
+public protocol InvalidatableSession: Sendable {
     func invalidateAndCancel()
     func finishTasksAndInvalidate()
 }

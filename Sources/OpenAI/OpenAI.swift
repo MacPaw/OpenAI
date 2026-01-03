@@ -106,6 +106,32 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         )
     }
 
+    /// Creates an OpenAI client with a custom URLSession protocol implementation.
+    /// Use this initializer to inject a custom HTTP transport for encryption or other purposes.
+    ///
+    /// - Parameters:
+    ///   - configuration: The client configuration
+    ///   - customSession: Custom URLSession protocol implementation
+    ///   - middlewares: Optional middlewares for request/response interception
+    public convenience init(
+        configuration: Configuration,
+        customSession: any URLSessionProtocol,
+        middlewares: [OpenAIMiddleware] = []
+    ) {
+        let streamingSessionFactory = ImplicitURLSessionStreamingSessionFactory(
+            middlewares: middlewares,
+            parsingOptions: configuration.parsingOptions,
+            sslDelegate: nil
+        )
+
+        self.init(
+            configuration: configuration,
+            session: customSession,
+            streamingSessionFactory: streamingSessionFactory,
+            middlewares: middlewares
+        )
+    }
+
     init(
         configuration: Configuration,
         session: URLSessionProtocol,

@@ -10,14 +10,14 @@ import Foundation
 import FoundationNetworking
 #endif
 
-protocol URLSessionTaskProtocol: Sendable {
+public protocol URLSessionTaskProtocol: Sendable {
     var originalRequest: URLRequest? { get }
     func cancel()
 }
 
 extension URLSessionTask: URLSessionTaskProtocol {}
 
-protocol URLSessionDataTaskProtocol: URLSessionTaskProtocol {
+public protocol URLSessionDataTaskProtocol: URLSessionTaskProtocol {
     func resume()
 }
 
