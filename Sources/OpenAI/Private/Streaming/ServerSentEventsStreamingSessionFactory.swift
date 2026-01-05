@@ -35,10 +35,23 @@ protocol StreamingSessionFactory: Sendable {
 }
 
 struct ImplicitURLSessionStreamingSessionFactory: StreamingSessionFactory {
+    let urlSessionFactory: URLSessionFactory
     let middlewares: [OpenAIMiddleware]
     let parsingOptions: ParsingOptions
     let sslDelegate: SSLDelegateProtocol?
-    
+
+    init(
+        urlSessionFactory: URLSessionFactory = FoundationURLSessionFactory(),
+        middlewares: [OpenAIMiddleware],
+        parsingOptions: ParsingOptions,
+        sslDelegate: SSLDelegateProtocol?
+    ) {
+        self.urlSessionFactory = urlSessionFactory
+        self.middlewares = middlewares
+        self.parsingOptions = parsingOptions
+        self.sslDelegate = sslDelegate
+    }
+
     func makeServerSentEventsStreamingSession<ResultType>(
         urlRequest: URLRequest,
         onReceiveContent: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, ResultType) -> Void,
@@ -46,6 +59,7 @@ struct ImplicitURLSessionStreamingSessionFactory: StreamingSessionFactory {
         onComplete: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, (any Error)?) -> Void
     ) -> StreamingSession<ServerSentEventsStreamInterpreter<ResultType>> where ResultType : Decodable, ResultType : Encodable, ResultType : Sendable {
         .init(
+            urlSessionFactory: urlSessionFactory,
             urlRequest: urlRequest,
             interpreter: .init(parsingOptions: parsingOptions),
             sslDelegate: sslDelegate,
@@ -55,7 +69,7 @@ struct ImplicitURLSessionStreamingSessionFactory: StreamingSessionFactory {
             onComplete: onComplete
         )
     }
-    
+
     func makeAudioSpeechStreamingSession(
         urlRequest: URLRequest,
         onReceiveContent: @Sendable @escaping (StreamingSession<AudioSpeechStreamInterpreter>, AudioSpeechResult) -> Void,
@@ -63,6 +77,7 @@ struct ImplicitURLSessionStreamingSessionFactory: StreamingSessionFactory {
         onComplete: @Sendable @escaping (StreamingSession<AudioSpeechStreamInterpreter>, (any Error)?) -> Void
     ) -> StreamingSession<AudioSpeechStreamInterpreter> {
         .init(
+            urlSessionFactory: urlSessionFactory,
             urlRequest: urlRequest,
             interpreter: .init(),
             sslDelegate: sslDelegate,
@@ -72,7 +87,7 @@ struct ImplicitURLSessionStreamingSessionFactory: StreamingSessionFactory {
             onComplete: onComplete
         )
     }
-    
+
     func makeModelResponseStreamingSession(
         urlRequest: URLRequest,
         onReceiveContent: @Sendable @escaping (StreamingSession<ModelResponseEventsStreamInterpreter>, ResponseStreamEvent) -> Void,
@@ -80,6 +95,7 @@ struct ImplicitURLSessionStreamingSessionFactory: StreamingSessionFactory {
         onComplete: @Sendable @escaping (StreamingSession<ModelResponseEventsStreamInterpreter>, (any Error)?) -> Void
     ) -> StreamingSession<ModelResponseEventsStreamInterpreter> {
         .init(
+            urlSessionFactory: urlSessionFactory,
             urlRequest: urlRequest,
             interpreter: .init(),
             sslDelegate: sslDelegate,

@@ -10,12 +10,20 @@ import Foundation
 import FoundationNetworking
 #endif
 
-protocol URLSessionFactory: Sendable {
+/// Factory protocol for creating URLSession instances.
+/// Implement this protocol to provide custom session creation for streaming requests.
+public protocol URLSessionFactory: Sendable {
+    /// Creates a URLSession for streaming requests.
+    /// - Parameter delegate: The delegate to receive streaming data callbacks
+    /// - Returns: A URLSession protocol implementation
     func makeUrlSession(delegate: URLSessionDataDelegateProtocol) -> URLSessionProtocol
 }
 
-struct FoundationURLSessionFactory: URLSessionFactory {
-    func makeUrlSession(delegate: URLSessionDataDelegateProtocol) -> any URLSessionProtocol {
+/// Default factory that creates standard Foundation URLSession instances.
+public struct FoundationURLSessionFactory: URLSessionFactory {
+    public init() {}
+
+    public func makeUrlSession(delegate: URLSessionDataDelegateProtocol) -> any URLSessionProtocol {
         let forwarder = URLSessionDataDelegateForwarder(target: delegate)
         return URLSession(configuration: .default, delegate: forwarder, delegateQueue: nil)
     }

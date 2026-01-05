@@ -11,9 +11,12 @@ import Foundation
 import FoundationNetworking
 #endif
 
-protocol URLSessionDelegateProtocol: Sendable { // Sendable to make a better match with URLSessionDelegate, it's sendable too
+/// Protocol for handling URLSession delegate callbacks.
+/// Sendable to match URLSessionDelegate behavior.
+/// AnyObject constraint allows weak references to delegate implementations.
+public protocol URLSessionDelegateProtocol: AnyObject, Sendable {
     func urlSession(_ session: URLSessionProtocol, task: URLSessionTaskProtocol, didCompleteWithError error: Error?)
-    
+
     func urlSession(
         _ session: URLSession,
         didReceive challenge: URLAuthenticationChallenge,
@@ -21,9 +24,11 @@ protocol URLSessionDelegateProtocol: Sendable { // Sendable to make a better mat
     )
 }
 
-protocol URLSessionDataDelegateProtocol: URLSessionDelegateProtocol {
+/// Protocol for handling URLSession data delegate callbacks.
+/// Used for streaming data reception.
+public protocol URLSessionDataDelegateProtocol: URLSessionDelegateProtocol {
     func urlSession(_ session: URLSessionProtocol, dataTask: URLSessionDataTaskProtocol, didReceive data: Data)
-    
+
     func urlSession(
         _ session: URLSessionProtocol,
         dataTask: URLSessionDataTaskProtocol,

@@ -107,7 +107,9 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
     }
 
     /// Creates an OpenAI client with a custom URLSession protocol implementation.
-    /// Use this initializer to inject a custom HTTP transport for encryption or other purposes.
+    ///
+    /// - Important: This initializer only uses the custom session for non-streaming requests.
+    ///   For streaming requests, use the initializer that accepts a `URLSessionFactory`.
     ///
     /// - Parameters:
     ///   - configuration: The client configuration
@@ -119,6 +121,34 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         middlewares: [OpenAIMiddleware] = []
     ) {
         let streamingSessionFactory = ImplicitURLSessionStreamingSessionFactory(
+            middlewares: middlewares,
+            parsingOptions: configuration.parsingOptions,
+            sslDelegate: nil
+        )
+
+        self.init(
+            configuration: configuration,
+            session: customSession,
+            streamingSessionFactory: streamingSessionFactory,
+            middlewares: middlewares
+        )
+    }
+
+    /// Creates an OpenAI client with custom session handling for both regular and streaming requests.
+    ///
+    /// - Parameters:
+    ///   - configuration: The client configuration
+    ///   - customSession: Custom URLSession protocol implementation for non-streaming requests
+    ///   - streamingURLSessionFactory: Factory for creating sessions for streaming requests
+    ///   - middlewares: Optional middlewares for request/response interception
+    public convenience init(
+        configuration: Configuration,
+        customSession: any URLSessionProtocol,
+        streamingURLSessionFactory: URLSessionFactory,
+        middlewares: [OpenAIMiddleware] = []
+    ) {
+        let streamingSessionFactory = ImplicitURLSessionStreamingSessionFactory(
+            urlSessionFactory: streamingURLSessionFactory,
             middlewares: middlewares,
             parsingOptions: configuration.parsingOptions,
             sslDelegate: nil
