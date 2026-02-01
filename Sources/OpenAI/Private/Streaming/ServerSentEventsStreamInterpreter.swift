@@ -66,7 +66,14 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
                 onError?(StreamingError.unknownContent)
                 return
             }
-            
+
+            // Skip web search intermediate events (they have "type" field instead of "object")
+            // These are events like web_search_call that describe search progress
+            if let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+               json["type"] != nil && json["object"] == nil {
+                return
+            }
+
             let decoder = JSONResponseDecoder(parsingOptions: parsingOptions)
             do {
                 let object: ResultType = try decoder.decodeResponseData(jsonData)
