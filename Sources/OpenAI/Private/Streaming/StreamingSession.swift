@@ -21,6 +21,7 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
     private let middlewares: [OpenAIMiddleware]
     private let executionSerializer: ExecutionSerializer
     private let onReceiveContent: (@Sendable (StreamingSession, ResultType) -> Void)?
+    private let onWebSearchEvent: (@Sendable (WebSearchEvent) -> Void)?
     private let onProcessingError: (@Sendable (StreamingSession, Error) -> Void)?
     private let onComplete: (@Sendable (StreamingSession, Error?) -> Void)?
 
@@ -32,6 +33,7 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
         middlewares: [OpenAIMiddleware],
         executionSerializer: ExecutionSerializer = GCDQueueAsyncExecutionSerializer(queue: .userInitiated),
         onReceiveContent: @escaping @Sendable (StreamingSession, ResultType) -> Void,
+        onWebSearchEvent: (@Sendable (WebSearchEvent) -> Void)? = nil,
         onProcessingError: @escaping @Sendable (StreamingSession, Error) -> Void,
         onComplete: @escaping @Sendable (StreamingSession, Error?) -> Void
     ) {
@@ -42,6 +44,7 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
         self.middlewares = middlewares
         self.executionSerializer = executionSerializer
         self.onReceiveContent = onReceiveContent
+        self.onWebSearchEvent = onWebSearchEvent
         self.onProcessingError = onProcessingError
         self.onComplete = onComplete
         super.init()
@@ -96,12 +99,25 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
     }
 
     private func subscribeToParser() {
-        interpreter.setCallbackClosures { [weak self] content in
-            guard let self else { return }
-            self.onReceiveContent?(self, content)
-        } onError: { [weak self] error in
-            guard let self else { return }
-            self.onProcessingError?(self, error)
+        // Check if interpreter supports web search events (ServerSentEventsStreamInterpreter)
+        if let sseInterpreter = interpreter as? ServerSentEventsStreamInterpreter<ResultType> {
+            sseInterpreter.setCallbackClosures { [weak self] content in
+                guard let self else { return }
+                self.onReceiveContent?(self, content)
+            } onWebSearchEvent: { [weak self] event in
+                self?.onWebSearchEvent?(event)
+            } onError: { [weak self] error in
+                guard let self else { return }
+                self.onProcessingError?(self, error)
+            }
+        } else {
+            interpreter.setCallbackClosures { [weak self] content in
+                guard let self else { return }
+                self.onReceiveContent?(self, content)
+            } onError: { [weak self] error in
+                guard let self else { return }
+                self.onProcessingError?(self, error)
+            }
         }
     }
 }

@@ -19,6 +19,7 @@ class MockStreamingSessionFactory: StreamingSessionFactory, @unchecked Sendable 
     func makeServerSentEventsStreamingSession<ResultType>(
         urlRequest: URLRequest,
         onReceiveContent: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, ResultType) -> Void,
+        onWebSearchEvent: (@Sendable (WebSearchEvent) -> Void)?,
         onProcessingError: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, any Error) -> Void,
         onComplete: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, (any Error)?) -> Void
     ) -> StreamingSession<ServerSentEventsStreamInterpreter<ResultType>> where ResultType : Decodable, ResultType : Encodable, ResultType : Sendable {
@@ -30,6 +31,7 @@ class MockStreamingSessionFactory: StreamingSessionFactory, @unchecked Sendable 
             middlewares: [],
             executionSerializer: executionSerializer,
             onReceiveContent: onReceiveContent,
+            onWebSearchEvent: onWebSearchEvent,
             onProcessingError: onProcessingError,
             onComplete: onComplete
         )

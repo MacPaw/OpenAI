@@ -43,7 +43,16 @@ extension OpenAI: OpenAIAsync {
             chatsStream(query: query, onResult: onResult, completion: completion)
         }
     }
-    
+
+    public func chatsStream(
+        query: ChatQuery,
+        onWebSearchEvent: @escaping @Sendable (WebSearchEvent) -> Void
+    ) -> AsyncThrowingStream<ChatStreamResult, Error> {
+        makeAsyncStream { onResult, completion in
+            chatsStream(query: query, onResult: onResult, onWebSearchEvent: onWebSearchEvent, completion: completion)
+        }
+    }
+
     public func model(query: ModelQuery) async throws -> ModelResult {
         try await performRequestAsync(
             request: makeModelRequest(query: query)

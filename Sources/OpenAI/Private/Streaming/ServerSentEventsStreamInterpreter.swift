@@ -17,6 +17,7 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
     private var previousChunkBuffer = ""
     
     private var onEventDispatched: ((ResultType) -> Void)?
+    private var onWebSearchEvent: ((WebSearchEvent) -> Void)?
     private var onError: ((Error) -> Void)?
     private let parsingOptions: ParsingOptions
     
@@ -38,9 +39,15 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
     ///
     /// - Parameters:
     ///     - onEventDispatched: Can be called multiple times per `processData`
+    ///     - onWebSearchEvent: Called when a web search event is received (optional)
     ///     - onError: Will only be called once per `processData`
-    func setCallbackClosures(onEventDispatched: @escaping @Sendable (ResultType) -> Void, onError: @escaping @Sendable (Error) -> Void) {
+    func setCallbackClosures(
+        onEventDispatched: @escaping @Sendable (ResultType) -> Void,
+        onWebSearchEvent: (@Sendable (WebSearchEvent) -> Void)? = nil,
+        onError: @escaping @Sendable (Error) -> Void
+    ) {
         self.onEventDispatched = onEventDispatched
+        self.onWebSearchEvent = onWebSearchEvent
         self.onError = onError
     }
     
@@ -67,10 +74,12 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
                 return
             }
 
-            // Skip web search intermediate events (they have "type" field instead of "object")
-            // These are events like web_search_call that describe search progress
+            // Handle web search events (they have "type" field instead of "object")
             if let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
-               json["type"] != nil && json["object"] == nil {
+               json["type"] as? String == "web_search_call" {
+                if let event = try? JSONDecoder().decode(WebSearchEvent.self, from: jsonData) {
+                    onWebSearchEvent?(event)
+                }
                 return
             }
 
