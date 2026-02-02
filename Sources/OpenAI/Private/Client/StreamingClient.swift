@@ -42,16 +42,19 @@ final class StreamingClient: @unchecked Sendable {
             }
 
             let session = streamingSessionFactory.makeServerSentEventsStreamingSession(
-                urlRequest: interceptedRequest
-            ) { _, object in
-                onResult(.success(object))
-            } onWebSearchEvent: onWebSearchEvent
-            onProcessingError: { _, error in
-                onResult(.failure(error))
-            } onComplete: { [weak self] session, error in
-                completion?(error)
-                self?.invalidateSession(session)
-            }
+                urlRequest: interceptedRequest,
+                onReceiveContent: { _, object in
+                    onResult(.success(object))
+                },
+                onWebSearchEvent: onWebSearchEvent,
+                onProcessingError: { _, error in
+                    onResult(.failure(error))
+                },
+                onComplete: { [weak self] session, error in
+                    completion?(error)
+                    self?.invalidateSession(session)
+                }
+            )
 
             return runSession(session)
         } catch {
