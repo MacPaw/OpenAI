@@ -340,9 +340,19 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
     }
     
     public func chatsStream(query: ChatQuery, onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest {
+        chatsStream(query: query, onResult: onResult, onWebSearchEvent: nil, completion: completion)
+    }
+
+    public func chatsStream(
+        query: ChatQuery,
+        onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void,
+        onWebSearchEvent: (@Sendable (WebSearchEvent) -> Void)?,
+        completion: (@Sendable (Error?) -> Void)?
+    ) -> CancellableRequest {
         performStreamingRequest(
             request: JSONRequest<ChatStreamResult>(body: query.makeStreamable(), url: buildURL(path: .chats)),
             onResult: onResult,
+            onWebSearchEvent: onWebSearchEvent,
             completion: completion
         )
     }
@@ -411,9 +421,10 @@ extension OpenAI {
     func performStreamingRequest<ResultType: Codable & Sendable>(
         request: any URLRequestBuildable,
         onResult: @escaping @Sendable (Result<ResultType, Error>) -> Void,
+        onWebSearchEvent: (@Sendable (WebSearchEvent) -> Void)? = nil,
         completion: (@Sendable (Error?) -> Void)?
     ) -> CancellableRequest {
-        streamingClient.performStreamingRequest(request: request, onResult: onResult, completion: completion)
+        streamingClient.performStreamingRequest(request: request, onResult: onResult, onWebSearchEvent: onWebSearchEvent, completion: completion)
     }
     
     func performSpeechRequest(request: any URLRequestBuildable, completion: @escaping @Sendable (Result<AudioSpeechResult, Error>) -> Void) -> CancellableRequest {
