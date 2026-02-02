@@ -86,22 +86,32 @@ struct ServerSentEventsStreamInterpreterTests {
 
     @Test func parseWebSearchEvent() async throws {
         var webSearchEvents: [WebSearchEvent] = []
+        var chatResults: [ChatStreamResult] = []
+        var errors: [Error] = []
 
         await withCheckedContinuation { continuation in
-            interpreter.setCallbackClosures { _ in
-            } onWebSearchEvent: { event in
-                Task {
-                    await MainActor.run {
-                        webSearchEvents.append(event)
-                        continuation.resume()
-                    }
+            interpreter.setCallbackClosures { result in
+                Task { @MainActor in
+                    chatResults.append(result)
+                    continuation.resume()
                 }
-            } onError: { _ in
+            } onWebSearchEvent: { event in
+                Task { @MainActor in
+                    webSearchEvents.append(event)
+                    continuation.resume()
+                }
+            } onError: { error in
+                Task { @MainActor in
+                    errors.append(error)
+                    continuation.resume()
+                }
             }
 
             interpreter.processData(webSearchEventData())
         }
 
+        #expect(chatResults.isEmpty, "Expected no chat results")
+        #expect(errors.isEmpty, "Expected no errors")
         #expect(webSearchEvents.count == 1)
         #expect(webSearchEvents.first?.type == "web_search_call")
         #expect(webSearchEvents.first?.status == .inProgress)
@@ -110,22 +120,32 @@ struct ServerSentEventsStreamInterpreterTests {
 
     @Test func parseWebSearchEventCompleted() async throws {
         var webSearchEvents: [WebSearchEvent] = []
+        var chatResults: [ChatStreamResult] = []
+        var errors: [Error] = []
 
         await withCheckedContinuation { continuation in
-            interpreter.setCallbackClosures { _ in
-            } onWebSearchEvent: { event in
-                Task {
-                    await MainActor.run {
-                        webSearchEvents.append(event)
-                        continuation.resume()
-                    }
+            interpreter.setCallbackClosures { result in
+                Task { @MainActor in
+                    chatResults.append(result)
+                    continuation.resume()
                 }
-            } onError: { _ in
+            } onWebSearchEvent: { event in
+                Task { @MainActor in
+                    webSearchEvents.append(event)
+                    continuation.resume()
+                }
+            } onError: { error in
+                Task { @MainActor in
+                    errors.append(error)
+                    continuation.resume()
+                }
             }
 
             interpreter.processData(webSearchEventCompletedData())
         }
 
+        #expect(chatResults.isEmpty, "Expected no chat results")
+        #expect(errors.isEmpty, "Expected no errors")
         #expect(webSearchEvents.count == 1)
         #expect(webSearchEvents.first?.status == .completed)
     }
@@ -133,49 +153,62 @@ struct ServerSentEventsStreamInterpreterTests {
     @Test func webSearchEventDoesNotTriggerOnResult() async throws {
         var chatStreamResults: [ChatStreamResult] = []
         var webSearchEvents: [WebSearchEvent] = []
+        var errors: [Error] = []
 
         await withCheckedContinuation { continuation in
             interpreter.setCallbackClosures { result in
-                Task {
-                    await MainActor.run {
-                        chatStreamResults.append(result)
-                    }
+                Task { @MainActor in
+                    chatStreamResults.append(result)
+                    continuation.resume()
                 }
             } onWebSearchEvent: { event in
-                Task {
-                    await MainActor.run {
-                        webSearchEvents.append(event)
-                        continuation.resume()
-                    }
+                Task { @MainActor in
+                    webSearchEvents.append(event)
+                    continuation.resume()
                 }
-            } onError: { _ in
+            } onError: { error in
+                Task { @MainActor in
+                    errors.append(error)
+                    continuation.resume()
+                }
             }
 
             interpreter.processData(webSearchEventData())
         }
 
+        #expect(errors.isEmpty, "Expected no errors")
         #expect(chatStreamResults.isEmpty)
         #expect(webSearchEvents.count == 1)
     }
 
     @Test func invalidWebSearchEventReportsError() async throws {
         var receivedError: Error?
+        var webSearchEvents: [WebSearchEvent] = []
+        var chatResults: [ChatStreamResult] = []
 
         await withCheckedContinuation { continuation in
-            interpreter.setCallbackClosures { _ in
-            } onWebSearchEvent: { _ in
+            interpreter.setCallbackClosures { result in
+                Task { @MainActor in
+                    chatResults.append(result)
+                    continuation.resume()
+                }
+            } onWebSearchEvent: { event in
+                Task { @MainActor in
+                    webSearchEvents.append(event)
+                    continuation.resume()
+                }
             } onError: { error in
-                Task {
-                    await MainActor.run {
-                        receivedError = error
-                        continuation.resume()
-                    }
+                Task { @MainActor in
+                    receivedError = error
+                    continuation.resume()
                 }
             }
 
             interpreter.processData(invalidWebSearchEventData())
         }
 
+        #expect(chatResults.isEmpty, "Expected no chat results")
+        #expect(webSearchEvents.isEmpty, "Expected no web search events")
         #expect(receivedError != nil)
     }
 
