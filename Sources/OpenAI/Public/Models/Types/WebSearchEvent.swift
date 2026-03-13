@@ -41,8 +41,10 @@ public struct WebSearchEvent: Codable, Equatable, Sendable {
     public struct Action: Codable, Equatable, Sendable {
         /// The type of action: "search", "open_page", or "find_in_page"
         public let type: String?
-        /// The search query being executed
+        /// The search query being executed (for "search" actions)
         public let query: String?
+        /// The URL being fetched (for "open_page" actions)
+        public let url: String?
     }
 
     private enum CodingKeys: String, CodingKey {
