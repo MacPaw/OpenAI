@@ -52,6 +52,14 @@ This repository contains Swift community-maintained implementation over [OpenAI]
         - [Submit Tool Outputs for Run](#submit-tool-outputs-for-run)
     - [Files](#files)
         - [Upload File](#upload-file)
+        - [Retrieve File Content](#retrieve-file-content)
+        - [Delete File](#delete-file)
+    - [Batch API](#batch-api)
+        - [Create Batch](#create-batch)
+        - [Retrieve Batch](#retrieve-batch)
+        - [List Batches](#list-batches)
+        - [Cancel Batch](#cancel-batch)
+        - [Convenience Methods](#convenience-methods)
 - [Other APIs](#other-apis)
     - [Models](#models)
         - [List Models](#list-models)
@@ -1476,6 +1484,230 @@ let query = FilesQuery(purpose: "assistants", file: fileData, fileName: url.last
 openAI.files(query: query) { result in
   //Handle response here
 }
+```
+
+#### Retrieve File Content
+
+Download the content of a file.
+
+```swift
+let fileData = try await openAI.retrieveFileContent(id: "file-abc123")
+let content = String(data: fileData, encoding: .utf8)
+```
+
+#### Delete File
+
+Delete a file from OpenAI.
+
+```swift
+let result = try await openAI.deleteFile(id: "file-abc123")
+print("Deleted: \(result.deleted)") // true
+```
+
+### Batch API
+
+The Batch API allows you to send asynchronous groups of requests with 50% lower costs, a separate pool of significantly higher rate limits, and a clear 24-hour turnaround time. It's ideal for processing jobs that don't require immediate responses.
+
+Review [Batch API Documentation](https://platform.openai.com/docs/api-reference/batch) for more info.
+
+#### Create Batch
+
+Create a batch from an uploaded JSONL file of requests.
+
+**Request**
+
+```swift
+public struct BatchQuery: Codable, Sendable {
+    /// The ID of an uploaded file containing requests for the batch.
+    public let inputFileId: String
+    /// The endpoint to use for the batch (e.g., /v1/chat/completions).
+    public let endpoint: BatchEndpoint
+    /// The time frame within which the batch should be processed.
+    public let completionWindow: BatchCompletionWindow
+    /// Optional custom metadata for the batch.
+    public let metadata: [String: String]?
+}
+```
+
+**Response**
+
+```swift
+public struct BatchResult: Codable, Sendable {
+    public let id: String
+    public let status: BatchStatus
+    public let outputFileId: String?
+    public let errorFileId: String?
+    public let requestCounts: RequestCounts?
+    // ... additional fields
+}
+```
+
+**Example**
+
+```swift
+// Step 1: Create JSONL input file
+let requests = [
+    BatchRequestLine(
+        customId: "request-1",
+        body: ChatQuery(
+            messages: [.user(.init(content: .string("What is 2+2?")))],
+            model: .gpt4_o_mini
+        )
+    ),
+    BatchRequestLine(
+        customId: "request-2",
+        body: ChatQuery(
+            messages: [.user(.init(content: .string("What is the capital of France?")))],
+            model: .gpt4_o_mini
+        )
+    )
+]
+
+// Encode to JSONL
+let jsonlData = try requests.map { request in
+    let data = try JSONEncoder().encode(request)
+    return String(data: data, encoding: .utf8)!
+}.joined(separator: "\n")
+
+// Step 2: Upload file
+let fileQuery = FilesQuery(
+    purpose: "batch",
+    file: jsonlData.data(using: .utf8)!,
+    fileName: "batch_requests.jsonl",
+    contentType: "application/jsonl"
+)
+let fileResult = try await openAI.files(query: fileQuery)
+
+// Step 3: Create batch
+let batchQuery = BatchQuery(
+    inputFileId: fileResult.id,
+    endpoint: .chatCompletions,
+    completionWindow: .twentyFourHours
+)
+let batch = try await openAI.createBatch(query: batchQuery)
+print("Batch ID: \(batch.id), Status: \(batch.status)")
+```
+
+#### Retrieve Batch
+
+Get the status and details of a batch.
+
+```swift
+let batch = try await openAI.retrieveBatch(id: "batch_abc123")
+print("Status: \(batch.status)")
+
+if let counts = batch.requestCounts {
+    print("Progress: \(counts.completed)/\(counts.total)")
+}
+```
+
+#### List Batches
+
+List all batches with optional pagination.
+
+```swift
+let result = try await openAI.listBatches(after: nil, limit: 10)
+for batch in result.data {
+    print("\(batch.id): \(batch.status)")
+}
+```
+
+#### Cancel Batch
+
+Cancel an in-progress batch. The batch will be marked as `cancelling` and eventually `cancelled`.
+
+```swift
+let cancelledBatch = try await openAI.cancelBatch(id: "batch_abc123")
+print("Status: \(cancelledBatch.status)") // cancelling or cancelled
+```
+
+#### Convenience Methods
+
+The SDK provides two convenience methods that simplify the batch workflow:
+
+##### submitBatch
+
+Handles JSONL encoding, file upload, and batch creation in one call.
+
+```swift
+let requests = [
+    BatchRequestLine(
+        customId: "request-1",
+        body: ChatQuery(
+            messages: [.user(.init(content: .string("Hello!")))],
+            model: .gpt4_o_mini
+        )
+    )
+]
+
+let batch = try await openAI.submitBatch(
+    requests: requests,
+    fileName: "my_batch.jsonl",
+    metadata: ["purpose": "testing"]
+)
+print("Batch ID: \(batch.id)")
+```
+
+##### waitForBatch
+
+Polls for batch completion and returns parsed responses.
+
+```swift
+let responses = try await openAI.waitForBatch(
+    id: batch.id,
+    pollingInterval: 5.0,  // Check every 5 seconds
+    timeout: 300           // 5 minute timeout
+)
+
+for response in responses {
+    print("Response for \(response.customId):")
+    if let body = response.response {
+        print("  Status: \(body.statusCode)")
+        print("  Content: \(body.body.choices.first?.message.content ?? "")")
+    } else if let error = response.error {
+        print("  Error: \(error.message)")
+    }
+}
+```
+
+##### Complete Example with Convenience Methods
+
+```swift
+// Create batch requests
+let requests = [
+    BatchRequestLine(
+        customId: "math-1",
+        body: ChatQuery(
+            messages: [.user(.init(content: .string("What is 2+2?")))],
+            model: .gpt4_o_mini
+        )
+    ),
+    BatchRequestLine(
+        customId: "geography-1",
+        body: ChatQuery(
+            messages: [.user(.init(content: .string("What is the capital of France?")))],
+            model: .gpt4_o_mini
+        )
+    )
+]
+
+// Submit and wait for completion
+let batch = try await openAI.submitBatch(
+    requests: requests,
+    fileName: "questions.jsonl"
+)
+
+let responses = try await openAI.waitForBatch(id: batch.id)
+
+// Process responses
+for response in responses {
+    if let content = response.response?.body.choices.first?.message.content {
+        print("\(response.customId): \(content)")
+    }
+}
+// Output:
+// math-1: 4
+// geography-1: Paris
 ```
 
 ## Support for other providers
