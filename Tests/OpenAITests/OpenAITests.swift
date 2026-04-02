@@ -84,6 +84,26 @@ class OpenAITests: XCTestCase {
        XCTAssertEqual(result, chatResult)
     }
     
+    func testChatsWithVendorParameters() async throws {
+        let query = makeChatQuery()
+        let chatResult = makeChatResult()
+        try self.stub(result: chatResult)
+        
+        let vendorParameters: [String: JSONValue] = [
+            "thinking": .object([
+                "type": .string("disabled")
+            ])
+        ]
+        
+        let result = try await openAI.chats(query: query, vendorParameters: vendorParameters)
+        XCTAssertEqual(result, chatResult)
+        
+        let body = try XCTUnwrap(urlSession.lastRequest?.httpBody)
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: body) as? [String: Any])
+        let thinking = try XCTUnwrap(json["thinking"] as? [String: String])
+        XCTAssertEqual(thinking["type"], "disabled")
+    }
+    
     func testChatQueryWithStructuredOutput() async throws {
         
         let chatResult = ChatResult(

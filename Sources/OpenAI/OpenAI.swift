@@ -279,13 +279,23 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         performRequest(request: makeEmbeddingsRequest(query: query), completion: completion)
     }
     
-    public func chats(query: ChatQuery, completion: @escaping @Sendable (Result<ChatResult, Error>) -> Void) -> CancellableRequest {
-        performRequest(request: makeChatsRequest(query: query.makeNonStreamable()), completion: completion)
+    public func chats(query: ChatQuery, vendorParameters: [String: JSONValue]? = nil, completion: @escaping @Sendable (Result<ChatResult, Error>) -> Void) -> CancellableRequest {
+        performRequest(
+            request: makeChatsRequest(query: query.makeNonStreamable(), vendorParameters: vendorParameters),
+            completion: completion
+        )
     }
     
-    public func chatsStream(query: ChatQuery, onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest {
-        performStreamingRequest(
-            request: JSONRequest<ChatStreamResult>(body: query.makeStreamable(), url: buildURL(path: .chats)),
+    public func chatsStream(query: ChatQuery, vendorParameters: [String: JSONValue]? = nil, onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest {
+        let streamableQuery = query.makeStreamable()
+        let body: Codable
+        if let vendorParameters, !vendorParameters.isEmpty {
+            body = ChatVendorRequestBody(query: streamableQuery, vendorParameters: vendorParameters)
+        } else {
+            body = streamableQuery
+        }
+        return performStreamingRequest(
+            request: JSONRequest<ChatStreamResult>(body: body, url: buildURL(path: .chats)),
             onResult: onResult,
             completion: completion
         )

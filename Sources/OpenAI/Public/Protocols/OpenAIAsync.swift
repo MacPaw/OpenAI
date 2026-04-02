@@ -12,8 +12,8 @@ public protocol OpenAIAsync: Sendable {
     func imageEdits(query: ImageEditsQuery) async throws -> ImagesResult
     func imageVariations(query: ImageVariationsQuery) async throws -> ImagesResult
     func embeddings(query: EmbeddingsQuery) async throws -> EmbeddingsResult
-    func chats(query: ChatQuery) async throws -> ChatResult
-    func chatsStream(query: ChatQuery) -> AsyncThrowingStream<ChatStreamResult, Error>
+    func chats(query: ChatQuery, vendorParameters: [String: JSONValue]?) async throws -> ChatResult
+    func chatsStream(query: ChatQuery, vendorParameters: [String: JSONValue]?) -> AsyncThrowingStream<ChatStreamResult, Error>
     func model(query: ModelQuery) async throws -> ModelResult
     func models() async throws -> ModelsResult
     func moderations(query: ModerationsQuery) async throws -> ModerationsResult
@@ -37,4 +37,15 @@ public protocol OpenAIAsync: Sendable {
     func threadsMessages(threadId: String, before: String?) async throws -> ThreadsMessagesResult
     func threadsAddMessage(threadId: String, query: MessageQuery) async throws -> ThreadAddMessageResult
     func files(query: FilesQuery) async throws -> FilesResult
+}
+
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+public extension OpenAIAsync {
+    func chats(query: ChatQuery) async throws -> ChatResult {
+        try await chats(query: query, vendorParameters: nil)
+    }
+    
+    func chatsStream(query: ChatQuery) -> AsyncThrowingStream<ChatStreamResult, Error> {
+        chatsStream(query: query, vendorParameters: nil)
+    }
 }

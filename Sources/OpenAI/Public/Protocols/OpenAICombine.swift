@@ -14,8 +14,8 @@ public protocol OpenAICombine: Sendable {
     func imageEdits(query: ImageEditsQuery) -> AnyPublisher<ImagesResult, Error>
     func imageVariations(query: ImageVariationsQuery) -> AnyPublisher<ImagesResult, Error>
     func embeddings(query: EmbeddingsQuery) -> AnyPublisher<EmbeddingsResult, Error>
-    func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error>
-    func chatsStream(query: ChatQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error>
+    func chats(query: ChatQuery, vendorParameters: [String: JSONValue]?) -> AnyPublisher<ChatResult, Error>
+    func chatsStream(query: ChatQuery, vendorParameters: [String: JSONValue]?) -> AnyPublisher<Result<ChatStreamResult, Error>, Error>
     func model(query: ModelQuery) -> AnyPublisher<ModelResult, Error>
     func models() -> AnyPublisher<ModelsResult, Error>
     func moderations(query: ModerationsQuery) -> AnyPublisher<ModerationsResult, Error>
@@ -37,5 +37,16 @@ public protocol OpenAICombine: Sendable {
     func threadsMessages(threadId: String, before: String?) -> AnyPublisher<ThreadsMessagesResult, Error>
     func threadsAddMessage(threadId: String, query: MessageQuery) -> AnyPublisher<ThreadAddMessageResult, Error>
     func files(query: FilesQuery) -> AnyPublisher<FilesResult, Error>
+}
+
+@available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
+public extension OpenAICombine {
+    func chats(query: ChatQuery) -> AnyPublisher<ChatResult, Error> {
+        chats(query: query, vendorParameters: nil)
+    }
+    
+    func chatsStream(query: ChatQuery) -> AnyPublisher<Result<ChatStreamResult, Error>, Error> {
+        chatsStream(query: query, vendorParameters: nil)
+    }
 }
 #endif

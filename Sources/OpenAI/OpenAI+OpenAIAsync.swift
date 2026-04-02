@@ -32,15 +32,15 @@ extension OpenAI: OpenAIAsync {
         )
     }
     
-    public func chats(query: ChatQuery) async throws -> ChatResult {
+    public func chats(query: ChatQuery, vendorParameters: [String: JSONValue]? = nil) async throws -> ChatResult {
         try await performRequestAsync(
-            request: makeChatsRequest(query: query)
+            request: makeChatsRequest(query: query.makeNonStreamable(), vendorParameters: vendorParameters)
         )
     }
     
-    public func chatsStream(query: ChatQuery) -> AsyncThrowingStream<ChatStreamResult, Error> {
+    public func chatsStream(query: ChatQuery, vendorParameters: [String: JSONValue]? = nil) -> AsyncThrowingStream<ChatStreamResult, Error> {
         makeAsyncStream { onResult, completion in
-            chatsStream(query: query, onResult: onResult, completion: completion)
+            chatsStream(query: query, vendorParameters: vendorParameters, onResult: onResult, completion: completion)
         }
     }
     

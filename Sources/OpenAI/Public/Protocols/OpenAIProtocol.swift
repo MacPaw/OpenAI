@@ -97,9 +97,10 @@ public protocol OpenAIProtocol: OpenAIModern {
      
      - Parameters:
      - query: A `ChatQuery` object containing the input parameters for the API request. This includes the lists of message objects for the conversation, the model to be used, and other settings.
+     - vendorParameters: Optional provider-specific fields that will be merged into the JSON payload.
      - completion: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ChatResult, Error>`, will contain either the `ChatResult` object with the model's response to the conversation, or an error if the request failed.
      **/
-    @discardableResult func chats(query: ChatQuery, completion: @escaping @Sendable (Result<ChatResult, Error>) -> Void) -> CancellableRequest
+    @discardableResult func chats(query: ChatQuery, vendorParameters: [String: JSONValue]?, completion: @escaping @Sendable (Result<ChatResult, Error>) -> Void) -> CancellableRequest
     
     /**
      This function sends a chat query to the OpenAI API and retrieves chat stream conversation responses. The Chat API enables you to build chatbots or conversational applications using OpenAI's powerful natural language models, like GPT-3. The result is returned by chunks.
@@ -115,15 +116,12 @@ public protocol OpenAIProtocol: OpenAIModern {
      ```
      
      - Parameters:
-        - query: A `ChatQuery` object containing the input parameters for the API request. This includes the lists of message objects for the conversation, the model to be used, and other settings.
-        - onResult: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ChatStreamResult, Error>`, will contain either the `ChatStreamResult` object with the model's response to the conversation, or an error if the request failed.
-        - completion: A closure that is being called when all chunks are delivered or uncrecoverable error occured.
-     
-     - Returns: An object that references the streaming session.
-     
-     - Note: This method creates and configures separate session object specifically for streaming. In order for it to work properly and don't leak memory you should hold a reference to the returned value, and when you're done - call cancel() on it.
-     */
-    @discardableResult func chatsStream(query: ChatQuery, onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest
+     - query: A `ChatQuery` object containing the input parameters for the API request. This includes the lists of message objects for the conversation, the model to be used, and other settings.
+     - vendorParameters: Optional provider-specific fields that will be merged into the JSON payload.
+     - onResult: A closure which receives the result when the API request finishes. The closure's parameter, `Result<ChatStreamResult, Error>`, will contain either the `ChatStreamResult` object with the model's response to the conversation, or an error if the request failed.
+     - completion: A closure that is being called when all chunks are delivered or uncrecoverable error occured
+     **/
+    @discardableResult func chatsStream(query: ChatQuery, vendorParameters: [String: JSONValue]?, onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest
     
     /**
      This function sends a model query to the OpenAI API and retrieves a model instance, providing owner information. The Models API in this usage enables you to gather detailed information on the model in question, like GPT-3.
@@ -450,4 +448,17 @@ public protocol OpenAIProtocol: OpenAIModern {
      Returns a `Result` of type `FilesResult` if successful, or an `Error` if an error occurs.
      **/
     @discardableResult func files(query: FilesQuery, completion: @escaping @Sendable (Result<FilesResult, Error>) -> Void) -> CancellableRequest
+}
+
+@available(iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 6.0, *)
+public extension OpenAIProtocol {
+    @discardableResult
+    func chats(query: ChatQuery, completion: @escaping @Sendable (Result<ChatResult, Error>) -> Void) -> CancellableRequest {
+        chats(query: query, vendorParameters: nil, completion: completion)
+    }
+    
+    @discardableResult
+    func chatsStream(query: ChatQuery, onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest {
+        chatsStream(query: query, vendorParameters: nil, onResult: onResult, completion: completion)
+    }
 }

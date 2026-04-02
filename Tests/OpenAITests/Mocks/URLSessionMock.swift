@@ -28,6 +28,7 @@ class URLSessionMock: URLSessionProtocol, @unchecked Sendable {
     
     var dataTask: DataTaskMock!
     var dataTaskIsCancelled = false
+    var lastRequest: URLRequest?
     
     var delegate: URLSessionDataDelegateProtocol?
     
@@ -40,17 +41,20 @@ class URLSessionMock: URLSessionProtocol, @unchecked Sendable {
     var finishTasksAndInvalidateCallCount = 0
     
     func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTaskProtocol {
+        lastRequest = request
         dataTask.completion = completionHandler
         dataTaskWithCompletionCalls.append(.init(request: request, completionHandler: completionHandler))
         return dataTask
     }
     
     func dataTask(with request: URLRequest) -> URLSessionDataTaskProtocol {
+        lastRequest = request
         dataTaskCalls.append(.init(request: request))
         return dataTask
     }
     
     func data(for request: URLRequest, delegate: (any URLSessionTaskDelegate)?) async throws -> (Data, URLResponse) {
+        lastRequest = request
         dataAsyncCalls.append(.init(request: request, delegate: delegate))
         
         let result = try await withCheckedThrowingContinuation { continuation in
