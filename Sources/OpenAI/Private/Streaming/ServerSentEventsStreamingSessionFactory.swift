@@ -15,7 +15,6 @@ protocol StreamingSessionFactory: Sendable {
     func makeServerSentEventsStreamingSession<ResultType: Codable & Sendable>(
         urlRequest: URLRequest,
         onReceiveContent: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, ResultType) -> Void,
-        onWebSearchEvent: (@Sendable (WebSearchEvent) -> Void)?,
         onProcessingError: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, Error) -> Void,
         onComplete: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, Error?) -> Void
     ) -> StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>
@@ -56,7 +55,6 @@ struct ImplicitURLSessionStreamingSessionFactory: StreamingSessionFactory {
     func makeServerSentEventsStreamingSession<ResultType>(
         urlRequest: URLRequest,
         onReceiveContent: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, ResultType) -> Void,
-        onWebSearchEvent: (@Sendable (WebSearchEvent) -> Void)?,
         onProcessingError: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, any Error) -> Void,
         onComplete: @Sendable @escaping (StreamingSession<ServerSentEventsStreamInterpreter<ResultType>>, (any Error)?) -> Void
     ) -> StreamingSession<ServerSentEventsStreamInterpreter<ResultType>> where ResultType : Decodable, ResultType : Encodable, ResultType : Sendable {
@@ -67,7 +65,6 @@ struct ImplicitURLSessionStreamingSessionFactory: StreamingSessionFactory {
             sslDelegate: sslDelegate,
             middlewares: middlewares,
             onReceiveContent: onReceiveContent,
-            onWebSearchEvent: onWebSearchEvent,
             onProcessingError: onProcessingError,
             onComplete: onComplete
         )

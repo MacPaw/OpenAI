@@ -125,8 +125,6 @@ public protocol OpenAIProtocol: OpenAIModern {
      */
     @discardableResult func chatsStream(query: ChatQuery, onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest
 
-    @discardableResult func chatsStream(query: ChatQuery, onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, onWebSearchEvent: (@Sendable (WebSearchEvent) -> Void)?, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest
-
     /**
      This function sends a model query to the OpenAI API and retrieves a model instance, providing owner information. The Models API in this usage enables you to gather detailed information on the model in question, like GPT-3.
      

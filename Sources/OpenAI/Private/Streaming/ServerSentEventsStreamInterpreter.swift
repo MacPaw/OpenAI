@@ -17,7 +17,6 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
     private var previousChunkBuffer = ""
     
     private var onEventDispatched: ((ResultType) -> Void)?
-    private var onWebSearchEvent: ((WebSearchEvent) -> Void)?
     private var onError: ((Error) -> Void)?
     private let parsingOptions: ParsingOptions
     
@@ -44,22 +43,7 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
         onEventDispatched: @escaping @Sendable (ResultType) -> Void,
         onError: @escaping @Sendable (Error) -> Void
     ) {
-        setCallbackClosures(onEventDispatched: onEventDispatched, onWebSearchEvent: nil, onError: onError)
-    }
-
-    /// Sets closures an instance of type. Not thread safe.
-    ///
-    /// - Parameters:
-    ///     - onEventDispatched: Can be called multiple times per `processData`
-    ///     - onWebSearchEvent: Called when a web search event is received (optional)
-    ///     - onError: Will only be called once per `processData`
-    func setCallbackClosures(
-        onEventDispatched: @escaping @Sendable (ResultType) -> Void,
-        onWebSearchEvent: (@Sendable (WebSearchEvent) -> Void)?,
-        onError: @escaping @Sendable (Error) -> Void
-    ) {
         self.onEventDispatched = onEventDispatched
-        self.onWebSearchEvent = onWebSearchEvent
         self.onError = onError
     }
     
@@ -83,20 +67,6 @@ final class ServerSentEventsStreamInterpreter <ResultType: Codable & Sendable>: 
             }
             guard let jsonData = jsonContent.data(using: .utf8) else {
                 onError?(StreamingError.unknownContent)
-                return
-            }
-
-            // Handle web search events (they have "type" field instead of "object")
-            // Event types include: "web_search_call", or prefixed like "response.web_search_call.*"
-            if let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
-               let eventType = json["type"] as? String,
-               eventType.contains("web_search") {
-                do {
-                    let webSearchEvent = try JSONDecoder().decode(WebSearchEvent.self, from: jsonData)
-                    onWebSearchEvent?(webSearchEvent)
-                } catch {
-                    onError?(error)
-                }
                 return
             }
 

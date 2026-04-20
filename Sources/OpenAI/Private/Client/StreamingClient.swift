@@ -32,7 +32,6 @@ final class StreamingClient: @unchecked Sendable {
     func performStreamingRequest<ResultType: Codable & Sendable>(
         request: any URLRequestBuildable,
         onResult: @escaping @Sendable (Result<ResultType, Error>) -> Void,
-        onWebSearchEvent: (@Sendable (WebSearchEvent) -> Void)? = nil,
         completion: (@Sendable (Error?) -> Void)?
     ) -> CancellableRequest {
         do {
@@ -46,7 +45,6 @@ final class StreamingClient: @unchecked Sendable {
                 onReceiveContent: { _, object in
                     onResult(.success(object))
                 },
-                onWebSearchEvent: onWebSearchEvent,
                 onProcessingError: { _, error in
                     onResult(.failure(error))
                 },

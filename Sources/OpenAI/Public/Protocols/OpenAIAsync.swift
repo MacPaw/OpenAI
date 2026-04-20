@@ -14,7 +14,6 @@ public protocol OpenAIAsync: Sendable {
     func embeddings(query: EmbeddingsQuery) async throws -> EmbeddingsResult
     func chats(query: ChatQuery) async throws -> ChatResult
     func chatsStream(query: ChatQuery) -> AsyncThrowingStream<ChatStreamResult, Error>
-    func chatsStream(query: ChatQuery, onWebSearchEvent: @escaping @Sendable (WebSearchEvent) -> Void) -> AsyncThrowingStream<ChatStreamResult, Error>
     func model(query: ModelQuery) async throws -> ModelResult
     func models() async throws -> ModelsResult
     func moderations(query: ModerationsQuery) async throws -> ModerationsResult
