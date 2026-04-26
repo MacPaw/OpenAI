@@ -134,6 +134,76 @@ struct ChatQueryCodingTests {
         #expect(try equal(query, expected))
     }
     
+    @Test func encodeExtraBodyMergesTopLevelFields() throws {
+        let query = ChatQuery(
+            messages: [],
+            model: .gpt4_o,
+            stream: false,
+            extraBody: [
+                "chat_template_kwargs": .object([
+                    "thinking": .bool(true),
+                    "reasoning_effort": .string("high"),
+                ]),
+            ]
+        )
+
+        let expected = """
+        {
+            "model": "gpt-4o",
+            "messages": [],
+            "stream": false,
+            "chat_template_kwargs": {
+                "thinking": true,
+                "reasoning_effort": "high"
+            }
+        }
+        """
+
+        #expect(try equal(query, expected))
+    }
+
+    @Test func encodeExtraBodyIgnoresReservedKeys() throws {
+        let query = ChatQuery(
+            messages: [],
+            model: .gpt4_o,
+            stream: false,
+            extraBody: [
+                "model": .string("should-be-ignored"),
+                "reasoning_effort": .string("low"),
+                "temperature": .double(0.99),
+                "x_custom": .string("kept"),
+            ]
+        )
+
+        let expected = """
+        {
+            "model": "gpt-4o",
+            "messages": [],
+            "stream": false,
+            "x_custom": "kept"
+        }
+        """
+
+        #expect(try equal(query, expected))
+    }
+
+    @Test func decodeExtraBodyCollectsUnknownKeys() throws {
+        let json = """
+        {
+            "model": "gpt-4o",
+            "messages": [],
+            "stream": true,
+            "chat_template_kwargs": { "enable_thinking": false },
+            "vendor_x": 42
+        }
+        """
+
+        let decoded = try JSONDecoder().decode(ChatQuery.self, from: json.data(using: .utf8)!)
+
+        #expect(decoded.extraBody?["chat_template_kwargs"] == .object(["enable_thinking": .bool(false)]))
+        #expect(decoded.extraBody?["vendor_x"] == .int(42))
+    }
+
     private func equal(_ query: Codable, _ expected: String) throws -> Bool {
         let encodedQuery = try encodedAndComparable(query)
         let decodedExpectation = try decodedAndComparable(expected)

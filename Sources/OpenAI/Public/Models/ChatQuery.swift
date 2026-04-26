@@ -160,7 +160,19 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
     ///
     /// The gpt-4o-audio-preview model can also be used to [generate audio](https://platform.openai.com/docs/guides/audio). To request that this model generate both text and audio responses, you can use: `["text", "audio"]`
     public var modalities: [Self.ChatCompletionModalities]?
-    
+
+    /// Arbitrary additional top-level fields to merge into the request body.
+    ///
+    /// Mirrors the `extra_body` parameter exposed by the official OpenAI Python
+    /// and JavaScript SDKs. Use this for vendor-specific parameters that aren't
+    /// part of the OpenAI Chat Completions schema, such as vLLM's
+    /// `chat_template_kwargs` for reasoning toggles.
+    ///
+    /// Keys that collide with declared `CodingKeys` (for example `model`,
+    /// `messages`, `reasoning_effort`) are ignored on encode so callers cannot
+    /// accidentally override typed fields.
+    public let extraBody: [String: JSONValue]?
+
     public init(
         messages: [Self.ChatCompletionMessageParam],
         model: Model,
@@ -189,7 +201,8 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         user: String? = nil,
         webSearchOptions: WebSearchOptions? = nil,
         stream: Bool = false,
-        streamOptions: StreamOptions? = nil
+        streamOptions: StreamOptions? = nil,
+        extraBody: [String: JSONValue]? = nil
     ) {
         self.messages = messages
         self.model = model
@@ -219,6 +232,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         self.streamOptions = streamOptions
         self.audioOptions = audioOptions
         self.modalities = modalities
+        self.extraBody = extraBody
     }
     
     public enum ChatCompletionMessageParam: Codable, Equatable, Sendable {
@@ -1341,6 +1355,135 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         case streamOptions = "stream_options"
         case audioOptions = "audio"
         case modalities = "modalities"
+    }
+
+    private struct DynamicCodingKey: CodingKey {
+        var stringValue: String
+        var intValue: Int? { nil }
+        init(stringValue: String) { self.stringValue = stringValue }
+        init?(intValue: Int) { return nil }
+    }
+
+    /// Set of JSON key names declared by `CodingKeys`. Used to suppress
+    /// `extraBody` entries that would shadow a typed field.
+    private static let reservedExtraBodyKeys: Set<String> = {
+        var keys: Set<String> = []
+        for key in [
+            CodingKeys.messages,
+            CodingKeys.model,
+            CodingKeys.reasoningEffort,
+            CodingKeys.frequencyPenalty,
+            CodingKeys.logitBias,
+            CodingKeys.logprobs,
+            CodingKeys.maxTokens,
+            CodingKeys.maxCompletionTokens,
+            CodingKeys.metadata,
+            CodingKeys.n,
+            CodingKeys.parallelToolCalls,
+            CodingKeys.prediction,
+            CodingKeys.presencePenalty,
+            CodingKeys.responseFormat,
+            CodingKeys.seed,
+            CodingKeys.serviceTier,
+            CodingKeys.stop,
+            CodingKeys.store,
+            CodingKeys.temperature,
+            CodingKeys.toolChoice,
+            CodingKeys.tools,
+            CodingKeys.topLogprobs,
+            CodingKeys.topP,
+            CodingKeys.user,
+            CodingKeys.webSearchOptions,
+            CodingKeys.stream,
+            CodingKeys.streamOptions,
+            CodingKeys.audioOptions,
+            CodingKeys.modalities,
+        ] {
+            keys.insert(key.rawValue)
+        }
+        return keys
+    }()
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        messages = try container.decode([ChatCompletionMessageParam].self, forKey: .messages)
+        model = try container.decode(Model.self, forKey: .model)
+        reasoningEffort = try container.decodeIfPresent(ReasoningEffort.self, forKey: .reasoningEffort)
+        frequencyPenalty = try container.decodeIfPresent(Double.self, forKey: .frequencyPenalty)
+        logitBias = try container.decodeIfPresent([String: Int].self, forKey: .logitBias)
+        logprobs = try container.decodeIfPresent(Bool.self, forKey: .logprobs)
+        maxCompletionTokens = try container.decodeIfPresent(Int.self, forKey: .maxCompletionTokens)
+        maxTokens = try container.decodeIfPresent(Int.self, forKey: .maxTokens)
+        metadata = try container.decodeIfPresent([String: String].self, forKey: .metadata)
+        n = try container.decodeIfPresent(Int.self, forKey: .n)
+        parallelToolCalls = try container.decodeIfPresent(Bool.self, forKey: .parallelToolCalls)
+        prediction = try container.decodeIfPresent(PredictedOutputConfig.self, forKey: .prediction)
+        presencePenalty = try container.decodeIfPresent(Double.self, forKey: .presencePenalty)
+        responseFormat = try container.decodeIfPresent(ResponseFormat.self, forKey: .responseFormat)
+        seed = try container.decodeIfPresent(Int.self, forKey: .seed)
+        serviceTier = try container.decodeIfPresent(ServiceTier.self, forKey: .serviceTier)
+        stop = try container.decodeIfPresent(Stop.self, forKey: .stop)
+        store = try container.decodeIfPresent(Bool.self, forKey: .store)
+        temperature = try container.decodeIfPresent(Double.self, forKey: .temperature)
+        toolChoice = try container.decodeIfPresent(ChatCompletionFunctionCallOptionParam.self, forKey: .toolChoice)
+        tools = try container.decodeIfPresent([ChatCompletionToolParam].self, forKey: .tools)
+        topLogprobs = try container.decodeIfPresent(Int.self, forKey: .topLogprobs)
+        topP = try container.decodeIfPresent(Double.self, forKey: .topP)
+        user = try container.decodeIfPresent(String.self, forKey: .user)
+        webSearchOptions = try container.decodeIfPresent(WebSearchOptions.self, forKey: .webSearchOptions)
+        stream = try container.decodeIfPresent(Bool.self, forKey: .stream) ?? false
+        streamOptions = try container.decodeIfPresent(StreamOptions.self, forKey: .streamOptions)
+        audioOptions = try container.decodeIfPresent(AudioOptions.self, forKey: .audioOptions)
+        modalities = try container.decodeIfPresent([ChatCompletionModalities].self, forKey: .modalities)
+
+        // Collect any unknown top-level keys into extraBody so round-tripping
+        // a decoded ChatQuery preserves vendor-specific fields.
+        let dynamic = try decoder.container(keyedBy: DynamicCodingKey.self)
+        var extras: [String: JSONValue] = [:]
+        for key in dynamic.allKeys where !ChatQuery.reservedExtraBodyKeys.contains(key.stringValue) {
+            extras[key.stringValue] = try dynamic.decode(JSONValue.self, forKey: key)
+        }
+        extraBody = extras.isEmpty ? nil : extras
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(messages, forKey: .messages)
+        try container.encode(model, forKey: .model)
+        try container.encodeIfPresent(reasoningEffort, forKey: .reasoningEffort)
+        try container.encodeIfPresent(frequencyPenalty, forKey: .frequencyPenalty)
+        try container.encodeIfPresent(logitBias, forKey: .logitBias)
+        try container.encodeIfPresent(logprobs, forKey: .logprobs)
+        try container.encodeIfPresent(maxCompletionTokens, forKey: .maxCompletionTokens)
+        try container.encodeIfPresent(maxTokens, forKey: .maxTokens)
+        try container.encodeIfPresent(metadata, forKey: .metadata)
+        try container.encodeIfPresent(n, forKey: .n)
+        try container.encodeIfPresent(parallelToolCalls, forKey: .parallelToolCalls)
+        try container.encodeIfPresent(prediction, forKey: .prediction)
+        try container.encodeIfPresent(presencePenalty, forKey: .presencePenalty)
+        try container.encodeIfPresent(responseFormat, forKey: .responseFormat)
+        try container.encodeIfPresent(seed, forKey: .seed)
+        try container.encodeIfPresent(serviceTier, forKey: .serviceTier)
+        try container.encodeIfPresent(stop, forKey: .stop)
+        try container.encodeIfPresent(store, forKey: .store)
+        try container.encodeIfPresent(temperature, forKey: .temperature)
+        try container.encodeIfPresent(toolChoice, forKey: .toolChoice)
+        try container.encodeIfPresent(tools, forKey: .tools)
+        try container.encodeIfPresent(topLogprobs, forKey: .topLogprobs)
+        try container.encodeIfPresent(topP, forKey: .topP)
+        try container.encodeIfPresent(user, forKey: .user)
+        try container.encodeIfPresent(webSearchOptions, forKey: .webSearchOptions)
+        try container.encode(stream, forKey: .stream)
+        try container.encodeIfPresent(streamOptions, forKey: .streamOptions)
+        try container.encodeIfPresent(audioOptions, forKey: .audioOptions)
+        try container.encodeIfPresent(modalities, forKey: .modalities)
+
+        if let extraBody, !extraBody.isEmpty {
+            var dynamic = encoder.container(keyedBy: DynamicCodingKey.self)
+            for (key, value) in extraBody where !ChatQuery.reservedExtraBodyKeys.contains(key) {
+                try dynamic.encode(value, forKey: DynamicCodingKey(stringValue: key))
+            }
+        }
     }
 }
 
