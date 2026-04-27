@@ -1,5 +1,5 @@
 //
-//  JSONValue.swift
+//  OpenAIJSON.swift
 //
 //  A small, recursive Codable representation of any JSON value. Used to
 //  carry arbitrary vendor-specific request fields (for example
@@ -7,17 +7,21 @@
 //  `ChatQuery.extraBody` without needing a typed Swift property for
 //  every possible parameter.
 //
+//  The name is deliberately distinct from a more natural "JSONValue" so
+//  that downstream apps with their own JSON enum (e.g. used for
+//  streaming-event payloads) can use the SDK's type without collision.
+//
 
 import Foundation
 
-public enum JSONValue: Codable, Equatable, Sendable {
+public enum OpenAIJSON: Codable, Equatable, Sendable {
     case null
     case bool(Bool)
     case int(Int)
     case double(Double)
     case string(String)
-    case array([JSONValue])
-    case object([String: JSONValue])
+    case array([OpenAIJSON])
+    case object([String: OpenAIJSON])
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -41,11 +45,11 @@ public enum JSONValue: Codable, Equatable, Sendable {
             self = .string(value)
             return
         }
-        if let value = try? container.decode([JSONValue].self) {
+        if let value = try? container.decode([OpenAIJSON].self) {
             self = .array(value)
             return
         }
-        if let value = try? container.decode([String: JSONValue].self) {
+        if let value = try? container.decode([String: OpenAIJSON].self) {
             self = .object(value)
             return
         }
@@ -76,33 +80,33 @@ public enum JSONValue: Codable, Equatable, Sendable {
     }
 }
 
-extension JSONValue: ExpressibleByNilLiteral {
+extension OpenAIJSON: ExpressibleByNilLiteral {
     public init(nilLiteral: ()) { self = .null }
 }
 
-extension JSONValue: ExpressibleByBooleanLiteral {
+extension OpenAIJSON: ExpressibleByBooleanLiteral {
     public init(booleanLiteral value: Bool) { self = .bool(value) }
 }
 
-extension JSONValue: ExpressibleByIntegerLiteral {
+extension OpenAIJSON: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: Int) { self = .int(value) }
 }
 
-extension JSONValue: ExpressibleByFloatLiteral {
+extension OpenAIJSON: ExpressibleByFloatLiteral {
     public init(floatLiteral value: Double) { self = .double(value) }
 }
 
-extension JSONValue: ExpressibleByStringLiteral {
+extension OpenAIJSON: ExpressibleByStringLiteral {
     public init(stringLiteral value: String) { self = .string(value) }
 }
 
-extension JSONValue: ExpressibleByArrayLiteral {
-    public init(arrayLiteral elements: JSONValue...) { self = .array(elements) }
+extension OpenAIJSON: ExpressibleByArrayLiteral {
+    public init(arrayLiteral elements: OpenAIJSON...) { self = .array(elements) }
 }
 
-extension JSONValue: ExpressibleByDictionaryLiteral {
-    public init(dictionaryLiteral elements: (String, JSONValue)...) {
-        var dict: [String: JSONValue] = [:]
+extension OpenAIJSON: ExpressibleByDictionaryLiteral {
+    public init(dictionaryLiteral elements: (String, OpenAIJSON)...) {
+        var dict: [String: OpenAIJSON] = [:]
         for (k, v) in elements { dict[k] = v }
         self = .object(dict)
     }

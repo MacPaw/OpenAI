@@ -171,7 +171,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
     /// Keys that collide with declared `CodingKeys` (for example `model`,
     /// `messages`, `reasoning_effort`) are ignored on encode so callers cannot
     /// accidentally override typed fields.
-    public let extraBody: [String: JSONValue]?
+    public let extraBody: [String: OpenAIJSON]?
 
     public init(
         messages: [Self.ChatCompletionMessageParam],
@@ -202,7 +202,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         webSearchOptions: WebSearchOptions? = nil,
         stream: Bool = false,
         streamOptions: StreamOptions? = nil,
-        extraBody: [String: JSONValue]? = nil
+        extraBody: [String: OpenAIJSON]? = nil
     ) {
         self.messages = messages
         self.model = model
@@ -1439,9 +1439,9 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         // Collect any unknown top-level keys into extraBody so round-tripping
         // a decoded ChatQuery preserves vendor-specific fields.
         let dynamic = try decoder.container(keyedBy: DynamicCodingKey.self)
-        var extras: [String: JSONValue] = [:]
+        var extras: [String: OpenAIJSON] = [:]
         for key in dynamic.allKeys where !ChatQuery.reservedExtraBodyKeys.contains(key.stringValue) {
-            extras[key.stringValue] = try dynamic.decode(JSONValue.self, forKey: key)
+            extras[key.stringValue] = try dynamic.decode(OpenAIJSON.self, forKey: key)
         }
         extraBody = extras.isEmpty ? nil : extras
     }
