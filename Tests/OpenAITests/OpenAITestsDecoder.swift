@@ -75,7 +75,54 @@ class OpenAITestsDecoder: XCTestCase {
         )
         try decode(data, expectedValue)
     }
-    
+
+    func testCompletionUsageWithCompletionTokensDetails() async throws {
+        let data = """
+        {
+          "completion_tokens": 320,
+          "prompt_tokens": 80,
+          "total_tokens": 400,
+          "completion_tokens_details": {
+            "accepted_prediction_tokens": 12,
+            "audio_tokens": 0,
+            "reasoning_tokens": 256,
+            "rejected_prediction_tokens": 4
+          }
+        }
+        """
+
+        let expectedValue = ChatResult.CompletionUsage(
+            completionTokens: 320,
+            promptTokens: 80,
+            totalTokens: 400,
+            promptTokensDetails: nil,
+            completionTokensDetails: .init(
+                acceptedPredictionTokens: 12,
+                audioTokens: 0,
+                reasoningTokens: 256,
+                rejectedPredictionTokens: 4
+            )
+        )
+        try decode(data, expectedValue)
+    }
+
+    func testCompletionUsageDecodesWithoutCompletionTokensDetails() async throws {
+        let data = """
+        {
+          "completion_tokens": 12,
+          "prompt_tokens": 9,
+          "total_tokens": 21
+        }
+        """
+
+        let expectedValue = ChatResult.CompletionUsage(
+            completionTokens: 12,
+            promptTokens: 9,
+            totalTokens: 21
+        )
+        try decode(data, expectedValue)
+    }
+
     func testImageQuery() async throws {
         let imageQuery = ImagesQuery(
             prompt: "test",
