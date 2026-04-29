@@ -895,6 +895,29 @@ class OpenAITestsDecoder: XCTestCase {
         try testEncodedCreateResponseQueryWithVerbosity(data)
     }
 
+    func testCreateResponseQueryEncodesPromptCacheKey() throws {
+        let query = CreateModelResponseQuery(
+            input: .textInput("Hello"),
+            model: .gpt4_o,
+            promptCacheKey: "user-1234"
+        )
+
+        let data = try JSONEncoder().encode(query)
+        let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(dict["prompt_cache_key"] as? String), "user-1234")
+    }
+
+    func testCreateResponseQueryOmitsPromptCacheKeyWhenNil() throws {
+        let query = CreateModelResponseQuery(
+            input: .textInput("Hello"),
+            model: .gpt4_o
+        )
+
+        let data = try JSONEncoder().encode(query)
+        let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertNil(dict["prompt_cache_key"])
+    }
+
     private func testEncodedChatQueryWithStructuredOutput(_ data: Data) throws {
         let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         XCTAssertEqual(try XCTUnwrap(dict["model"] as? String), "gpt-4o")
