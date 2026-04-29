@@ -15,8 +15,9 @@ Report (suspected) security vulnerabilities privately to
 **[support@macpaw.com](mailto:support@macpaw.com)**.
 
 If [private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability)
-is enabled on the repository, you can also use GitHub's
-["Report a vulnerability"](https://github.com/MacPaw/OpenAI/security/advisories/new) form.
+is enabled on the repository, you can also use the
+["Security"](https://github.com/MacPaw/OpenAI/security) tab and click
+the **Report a vulnerability** button.
 
 Please include:
 
