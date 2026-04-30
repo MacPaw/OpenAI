@@ -743,6 +743,13 @@ Review [Audio Documentation](https://platform.openai.com/docs/api-reference/audi
 
 To configure structured outputs you would define a JSON Schema and pass it to a query.
 
+> [!NOTE]
+> The two query types pass the schema via different parameters, mirroring the OpenAI API:
+> - `ChatQuery` (Chat Completions API): `responseFormat: .jsonSchema(...)` — encoded as `response_format`.
+> - `CreateModelResponseQuery` (Responses API): `text: .jsonSchema(...)` — encoded as `text`.
+>
+> Both accept the same `JSONSchemaDefinition` value, so the schema-building examples below apply to either query type.
+
 This SDK supports multiple ways to define a schema; choose the one you prefer.
 
 <details>
@@ -825,7 +832,7 @@ for output in response.output {
 
 Use [Pydantic](https://docs.pydantic.dev/latest/) or [Zod](https://zod.dev) fashion to define schemas.
 
-- Use the `derivedJsonSchema(_ type:)` response format when creating a `ChatQuery` or `CreateModelResponseQuery`
+- Use the `derivedJsonSchema(_ type:)` schema definition. Pass it via `responseFormat:` for `ChatQuery` or via `text:` for `CreateModelResponseQuery`.
 - Provide a type that conforms to `JSONSchemaConvertible` and generates an instance as an example
 - Make sure all enum types within the provided type conform to `JSONSchemaEnumConvertible` and generate an array of names for all cases
 
