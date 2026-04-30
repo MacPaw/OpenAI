@@ -63,7 +63,11 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     
     /// Reference to a prompt template and its variables. [Learn more](https://platform.openai.com/docs/guides/text?api-mode=responses#reusable-prompts).
     public let prompt: Schemas.Prompt?
-    
+
+    /// Used by OpenAI to cache responses for similar requests to optimize your cache hit rates.
+    /// Replaces the `user` field. [Learn more](https://platform.openai.com/docs/guides/prompt-caching).
+    public let promptCacheKey: String?
+
     /// **o-series models only**
     ///
     /// Configuration options for [reasoning models](https://platform.openai.com/docs/guides/reasoning).
@@ -137,6 +141,7 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
         parallelToolCalls: Bool? = nil,
         previousResponseId: String? = nil,
         prompt: Schemas.Prompt? = nil,
+        promptCacheKey: String? = nil,
         reasoning: Schemas.Reasoning? = nil,
         serviceTier: ServiceTier? = nil,
         store: Bool? = nil,
@@ -159,6 +164,7 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
         self.parallelToolCalls = parallelToolCalls
         self.previousResponseId = previousResponseId
         self.prompt = prompt
+        self.promptCacheKey = promptCacheKey
         self.reasoning = reasoning
         self.serviceTier = serviceTier
         self.store = store
@@ -183,6 +189,7 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
         case parallelToolCalls = "parallel_tool_calls"
         case previousResponseId = "previous_response_id"
         case prompt
+        case promptCacheKey = "prompt_cache_key"
         case reasoning
         case serviceTier = "service_tier"
         case store
