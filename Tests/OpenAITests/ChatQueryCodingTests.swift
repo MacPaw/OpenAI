@@ -94,6 +94,31 @@ struct ChatQueryCodingTests {
         #expect(try equal(query, expected))
     }
     
+    @Test func encodeReasoningContent() throws {
+        let query = ChatQuery(
+            messages: [
+                .assistant(.init(content: .textContent("Content"), reasoningContent: "Reasoning"))
+            ],
+            model: .gpt4_o
+        )
+        
+        let expected = """
+        {
+            "model": "gpt-4o",
+            "messages": [
+              {
+                "role": "assistant",
+                "content": "Content",
+                "reasoning_content": "Reasoning"
+              }
+            ],
+            "stream": false
+        }
+        """
+        
+        #expect(try equal(query, expected))
+    }
+    
     @Test func encodeWebSearchOptions() throws {
         let query = ChatQuery(
             messages: [],
