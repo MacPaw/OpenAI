@@ -7,6 +7,6 @@
 
 import Foundation
 
-public protocol JSONSchemaConvertible: Codable {
+public protocol JSONSchemaConvertible: Codable, Sendable {
     static var example: Self { get }
 }
