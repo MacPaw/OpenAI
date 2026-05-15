@@ -1045,13 +1045,11 @@ public enum Components {
                 public typealias Bool = Swift.Bool
                 /// - Remark: Generated from `#/components/schemas/CreateResponse/value3/parallel_tool_calls`.
                 public var parallelToolCalls: Swift.Bool?
-                public typealias Bool = Swift.Bool
                 /// - Remark: Generated from `#/components/schemas/CreateResponse/value3/store`.
                 public var store: Swift.Bool?
                 public typealias String = Swift.String
                 /// - Remark: Generated from `#/components/schemas/CreateResponse/value3/instructions`.
                 public var instructions: Swift.String?
-                public typealias Bool = Swift.Bool
                 /// - Remark: Generated from `#/components/schemas/CreateResponse/value3/stream`.
                 public var stream: Swift.Bool?
                 /// - Remark: Generated from `#/components/schemas/CreateResponse/value3/stream_options`.
@@ -2100,7 +2098,6 @@ public enum Components {
             public var code: Swift.String?
             /// - Remark: Generated from `#/components/schemas/Error/message`.
             public var message: Swift.String
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/Error/param`.
             public var param: Swift.String?
             /// - Remark: Generated from `#/components/schemas/Error/type`.
@@ -3925,7 +3922,6 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/MCPApprovalResponse/approve`.
             public var approve: Swift.Bool
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/MCPApprovalResponse/reason`.
             public var reason: Swift.String?
             /// Creates a new `MCPApprovalResponse`.
@@ -4477,7 +4473,6 @@ public enum Components {
             public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/MCPToolCall/output`.
             public var output: Swift.String?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/MCPToolCall/error`.
             public var error: Swift.String?
             /// The status of the tool call. One of `in_progress`, `completed`, `incomplete`, `calling`, or `failed`.
@@ -4485,7 +4480,6 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/MCPToolCall/status`.
             public var status: Components.Schemas.MCPToolCallStatus?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/MCPToolCall/approval_request_id`.
             public var approvalRequestId: Swift.String?
             /// Creates a new `MCPToolCall`.
@@ -4819,7 +4813,6 @@ public enum Components {
             public typealias Double = Swift.Double
             /// - Remark: Generated from `#/components/schemas/ModelResponseProperties/temperature`.
             public var temperature: Swift.Double?
-            public typealias Double = Swift.Double
             /// - Remark: Generated from `#/components/schemas/ModelResponseProperties/top_p`.
             public var topP: Swift.Double?
             /// This field is being replaced by `safety_identifier` and `prompt_cache_key`. Use `prompt_cache_key` instead to maintain caching optimizations.
@@ -6609,7 +6602,6 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseErrorEvent/message`.
             public var message: Swift.String
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/ResponseErrorEvent/param`.
             public var param: Swift.String?
             /// The sequence number of this event.
@@ -11782,13 +11774,10 @@ public enum Components {
             public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/WebSearchApproximateLocation/country`.
             public var country: Swift.String?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/WebSearchApproximateLocation/region`.
             public var region: Swift.String?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/WebSearchApproximateLocation/city`.
             public var city: Swift.String?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/WebSearchApproximateLocation/timezone`.
             public var timezone: Swift.String?
             /// Creates a new `WebSearchApproximateLocation`.
@@ -11904,7 +11893,6 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/WebSearchTool/filters`.
             public struct FiltersPayload: Codable, Hashable, Sendable {
-                public typealias String = [Swift.String]
                 /// - Remark: Generated from `#/components/schemas/WebSearchTool/filters/allowed_domains`.
                 public var allowedDomains: [Swift.String]?
                 /// Creates a new `FiltersPayload`.
@@ -12842,7 +12830,6 @@ public enum Components {
             public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/InputImageContent/image_url`.
             public var imageUrl: Swift.String?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/InputImageContent/file_id`.
             public var fileId: Swift.String?
             /// The detail level of the image to be sent to the model. One of `high`, `low`, `auto`, or `original`. Defaults to `auto`.
@@ -12992,7 +12979,6 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/ClickParam/y`.
             public var y: Swift.Int
-            public typealias String = [Swift.String]
             /// - Remark: Generated from `#/components/schemas/ClickParam/keys`.
             public var keys: [Swift.String]?
             /// Creates a new `ClickParam`.
@@ -13046,7 +13032,6 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/DoubleClickAction/y`.
             public var y: Swift.Int
-            public typealias String = [Swift.String]
             /// - Remark: Generated from `#/components/schemas/DoubleClickAction/keys`.
             public var keys: [Swift.String]?
             /// Creates a new `DoubleClickAction`.
@@ -13127,7 +13112,6 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/DragParam/path`.
             public var path: [Components.Schemas.CoordParam]
-            public typealias String = [Swift.String]
             /// - Remark: Generated from `#/components/schemas/DragParam/keys`.
             public var keys: [Swift.String]?
             /// Creates a new `DragParam`.
@@ -13208,7 +13192,6 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/MoveParam/y`.
             public var y: Swift.Int
-            public typealias String = [Swift.String]
             /// - Remark: Generated from `#/components/schemas/MoveParam/keys`.
             public var keys: [Swift.String]?
             /// Creates a new `MoveParam`.
@@ -13291,7 +13274,6 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/ScrollParam/scroll_y`.
             public var scrollY: Swift.Int
-            public typealias String = [Swift.String]
             /// - Remark: Generated from `#/components/schemas/ScrollParam/keys`.
             public var keys: [Swift.String]?
             /// Creates a new `ScrollParam`.
@@ -13398,7 +13380,6 @@ public enum Components {
             public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/ComputerCallSafetyCheckParam/code`.
             public var code: Swift.String?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/ComputerCallSafetyCheckParam/message`.
             public var message: Swift.String?
             /// Creates a new `ComputerCallSafetyCheckParam`.
@@ -14681,13 +14662,10 @@ public enum Components {
             public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/ApproximateLocation/country`.
             public var country: Swift.String?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/ApproximateLocation/region`.
             public var region: Swift.String?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/ApproximateLocation/city`.
             public var city: Swift.String?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/ApproximateLocation/timezone`.
             public var timezone: Swift.String?
             /// Creates a new `ApproximateLocation`.
@@ -15046,7 +15024,6 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/LocalShellExecAction/env`.
             public var env: Components.Schemas.LocalShellExecAction.EnvPayload
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/LocalShellExecAction/user`.
             public var user: Swift.String?
             /// Creates a new `LocalShellExecAction`.
@@ -15091,7 +15068,6 @@ public enum Components {
             public typealias Int = Swift.Int
             /// - Remark: Generated from `#/components/schemas/FunctionShellAction/timeout_ms`.
             public var timeoutMs: Swift.Int?
-            public typealias Int = Swift.Int
             /// - Remark: Generated from `#/components/schemas/FunctionShellAction/max_output_length`.
             public var maxOutputLength: Swift.Int?
             /// Creates a new `FunctionShellAction`.
@@ -15959,7 +15935,6 @@ public enum Components {
             public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/InputImageContentParamAutoParam/image_url`.
             public var imageUrl: Swift.String?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/InputImageContentParamAutoParam/file_id`.
             public var fileId: Swift.String?
             /// - Remark: Generated from `#/components/schemas/DetailEnum`.
@@ -16013,13 +15988,10 @@ public enum Components {
             public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/InputFileContentParam/file_id`.
             public var fileId: Swift.String?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/InputFileContentParam/filename`.
             public var filename: Swift.String?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/InputFileContentParam/file_data`.
             public var fileData: Swift.String?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/InputFileContentParam/file_url`.
             public var fileUrl: Swift.String?
             /// The detail level of the file to be sent to the model. Use `low` for the default rendering behavior, or `high` to render the file at higher quality. Defaults to `low`.
@@ -16212,7 +16184,6 @@ public enum Components {
             public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/ToolSearchCallItemParam/id`.
             public var id: Swift.String?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/ToolSearchCallItemParam/call_id`.
             public var callId: Swift.String?
             /// The item type. Always `tool_search_call`.
@@ -16275,7 +16246,6 @@ public enum Components {
             public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/ToolSearchOutputItemParam/id`.
             public var id: Swift.String?
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/ToolSearchOutputItemParam/call_id`.
             public var callId: Swift.String?
             /// The item type. Always `tool_search_output`.
@@ -16386,7 +16356,6 @@ public enum Components {
             public typealias Int = Swift.Int
             /// - Remark: Generated from `#/components/schemas/FunctionShellActionParam/timeout_ms`.
             public var timeoutMs: Swift.Int?
-            public typealias Int = Swift.Int
             /// - Remark: Generated from `#/components/schemas/FunctionShellActionParam/max_output_length`.
             public var maxOutputLength: Swift.Int?
             /// Creates a new `FunctionShellActionParam`.
@@ -16985,7 +16954,6 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/ApplyPatchToolCallOutputItemParam/status`.
             public var status: Components.Schemas.ApplyPatchCallOutputStatusParam
-            public typealias String = Swift.String
             /// - Remark: Generated from `#/components/schemas/ApplyPatchToolCallOutputItemParam/output`.
             public var output: Swift.String?
             /// Creates a new `ApplyPatchToolCallOutputItemParam`.
