@@ -13,128 +13,128 @@
 
     /// A tool that searches for relevant content from uploaded files.
     /// Learn more about the [file search tool](/docs/guides/tools-file-search).
-    case fileSearch(Schemas.FileSearchTool)
+    case fileSearchTool(Schemas.FileSearchTool)
     /// Defines a function in your own code the model can choose to call. Learn more
     /// about [function calling](/docs/guides/function-calling).
-    case function(FunctionTool)
+    case functionTool(FunctionTool)
     /// A tool that controls a virtual computer. Learn more about the
     /// [computer tool](/docs/guides/tools-computer-use).
-    case computer(Schemas.ComputerTool)
+    case computerTool(Schemas.ComputerTool)
     /// A tool that controls a virtual computer (preview version).
-    case computerUsePreview(Schemas.ComputerUsePreviewTool)
+    case computerUsePreviewTool(Schemas.ComputerUsePreviewTool)
     /// This tool searches the web for relevant results to use in a response.
     /// Learn more about the [web search tool](/docs/guides/tools-web-search).
-    case webSearch(Schemas.WebSearchTool)
+    case webSearchTool(Schemas.WebSearchTool)
     /// This tool searches the web for relevant results to use in a response (preview version).
-    case webSearchPreview(Schemas.WebSearchPreviewTool)
+    case webSearchPreviewTool(Schemas.WebSearchPreviewTool)
     /// Give the model access to additional tools via remote Model Context Protocol (MCP) servers.
     /// [Learn more about MCP](https://platform.openai.com/docs/guides/tools-remote-mcp)
-    case mcp(Schemas.MCPTool)
+    case mcpTool(Schemas.MCPTool)
     /// A tool that runs Python code to help generate a response to a prompt.
-    case codeInterpreter(Schemas.CodeInterpreterTool)
+    case codeInterpreterTool(Schemas.CodeInterpreterTool)
     /// A tool that generates images using a model like `gpt-image-1`.
-    case imageGeneration(Schemas.ImageGenTool)
+    case imageGenerationTool(Schemas.ImageGenTool)
     /// A tool that allows the model to execute shell commands in a local environment.
-    case localShell(Schemas.LocalShellToolParam)
+    case localShellTool(Schemas.LocalShellToolParam)
     /// A tool that allows the model to execute shell commands via a function.
-    case functionShell(Schemas.FunctionShellToolParam)
+    case functionShellTool(Schemas.FunctionShellToolParam)
     /// A custom tool defined by the user.
-    case custom(Schemas.CustomToolParam)
+    case customTool(Schemas.CustomToolParam)
     /// A namespace-scoped tool.
-    case namespace(Schemas.NamespaceToolParam)
+    case namespaceTool(Schemas.NamespaceToolParam)
     /// A tool that performs tool searches.
-    case toolSearch(Schemas.ToolSearchToolParam)
+    case toolSearchTool(Schemas.ToolSearchToolParam)
     /// A tool that applies patches.
-    case applyPatch(Schemas.ApplyPatchToolParam)
+    case applyPatchTool(Schemas.ApplyPatchToolParam)
 
     public init(from decoder: any Decoder) throws {
         var errors: [any Error] = []
         do {
-            self = .fileSearch(try .init(from: decoder))
+            self = .fileSearchTool(try .init(from: decoder))
             return
         } catch {
             errors.append(error)
         }
         do {
-            self = .function(try .init(from: decoder))
+            self = .functionTool(try .init(from: decoder))
             return
         } catch {
             errors.append(error)
         }
         do {
-            self = .computer(try .init(from: decoder))
+            self = .computerTool(try .init(from: decoder))
             return
         } catch {
             errors.append(error)
         }
         do {
-            self = .computerUsePreview(try .init(from: decoder))
+            self = .computerUsePreviewTool(try .init(from: decoder))
             return
         } catch {
             errors.append(error)
         }
         do {
-            self = .webSearch(try .init(from: decoder))
+            self = .webSearchTool(try .init(from: decoder))
             return
         } catch {
             errors.append(error)
         }
         do {
-            self = .webSearchPreview(try .init(from: decoder))
+            self = .webSearchPreviewTool(try .init(from: decoder))
             return
         } catch {
             errors.append(error)
         }
         do {
-            self = .mcp(try .init(from: decoder))
+            self = .mcpTool(try .init(from: decoder))
             return
         } catch {
             errors.append(error)
         }
         do {
-            self = .codeInterpreter(try .init(from: decoder))
+            self = .codeInterpreterTool(try .init(from: decoder))
             return
         } catch {
             errors.append(error)
         }
         do {
-            self = .imageGeneration(try .init(from: decoder))
+            self = .imageGenerationTool(try .init(from: decoder))
             return
         } catch {
             errors.append(error)
         }
         do {
-            self = .localShell(try .init(from: decoder))
+            self = .localShellTool(try .init(from: decoder))
             return
         } catch {
             errors.append(error)
         }
         do {
-            self = .functionShell(try .init(from: decoder))
+            self = .functionShellTool(try .init(from: decoder))
             return
         } catch {
             errors.append(error)
         }
         do {
-            self = .custom(try .init(from: decoder))
+            self = .customTool(try .init(from: decoder))
             return
         } catch {
             errors.append(error)
         }
         do {
-            self = .namespace(try .init(from: decoder))
+            self = .namespaceTool(try .init(from: decoder))
             return
         } catch {
             errors.append(error)
         }
         do {
-            self = .toolSearch(try .init(from: decoder))
+            self = .toolSearchTool(try .init(from: decoder))
             return
         } catch {
             errors.append(error)
         }
         do {
-            self = .applyPatch(try .init(from: decoder))
+            self = .applyPatchTool(try .init(from: decoder))
             return
         } catch {
             errors.append(error)
@@ -147,35 +147,35 @@
     }
     public func encode(to encoder: any Encoder) throws {
         switch self {
-        case let .fileSearch(value):
+        case let .fileSearchTool(value):
             try value.encode(to: encoder)
-        case let .function(value):
+        case let .functionTool(value):
             try value.encode(to: encoder)
-        case let .computer(value):
+        case let .computerTool(value):
             try value.encode(to: encoder)
-        case let .computerUsePreview(value):
+        case let .computerUsePreviewTool(value):
             try value.encode(to: encoder)
-        case let .webSearch(value):
+        case let .webSearchTool(value):
             try value.encode(to: encoder)
-        case let .webSearchPreview(value):
+        case let .webSearchPreviewTool(value):
             try value.encode(to: encoder)
-        case let .mcp(value):
+        case let .mcpTool(value):
             try value.encode(to: encoder)
-        case let .codeInterpreter(value):
+        case let .codeInterpreterTool(value):
             try value.encode(to: encoder)
-        case let .imageGeneration(value):
+        case let .imageGenerationTool(value):
             try value.encode(to: encoder)
-        case let .localShell(value):
+        case let .localShellTool(value):
             try value.encode(to: encoder)
-        case let .functionShell(value):
+        case let .functionShellTool(value):
             try value.encode(to: encoder)
-        case let .custom(value):
+        case let .customTool(value):
             try value.encode(to: encoder)
-        case let .namespace(value):
+        case let .namespaceTool(value):
             try value.encode(to: encoder)
-        case let .toolSearch(value):
+        case let .toolSearchTool(value):
             try value.encode(to: encoder)
-        case let .applyPatch(value):
+        case let .applyPatchTool(value):
             try value.encode(to: encoder)
         }
     }
