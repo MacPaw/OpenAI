@@ -119,7 +119,7 @@ class ResponsesEndpointTests: XCTestCase {
             XCTFail("Expected tool in response to be a function")
         }
     }
-    private func makeResponse(output: [OutputItem] = [], tools: [Tool] = []) -> ResponseObject {
+    private func makeResponse(output: [Components.Schemas.OutputItem] = [], tools: [Tool] = []) -> ResponseObject {
         .init(
             createdAt: 123,
             error: nil,

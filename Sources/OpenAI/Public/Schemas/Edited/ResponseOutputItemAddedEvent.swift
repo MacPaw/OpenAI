@@ -12,7 +12,7 @@ public struct ResponseOutputItemAddedEvent: Codable, Hashable, Sendable {
     /// The index of the output item that was added.
     public let outputIndex: Int
     /// The output item that was added.
-    public let item: OutputItem
+    public let item: Components.Schemas.OutputItem
     /// Creates a new `ResponseOutputItemAddedEvent`.
     ///
     /// - Parameters:
@@ -22,7 +22,7 @@ public struct ResponseOutputItemAddedEvent: Codable, Hashable, Sendable {
     public init(
         type: String = "response.output_item.added",
         outputIndex: Int,
-        item: OutputItem
+        item: Components.Schemas.OutputItem
     ) {
         self.type = type
         self.outputIndex = outputIndex

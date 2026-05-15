@@ -12,7 +12,7 @@ public struct ResponseOutputItemDoneEvent: Codable, Hashable, Sendable {
     /// The index of the output item that was marked done.
     public let outputIndex: Int
     /// The output item that was marked done.
-    public let item: OutputItem
+    public let item: Components.Schemas.OutputItem
     /// Creates a new `ResponseOutputItemDoneEvent`.
     ///
     /// - Parameters:
@@ -22,7 +22,7 @@ public struct ResponseOutputItemDoneEvent: Codable, Hashable, Sendable {
     public init(
         type: String = "response.output_item.done",
         outputIndex: Int,
-        item: OutputItem
+        item: Components.Schemas.OutputItem
     ) {
         self.type = type
         self.outputIndex = outputIndex
