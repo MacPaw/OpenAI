@@ -239,7 +239,7 @@ public final class ResponsesStore: ObservableObject {
                 .item(.functionCallOutputItemParam(.init(
                     callId: toolCall.callId,
                     _type: .functionCallOutput,
-                    output: result
+                    output: .case1(result)
                 )))
             ]),
             model: model,
@@ -328,7 +328,7 @@ public final class ResponsesStore: ObservableObject {
         var tools: [Tool] = []
 
         if webSearchEnabled {
-            tools.append(.webSearchTool(.init(_type: .webSearchPreview)))
+            tools.append(.webSearchPreviewTool(.init(_type: .webSearchPreview)))
         }
 
         if functionCallingEnabled {
@@ -776,10 +776,27 @@ public final class ResponsesStore: ObservableObject {
     ) throws {
         try updateMessageBeingStreamed(messageId: messageId) { message in
             switch outputContent {
-            case .OutputTextContent(let outputText):
+            case .outputTextContent(let outputText):
                 message.text = outputText.text
                 message.annotations = outputText.annotations
-            case .RefusalContent(let refusal):
+            case .refusalContent(let refusal):
+                message.refusalText = refusal.refusal
+            case .reasoningTextContent:
+                break
+            }
+        }
+    }
+
+    private func updateMessageBeingStreamed(
+        messageId: String,
+        outputContent: Components.Schemas.OutputMessageContent
+    ) throws {
+        try updateMessageBeingStreamed(messageId: messageId) { message in
+            switch outputContent {
+            case .outputTextContent(let outputText):
+                message.text = outputText.text
+                message.annotations = outputText.annotations
+            case .refusalContent(let refusal):
                 message.refusalText = refusal.refusal
             }
         }
@@ -889,50 +906,28 @@ public final class ResponsesStore: ObservableObject {
             return nil
         }
     }
-    
-    private func conversationTurn(
-        fromOutputContent outputContent: ResponseStreamEvent.Schemas.OutputContent,
-        messageId: String,
-        userId: String,
-        username: String
-    ) throws -> ConversationTurn {
-        guard let responseBeingStreamed else {
-            throw StoreError.noResponseToUpdate
-        }
-        
-        return .init(
-            id: responseBeingStreamed.id,
-            type: .response,
-            chatMessage: chatMessage(
-                fromOutputContent: outputContent,
-                messageId: messageId,
-                userId: userId,
-                username: username
-            )
-        )
-    }
-    
+
     private func chatMessage(
-        fromOutputContent outputContent: ResponseStreamEvent.Schemas.OutputContent,
+        fromOutputContent outputContent: Components.Schemas.OutputMessageContent,
         messageId: String,
         userId: String,
         username: String
     ) -> ExyteChat.Message {
         switch outputContent {
-        case .OutputTextContent(let outputText):
+        case .outputTextContent(let outputText):
             return makeChatMessage(
                 withText: outputText.text,
                 annotations: outputText.annotations,
                 messageId: messageId,
                 user: systemUser(withId: userId, username: username)
             )
-        case .RefusalContent(let refusal):
+        case .refusalContent(let refusal):
             let message = ExyteChat.Message(
                 id: messageId,
                 user: systemUser(withId: userId, username: username),
                 text: refusal.refusal
             )
-            
+
             return message
         }
     }
