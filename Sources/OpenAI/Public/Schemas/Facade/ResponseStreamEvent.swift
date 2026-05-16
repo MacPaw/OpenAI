@@ -10,7 +10,6 @@ import Foundation
 /// Improved interface to use instead of generated `Components.Schemas.ResponseStreamEvent`
 public enum ResponseStreamEvent: Codable, Equatable, Sendable {
     public typealias Schemas = Components.Schemas
-    public typealias OutputItem = Components.Schemas.OutputItem
     public typealias OutputContent = Components.Schemas.OutputContent
     public typealias OutputText = Components.Schemas.OutputTextContent
     public typealias Annotation = Components.Schemas.Annotation
