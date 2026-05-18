@@ -4,22 +4,31 @@ libFuzzer harnesses for the `OpenAI` Swift package. Lives in its own
 SwiftPM package so the main library's `Package.swift` stays clean for
 library consumers.
 
-This is the first piece of the work tracked in [#241 — Integrate
-OSS-Fuzz](https://github.com/MacPaw/OpenAI/issues/241). It sets up the
-local harnesses and seed corpora; the upstream `google/oss-fuzz` project
-submission is separate maintainer work.
+This is the in-repo half of the work tracked in [#241 — Integrate
+OSS-Fuzz](https://github.com/MacPaw/OpenAI/issues/241). The upstream
+`google/oss-fuzz` project submission is a separate piece.
 
 ## Targets
 
-| Target                            | What it fuzzes                                         |
-| --------------------------------- | ------------------------------------------------------ |
-| `FuzzResponseStreamEventDecoder`  | `try JSONDecoder().decode(ResponseStreamEvent.self, …)`|
+| Target                                          | What it fuzzes                                                  |
+| ----------------------------------------------- | --------------------------------------------------------------- |
+| `FuzzResponseStreamEventDecoder`                | `JSONDecoder().decode(ResponseStreamEvent.self, …)`             |
+| `FuzzChatResultDecoder`                         | `JSONDecoder().decode(ChatResult.self, …)`                      |
+| `FuzzChatStreamResultDecoder`                   | `JSONDecoder().decode(ChatStreamResult.self, …)`                |
+| `FuzzResponseObjectDecoder`                     | `JSONDecoder().decode(ResponseObject.self, …)`                  |
+| `FuzzAudioTranscriptionStreamResultDecoder`     | `JSONDecoder().decode(AudioTranscriptionStreamResult.self, …)`  |
 
-`ResponseStreamEvent.init(from:)` runs several fallible decode passes
-(early-decode blocks for `ResponseEvent`, `OutputItem`, `MCPCallArguments`,
-`ResponseFunctionCallArgumentsDoneEvent`, then a generated-schema raw
-event with ~50 oneOf cases). It consumes bytes off the network, so it's
-a high-value target.
+All five targets fuzz Codable decoders that consume bytes off the wire:
+
+- `ResponseStreamEvent.init(from:)` runs several fallible decode passes
+  before falling back to a generated raw event with ~50 oneOf cases.
+- `ChatResult` / `ChatStreamResult` cover the non-streaming and
+  streaming `/v1/chat/completions` response shapes, including tool
+  calls, annotations, refusals, and usage breakdowns.
+- `ResponseObject` covers the non-streaming `/v1/responses` envelope
+  with reasoning, tool outputs, and rich output items.
+- `AudioTranscriptionStreamResult` has a hand-written `init(from:)`
+  that branches on `type` and optionally reads `logprobs`.
 
 ## Replay mode (no libFuzzer toolchain required)
 
@@ -51,8 +60,8 @@ swift build -c debug \
   -max_total_time=60
 ```
 
-`-DFUZZING_ENABLED` removes this package's `@main` entry point so
-libFuzzer's own `main` (provided by `-sanitize=fuzzer`) drives
+`-DFUZZING_ENABLED` removes each harness's `@main` replay entry point
+so libFuzzer's own `main` (provided by `-sanitize=fuzzer`) drives
 `LLVMFuzzerTestOneInput`.
 
 ## Adding a corpus input
@@ -65,7 +74,7 @@ The fuzzer will mutate from these.
 
 1. Add an `.executableTarget` to `Package.swift`.
 2. Create `Sources/<TargetName>/<TargetName>.swift` with the same shape
-   as `FuzzResponseStreamEventDecoder.swift`:
+   as the existing harnesses:
    - One `@_cdecl("LLVMFuzzerTestOneInput")` function with the body
      under test.
    - A `#if !FUZZING_ENABLED` replay `@main` for local use.

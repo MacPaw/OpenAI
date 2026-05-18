@@ -20,10 +20,28 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "FuzzResponseStreamEventDecoder",
-            dependencies: [
-                .product(name: "OpenAI", package: "OpenAI"),
-            ],
+            dependencies: [.product(name: "OpenAI", package: "OpenAI")],
             path: "Sources/FuzzResponseStreamEventDecoder"
+        ),
+        .executableTarget(
+            name: "FuzzChatResultDecoder",
+            dependencies: [.product(name: "OpenAI", package: "OpenAI")],
+            path: "Sources/FuzzChatResultDecoder"
+        ),
+        .executableTarget(
+            name: "FuzzChatStreamResultDecoder",
+            dependencies: [.product(name: "OpenAI", package: "OpenAI")],
+            path: "Sources/FuzzChatStreamResultDecoder"
+        ),
+        .executableTarget(
+            name: "FuzzResponseObjectDecoder",
+            dependencies: [.product(name: "OpenAI", package: "OpenAI")],
+            path: "Sources/FuzzResponseObjectDecoder"
+        ),
+        .executableTarget(
+            name: "FuzzAudioTranscriptionStreamResultDecoder",
+            dependencies: [.product(name: "OpenAI", package: "OpenAI")],
+            path: "Sources/FuzzAudioTranscriptionStreamResultDecoder"
         ),
     ]
 )
