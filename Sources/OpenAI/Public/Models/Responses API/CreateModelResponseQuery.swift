@@ -23,7 +23,9 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     
     /// Model ID used to generate the response, like `gpt-4o` or `o1`. OpenAI offers a wide range of models with different capabilities, performance characteristics, and price points.
     /// Refer to the [model guide](https://platform.openai.com/docs/models) to browse and compare available models.
-    public let model: String
+    ///
+    /// Optional when referencing a stored prompt by `prompt_id` (via `prompt`), in which case the model is taken from the prompt configuration.
+    public let model: String?
     
     /// Specify additional output data to include in the model response.
     ///
@@ -132,7 +134,7 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     
     public init(
         input: Input,
-        model: String,
+        model: String? = nil,
         include: [Schemas.Includable]? = nil,
         background: Bool? = nil,
         instructions: String? = nil,
