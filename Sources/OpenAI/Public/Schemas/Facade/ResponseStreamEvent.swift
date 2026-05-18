@@ -56,7 +56,7 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
         /// Emitted when there is a partial function-call arguments delta.
         case delta(Schemas.ResponseFunctionCallArgumentsDeltaEvent)
         /// Emitted when function-call arguments are finalized.
-        case done(Schemas.ResponseFunctionCallArgumentsDoneEvent)
+        case done(ResponseFunctionCallArgumentsDoneEvent)
     }
     
     public enum FileSearchCallEvent: Codable, Equatable, Sendable {
@@ -274,7 +274,18 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
         } catch {
             //
         }
-        
+
+        // Decoding ResponseFunctionCallArgumentsDoneEvent via the locally
+        // extracted type so that `name` (missing from the generated schema)
+        // is preserved.
+        do {
+            let functionCallDoneEvent = try ResponseFunctionCallArgumentsDoneEvent(from: decoder)
+            self = .functionCallArguments(.done(functionCallDoneEvent))
+            return
+        } catch {
+            //
+        }
+
         let rawEvent = try Components.Schemas.ResponseStreamEvent(from: decoder)
         if rawEvent.value10 != nil || rawEvent.value13 != nil || rawEvent.value20 != nil || rawEvent.value21 != nil, rawEvent.value22 != nil, rawEvent.value40 != nil, rawEvent.value41 != nil, rawEvent.value49 != nil {
             // The following events are handled elsewhere by non-generated types
@@ -329,7 +340,14 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
         } else if let value = rawEvent.value18 {
             self = .functionCallArguments(.delta(value))
         } else if let value = rawEvent.value19 {
-            self = .functionCallArguments(.done(value))
+            self = .functionCallArguments(.done(.init(
+                _type: .response_functionCallArguments_done,
+                itemId: value.itemId,
+                outputIndex: value.outputIndex,
+                sequenceNumber: value.sequenceNumber,
+                arguments: value.arguments,
+                name: nil
+            )))
         } else if let value = rawEvent.value25 {
             self = .reasoningSummaryPart(.added(value))
         } else if let value = rawEvent.value26 {
