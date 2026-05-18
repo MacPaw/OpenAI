@@ -1,3 +1,9 @@
+# NOTE: This file was downloaded from https://github.com/openai/openai-openapi and
+# subsequently edited. The following changes were made locally:
+#   - Added 'mapping' entries to discriminator blocks that were missing them.
+#     Without explicit mappings, OpenAPI tooling cannot resolve discriminator values
+#     to schema references when the value strings don't match schema names exactly.
+
 openapi: 3.1.0
 info:
   title: OpenAI API
@@ -34724,6 +34730,9 @@ components:
           - $ref: '#/components/schemas/ChatCompletionMessageCustomToolCall'
         discriminator:
           propertyName: type
+          mapping:
+            custom: '#/components/schemas/ChatCompletionMessageCustomToolCall'
+            function: '#/components/schemas/ChatCompletionMessageToolCall'
     ChatCompletionModalities:
       anyOf:
         - type: array
@@ -34890,6 +34899,9 @@ components:
         - $ref: '#/components/schemas/ChatCompletionRequestMessageContentPartRefusal'
       discriminator:
         propertyName: type
+        mapping:
+          refusal: '#/components/schemas/ChatCompletionRequestMessageContentPartRefusal'
+          text: '#/components/schemas/ChatCompletionRequestMessageContentPartText'
     ChatCompletionRequestDeveloperMessage:
       type: object
       title: Developer message
@@ -34964,6 +34976,13 @@ components:
         - $ref: '#/components/schemas/ChatCompletionRequestFunctionMessage'
       discriminator:
         propertyName: role
+        mapping:
+          assistant: '#/components/schemas/ChatCompletionRequestAssistantMessage'
+          developer: '#/components/schemas/ChatCompletionRequestDeveloperMessage'
+          function: '#/components/schemas/ChatCompletionRequestFunctionMessage'
+          system: '#/components/schemas/ChatCompletionRequestSystemMessage'
+          tool: '#/components/schemas/ChatCompletionRequestToolMessage'
+          user: '#/components/schemas/ChatCompletionRequestUserMessage'
     ChatCompletionRequestMessageContentPartAudio:
       type: object
       title: Audio content part
@@ -35586,6 +35605,9 @@ components:
         - $ref: '#/components/schemas/StaticChunkingStrategyRequestParam'
       discriminator:
         propertyName: type
+        mapping:
+          auto: '#/components/schemas/AutoChunkingStrategyRequestParam'
+          static: '#/components/schemas/StaticChunkingStrategyRequestParam'
     CodeInterpreterFileOutput:
       type: object
       title: Code interpreter file output
@@ -35717,6 +35739,9 @@ components:
                   - $ref: '#/components/schemas/CodeInterpreterOutputImage'
                 discriminator:
                   propertyName: type
+                  mapping:
+                    image: '#/components/schemas/CodeInterpreterOutputImage'
+                    logs: '#/components/schemas/CodeInterpreterOutputLogs'
               discriminator:
                 propertyName: type
               description: >
@@ -35898,6 +35923,8 @@ components:
               - $recursiveRef: '#'
             discriminator:
               propertyName: type
+              mapping:
+                eq: '#/components/schemas/ComparisonFilter'
       required:
         - type
         - filters
@@ -35916,6 +35943,16 @@ components:
         - $ref: '#/components/schemas/WaitParam'
       discriminator:
         propertyName: type
+        mapping:
+          click: '#/components/schemas/ClickParam'
+          double_click: '#/components/schemas/DoubleClickAction'
+          drag: '#/components/schemas/DragParam'
+          keypress: '#/components/schemas/KeyPressAction'
+          move: '#/components/schemas/MoveParam'
+          screenshot: '#/components/schemas/ScreenshotParam'
+          scroll: '#/components/schemas/ScrollParam'
+          type: '#/components/schemas/TypeParam'
+          wait: '#/components/schemas/WaitParam'
     ComputerActionList:
       title: Computer Action List
       type: array
@@ -36303,6 +36340,32 @@ components:
         - $ref: '#/components/schemas/CustomToolCallOutput'
       discriminator:
         propertyName: type
+        mapping:
+          apply_patch_call: '#/components/schemas/ApplyPatchToolCall'
+          apply_patch_call_output: '#/components/schemas/ApplyPatchToolCallOutput'
+          code_interpreter_call: '#/components/schemas/CodeInterpreterToolCall'
+          compaction: '#/components/schemas/CompactionBody'
+          computer_call: '#/components/schemas/ComputerToolCall'
+          computer_call_output: '#/components/schemas/ComputerToolCallOutputResource'
+          custom_tool_call: '#/components/schemas/CustomToolCall'
+          custom_tool_call_output: '#/components/schemas/CustomToolCallOutput'
+          file_search_call: '#/components/schemas/FileSearchToolCall'
+          function_call: '#/components/schemas/FunctionToolCallResource'
+          function_call_output: '#/components/schemas/FunctionToolCallOutputResource'
+          image_generation_call: '#/components/schemas/ImageGenToolCall'
+          local_shell_call: '#/components/schemas/LocalShellToolCall'
+          local_shell_call_output: '#/components/schemas/LocalShellToolCallOutput'
+          mcp_approval_request: '#/components/schemas/MCPApprovalRequest'
+          mcp_approval_response: '#/components/schemas/MCPApprovalResponseResource'
+          mcp_call: '#/components/schemas/MCPToolCall'
+          mcp_list_tools: '#/components/schemas/MCPListTools'
+          message: '#/components/schemas/Message'
+          reasoning: '#/components/schemas/ReasoningItem'
+          shell_call: '#/components/schemas/FunctionShellCall'
+          shell_call_output: '#/components/schemas/FunctionShellCallOutput'
+          tool_search_call: '#/components/schemas/ToolSearchCall'
+          tool_search_output: '#/components/schemas/ToolSearchOutput'
+          web_search_call: '#/components/schemas/WebSearchToolCall'
     ConversationItemList:
       type: object
       title: The conversation item list
@@ -36762,6 +36825,10 @@ components:
                 - $ref: '#/components/schemas/ResponseFormatJsonObject'
               discriminator:
                 propertyName: type
+                mapping:
+                  json_object: '#/components/schemas/ResponseFormatJsonObject'
+                  json_schema: '#/components/schemas/ResponseFormatJsonSchema'
+                  text: '#/components/schemas/ResponseFormatText'
             audio:
               type: object
               nullable: true
@@ -37717,6 +37784,9 @@ components:
               - $ref: '#/components/schemas/InlineSkillParam'
             discriminator:
               propertyName: type
+              mapping:
+                inline: '#/components/schemas/InlineSkillParam'
+                skill_reference: '#/components/schemas/SkillReferenceParam'
         memory_limit:
           type: string
           enum:
@@ -37732,6 +37802,9 @@ components:
             - $ref: '#/components/schemas/ContainerNetworkPolicyAllowlistParam'
           discriminator:
             propertyName: type
+            mapping:
+              allowlist: '#/components/schemas/ContainerNetworkPolicyAllowlistParam'
+              disabled: '#/components/schemas/ContainerNetworkPolicyDisabledParam'
       required:
         - name
     CreateContainerFileBody:
@@ -40146,6 +40219,9 @@ components:
         - $ref: '#/components/schemas/SpeechAudioDoneEvent'
       discriminator:
         propertyName: type
+        mapping:
+          speech.audio.delta: '#/components/schemas/SpeechAudioDeltaEvent'
+          speech.audio.done: '#/components/schemas/SpeechAudioDoneEvent'
     CreateThreadAndRunRequest:
       type: object
       additionalProperties: false
@@ -40667,6 +40743,9 @@ components:
               title: Duration Usage
           discriminator:
             propertyName: type
+            mapping:
+              duration: '#/components/schemas/TranscriptTextUsageDuration'
+              tokens: '#/components/schemas/TranscriptTextUsageTokens'
       required:
         - task
         - duration
@@ -40768,6 +40847,10 @@ components:
         - $ref: '#/components/schemas/TranscriptTextDoneEvent'
       discriminator:
         propertyName: type
+        mapping:
+          transcript.text.delta: '#/components/schemas/TranscriptTextDeltaEvent'
+          transcript.text.done: '#/components/schemas/TranscriptTextDoneEvent'
+          transcript.text.segment: '#/components/schemas/TranscriptTextSegmentEvent'
     CreateTranscriptionResponseVerboseJson:
       type: object
       description: >-
@@ -44158,6 +44241,10 @@ components:
         - $ref: '#/components/schemas/InputFileContent'
       discriminator:
         propertyName: type
+        mapping:
+          input_file: '#/components/schemas/InputFileContent'
+          input_image: '#/components/schemas/InputImageContent'
+          input_text: '#/components/schemas/InputTextContent'
     FunctionObject:
       type: object
       properties:
@@ -45226,6 +45313,9 @@ components:
         - $ref: '#/components/schemas/ImageEditCompletedEvent'
       discriminator:
         propertyName: type
+        mapping:
+          image_edit.completed: '#/components/schemas/ImageEditCompletedEvent'
+          image_edit.partial_image: '#/components/schemas/ImageEditPartialImageEvent'
     ImageGenCompletedEvent:
       type: object
       description: >
@@ -45403,6 +45493,9 @@ components:
         - $ref: '#/components/schemas/ImageGenCompletedEvent'
       discriminator:
         propertyName: type
+        mapping:
+          image_generation.completed: '#/components/schemas/ImageGenCompletedEvent'
+          image_generation.partial_image: '#/components/schemas/ImageGenPartialImageEvent'
     ImageGenTool:
       type: object
       title: Image generation tool
@@ -45737,6 +45830,10 @@ components:
         - $ref: '#/components/schemas/InputFileContent'
       discriminator:
         propertyName: type
+        mapping:
+          input_file: '#/components/schemas/InputFileContent'
+          input_image: '#/components/schemas/InputImageContent'
+          input_text: '#/components/schemas/InputTextContent'
     InputItem:
       oneOf:
         - $ref: '#/components/schemas/EasyInputMessage'
@@ -45750,6 +45847,8 @@ components:
         - $ref: '#/components/schemas/ItemReferenceParam'
       discriminator:
         propertyName: type
+        mapping:
+          message: '#/components/schemas/EasyInputMessage'
     InputMessage:
       type: object
       title: Input message
@@ -46050,6 +46149,32 @@ components:
         - $ref: '#/components/schemas/CustomToolCall'
       discriminator:
         propertyName: type
+        mapping:
+          apply_patch_call: '#/components/schemas/ApplyPatchToolCallItemParam'
+          apply_patch_call_output: '#/components/schemas/ApplyPatchToolCallOutputItemParam'
+          code_interpreter_call: '#/components/schemas/CodeInterpreterToolCall'
+          compaction: '#/components/schemas/CompactionSummaryItemParam'
+          computer_call: '#/components/schemas/ComputerToolCall'
+          computer_call_output: '#/components/schemas/ComputerCallOutputItemParam'
+          custom_tool_call: '#/components/schemas/CustomToolCall'
+          custom_tool_call_output: '#/components/schemas/CustomToolCallOutput'
+          file_search_call: '#/components/schemas/FileSearchToolCall'
+          function_call: '#/components/schemas/FunctionToolCall'
+          function_call_output: '#/components/schemas/FunctionCallOutputItemParam'
+          image_generation_call: '#/components/schemas/ImageGenToolCall'
+          local_shell_call: '#/components/schemas/LocalShellToolCall'
+          local_shell_call_output: '#/components/schemas/LocalShellToolCallOutput'
+          mcp_approval_request: '#/components/schemas/MCPApprovalRequest'
+          mcp_approval_response: '#/components/schemas/MCPApprovalResponse'
+          mcp_call: '#/components/schemas/MCPToolCall'
+          mcp_list_tools: '#/components/schemas/MCPListTools'
+          message: '#/components/schemas/OutputMessage'
+          reasoning: '#/components/schemas/ReasoningItem'
+          shell_call: '#/components/schemas/FunctionShellCallItemParam'
+          shell_call_output: '#/components/schemas/FunctionShellCallOutputItemParam'
+          tool_search_call: '#/components/schemas/ToolSearchCallItemParam'
+          tool_search_output: '#/components/schemas/ToolSearchOutputItemParam'
+          web_search_call: '#/components/schemas/WebSearchToolCall'
     ItemResource:
       description: |
         Content item used to generate a response.
@@ -46082,6 +46207,32 @@ components:
         - $ref: '#/components/schemas/CustomToolCallOutputResource'
       discriminator:
         propertyName: type
+        mapping:
+          apply_patch_call: '#/components/schemas/ApplyPatchToolCall'
+          apply_patch_call_output: '#/components/schemas/ApplyPatchToolCallOutput'
+          code_interpreter_call: '#/components/schemas/CodeInterpreterToolCall'
+          compaction: '#/components/schemas/CompactionBody'
+          computer_call: '#/components/schemas/ComputerToolCall'
+          computer_call_output: '#/components/schemas/ComputerToolCallOutputResource'
+          custom_tool_call: '#/components/schemas/CustomToolCallResource'
+          custom_tool_call_output: '#/components/schemas/CustomToolCallOutputResource'
+          file_search_call: '#/components/schemas/FileSearchToolCall'
+          function_call: '#/components/schemas/FunctionToolCallResource'
+          function_call_output: '#/components/schemas/FunctionToolCallOutputResource'
+          image_generation_call: '#/components/schemas/ImageGenToolCall'
+          local_shell_call: '#/components/schemas/LocalShellToolCall'
+          local_shell_call_output: '#/components/schemas/LocalShellToolCallOutput'
+          mcp_approval_request: '#/components/schemas/MCPApprovalRequest'
+          mcp_approval_response: '#/components/schemas/MCPApprovalResponseResource'
+          mcp_call: '#/components/schemas/MCPToolCall'
+          mcp_list_tools: '#/components/schemas/MCPListTools'
+          message: '#/components/schemas/OutputMessage'
+          reasoning: '#/components/schemas/ReasoningItem'
+          shell_call: '#/components/schemas/FunctionShellCall'
+          shell_call_output: '#/components/schemas/FunctionShellCallOutput'
+          tool_search_call: '#/components/schemas/ToolSearchCall'
+          tool_search_output: '#/components/schemas/ToolSearchOutput'
+          web_search_call: '#/components/schemas/WebSearchToolCall'
     ListAssistantsResponse:
       type: object
       properties:
@@ -48311,6 +48462,10 @@ components:
         - $ref: '#/components/schemas/ReasoningTextContent'
       discriminator:
         propertyName: type
+        mapping:
+          output_text: '#/components/schemas/OutputTextContent'
+          reasoning_text: '#/components/schemas/ReasoningTextContent'
+          refusal: '#/components/schemas/RefusalContent'
     OutputItem:
       oneOf:
         - $ref: '#/components/schemas/OutputMessage'
@@ -48340,6 +48495,32 @@ components:
         - $ref: '#/components/schemas/CustomToolCallOutputResource'
       discriminator:
         propertyName: type
+        mapping:
+          apply_patch_call: '#/components/schemas/ApplyPatchToolCall'
+          apply_patch_call_output: '#/components/schemas/ApplyPatchToolCallOutput'
+          code_interpreter_call: '#/components/schemas/CodeInterpreterToolCall'
+          compaction: '#/components/schemas/CompactionBody'
+          computer_call: '#/components/schemas/ComputerToolCall'
+          computer_call_output: '#/components/schemas/ComputerToolCallOutputResource'
+          custom_tool_call: '#/components/schemas/CustomToolCall'
+          custom_tool_call_output: '#/components/schemas/CustomToolCallOutputResource'
+          file_search_call: '#/components/schemas/FileSearchToolCall'
+          function_call: '#/components/schemas/FunctionToolCall'
+          function_call_output: '#/components/schemas/FunctionToolCallOutputResource'
+          image_generation_call: '#/components/schemas/ImageGenToolCall'
+          local_shell_call: '#/components/schemas/LocalShellToolCall'
+          local_shell_call_output: '#/components/schemas/LocalShellToolCallOutput'
+          mcp_approval_request: '#/components/schemas/MCPApprovalRequest'
+          mcp_approval_response: '#/components/schemas/MCPApprovalResponseResource'
+          mcp_call: '#/components/schemas/MCPToolCall'
+          mcp_list_tools: '#/components/schemas/MCPListTools'
+          message: '#/components/schemas/OutputMessage'
+          reasoning: '#/components/schemas/ReasoningItem'
+          shell_call: '#/components/schemas/FunctionShellCall'
+          shell_call_output: '#/components/schemas/FunctionShellCallOutput'
+          tool_search_call: '#/components/schemas/ToolSearchCall'
+          tool_search_output: '#/components/schemas/ToolSearchOutput'
+          web_search_call: '#/components/schemas/WebSearchToolCall'
     OutputMessage:
       type: object
       title: Output message
@@ -48397,6 +48578,9 @@ components:
         - $ref: '#/components/schemas/RefusalContent'
       discriminator:
         propertyName: type
+        mapping:
+          output_text: '#/components/schemas/OutputTextContent'
+          refusal: '#/components/schemas/RefusalContent'
     ParallelToolCalls:
       description: >-
         Whether to enable [parallel function
@@ -52541,6 +52725,18 @@ components:
     RealtimeClientEvent:
       discriminator:
         propertyName: type
+        mapping:
+          conversation.item.create: '#/components/schemas/RealtimeClientEventConversationItemCreate'
+          conversation.item.delete: '#/components/schemas/RealtimeClientEventConversationItemDelete'
+          conversation.item.retrieve: '#/components/schemas/RealtimeClientEventConversationItemRetrieve'
+          conversation.item.truncate: '#/components/schemas/RealtimeClientEventConversationItemTruncate'
+          input_audio_buffer.append: '#/components/schemas/RealtimeClientEventInputAudioBufferAppend'
+          input_audio_buffer.clear: '#/components/schemas/RealtimeClientEventInputAudioBufferClear'
+          input_audio_buffer.commit: '#/components/schemas/RealtimeClientEventInputAudioBufferCommit'
+          output_audio_buffer.clear: '#/components/schemas/RealtimeClientEventOutputAudioBufferClear'
+          response.cancel: '#/components/schemas/RealtimeClientEventResponseCancel'
+          response.create: '#/components/schemas/RealtimeClientEventResponseCreate'
+          session.update: '#/components/schemas/RealtimeClientEventSessionUpdate'
       description: |
         A realtime client event.
       anyOf:
@@ -53245,6 +53441,14 @@ components:
         - $ref: '#/components/schemas/RealtimeMCPApprovalRequest'
       discriminator:
         propertyName: type
+        mapping:
+          function_call: '#/components/schemas/RealtimeConversationItemFunctionCall'
+          function_call_output: '#/components/schemas/RealtimeConversationItemFunctionCallOutput'
+          mcp_approval_request: '#/components/schemas/RealtimeMCPApprovalRequest'
+          mcp_approval_response: '#/components/schemas/RealtimeMCPApprovalResponse'
+          mcp_call: '#/components/schemas/RealtimeMCPToolCall'
+          mcp_list_tools: '#/components/schemas/RealtimeMCPListTools'
+          message: '#/components/schemas/RealtimeConversationItemMessageAssistant'
     RealtimeConversationItemFunctionCall:
       type: object
       title: Realtime function call item
@@ -53770,6 +53974,9 @@ components:
                 #/components/schemas/RealtimeTranscriptionSessionCreateResponseGA
           discriminator:
             propertyName: type
+            mapping:
+              realtime: '#/components/schemas/RealtimeSessionCreateResponseGA'
+              transcription: '#/components/schemas/RealtimeTranscriptionSessionCreateResponseGA'
       required:
         - value
         - expires_at
@@ -54408,6 +54615,53 @@ components:
     RealtimeServerEvent:
       discriminator:
         propertyName: type
+        mapping:
+          conversation.created: '#/components/schemas/RealtimeServerEventConversationCreated'
+          conversation.item.added: '#/components/schemas/RealtimeServerEventConversationItemAdded'
+          conversation.item.created: '#/components/schemas/RealtimeServerEventConversationItemCreated'
+          conversation.item.deleted: '#/components/schemas/RealtimeServerEventConversationItemDeleted'
+          conversation.item.done: '#/components/schemas/RealtimeServerEventConversationItemDone'
+          conversation.item.input_audio_transcription.completed: '#/components/schemas/RealtimeServerEventConversationItemInputAudioTranscriptionCompleted'
+          conversation.item.input_audio_transcription.delta: '#/components/schemas/RealtimeServerEventConversationItemInputAudioTranscriptionDelta'
+          conversation.item.input_audio_transcription.failed: '#/components/schemas/RealtimeServerEventConversationItemInputAudioTranscriptionFailed'
+          conversation.item.input_audio_transcription.segment: '#/components/schemas/RealtimeServerEventConversationItemInputAudioTranscriptionSegment'
+          conversation.item.retrieved: '#/components/schemas/RealtimeServerEventConversationItemRetrieved'
+          conversation.item.truncated: '#/components/schemas/RealtimeServerEventConversationItemTruncated'
+          error: '#/components/schemas/RealtimeServerEventError'
+          input_audio_buffer.cleared: '#/components/schemas/RealtimeServerEventInputAudioBufferCleared'
+          input_audio_buffer.committed: '#/components/schemas/RealtimeServerEventInputAudioBufferCommitted'
+          input_audio_buffer.dtmf_event_received: '#/components/schemas/RealtimeServerEventInputAudioBufferDtmfEventReceived'
+          input_audio_buffer.speech_started: '#/components/schemas/RealtimeServerEventInputAudioBufferSpeechStarted'
+          input_audio_buffer.speech_stopped: '#/components/schemas/RealtimeServerEventInputAudioBufferSpeechStopped'
+          input_audio_buffer.timeout_triggered: '#/components/schemas/RealtimeServerEventInputAudioBufferTimeoutTriggered'
+          mcp_list_tools.completed: '#/components/schemas/RealtimeServerEventMCPListToolsCompleted'
+          mcp_list_tools.failed: '#/components/schemas/RealtimeServerEventMCPListToolsFailed'
+          mcp_list_tools.in_progress: '#/components/schemas/RealtimeServerEventMCPListToolsInProgress'
+          output_audio_buffer.cleared: '#/components/schemas/RealtimeServerEventOutputAudioBufferCleared'
+          output_audio_buffer.started: '#/components/schemas/RealtimeServerEventOutputAudioBufferStarted'
+          output_audio_buffer.stopped: '#/components/schemas/RealtimeServerEventOutputAudioBufferStopped'
+          rate_limits.updated: '#/components/schemas/RealtimeServerEventRateLimitsUpdated'
+          response.content_part.added: '#/components/schemas/RealtimeServerEventResponseContentPartAdded'
+          response.content_part.done: '#/components/schemas/RealtimeServerEventResponseContentPartDone'
+          response.created: '#/components/schemas/RealtimeServerEventResponseCreated'
+          response.done: '#/components/schemas/RealtimeServerEventResponseDone'
+          response.function_call_arguments.delta: '#/components/schemas/RealtimeServerEventResponseFunctionCallArgumentsDelta'
+          response.function_call_arguments.done: '#/components/schemas/RealtimeServerEventResponseFunctionCallArgumentsDone'
+          response.mcp_call.completed: '#/components/schemas/RealtimeServerEventResponseMCPCallCompleted'
+          response.mcp_call.failed: '#/components/schemas/RealtimeServerEventResponseMCPCallFailed'
+          response.mcp_call.in_progress: '#/components/schemas/RealtimeServerEventResponseMCPCallInProgress'
+          response.mcp_call_arguments.delta: '#/components/schemas/RealtimeServerEventResponseMCPCallArgumentsDelta'
+          response.mcp_call_arguments.done: '#/components/schemas/RealtimeServerEventResponseMCPCallArgumentsDone'
+          response.output_audio.delta: '#/components/schemas/RealtimeServerEventResponseAudioDelta'
+          response.output_audio.done: '#/components/schemas/RealtimeServerEventResponseAudioDone'
+          response.output_audio_transcript.delta: '#/components/schemas/RealtimeServerEventResponseAudioTranscriptDelta'
+          response.output_audio_transcript.done: '#/components/schemas/RealtimeServerEventResponseAudioTranscriptDone'
+          response.output_item.added: '#/components/schemas/RealtimeServerEventResponseOutputItemAdded'
+          response.output_item.done: '#/components/schemas/RealtimeServerEventResponseOutputItemDone'
+          response.output_text.delta: '#/components/schemas/RealtimeServerEventResponseTextDelta'
+          response.output_text.done: '#/components/schemas/RealtimeServerEventResponseTextDone'
+          session.created: '#/components/schemas/RealtimeServerEventSessionCreated'
+          session.updated: '#/components/schemas/RealtimeServerEventSessionUpdated'
       description: |
         A realtime server event.
       anyOf:
@@ -62019,6 +62273,60 @@ components:
         - $ref: '#/components/schemas/ResponseCustomToolCallInputDoneEvent'
       discriminator:
         propertyName: type
+        mapping:
+          error: '#/components/schemas/ResponseErrorEvent'
+          response.audio.delta: '#/components/schemas/ResponseAudioDeltaEvent'
+          response.audio.done: '#/components/schemas/ResponseAudioDoneEvent'
+          response.audio.transcript.delta: '#/components/schemas/ResponseAudioTranscriptDeltaEvent'
+          response.audio.transcript.done: '#/components/schemas/ResponseAudioTranscriptDoneEvent'
+          response.code_interpreter_call.completed: '#/components/schemas/ResponseCodeInterpreterCallCompletedEvent'
+          response.code_interpreter_call.in_progress: '#/components/schemas/ResponseCodeInterpreterCallInProgressEvent'
+          response.code_interpreter_call.interpreting: '#/components/schemas/ResponseCodeInterpreterCallInterpretingEvent'
+          response.code_interpreter_call_code.delta: '#/components/schemas/ResponseCodeInterpreterCallCodeDeltaEvent'
+          response.code_interpreter_call_code.done: '#/components/schemas/ResponseCodeInterpreterCallCodeDoneEvent'
+          response.completed: '#/components/schemas/ResponseCompletedEvent'
+          response.content_part.added: '#/components/schemas/ResponseContentPartAddedEvent'
+          response.content_part.done: '#/components/schemas/ResponseContentPartDoneEvent'
+          response.created: '#/components/schemas/ResponseCreatedEvent'
+          response.custom_tool_call_input.delta: '#/components/schemas/ResponseCustomToolCallInputDeltaEvent'
+          response.custom_tool_call_input.done: '#/components/schemas/ResponseCustomToolCallInputDoneEvent'
+          response.failed: '#/components/schemas/ResponseFailedEvent'
+          response.file_search_call.completed: '#/components/schemas/ResponseFileSearchCallCompletedEvent'
+          response.file_search_call.in_progress: '#/components/schemas/ResponseFileSearchCallInProgressEvent'
+          response.file_search_call.searching: '#/components/schemas/ResponseFileSearchCallSearchingEvent'
+          response.function_call_arguments.delta: '#/components/schemas/ResponseFunctionCallArgumentsDeltaEvent'
+          response.function_call_arguments.done: '#/components/schemas/ResponseFunctionCallArgumentsDoneEvent'
+          response.image_generation_call.completed: '#/components/schemas/ResponseImageGenCallCompletedEvent'
+          response.image_generation_call.generating: '#/components/schemas/ResponseImageGenCallGeneratingEvent'
+          response.image_generation_call.in_progress: '#/components/schemas/ResponseImageGenCallInProgressEvent'
+          response.image_generation_call.partial_image: '#/components/schemas/ResponseImageGenCallPartialImageEvent'
+          response.in_progress: '#/components/schemas/ResponseInProgressEvent'
+          response.incomplete: '#/components/schemas/ResponseIncompleteEvent'
+          response.mcp_call.completed: '#/components/schemas/ResponseMCPCallCompletedEvent'
+          response.mcp_call.failed: '#/components/schemas/ResponseMCPCallFailedEvent'
+          response.mcp_call.in_progress: '#/components/schemas/ResponseMCPCallInProgressEvent'
+          response.mcp_call_arguments.delta: '#/components/schemas/ResponseMCPCallArgumentsDeltaEvent'
+          response.mcp_call_arguments.done: '#/components/schemas/ResponseMCPCallArgumentsDoneEvent'
+          response.mcp_list_tools.completed: '#/components/schemas/ResponseMCPListToolsCompletedEvent'
+          response.mcp_list_tools.failed: '#/components/schemas/ResponseMCPListToolsFailedEvent'
+          response.mcp_list_tools.in_progress: '#/components/schemas/ResponseMCPListToolsInProgressEvent'
+          response.output_item.added: '#/components/schemas/ResponseOutputItemAddedEvent'
+          response.output_item.done: '#/components/schemas/ResponseOutputItemDoneEvent'
+          response.output_text.annotation.added: '#/components/schemas/ResponseOutputTextAnnotationAddedEvent'
+          response.output_text.delta: '#/components/schemas/ResponseTextDeltaEvent'
+          response.output_text.done: '#/components/schemas/ResponseTextDoneEvent'
+          response.queued: '#/components/schemas/ResponseQueuedEvent'
+          response.reasoning_summary_part.added: '#/components/schemas/ResponseReasoningSummaryPartAddedEvent'
+          response.reasoning_summary_part.done: '#/components/schemas/ResponseReasoningSummaryPartDoneEvent'
+          response.reasoning_summary_text.delta: '#/components/schemas/ResponseReasoningSummaryTextDeltaEvent'
+          response.reasoning_summary_text.done: '#/components/schemas/ResponseReasoningSummaryTextDoneEvent'
+          response.reasoning_text.delta: '#/components/schemas/ResponseReasoningTextDeltaEvent'
+          response.reasoning_text.done: '#/components/schemas/ResponseReasoningTextDoneEvent'
+          response.refusal.delta: '#/components/schemas/ResponseRefusalDeltaEvent'
+          response.refusal.done: '#/components/schemas/ResponseRefusalDoneEvent'
+          response.web_search_call.completed: '#/components/schemas/ResponseWebSearchCallCompletedEvent'
+          response.web_search_call.in_progress: '#/components/schemas/ResponseWebSearchCallInProgressEvent'
+          response.web_search_call.searching: '#/components/schemas/ResponseWebSearchCallSearchingEvent'
     ResponseStreamOptions:
       anyOf:
         - description: >
@@ -62333,6 +62641,8 @@ components:
     ResponsesClientEvent:
       discriminator:
         propertyName: type
+        mapping:
+          response.create: '#/components/schemas/ResponsesClientEventResponseCreate'
       description: |
         Client events accepted by the Responses WebSocket server.
       anyOf:
@@ -64327,6 +64637,22 @@ components:
         A tool that can be used to generate a response.
       discriminator:
         propertyName: type
+        mapping:
+          apply_patch: '#/components/schemas/ApplyPatchToolParam'
+          code_interpreter: '#/components/schemas/CodeInterpreterTool'
+          computer: '#/components/schemas/ComputerTool'
+          computer_use_preview: '#/components/schemas/ComputerUsePreviewTool'
+          custom: '#/components/schemas/CustomToolParam'
+          file_search: '#/components/schemas/FileSearchTool'
+          function: '#/components/schemas/FunctionTool'
+          image_generation: '#/components/schemas/ImageGenTool'
+          local_shell: '#/components/schemas/LocalShellToolParam'
+          mcp: '#/components/schemas/MCPTool'
+          namespace: '#/components/schemas/NamespaceToolParam'
+          shell: '#/components/schemas/FunctionShellToolParam'
+          tool_search: '#/components/schemas/ToolSearchToolParam'
+          web_search: '#/components/schemas/WebSearchTool'
+          web_search_preview: '#/components/schemas/WebSearchPreviewTool'
       oneOf:
         - $ref: '#/components/schemas/FunctionTool'
         - $ref: '#/components/schemas/FileSearchTool'
@@ -66913,6 +67239,10 @@ components:
             - $ref: '#/components/schemas/WebSearchActionFind'
           discriminator:
             propertyName: type
+            mapping:
+              find_in_page: '#/components/schemas/WebSearchActionFind'
+              open_page: '#/components/schemas/WebSearchActionOpenPage'
+              search: '#/components/schemas/WebSearchActionSearch'
       required:
         - id
         - type
@@ -68107,6 +68437,11 @@ components:
       description: An annotation that applies to a span of output text.
       discriminator:
         propertyName: type
+        mapping:
+          container_file_citation: '#/components/schemas/ContainerFileCitationBody'
+          file_citation: '#/components/schemas/FileCitationBody'
+          file_path: '#/components/schemas/FilePath'
+          url_citation: '#/components/schemas/UrlCitationBody'
     TopLogProb:
       properties:
         token:
@@ -68402,6 +68737,16 @@ components:
             description: A content part that makes up an input or output item.
             discriminator:
               propertyName: type
+              mapping:
+                computer_screenshot: '#/components/schemas/ComputerScreenshotContent'
+                input_file: '#/components/schemas/InputFileContent'
+                input_image: '#/components/schemas/InputImageContent'
+                input_text: '#/components/schemas/InputTextContent'
+                output_text: '#/components/schemas/OutputTextContent'
+                reasoning_text: '#/components/schemas/ReasoningTextContent'
+                refusal: '#/components/schemas/RefusalContent'
+                summary_text: '#/components/schemas/SummaryTextContent'
+                text: '#/components/schemas/TextContent'
           type: array
           description: The content of the message
         phase:
@@ -68987,6 +69332,9 @@ components:
           description: Network access policy for the container.
           discriminator:
             propertyName: type
+            mapping:
+              allowlist: '#/components/schemas/ContainerNetworkPolicyAllowlistParam'
+              disabled: '#/components/schemas/ContainerNetworkPolicyDisabledParam'
       type: object
       required:
         - type
@@ -69055,6 +69403,9 @@ components:
           description: Network access policy for the container.
           discriminator:
             propertyName: type
+            mapping:
+              allowlist: '#/components/schemas/ContainerNetworkPolicyAllowlistParam'
+              disabled: '#/components/schemas/ContainerNetworkPolicyDisabledParam'
         skills:
           items:
             oneOf:
@@ -69062,6 +69413,9 @@ components:
               - $ref: '#/components/schemas/InlineSkillParam'
             discriminator:
               propertyName: type
+              mapping:
+                inline: '#/components/schemas/InlineSkillParam'
+                skill_reference: '#/components/schemas/SkillReferenceParam'
           type: array
           maxItems: 200
           description: An optional list of skills referenced by id or inline data.
@@ -69136,6 +69490,10 @@ components:
                 - $ref: '#/components/schemas/ContainerReferenceParam'
               discriminator:
                 propertyName: type
+                mapping:
+                  container_auto: '#/components/schemas/ContainerAutoParam'
+                  container_reference: '#/components/schemas/ContainerReferenceParam'
+                  local: '#/components/schemas/LocalEnvironmentParam'
             - type: 'null'
       type: object
       required:
@@ -69207,6 +69565,9 @@ components:
           description: The input format for the custom tool. Default is unconstrained text.
           discriminator:
             propertyName: type
+            mapping:
+              grammar: '#/components/schemas/CustomGrammarFormatParam'
+              text: '#/components/schemas/CustomTextFormatParam'
         defer_loading:
           type: boolean
           description: Whether this tool should be deferred and discovered via tool search.
@@ -69281,6 +69642,9 @@ components:
             description: A function or custom tool that belongs to a namespace.
             discriminator:
               propertyName: type
+              mapping:
+                custom: '#/components/schemas/CustomToolParam'
+                function: '#/components/schemas/FunctionToolParam'
           type: array
           minItems: 1
           description: The function/custom tools available inside this namespace.
@@ -69660,6 +70024,9 @@ components:
                 - $ref: '#/components/schemas/ContainerReferenceResource'
               discriminator:
                 propertyName: type
+                mapping:
+                  container_reference: '#/components/schemas/ContainerReferenceResource'
+                  local: '#/components/schemas/LocalEnvironmentResource'
             - type: 'null'
         created_by:
           type: string
@@ -69732,6 +70099,9 @@ components:
             outcome for a shell call output chunk.
           discriminator:
             propertyName: type
+            mapping:
+              exit: '#/components/schemas/FunctionShellCallOutputExitOutcome'
+              timeout: '#/components/schemas/FunctionShellCallOutputTimeoutOutcome'
         created_by:
           type: string
           description: The identifier of the actor that created the item.
@@ -69890,6 +70260,10 @@ components:
             applied via apply_patch.
           discriminator:
             propertyName: type
+            mapping:
+              create_file: '#/components/schemas/ApplyPatchCreateFileOperation'
+              delete_file: '#/components/schemas/ApplyPatchDeleteFileOperation'
+              update_file: '#/components/schemas/ApplyPatchUpdateFileOperation'
         created_by:
           type: string
           description: The ID of the entity that created this tool call.
@@ -70156,6 +70530,10 @@ components:
                 description: A piece of message content, such as text, an image, or a file.
                 discriminator:
                   propertyName: type
+                  mapping:
+                    input_file: '#/components/schemas/InputFileContentParam'
+                    input_image: '#/components/schemas/InputImageContentParamAutoParam'
+                    input_text: '#/components/schemas/InputTextContentParam'
               type: array
               description: >-
                 An array of content outputs (text, image, file) for the function
@@ -70354,6 +70732,9 @@ components:
               description: The environment to execute the shell commands in.
               discriminator:
                 propertyName: type
+                mapping:
+                  container_reference: '#/components/schemas/ContainerReferenceParam'
+                  local: '#/components/schemas/LocalEnvironmentParam'
             - type: 'null'
       type: object
       required:
@@ -70402,6 +70783,9 @@ components:
       description: The exit or timeout outcome associated with this shell call.
       discriminator:
         propertyName: type
+        mapping:
+          exit: '#/components/schemas/FunctionShellCallOutputExitOutcomeParam'
+          timeout: '#/components/schemas/FunctionShellCallOutputTimeoutOutcomeParam'
     FunctionShellCallOutputContentParam:
       properties:
         stdout:
@@ -70555,6 +70939,10 @@ components:
         to the apply_patch tool.
       discriminator:
         propertyName: type
+        mapping:
+          create_file: '#/components/schemas/ApplyPatchCreateFileOperationParam'
+          delete_file: '#/components/schemas/ApplyPatchDeleteFileOperationParam'
+          update_file: '#/components/schemas/ApplyPatchUpdateFileOperationParam'
     ApplyPatchToolCallItemParam:
       properties:
         type:
@@ -71504,6 +71892,32 @@ components:
         other response element.
       discriminator:
         propertyName: type
+        mapping:
+          apply_patch_call: '#/components/schemas/ApplyPatchToolCall'
+          apply_patch_call_output: '#/components/schemas/ApplyPatchToolCallOutput'
+          code_interpreter_call: '#/components/schemas/CodeInterpreterToolCall'
+          compaction: '#/components/schemas/CompactionBody'
+          computer_call: '#/components/schemas/ComputerToolCall'
+          computer_call_output: '#/components/schemas/ComputerToolCallOutputResource'
+          custom_tool_call: '#/components/schemas/CustomToolCall'
+          custom_tool_call_output: '#/components/schemas/CustomToolCallOutput'
+          file_search_call: '#/components/schemas/FileSearchToolCall'
+          function_call: '#/components/schemas/FunctionToolCall'
+          function_call_output: '#/components/schemas/FunctionToolCallOutput'
+          image_generation_call: '#/components/schemas/ImageGenToolCall'
+          local_shell_call: '#/components/schemas/LocalShellToolCall'
+          local_shell_call_output: '#/components/schemas/LocalShellToolCallOutput'
+          mcp_approval_request: '#/components/schemas/MCPApprovalRequest'
+          mcp_approval_response: '#/components/schemas/MCPApprovalResponseResource'
+          mcp_call: '#/components/schemas/MCPToolCall'
+          mcp_list_tools: '#/components/schemas/MCPListTools'
+          message: '#/components/schemas/Message'
+          reasoning: '#/components/schemas/ReasoningItem'
+          shell_call: '#/components/schemas/FunctionShellCall'
+          shell_call_output: '#/components/schemas/FunctionShellCallOutput'
+          tool_search_call: '#/components/schemas/ToolSearchCall'
+          tool_search_output: '#/components/schemas/ToolSearchOutput'
+          web_search_call: '#/components/schemas/WebSearchToolCall'
     CompactResource:
       properties:
         id:
@@ -72305,6 +72719,9 @@ components:
             description: Content blocks that comprise a user message.
             discriminator:
               propertyName: type
+              mapping:
+                input_text: '#/components/schemas/UserMessageInputText'
+                quoted_text: '#/components/schemas/UserMessageQuotedText'
           type: array
           description: Ordered content elements supplied by the user.
         attachments:
@@ -72425,6 +72842,9 @@ components:
             description: Annotation object describing a cited source.
             discriminator:
               propertyName: type
+              mapping:
+                file: '#/components/schemas/FileAnnotation'
+                url: '#/components/schemas/UrlAnnotation'
           type: array
           description: Ordered list of annotations attached to the response text.
       type: object
@@ -72711,6 +73131,13 @@ components:
       title: The thread item
       discriminator:
         propertyName: type
+        mapping:
+          chatkit.assistant_message: '#/components/schemas/AssistantMessageItem'
+          chatkit.client_tool_call: '#/components/schemas/ClientToolCallItem'
+          chatkit.task: '#/components/schemas/TaskItem'
+          chatkit.task_group: '#/components/schemas/TaskGroupItem'
+          chatkit.user_message: '#/components/schemas/UserMessageItem'
+          chatkit.widget: '#/components/schemas/WidgetMessageItem'
     ThreadItemListResource:
       properties:
         object:
@@ -72837,6 +73264,10 @@ components:
             created threads.
           discriminator:
             propertyName: type
+            mapping:
+              active: '#/components/schemas/ActiveStatus'
+              closed: '#/components/schemas/ClosedStatus'
+              locked: '#/components/schemas/LockedStatus'
         user:
           type: string
           description: Free-form string that identifies your end user who owns the thread.
