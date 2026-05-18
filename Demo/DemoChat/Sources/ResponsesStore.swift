@@ -408,8 +408,8 @@ public final class ResponsesStore: ObservableObject {
             encoder.outputFormatting = .prettyPrinted
             let jsonData = try encoder.encode(query)
             if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print("Request JSON:")
-                print(jsonString)
+                print("Request JSON, prefixed to 10000:")
+                print(jsonString.prefix(10000))
             }
         } catch {
             print("Failed to serialize request to JSON: \(error)")
