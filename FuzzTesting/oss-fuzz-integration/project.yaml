@@ -1,0 +1,29 @@
+# OSS-Fuzz project descriptor. Apply this file (after filling in the
+# TODO contact fields) at `projects/macpaw-openai/project.yaml` in a
+# fork of https://github.com/google/oss-fuzz.
+
+homepage: "https://github.com/MacPaw/OpenAI"
+language: swift
+main_repo: "https://github.com/MacPaw/OpenAI.git"
+
+# TODO(maintainer): replace with the maintainer's email. Must be the
+# address tied to a Google account so OSS-Fuzz can grant access to the
+# private bug reports dashboard.
+primary_contact: "TODO@example.com"
+
+# TODO(maintainer): optional additional addresses to CC on findings.
+auto_ccs:
+  - "TODO@example.com"
+
+# Build the harnesses with both AddressSanitizer and
+# UndefinedBehaviorSanitizer. Memory-sanitizer is omitted because
+# libFuzzer's MSan support for Swift is not reliable.
+sanitizers:
+  - address
+  - undefined
+
+architectures:
+  - x86_64
+
+fuzzing_engines:
+  - libfuzzer
