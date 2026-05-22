@@ -965,6 +965,30 @@ class OpenAITestsDecoder: XCTestCase {
         XCTAssertNil(dict["prompt_cache_key"])
     }
 
+    func testCreateResponseQueryOmitsModelWhenNil() throws {
+        let query = CreateModelResponseQuery(
+            input: .textInput("Hello"),
+            prompt: .init(id: "pmpt_abc123")
+        )
+
+        let data = try JSONEncoder().encode(query)
+        let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertNil(dict["model"])
+        let prompt = try XCTUnwrap(dict["prompt"] as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(prompt["id"] as? String), "pmpt_abc123")
+    }
+
+    func testCreateResponseQueryEncodesModelWhenProvided() throws {
+        let query = CreateModelResponseQuery(
+            input: .textInput("Hello"),
+            model: .gpt4_o
+        )
+
+        let data = try JSONEncoder().encode(query)
+        let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(dict["model"] as? String), "gpt-4o")
+    }
+
     private func testEncodedChatQueryWithStructuredOutput(_ data: Data) throws {
         let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         XCTAssertEqual(try XCTUnwrap(dict["model"] as? String), "gpt-4o")

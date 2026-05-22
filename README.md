@@ -1,6 +1,7 @@
+
 # OpenAI
 
-![logo](https://user-images.githubusercontent.com/1411778/218319355-f56b6bd4-961a-4d8f-82cd-6dbd43111d7f.png)
+<img width="2000" height="800" alt="Cover OpenAI - white@2x" src="https://github.com/user-attachments/assets/a09710ea-ad67-4840-b803-3eb881e6a712" />
 
 ___
 
