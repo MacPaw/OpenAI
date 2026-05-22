@@ -6925,7 +6925,7 @@ public enum Components {
             /// The name of the function that was called.
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDoneEvent/name`.
-            public var name: Swift.String
+            public var name: Swift.String?
             /// The index of the output item.
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDoneEvent/output_index`.
@@ -6950,7 +6950,7 @@ public enum Components {
             public init(
                 _type: Components.Schemas.ResponseFunctionCallArgumentsDoneEvent._TypePayload,
                 itemId: Swift.String,
-                name: Swift.String,
+                name: Swift.String? = nil,
                 outputIndex: Swift.Int,
                 sequenceNumber: Swift.Int,
                 arguments: Swift.String
