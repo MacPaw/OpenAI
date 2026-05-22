@@ -175,9 +175,9 @@ public enum Components {
                         forKey: ._type
                     )
                     switch discriminator {
-                    case "CodeInterpreterOutputLogs", "#/components/schemas/CodeInterpreterOutputLogs":
+                    case "CodeInterpreterOutputLogs", "#/components/schemas/CodeInterpreterOutputLogs", "logs":
                         self = .codeInterpreterOutputLogs(try .init(from: decoder))
-                    case "CodeInterpreterOutputImage", "#/components/schemas/CodeInterpreterOutputImage":
+                    case "CodeInterpreterOutputImage", "#/components/schemas/CodeInterpreterOutputImage", "image":
                         self = .codeInterpreterOutputImage(try .init(from: decoder))
                     default:
                         throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -449,7 +449,7 @@ public enum Components {
                         forKey: ._type
                     )
                     switch discriminator {
-                    case "ComparisonFilter", "#/components/schemas/ComparisonFilter":
+                    case "ComparisonFilter", "#/components/schemas/ComparisonFilter", "eq", "ne", "gt", "gte", "lt", "lte", "in", "nin":
                         self = .comparisonFilter(try .init(from: decoder))
                     default:
                         throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -536,23 +536,23 @@ public enum Components {
                     forKey: ._type
                 )
                 switch discriminator {
-                case "ClickParam", "#/components/schemas/ClickParam":
+                case "ClickParam", "#/components/schemas/ClickParam", "click":
                     self = .clickParam(try .init(from: decoder))
-                case "DoubleClickAction", "#/components/schemas/DoubleClickAction":
+                case "DoubleClickAction", "#/components/schemas/DoubleClickAction", "double_click":
                     self = .doubleClickAction(try .init(from: decoder))
-                case "DragParam", "#/components/schemas/DragParam":
+                case "DragParam", "#/components/schemas/DragParam", "drag":
                     self = .dragParam(try .init(from: decoder))
-                case "KeyPressAction", "#/components/schemas/KeyPressAction":
+                case "KeyPressAction", "#/components/schemas/KeyPressAction", "keypress":
                     self = .keyPressAction(try .init(from: decoder))
-                case "MoveParam", "#/components/schemas/MoveParam":
+                case "MoveParam", "#/components/schemas/MoveParam", "move":
                     self = .moveParam(try .init(from: decoder))
-                case "ScreenshotParam", "#/components/schemas/ScreenshotParam":
+                case "ScreenshotParam", "#/components/schemas/ScreenshotParam", "screenshot":
                     self = .screenshotParam(try .init(from: decoder))
-                case "ScrollParam", "#/components/schemas/ScrollParam":
+                case "ScrollParam", "#/components/schemas/ScrollParam", "scroll":
                     self = .scrollParam(try .init(from: decoder))
-                case "TypeParam", "#/components/schemas/TypeParam":
+                case "TypeParam", "#/components/schemas/TypeParam", "type":
                     self = .typeParam(try .init(from: decoder))
-                case "WaitParam", "#/components/schemas/WaitParam":
+                case "WaitParam", "#/components/schemas/WaitParam", "wait":
                     self = .waitParam(try .init(from: decoder))
                 default:
                     throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -1314,9 +1314,9 @@ public enum Components {
                         forKey: ._type
                     )
                     switch discriminator {
-                    case "TranscriptTextUsageTokens", "#/components/schemas/TranscriptTextUsageTokens":
+                    case "TranscriptTextUsageTokens", "#/components/schemas/TranscriptTextUsageTokens", "tokens":
                         self = .transcriptTextUsageTokens(try .init(from: decoder))
-                    case "TranscriptTextUsageDuration", "#/components/schemas/TranscriptTextUsageDuration":
+                    case "TranscriptTextUsageDuration", "#/components/schemas/TranscriptTextUsageDuration", "duration":
                         self = .transcriptTextUsageDuration(try .init(from: decoder))
                     default:
                         throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -2260,11 +2260,11 @@ public enum Components {
                     forKey: ._type
                 )
                 switch discriminator {
-                case "InputTextContent", "#/components/schemas/InputTextContent":
+                case "InputTextContent", "#/components/schemas/InputTextContent", "input_text":
                     self = .inputTextContent(try .init(from: decoder))
-                case "InputImageContent", "#/components/schemas/InputImageContent":
+                case "InputImageContent", "#/components/schemas/InputImageContent", "input_image":
                     self = .inputImageContent(try .init(from: decoder))
-                case "InputFileContent", "#/components/schemas/InputFileContent":
+                case "InputFileContent", "#/components/schemas/InputFileContent", "input_file":
                     self = .inputFileContent(try .init(from: decoder))
                 default:
                     throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -3006,11 +3006,11 @@ public enum Components {
                     forKey: ._type
                 )
                 switch discriminator {
-                case "InputTextContent", "#/components/schemas/InputTextContent":
+                case "InputTextContent", "#/components/schemas/InputTextContent", "input_text":
                     self = .inputTextContent(try .init(from: decoder))
-                case "InputImageContent", "#/components/schemas/InputImageContent":
+                case "InputImageContent", "#/components/schemas/InputImageContent", "input_image":
                     self = .inputImageContent(try .init(from: decoder))
-                case "InputFileContent", "#/components/schemas/InputFileContent":
+                case "InputFileContent", "#/components/schemas/InputFileContent", "input_file":
                     self = .inputFileContent(try .init(from: decoder))
                 default:
                     throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -3049,7 +3049,7 @@ public enum Components {
                     forKey: ._type
                 )
                 switch discriminator {
-                case "EasyInputMessage", "#/components/schemas/EasyInputMessage":
+                case "EasyInputMessage", "#/components/schemas/EasyInputMessage", "message":
                     self = .easyInputMessage(try .init(from: decoder))
                 case "Item", "#/components/schemas/Item":
                     self = .item(try .init(from: decoder))
@@ -3321,57 +3321,57 @@ public enum Components {
                     forKey: ._type
                 )
                 switch discriminator {
-                case "InputMessage", "#/components/schemas/InputMessage":
+                case "InputMessage", "#/components/schemas/InputMessage", "message":
                     self = .inputMessage(try .init(from: decoder))
-                case "OutputMessage", "#/components/schemas/OutputMessage":
+                case "OutputMessage", "#/components/schemas/OutputMessage", "message":
                     self = .outputMessage(try .init(from: decoder))
-                case "FileSearchToolCall", "#/components/schemas/FileSearchToolCall":
+                case "FileSearchToolCall", "#/components/schemas/FileSearchToolCall", "file_search_call":
                     self = .fileSearchToolCall(try .init(from: decoder))
-                case "ComputerToolCall", "#/components/schemas/ComputerToolCall":
+                case "ComputerToolCall", "#/components/schemas/ComputerToolCall", "computer_call":
                     self = .computerToolCall(try .init(from: decoder))
-                case "ComputerCallOutputItemParam", "#/components/schemas/ComputerCallOutputItemParam":
+                case "ComputerCallOutputItemParam", "#/components/schemas/ComputerCallOutputItemParam", "computer_call_output":
                     self = .computerCallOutputItemParam(try .init(from: decoder))
-                case "WebSearchToolCall", "#/components/schemas/WebSearchToolCall":
+                case "WebSearchToolCall", "#/components/schemas/WebSearchToolCall", "web_search_call":
                     self = .webSearchToolCall(try .init(from: decoder))
-                case "FunctionToolCall", "#/components/schemas/FunctionToolCall":
+                case "FunctionToolCall", "#/components/schemas/FunctionToolCall", "function_call":
                     self = .functionToolCall(try .init(from: decoder))
-                case "FunctionCallOutputItemParam", "#/components/schemas/FunctionCallOutputItemParam":
+                case "FunctionCallOutputItemParam", "#/components/schemas/FunctionCallOutputItemParam", "function_call_output":
                     self = .functionCallOutputItemParam(try .init(from: decoder))
-                case "ToolSearchCallItemParam", "#/components/schemas/ToolSearchCallItemParam":
+                case "ToolSearchCallItemParam", "#/components/schemas/ToolSearchCallItemParam", "tool_search_call":
                     self = .toolSearchCallItemParam(try .init(from: decoder))
-                case "ToolSearchOutputItemParam", "#/components/schemas/ToolSearchOutputItemParam":
+                case "ToolSearchOutputItemParam", "#/components/schemas/ToolSearchOutputItemParam", "tool_search_output":
                     self = .toolSearchOutputItemParam(try .init(from: decoder))
-                case "ReasoningItem", "#/components/schemas/ReasoningItem":
+                case "ReasoningItem", "#/components/schemas/ReasoningItem", "reasoning":
                     self = .reasoningItem(try .init(from: decoder))
-                case "CompactionSummaryItemParam", "#/components/schemas/CompactionSummaryItemParam":
+                case "CompactionSummaryItemParam", "#/components/schemas/CompactionSummaryItemParam", "compaction":
                     self = .compactionSummaryItemParam(try .init(from: decoder))
-                case "ImageGenToolCall", "#/components/schemas/ImageGenToolCall":
+                case "ImageGenToolCall", "#/components/schemas/ImageGenToolCall", "image_generation_call":
                     self = .imageGenToolCall(try .init(from: decoder))
-                case "CodeInterpreterToolCall", "#/components/schemas/CodeInterpreterToolCall":
+                case "CodeInterpreterToolCall", "#/components/schemas/CodeInterpreterToolCall", "code_interpreter_call":
                     self = .codeInterpreterToolCall(try .init(from: decoder))
-                case "LocalShellToolCall", "#/components/schemas/LocalShellToolCall":
+                case "LocalShellToolCall", "#/components/schemas/LocalShellToolCall", "local_shell_call":
                     self = .localShellToolCall(try .init(from: decoder))
-                case "LocalShellToolCallOutput", "#/components/schemas/LocalShellToolCallOutput":
+                case "LocalShellToolCallOutput", "#/components/schemas/LocalShellToolCallOutput", "local_shell_call_output":
                     self = .localShellToolCallOutput(try .init(from: decoder))
-                case "FunctionShellCallItemParam", "#/components/schemas/FunctionShellCallItemParam":
+                case "FunctionShellCallItemParam", "#/components/schemas/FunctionShellCallItemParam", "shell_call":
                     self = .functionShellCallItemParam(try .init(from: decoder))
-                case "FunctionShellCallOutputItemParam", "#/components/schemas/FunctionShellCallOutputItemParam":
+                case "FunctionShellCallOutputItemParam", "#/components/schemas/FunctionShellCallOutputItemParam", "shell_call_output":
                     self = .functionShellCallOutputItemParam(try .init(from: decoder))
-                case "ApplyPatchToolCallItemParam", "#/components/schemas/ApplyPatchToolCallItemParam":
+                case "ApplyPatchToolCallItemParam", "#/components/schemas/ApplyPatchToolCallItemParam", "apply_patch_call":
                     self = .applyPatchToolCallItemParam(try .init(from: decoder))
-                case "ApplyPatchToolCallOutputItemParam", "#/components/schemas/ApplyPatchToolCallOutputItemParam":
+                case "ApplyPatchToolCallOutputItemParam", "#/components/schemas/ApplyPatchToolCallOutputItemParam", "apply_patch_call_output":
                     self = .applyPatchToolCallOutputItemParam(try .init(from: decoder))
-                case "MCPListTools", "#/components/schemas/MCPListTools":
+                case "MCPListTools", "#/components/schemas/MCPListTools", "mcp_list_tools":
                     self = .mcpListTools(try .init(from: decoder))
-                case "MCPApprovalRequest", "#/components/schemas/MCPApprovalRequest":
+                case "MCPApprovalRequest", "#/components/schemas/MCPApprovalRequest", "mcp_approval_request":
                     self = .mcpApprovalRequest(try .init(from: decoder))
-                case "MCPApprovalResponse", "#/components/schemas/MCPApprovalResponse":
+                case "MCPApprovalResponse", "#/components/schemas/MCPApprovalResponse", "mcp_approval_response":
                     self = .mcpApprovalResponse(try .init(from: decoder))
-                case "MCPToolCall", "#/components/schemas/MCPToolCall":
+                case "MCPToolCall", "#/components/schemas/MCPToolCall", "mcp_call":
                     self = .mcpToolCall(try .init(from: decoder))
-                case "CustomToolCallOutput", "#/components/schemas/CustomToolCallOutput":
+                case "CustomToolCallOutput", "#/components/schemas/CustomToolCallOutput", "custom_tool_call_output":
                     self = .customToolCallOutput(try .init(from: decoder))
-                case "CustomToolCall", "#/components/schemas/CustomToolCall":
+                case "CustomToolCall", "#/components/schemas/CustomToolCall", "custom_tool_call":
                     self = .customToolCall(try .init(from: decoder))
                 default:
                     throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -3507,51 +3507,51 @@ public enum Components {
                 switch discriminator {
                 case "InputMessageResource", "#/components/schemas/InputMessageResource":
                     self = .inputMessageResource(try .init(from: decoder))
-                case "OutputMessage", "#/components/schemas/OutputMessage":
+                case "OutputMessage", "#/components/schemas/OutputMessage", "message":
                     self = .outputMessage(try .init(from: decoder))
-                case "FileSearchToolCall", "#/components/schemas/FileSearchToolCall":
+                case "FileSearchToolCall", "#/components/schemas/FileSearchToolCall", "file_search_call":
                     self = .fileSearchToolCall(try .init(from: decoder))
-                case "ComputerToolCall", "#/components/schemas/ComputerToolCall":
+                case "ComputerToolCall", "#/components/schemas/ComputerToolCall", "computer_call":
                     self = .computerToolCall(try .init(from: decoder))
                 case "ComputerToolCallOutputResource", "#/components/schemas/ComputerToolCallOutputResource":
                     self = .computerToolCallOutputResource(try .init(from: decoder))
-                case "WebSearchToolCall", "#/components/schemas/WebSearchToolCall":
+                case "WebSearchToolCall", "#/components/schemas/WebSearchToolCall", "web_search_call":
                     self = .webSearchToolCall(try .init(from: decoder))
                 case "FunctionToolCallResource", "#/components/schemas/FunctionToolCallResource":
                     self = .functionToolCallResource(try .init(from: decoder))
                 case "FunctionToolCallOutputResource", "#/components/schemas/FunctionToolCallOutputResource":
                     self = .functionToolCallOutputResource(try .init(from: decoder))
-                case "ToolSearchCall", "#/components/schemas/ToolSearchCall":
+                case "ToolSearchCall", "#/components/schemas/ToolSearchCall", "tool_search_call":
                     self = .toolSearchCall(try .init(from: decoder))
-                case "ToolSearchOutput", "#/components/schemas/ToolSearchOutput":
+                case "ToolSearchOutput", "#/components/schemas/ToolSearchOutput", "tool_search_output":
                     self = .toolSearchOutput(try .init(from: decoder))
-                case "ReasoningItem", "#/components/schemas/ReasoningItem":
+                case "ReasoningItem", "#/components/schemas/ReasoningItem", "reasoning":
                     self = .reasoningItem(try .init(from: decoder))
-                case "CompactionBody", "#/components/schemas/CompactionBody":
+                case "CompactionBody", "#/components/schemas/CompactionBody", "compaction":
                     self = .compactionBody(try .init(from: decoder))
-                case "ImageGenToolCall", "#/components/schemas/ImageGenToolCall":
+                case "ImageGenToolCall", "#/components/schemas/ImageGenToolCall", "image_generation_call":
                     self = .imageGenToolCall(try .init(from: decoder))
-                case "CodeInterpreterToolCall", "#/components/schemas/CodeInterpreterToolCall":
+                case "CodeInterpreterToolCall", "#/components/schemas/CodeInterpreterToolCall", "code_interpreter_call":
                     self = .codeInterpreterToolCall(try .init(from: decoder))
-                case "LocalShellToolCall", "#/components/schemas/LocalShellToolCall":
+                case "LocalShellToolCall", "#/components/schemas/LocalShellToolCall", "local_shell_call":
                     self = .localShellToolCall(try .init(from: decoder))
-                case "LocalShellToolCallOutput", "#/components/schemas/LocalShellToolCallOutput":
+                case "LocalShellToolCallOutput", "#/components/schemas/LocalShellToolCallOutput", "local_shell_call_output":
                     self = .localShellToolCallOutput(try .init(from: decoder))
-                case "FunctionShellCall", "#/components/schemas/FunctionShellCall":
+                case "FunctionShellCall", "#/components/schemas/FunctionShellCall", "shell_call":
                     self = .functionShellCall(try .init(from: decoder))
-                case "FunctionShellCallOutput", "#/components/schemas/FunctionShellCallOutput":
+                case "FunctionShellCallOutput", "#/components/schemas/FunctionShellCallOutput", "shell_call_output":
                     self = .functionShellCallOutput(try .init(from: decoder))
-                case "ApplyPatchToolCall", "#/components/schemas/ApplyPatchToolCall":
+                case "ApplyPatchToolCall", "#/components/schemas/ApplyPatchToolCall", "apply_patch_call":
                     self = .applyPatchToolCall(try .init(from: decoder))
-                case "ApplyPatchToolCallOutput", "#/components/schemas/ApplyPatchToolCallOutput":
+                case "ApplyPatchToolCallOutput", "#/components/schemas/ApplyPatchToolCallOutput", "apply_patch_call_output":
                     self = .applyPatchToolCallOutput(try .init(from: decoder))
-                case "MCPListTools", "#/components/schemas/MCPListTools":
+                case "MCPListTools", "#/components/schemas/MCPListTools", "mcp_list_tools":
                     self = .mcpListTools(try .init(from: decoder))
-                case "MCPApprovalRequest", "#/components/schemas/MCPApprovalRequest":
+                case "MCPApprovalRequest", "#/components/schemas/MCPApprovalRequest", "mcp_approval_request":
                     self = .mcpApprovalRequest(try .init(from: decoder))
-                case "MCPApprovalResponseResource", "#/components/schemas/MCPApprovalResponseResource":
+                case "MCPApprovalResponseResource", "#/components/schemas/MCPApprovalResponseResource", "mcp_approval_response":
                     self = .mcpApprovalResponseResource(try .init(from: decoder))
-                case "MCPToolCall", "#/components/schemas/MCPToolCall":
+                case "MCPToolCall", "#/components/schemas/MCPToolCall", "mcp_call":
                     self = .mcpToolCall(try .init(from: decoder))
                 case "CustomToolCallResource", "#/components/schemas/CustomToolCallResource":
                     self = .customToolCallResource(try .init(from: decoder))
@@ -4833,11 +4833,11 @@ public enum Components {
                     forKey: ._type
                 )
                 switch discriminator {
-                case "OutputTextContent", "#/components/schemas/OutputTextContent":
+                case "OutputTextContent", "#/components/schemas/OutputTextContent", "output_text":
                     self = .outputTextContent(try .init(from: decoder))
-                case "RefusalContent", "#/components/schemas/RefusalContent":
+                case "RefusalContent", "#/components/schemas/RefusalContent", "refusal":
                     self = .refusalContent(try .init(from: decoder))
-                case "ReasoningTextContent", "#/components/schemas/ReasoningTextContent":
+                case "ReasoningTextContent", "#/components/schemas/ReasoningTextContent", "reasoning_text":
                     self = .reasoningTextContent(try .init(from: decoder))
                 default:
                     throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -4920,53 +4920,53 @@ public enum Components {
                     forKey: ._type
                 )
                 switch discriminator {
-                case "OutputMessage", "#/components/schemas/OutputMessage":
+                case "OutputMessage", "#/components/schemas/OutputMessage", "message":
                     self = .outputMessage(try .init(from: decoder))
-                case "FileSearchToolCall", "#/components/schemas/FileSearchToolCall":
+                case "FileSearchToolCall", "#/components/schemas/FileSearchToolCall", "file_search_call":
                     self = .fileSearchToolCall(try .init(from: decoder))
-                case "FunctionToolCall", "#/components/schemas/FunctionToolCall":
+                case "FunctionToolCall", "#/components/schemas/FunctionToolCall", "function_call":
                     self = .functionToolCall(try .init(from: decoder))
                 case "FunctionToolCallOutputResource", "#/components/schemas/FunctionToolCallOutputResource":
                     self = .functionToolCallOutputResource(try .init(from: decoder))
-                case "WebSearchToolCall", "#/components/schemas/WebSearchToolCall":
+                case "WebSearchToolCall", "#/components/schemas/WebSearchToolCall", "web_search_call":
                     self = .webSearchToolCall(try .init(from: decoder))
-                case "ComputerToolCall", "#/components/schemas/ComputerToolCall":
+                case "ComputerToolCall", "#/components/schemas/ComputerToolCall", "computer_call":
                     self = .computerToolCall(try .init(from: decoder))
                 case "ComputerToolCallOutputResource", "#/components/schemas/ComputerToolCallOutputResource":
                     self = .computerToolCallOutputResource(try .init(from: decoder))
-                case "ReasoningItem", "#/components/schemas/ReasoningItem":
+                case "ReasoningItem", "#/components/schemas/ReasoningItem", "reasoning":
                     self = .reasoningItem(try .init(from: decoder))
-                case "ToolSearchCall", "#/components/schemas/ToolSearchCall":
+                case "ToolSearchCall", "#/components/schemas/ToolSearchCall", "tool_search_call":
                     self = .toolSearchCall(try .init(from: decoder))
-                case "ToolSearchOutput", "#/components/schemas/ToolSearchOutput":
+                case "ToolSearchOutput", "#/components/schemas/ToolSearchOutput", "tool_search_output":
                     self = .toolSearchOutput(try .init(from: decoder))
-                case "CompactionBody", "#/components/schemas/CompactionBody":
+                case "CompactionBody", "#/components/schemas/CompactionBody", "compaction":
                     self = .compactionBody(try .init(from: decoder))
-                case "ImageGenToolCall", "#/components/schemas/ImageGenToolCall":
+                case "ImageGenToolCall", "#/components/schemas/ImageGenToolCall", "image_generation_call":
                     self = .imageGenToolCall(try .init(from: decoder))
-                case "CodeInterpreterToolCall", "#/components/schemas/CodeInterpreterToolCall":
+                case "CodeInterpreterToolCall", "#/components/schemas/CodeInterpreterToolCall", "code_interpreter_call":
                     self = .codeInterpreterToolCall(try .init(from: decoder))
-                case "LocalShellToolCall", "#/components/schemas/LocalShellToolCall":
+                case "LocalShellToolCall", "#/components/schemas/LocalShellToolCall", "local_shell_call":
                     self = .localShellToolCall(try .init(from: decoder))
-                case "LocalShellToolCallOutput", "#/components/schemas/LocalShellToolCallOutput":
+                case "LocalShellToolCallOutput", "#/components/schemas/LocalShellToolCallOutput", "local_shell_call_output":
                     self = .localShellToolCallOutput(try .init(from: decoder))
-                case "FunctionShellCall", "#/components/schemas/FunctionShellCall":
+                case "FunctionShellCall", "#/components/schemas/FunctionShellCall", "shell_call":
                     self = .functionShellCall(try .init(from: decoder))
-                case "FunctionShellCallOutput", "#/components/schemas/FunctionShellCallOutput":
+                case "FunctionShellCallOutput", "#/components/schemas/FunctionShellCallOutput", "shell_call_output":
                     self = .functionShellCallOutput(try .init(from: decoder))
-                case "ApplyPatchToolCall", "#/components/schemas/ApplyPatchToolCall":
+                case "ApplyPatchToolCall", "#/components/schemas/ApplyPatchToolCall", "apply_patch_call":
                     self = .applyPatchToolCall(try .init(from: decoder))
-                case "ApplyPatchToolCallOutput", "#/components/schemas/ApplyPatchToolCallOutput":
+                case "ApplyPatchToolCallOutput", "#/components/schemas/ApplyPatchToolCallOutput", "apply_patch_call_output":
                     self = .applyPatchToolCallOutput(try .init(from: decoder))
-                case "MCPToolCall", "#/components/schemas/MCPToolCall":
+                case "MCPToolCall", "#/components/schemas/MCPToolCall", "mcp_call":
                     self = .mcpToolCall(try .init(from: decoder))
-                case "MCPListTools", "#/components/schemas/MCPListTools":
+                case "MCPListTools", "#/components/schemas/MCPListTools", "mcp_list_tools":
                     self = .mcpListTools(try .init(from: decoder))
-                case "MCPApprovalRequest", "#/components/schemas/MCPApprovalRequest":
+                case "MCPApprovalRequest", "#/components/schemas/MCPApprovalRequest", "mcp_approval_request":
                     self = .mcpApprovalRequest(try .init(from: decoder))
-                case "MCPApprovalResponseResource", "#/components/schemas/MCPApprovalResponseResource":
+                case "MCPApprovalResponseResource", "#/components/schemas/MCPApprovalResponseResource", "mcp_approval_response":
                     self = .mcpApprovalResponseResource(try .init(from: decoder))
-                case "CustomToolCall", "#/components/schemas/CustomToolCall":
+                case "CustomToolCall", "#/components/schemas/CustomToolCall", "custom_tool_call":
                     self = .customToolCall(try .init(from: decoder))
                 case "CustomToolCallOutputResource", "#/components/schemas/CustomToolCallOutputResource":
                     self = .customToolCallOutputResource(try .init(from: decoder))
@@ -5141,9 +5141,9 @@ public enum Components {
                     forKey: ._type
                 )
                 switch discriminator {
-                case "OutputTextContent", "#/components/schemas/OutputTextContent":
+                case "OutputTextContent", "#/components/schemas/OutputTextContent", "output_text":
                     self = .outputTextContent(try .init(from: decoder))
-                case "RefusalContent", "#/components/schemas/RefusalContent":
+                case "RefusalContent", "#/components/schemas/RefusalContent", "refusal":
                     self = .refusalContent(try .init(from: decoder))
                 default:
                     throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -10241,35 +10241,35 @@ public enum Components {
                     forKey: ._type
                 )
                 switch discriminator {
-                case "FunctionTool", "#/components/schemas/FunctionTool":
+                case "FunctionTool", "#/components/schemas/FunctionTool", "function":
                     self = .functionTool(try .init(from: decoder))
-                case "FileSearchTool", "#/components/schemas/FileSearchTool":
+                case "FileSearchTool", "#/components/schemas/FileSearchTool", "file_search":
                     self = .fileSearchTool(try .init(from: decoder))
-                case "ComputerTool", "#/components/schemas/ComputerTool":
+                case "ComputerTool", "#/components/schemas/ComputerTool", "computer":
                     self = .computerTool(try .init(from: decoder))
-                case "ComputerUsePreviewTool", "#/components/schemas/ComputerUsePreviewTool":
+                case "ComputerUsePreviewTool", "#/components/schemas/ComputerUsePreviewTool", "computer_use_preview":
                     self = .computerUsePreviewTool(try .init(from: decoder))
-                case "WebSearchTool", "#/components/schemas/WebSearchTool":
+                case "WebSearchTool", "#/components/schemas/WebSearchTool", "web_search", "web_search_2025_08_26":
                     self = .webSearchTool(try .init(from: decoder))
-                case "MCPTool", "#/components/schemas/MCPTool":
+                case "MCPTool", "#/components/schemas/MCPTool", "mcp":
                     self = .mcpTool(try .init(from: decoder))
-                case "CodeInterpreterTool", "#/components/schemas/CodeInterpreterTool":
+                case "CodeInterpreterTool", "#/components/schemas/CodeInterpreterTool", "code_interpreter":
                     self = .codeInterpreterTool(try .init(from: decoder))
-                case "ImageGenTool", "#/components/schemas/ImageGenTool":
+                case "ImageGenTool", "#/components/schemas/ImageGenTool", "image_generation":
                     self = .imageGenTool(try .init(from: decoder))
-                case "LocalShellToolParam", "#/components/schemas/LocalShellToolParam":
+                case "LocalShellToolParam", "#/components/schemas/LocalShellToolParam", "local_shell":
                     self = .localShellToolParam(try .init(from: decoder))
-                case "FunctionShellToolParam", "#/components/schemas/FunctionShellToolParam":
+                case "FunctionShellToolParam", "#/components/schemas/FunctionShellToolParam", "shell":
                     self = .functionShellToolParam(try .init(from: decoder))
-                case "CustomToolParam", "#/components/schemas/CustomToolParam":
+                case "CustomToolParam", "#/components/schemas/CustomToolParam", "custom":
                     self = .customToolParam(try .init(from: decoder))
-                case "NamespaceToolParam", "#/components/schemas/NamespaceToolParam":
+                case "NamespaceToolParam", "#/components/schemas/NamespaceToolParam", "namespace":
                     self = .namespaceToolParam(try .init(from: decoder))
-                case "ToolSearchToolParam", "#/components/schemas/ToolSearchToolParam":
+                case "ToolSearchToolParam", "#/components/schemas/ToolSearchToolParam", "tool_search":
                     self = .toolSearchToolParam(try .init(from: decoder))
-                case "WebSearchPreviewTool", "#/components/schemas/WebSearchPreviewTool":
+                case "WebSearchPreviewTool", "#/components/schemas/WebSearchPreviewTool", "web_search_preview", "web_search_preview_2025_03_11":
                     self = .webSearchPreviewTool(try .init(from: decoder))
-                case "ApplyPatchToolParam", "#/components/schemas/ApplyPatchToolParam":
+                case "ApplyPatchToolParam", "#/components/schemas/ApplyPatchToolParam", "apply_patch":
                     self = .applyPatchToolParam(try .init(from: decoder))
                 default:
                     throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -11588,7 +11588,7 @@ public enum Components {
             ///
             ///
             /// - Remark: Generated from `#/components/schemas/WebSearchActionSearch/query`.
-            public var query: Swift.String
+            public var query: Swift.String?
             /// The search queries.
             ///
             ///
@@ -11652,7 +11652,7 @@ public enum Components {
             ///   - sources: The sources used in the search.
             public init(
                 _type: Components.Schemas.WebSearchActionSearch._TypePayload,
-                query: Swift.String,
+                query: Swift.String? = nil,
                 queries: [Swift.String]? = nil,
                 sources: Components.Schemas.WebSearchActionSearch.SourcesPayload? = nil
             ) {
@@ -11918,11 +11918,11 @@ public enum Components {
                         forKey: ._type
                     )
                     switch discriminator {
-                    case "WebSearchActionSearch", "#/components/schemas/WebSearchActionSearch":
+                    case "WebSearchActionSearch", "#/components/schemas/WebSearchActionSearch", "search":
                         self = .webSearchActionSearch(try .init(from: decoder))
-                    case "WebSearchActionOpenPage", "#/components/schemas/WebSearchActionOpenPage":
+                    case "WebSearchActionOpenPage", "#/components/schemas/WebSearchActionOpenPage", "open_page":
                         self = .webSearchActionOpenPage(try .init(from: decoder))
-                    case "WebSearchActionFind", "#/components/schemas/WebSearchActionFind":
+                    case "WebSearchActionFind", "#/components/schemas/WebSearchActionFind", "find_in_page":
                         self = .webSearchActionFind(try .init(from: decoder))
                     default:
                         throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -12466,13 +12466,13 @@ public enum Components {
                     forKey: ._type
                 )
                 switch discriminator {
-                case "FileCitationBody", "#/components/schemas/FileCitationBody":
+                case "FileCitationBody", "#/components/schemas/FileCitationBody", "file_citation":
                     self = .fileCitationBody(try .init(from: decoder))
-                case "UrlCitationBody", "#/components/schemas/UrlCitationBody":
+                case "UrlCitationBody", "#/components/schemas/UrlCitationBody", "url_citation":
                     self = .urlCitationBody(try .init(from: decoder))
-                case "ContainerFileCitationBody", "#/components/schemas/ContainerFileCitationBody":
+                case "ContainerFileCitationBody", "#/components/schemas/ContainerFileCitationBody", "container_file_citation":
                     self = .containerFileCitationBody(try .init(from: decoder))
-                case "FilePath", "#/components/schemas/FilePath":
+                case "FilePath", "#/components/schemas/FilePath", "file_path":
                     self = .filePath(try .init(from: decoder))
                 default:
                     throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -13776,9 +13776,9 @@ public enum Components {
                         forKey: ._type
                     )
                     switch discriminator {
-                    case "ContainerNetworkPolicyDisabledParam", "#/components/schemas/ContainerNetworkPolicyDisabledParam":
+                    case "ContainerNetworkPolicyDisabledParam", "#/components/schemas/ContainerNetworkPolicyDisabledParam", "disabled":
                         self = .containerNetworkPolicyDisabledParam(try .init(from: decoder))
-                    case "ContainerNetworkPolicyAllowlistParam", "#/components/schemas/ContainerNetworkPolicyAllowlistParam":
+                    case "ContainerNetworkPolicyAllowlistParam", "#/components/schemas/ContainerNetworkPolicyAllowlistParam", "allowlist":
                         self = .containerNetworkPolicyAllowlistParam(try .init(from: decoder))
                     default:
                         throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -13902,9 +13902,9 @@ public enum Components {
                         forKey: ._type
                     )
                     switch discriminator {
-                    case "ContainerNetworkPolicyDisabledParam", "#/components/schemas/ContainerNetworkPolicyDisabledParam":
+                    case "ContainerNetworkPolicyDisabledParam", "#/components/schemas/ContainerNetworkPolicyDisabledParam", "disabled":
                         self = .containerNetworkPolicyDisabledParam(try .init(from: decoder))
-                    case "ContainerNetworkPolicyAllowlistParam", "#/components/schemas/ContainerNetworkPolicyAllowlistParam":
+                    case "ContainerNetworkPolicyAllowlistParam", "#/components/schemas/ContainerNetworkPolicyAllowlistParam", "allowlist":
                         self = .containerNetworkPolicyAllowlistParam(try .init(from: decoder))
                     default:
                         throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -13943,9 +13943,9 @@ public enum Components {
                         forKey: ._type
                     )
                     switch discriminator {
-                    case "SkillReferenceParam", "#/components/schemas/SkillReferenceParam":
+                    case "SkillReferenceParam", "#/components/schemas/SkillReferenceParam", "skill_reference":
                         self = .skillReferenceParam(try .init(from: decoder))
-                    case "InlineSkillParam", "#/components/schemas/InlineSkillParam":
+                    case "InlineSkillParam", "#/components/schemas/InlineSkillParam", "inline":
                         self = .inlineSkillParam(try .init(from: decoder))
                     default:
                         throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -14134,11 +14134,11 @@ public enum Components {
                         forKey: ._type
                     )
                     switch discriminator {
-                    case "ContainerAutoParam", "#/components/schemas/ContainerAutoParam":
+                    case "ContainerAutoParam", "#/components/schemas/ContainerAutoParam", "container_auto":
                         self = .containerAutoParam(try .init(from: decoder))
-                    case "LocalEnvironmentParam", "#/components/schemas/LocalEnvironmentParam":
+                    case "LocalEnvironmentParam", "#/components/schemas/LocalEnvironmentParam", "local":
                         self = .localEnvironmentParam(try .init(from: decoder))
-                    case "ContainerReferenceParam", "#/components/schemas/ContainerReferenceParam":
+                    case "ContainerReferenceParam", "#/components/schemas/ContainerReferenceParam", "container_reference":
                         self = .containerReferenceParam(try .init(from: decoder))
                     default:
                         throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -14291,9 +14291,9 @@ public enum Components {
                         forKey: ._type
                     )
                     switch discriminator {
-                    case "CustomTextFormatParam", "#/components/schemas/CustomTextFormatParam":
+                    case "CustomTextFormatParam", "#/components/schemas/CustomTextFormatParam", "text":
                         self = .customTextFormatParam(try .init(from: decoder))
-                    case "CustomGrammarFormatParam", "#/components/schemas/CustomGrammarFormatParam":
+                    case "CustomGrammarFormatParam", "#/components/schemas/CustomGrammarFormatParam", "grammar":
                         self = .customGrammarFormatParam(try .init(from: decoder))
                     default:
                         throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -14446,9 +14446,9 @@ public enum Components {
                         forKey: ._type
                     )
                     switch discriminator {
-                    case "FunctionToolParam", "#/components/schemas/FunctionToolParam":
+                    case "FunctionToolParam", "#/components/schemas/FunctionToolParam", "function":
                         self = .functionToolParam(try .init(from: decoder))
-                    case "CustomToolParam", "#/components/schemas/CustomToolParam":
+                    case "CustomToolParam", "#/components/schemas/CustomToolParam", "custom":
                         self = .customToolParam(try .init(from: decoder))
                     default:
                         throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -15098,9 +15098,9 @@ public enum Components {
                         forKey: ._type
                     )
                     switch discriminator {
-                    case "LocalEnvironmentResource", "#/components/schemas/LocalEnvironmentResource":
+                    case "LocalEnvironmentResource", "#/components/schemas/LocalEnvironmentResource", "local":
                         self = .localEnvironmentResource(try .init(from: decoder))
-                    case "ContainerReferenceResource", "#/components/schemas/ContainerReferenceResource":
+                    case "ContainerReferenceResource", "#/components/schemas/ContainerReferenceResource", "container_reference":
                         self = .containerReferenceResource(try .init(from: decoder))
                     default:
                         throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -15258,9 +15258,9 @@ public enum Components {
                         forKey: ._type
                     )
                     switch discriminator {
-                    case "FunctionShellCallOutputTimeoutOutcome", "#/components/schemas/FunctionShellCallOutputTimeoutOutcome":
+                    case "FunctionShellCallOutputTimeoutOutcome", "#/components/schemas/FunctionShellCallOutputTimeoutOutcome", "timeout":
                         self = .functionShellCallOutputTimeoutOutcome(try .init(from: decoder))
-                    case "FunctionShellCallOutputExitOutcome", "#/components/schemas/FunctionShellCallOutputExitOutcome":
+                    case "FunctionShellCallOutputExitOutcome", "#/components/schemas/FunctionShellCallOutputExitOutcome", "exit":
                         self = .functionShellCallOutputExitOutcome(try .init(from: decoder))
                     default:
                         throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -15557,11 +15557,11 @@ public enum Components {
                         forKey: ._type
                     )
                     switch discriminator {
-                    case "ApplyPatchCreateFileOperation", "#/components/schemas/ApplyPatchCreateFileOperation":
+                    case "ApplyPatchCreateFileOperation", "#/components/schemas/ApplyPatchCreateFileOperation", "create_file":
                         self = .applyPatchCreateFileOperation(try .init(from: decoder))
-                    case "ApplyPatchDeleteFileOperation", "#/components/schemas/ApplyPatchDeleteFileOperation":
+                    case "ApplyPatchDeleteFileOperation", "#/components/schemas/ApplyPatchDeleteFileOperation", "delete_file":
                         self = .applyPatchDeleteFileOperation(try .init(from: decoder))
-                    case "ApplyPatchUpdateFileOperation", "#/components/schemas/ApplyPatchUpdateFileOperation":
+                    case "ApplyPatchUpdateFileOperation", "#/components/schemas/ApplyPatchUpdateFileOperation", "update_file":
                         self = .applyPatchUpdateFileOperation(try .init(from: decoder))
                     default:
                         throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -15971,11 +15971,11 @@ public enum Components {
                             forKey: ._type
                         )
                         switch discriminator {
-                        case "InputTextContentParam", "#/components/schemas/InputTextContentParam":
+                        case "InputTextContentParam", "#/components/schemas/InputTextContentParam", "input_text":
                             self = .inputTextContentParam(try .init(from: decoder))
-                        case "InputImageContentParamAutoParam", "#/components/schemas/InputImageContentParamAutoParam":
+                        case "InputImageContentParamAutoParam", "#/components/schemas/InputImageContentParamAutoParam", "input_image":
                             self = .inputImageContentParamAutoParam(try .init(from: decoder))
-                        case "InputFileContentParam", "#/components/schemas/InputFileContentParam":
+                        case "InputFileContentParam", "#/components/schemas/InputFileContentParam", "input_file":
                             self = .inputFileContentParam(try .init(from: decoder))
                         default:
                             throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -16320,9 +16320,9 @@ public enum Components {
                         forKey: ._type
                     )
                     switch discriminator {
-                    case "LocalEnvironmentParam", "#/components/schemas/LocalEnvironmentParam":
+                    case "LocalEnvironmentParam", "#/components/schemas/LocalEnvironmentParam", "local":
                         self = .localEnvironmentParam(try .init(from: decoder))
-                    case "ContainerReferenceParam", "#/components/schemas/ContainerReferenceParam":
+                    case "ContainerReferenceParam", "#/components/schemas/ContainerReferenceParam", "container_reference":
                         self = .containerReferenceParam(try .init(from: decoder))
                     default:
                         throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -16454,9 +16454,9 @@ public enum Components {
                     forKey: ._type
                 )
                 switch discriminator {
-                case "FunctionShellCallOutputTimeoutOutcomeParam", "#/components/schemas/FunctionShellCallOutputTimeoutOutcomeParam":
+                case "FunctionShellCallOutputTimeoutOutcomeParam", "#/components/schemas/FunctionShellCallOutputTimeoutOutcomeParam", "timeout":
                     self = .functionShellCallOutputTimeoutOutcomeParam(try .init(from: decoder))
-                case "FunctionShellCallOutputExitOutcomeParam", "#/components/schemas/FunctionShellCallOutputExitOutcomeParam":
+                case "FunctionShellCallOutputExitOutcomeParam", "#/components/schemas/FunctionShellCallOutputExitOutcomeParam", "exit":
                     self = .functionShellCallOutputExitOutcomeParam(try .init(from: decoder))
                 default:
                     throw Swift.DecodingError.unknownOneOfDiscriminator(
@@ -16723,11 +16723,11 @@ public enum Components {
                     forKey: ._type
                 )
                 switch discriminator {
-                case "ApplyPatchCreateFileOperationParam", "#/components/schemas/ApplyPatchCreateFileOperationParam":
+                case "ApplyPatchCreateFileOperationParam", "#/components/schemas/ApplyPatchCreateFileOperationParam", "create_file":
                     self = .applyPatchCreateFileOperationParam(try .init(from: decoder))
-                case "ApplyPatchDeleteFileOperationParam", "#/components/schemas/ApplyPatchDeleteFileOperationParam":
+                case "ApplyPatchDeleteFileOperationParam", "#/components/schemas/ApplyPatchDeleteFileOperationParam", "delete_file":
                     self = .applyPatchDeleteFileOperationParam(try .init(from: decoder))
-                case "ApplyPatchUpdateFileOperationParam", "#/components/schemas/ApplyPatchUpdateFileOperationParam":
+                case "ApplyPatchUpdateFileOperationParam", "#/components/schemas/ApplyPatchUpdateFileOperationParam", "update_file":
                     self = .applyPatchUpdateFileOperationParam(try .init(from: decoder))
                 default:
                     throw Swift.DecodingError.unknownOneOfDiscriminator(

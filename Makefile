@@ -1,3 +1,6 @@
+# Requires a local fork of swift-openapi-generator to be checked out as a
+# sibling directory named `swift-openapi-generator` (i.e. ../swift-openapi-generator).
+# See https://github.com/apple/swift-openapi-generator for the upstream repo.
 GENERATOR_DIR    := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))/../swift-openapi-generator
 PROJECT_DIR      := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
 TYPES_SWIFT      := $(GENERATOR_DIR)/Types.swift

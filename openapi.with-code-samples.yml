@@ -66728,7 +66728,6 @@ components:
               - url
       required:
         - type
-        - query
     WebSearchApproximateLocation:
       anyOf:
         - type: object
