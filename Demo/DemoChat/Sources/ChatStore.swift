@@ -231,6 +231,7 @@ public final class ChatStore: ObservableObject {
                 try await completeConversation(conversationIndex: conversationIndex, query: chatQuery)
             }
         } catch {
+            print("error in func completeChat(conversationId:model:stream:):\n\(error)")
             conversationErrors[conversationId] = error
         }
     }

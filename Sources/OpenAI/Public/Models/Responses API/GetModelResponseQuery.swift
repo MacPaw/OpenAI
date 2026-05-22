@@ -15,7 +15,7 @@ public struct GetModelResponseQuery: Codable, Equatable, Sendable {
     /// * `file_search_call.results`: Include the search results of the file search tool call.
     /// * `message.input_image.image_url`: Include image urls from the input message.
     /// * `computer_call_output.output.image_url`: Include image urls from the computer call output.
-    public let include: [Components.Schemas.Includable]?
+    public let include: [Components.Schemas.IncludeEnum]?
     
     private enum CodingKeys: String, CodingKey {
         case responseId = "response_id"

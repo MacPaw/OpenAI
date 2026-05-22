@@ -10,7 +10,6 @@ import Foundation
 /// Improved interface to use instead of generated `Components.Schemas.ResponseStreamEvent`
 public enum ResponseStreamEvent: Codable, Equatable, Sendable {
     public typealias Schemas = Components.Schemas
-    public typealias OutputItem = Components.Schemas.OutputItem
     public typealias OutputContent = Components.Schemas.OutputContent
     public typealias OutputText = Components.Schemas.OutputTextContent
     public typealias Annotation = Components.Schemas.Annotation
@@ -133,17 +132,17 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
     }
     
     public enum ReasoningEvent: Codable, Equatable, Sendable {
-        /// Emitted when there is a delta (partial update) to the reasoning content.
-        case delta(Schemas.ResponseReasoningDeltaEvent)
-        /// Emitted when the reasoning content is finalized for an item.
-        case done(Schemas.ResponseReasoningDoneEvent)
+        /// Emitted when a delta is added to a reasoning text.
+        case delta(Schemas.ResponseReasoningTextDeltaEvent)
+        /// Emitted when a reasoning text is completed.
+        case done(Schemas.ResponseReasoningTextDoneEvent)
     }
-    
+
     public enum ReasoningSummaryEvent: Codable, Equatable, Sendable {
-        /// Emitted when there is a delta (partial update) to the reasoning summary content.
-        case delta(Schemas.ResponseReasoningSummaryDeltaEvent)
-        /// Emitted when the reasoning summary content is finalized for an item.
-        case done(Schemas.ResponseReasoningSummaryDoneEvent)
+        /// Emitted when a delta is added to a reasoning summary text.
+        case delta(Schemas.ResponseReasoningSummaryTextDeltaEvent)
+        /// Emitted when a reasoning summary text is completed.
+        case done(Schemas.ResponseReasoningSummaryTextDoneEvent)
     }
     
     public enum AudioEvent: Codable, Equatable, Sendable {
@@ -287,7 +286,7 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
         }
 
         let rawEvent = try Components.Schemas.ResponseStreamEvent(from: decoder)
-        if rawEvent.value10 != nil || rawEvent.value13 != nil || rawEvent.value20 != nil || rawEvent.value21 != nil, rawEvent.value22 != nil, rawEvent.value40 != nil, rawEvent.value41 != nil, rawEvent.value49 != nil {
+        if rawEvent.value10 != nil || rawEvent.value13 != nil || rawEvent.value20 != nil || rawEvent.value21 != nil, rawEvent.value22 != nil, rawEvent.value42 != nil, rawEvent.value43 != nil, rawEvent.value51 != nil {
             // The following events are handled elsewhere by non-generated types
             // (search "Decoding Response Event")
             //
@@ -357,49 +356,45 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
         } else if let value = rawEvent.value28 {
             self = .reasoningSummaryText(.done(value))
         } else if let value = rawEvent.value29 {
-            self = .refusal(.delta(value))
-        } else if let value = rawEvent.value30 {
-            self = .refusal(.done(value))
-        } else if let value = rawEvent.value31 {
-            self = .outputText(.delta(value))
-        } else if let value = rawEvent.value32 {
-            self = .outputText(.done(value))
-        } else if let value = rawEvent.value33 {
-            self = .webSearchCall(.completed(value))
-        } else if let value = rawEvent.value34 {
-            self = .webSearchCall(.inProgress(value))
-        } else if let value = rawEvent.value35 {
-            self = .webSearchCall(.searching(value))
-        } else if let value = rawEvent.value36 {
-            self = .imageGenerationCall(.completed(value))
-        } else if let value = rawEvent.value37 {
-            self = .imageGenerationCall(.generating(value))
-        } else if let value = rawEvent.value38 {
-            self = .imageGenerationCall(.inProgress(value))
-        } else if let value = rawEvent.value39 {
-            self = .imageGenerationCall(.partialImage(value))
-        } else if let value = rawEvent.value42 {
-            self = .mcpCall(.completed(value))
-        } else if let value = rawEvent.value43 {
-            self = .mcpCall(.failed(value))
-        } else if let value = rawEvent.value44 {
-            self = .mcpCall(.inProgress(value))
-        } else if let value = rawEvent.value45 {
-            self = .mcpListTools(.completed(value))
-        } else if let value = rawEvent.value46 {
-            self = .mcpListTools(.failed(value))
-        } else if let value = rawEvent.value47 {
-            self = .mcpListTools(.inProgress(value))
-        } else if let value = rawEvent.value48 {
-            self = .outputTextAnnotation(.added(value))
-        } else if let value = rawEvent.value50 {
             self = .reasoning(.delta(value))
-        } else if let value = rawEvent.value51 {
+        } else if let value = rawEvent.value30 {
             self = .reasoning(.done(value))
-        } else if let value = rawEvent.value52 {
-            self = .reasoningSummary(.delta(value))
-        } else if let value = rawEvent.value53 {
-            self = .reasoningSummary(.done(value))
+        } else if let value = rawEvent.value31 {
+            self = .refusal(.delta(value))
+        } else if let value = rawEvent.value32 {
+            self = .refusal(.done(value))
+        } else if let value = rawEvent.value33 {
+            self = .outputText(.delta(value))
+        } else if let value = rawEvent.value34 {
+            self = .outputText(.done(value))
+        } else if let value = rawEvent.value35 {
+            self = .webSearchCall(.completed(value))
+        } else if let value = rawEvent.value36 {
+            self = .webSearchCall(.inProgress(value))
+        } else if let value = rawEvent.value37 {
+            self = .webSearchCall(.searching(value))
+        } else if let value = rawEvent.value38 {
+            self = .imageGenerationCall(.completed(value))
+        } else if let value = rawEvent.value39 {
+            self = .imageGenerationCall(.generating(value))
+        } else if let value = rawEvent.value40 {
+            self = .imageGenerationCall(.inProgress(value))
+        } else if let value = rawEvent.value41 {
+            self = .imageGenerationCall(.partialImage(value))
+        } else if let value = rawEvent.value44 {
+            self = .mcpCall(.completed(value))
+        } else if let value = rawEvent.value45 {
+            self = .mcpCall(.failed(value))
+        } else if let value = rawEvent.value46 {
+            self = .mcpCall(.inProgress(value))
+        } else if let value = rawEvent.value47 {
+            self = .mcpListTools(.completed(value))
+        } else if let value = rawEvent.value48 {
+            self = .mcpListTools(.failed(value))
+        } else if let value = rawEvent.value49 {
+            self = .mcpListTools(.inProgress(value))
+        } else if let value = rawEvent.value50 {
+            self = .outputTextAnnotation(.added(value))
         } else {
             throw ResponseStreamEventDecodingError.unknownEvent(rawEvent)
         }

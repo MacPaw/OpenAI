@@ -30,7 +30,7 @@ struct MockServerSentEvent {
         sequenceNumber: Int = 1
     ) -> Data {
         let json = """
-        {"type":"\(payloadType)","output_index":\(outputIndex),"item_id":"\(itemId)","content_index":\(contentIndex),"delta":"\(delta)","sequence_number":\(sequenceNumber)}
+        {"type":"\(payloadType)","output_index":\(outputIndex),"item_id":"\(itemId)","content_index":\(contentIndex),"delta":"\(delta)","sequence_number":\(sequenceNumber),"logprobs":[]}
         """
         return "data: \(json)\n\n".data(using: .utf8)!
     }
