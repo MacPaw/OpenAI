@@ -437,7 +437,7 @@ public protocol OpenAIProtocol: OpenAIModern {
     
     /**
      This function sends a purpose string, file contents, and fileName contents to the OpenAI API and returns a file id result.
-     
+
      Example: Upload file
      ```
      let query = FilesQuery(purpose: "assistants", file: fileData, fileName: url.lastPathComponent, contentType: "application/pdf")
@@ -450,4 +450,54 @@ public protocol OpenAIProtocol: OpenAIModern {
      Returns a `Result` of type `FilesResult` if successful, or an `Error` if an error occurs.
      **/
     @discardableResult func files(query: FilesQuery, completion: @escaping @Sendable (Result<FilesResult, Error>) -> Void) -> CancellableRequest
+
+    // MARK: - Batch API
+
+    /**
+     Creates and executes a batch from an uploaded file of requests.
+     Batches are processed asynchronously and results can be retrieved when complete.
+     Batch processing is 50% cheaper than synchronous API calls.
+
+     Example:
+     ```
+     let query = BatchQuery(inputFileId: "file-abc123")
+     openAI.createBatch(query: query) { result in
+         // Handle response here
+     }
+     ```
+
+     - Parameter query: A `BatchQuery` containing the input file ID and other batch parameters.
+     - Parameter completion: The completion handler with the batch result or an error.
+     - Returns: A `CancellableRequest` that can be used to cancel the request.
+     **/
+    @discardableResult func createBatch(query: BatchQuery, completion: @escaping @Sendable (Result<BatchResult, Error>) -> Void) -> CancellableRequest
+
+    /**
+     Retrieves a batch by its ID.
+
+     - Parameter id: The ID of the batch to retrieve.
+     - Parameter completion: The completion handler with the batch result or an error.
+     - Returns: A `CancellableRequest` that can be used to cancel the request.
+     **/
+    @discardableResult func retrieveBatch(id: String, completion: @escaping @Sendable (Result<BatchResult, Error>) -> Void) -> CancellableRequest
+
+    /**
+     Lists all batches for the organization.
+
+     - Parameter after: A cursor for pagination. Pass the `lastId` from a previous response.
+     - Parameter limit: The maximum number of batches to return (default 20, max 100).
+     - Parameter completion: The completion handler with the list result or an error.
+     - Returns: A `CancellableRequest` that can be used to cancel the request.
+     **/
+    @discardableResult func listBatches(after: String?, limit: Int, completion: @escaping @Sendable (Result<BatchListResult, Error>) -> Void) -> CancellableRequest
+
+    /**
+     Cancels an in-progress batch. The batch will be moved to `cancelling` status
+     and eventually `cancelled`.
+
+     - Parameter id: The ID of the batch to cancel.
+     - Parameter completion: The completion handler with the batch result or an error.
+     - Returns: A `CancellableRequest` that can be used to cancel the request.
+     **/
+    @discardableResult func cancelBatch(id: String, completion: @escaping @Sendable (Result<BatchResult, Error>) -> Void) -> CancellableRequest
 }

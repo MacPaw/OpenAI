@@ -263,6 +263,36 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         )
     }
 
+    // MARK: - Batch API
+
+    public func createBatch(query: BatchQuery, completion: @escaping @Sendable (Result<BatchResult, Error>) -> Void) -> CancellableRequest {
+        performRequest(
+            request: makeBatchCreateRequest(query: query),
+            completion: completion
+        )
+    }
+
+    public func retrieveBatch(id: String, completion: @escaping @Sendable (Result<BatchResult, Error>) -> Void) -> CancellableRequest {
+        performRequest(
+            request: makeBatchRetrieveRequest(id: id),
+            completion: completion
+        )
+    }
+
+    public func listBatches(after: String? = nil, limit: Int = 20, completion: @escaping @Sendable (Result<BatchListResult, Error>) -> Void) -> CancellableRequest {
+        performRequest(
+            request: makeBatchListRequest(after: after, limit: limit),
+            completion: completion
+        )
+    }
+
+    public func cancelBatch(id: String, completion: @escaping @Sendable (Result<BatchResult, Error>) -> Void) -> CancellableRequest {
+        performRequest(
+            request: makeBatchCancelRequest(id: id),
+            completion: completion
+        )
+    }
+
     public func images(query: ImagesQuery, completion: @escaping @Sendable (Result<ImagesResult, Error>) -> Void) -> CancellableRequest {
         performRequest(request: makeImagesRequest(query: query), completion: completion)
     }
@@ -444,7 +474,16 @@ extension APIPath {
     static let images = "/images/generations"
     static let imageEdits = "/images/edits"
     static let imageVariations = "/images/variations"
-    
+
+    // Files API paths
+    static func file(_ fileId: String) -> String { "/files/\(fileId)" }
+    static func fileContent(_ fileId: String) -> String { "/files/\(fileId)/content" }
+
+    // Batch API paths
+    static let batches = "/batches"
+    static func batch(_ batchId: String) -> String { "/batches/\(batchId)" }
+    static func batchCancel(_ batchId: String) -> String { "/batches/\(batchId)/cancel" }
+
     func withPath(_ path: String) -> String {
         self + "/" + path
     }
