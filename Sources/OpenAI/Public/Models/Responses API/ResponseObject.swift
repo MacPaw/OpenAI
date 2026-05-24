@@ -73,7 +73,7 @@ public struct ResponseObject: Codable, Equatable, Sendable {
     public let text: ResponseProperties.TextPayload
     
     /// How the model should select which tool (or tools) to use when generating a response. See the `tools` parameter to see how to specify which tools the model can call.
-    public let toolChoice: ResponseProperties.ToolChoicePayload
+    public let toolChoice: ResponseProperties.ToolChoicePayload?
     
     /// An array of tools the model may call while generating a response. You can specify which tool to use by setting the `tool_choice` parameter.
     ///
@@ -126,5 +126,32 @@ public struct ResponseObject: Codable, Equatable, Sendable {
         case truncation
         case usage
         case user
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.createdAt = try container.decode(Int.self, forKey: .createdAt)
+        self.error = try container.decodeIfPresent(Schemas.ResponseError.self, forKey: .error)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.incompleteDetails = try container.decodeIfPresent(IncompleteDetails.self, forKey: .incompleteDetails)
+        self.instructions = try container.decodeIfPresent(String.self, forKey: .instructions)
+        self.maxOutputTokens = try container.decodeIfPresent(Int.self, forKey: .maxOutputTokens)
+        // Default to empty dictionary when metadata key is missing
+        self.metadata = try container.decodeIfPresent([String: String].self, forKey: .metadata) ?? [:]
+        self.model = try container.decode(String.self, forKey: .model)
+        self.object = try container.decode(String.self, forKey: .object)
+        self.output = try container.decode([OutputItem].self, forKey: .output)
+        self.parallelToolCalls = try container.decodeIfPresent(Bool.self, forKey: .parallelToolCalls) ?? false
+        self.previousResponseId = try container.decodeIfPresent(String.self, forKey: .previousResponseId)
+        self.reasoning = try container.decodeIfPresent(Schemas.Reasoning.self, forKey: .reasoning)
+        self.status = try container.decode(String.self, forKey: .status)
+        self.temperature = try container.decodeIfPresent(Double.self, forKey: .temperature)
+        self.text = try container.decodeIfPresent(ResponseProperties.TextPayload.self, forKey: .text) ?? ResponseProperties.TextPayload()
+        self.toolChoice = try container.decodeIfPresent(ResponseProperties.ToolChoicePayload.self, forKey: .toolChoice)
+        self.tools = try container.decodeIfPresent([Tool].self, forKey: .tools) ?? []
+        self.topP = try container.decodeIfPresent(Double.self, forKey: .topP)
+        self.truncation = try container.decodeIfPresent(String.self, forKey: .truncation)
+        self.usage = try container.decodeIfPresent(Schemas.ResponseUsage.self, forKey: .usage)
+        self.user = try container.decodeIfPresent(String.self, forKey: .user)
     }
 }

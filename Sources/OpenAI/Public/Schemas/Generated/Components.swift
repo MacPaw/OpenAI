@@ -9280,7 +9280,7 @@ public enum Components {
             /// A detailed breakdown of the input tokens.
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseUsage/input_tokens_details`.
-            public var inputTokensDetails: Components.Schemas.ResponseUsage.InputTokensDetailsPayload
+            public var inputTokensDetails: Components.Schemas.ResponseUsage.InputTokensDetailsPayload?
             /// The number of output tokens.
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseUsage/output_tokens`.
@@ -9307,7 +9307,7 @@ public enum Components {
             /// A detailed breakdown of the output tokens.
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseUsage/output_tokens_details`.
-            public var outputTokensDetails: Components.Schemas.ResponseUsage.OutputTokensDetailsPayload
+            public var outputTokensDetails: Components.Schemas.ResponseUsage.OutputTokensDetailsPayload?
             /// The total number of tokens used.
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseUsage/total_tokens`.
@@ -11972,6 +11972,22 @@ public enum Components {
             public var annotations: [Components.Schemas.Annotation]
             /// - Remark: Generated from `#/components/schemas/OutputTextContent/logprobs`.
             public var logprobs: [Components.Schemas.LogProb]?
+            
+            public enum CodingKeys: String, CodingKey {
+                case _type = "type"
+                case text
+                case annotations
+                case logprobs
+            }
+
+            public init(from decoder: any Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                self._type = try container.decode(Components.Schemas.OutputTextContent._TypePayload.self, forKey: ._type)
+                self.text = try container.decode(Swift.String.self, forKey: .text)
+                // Default to empty array if annotations are missing
+                self.annotations = try container.decodeIfPresent([Components.Schemas.Annotation].self, forKey: .annotations) ?? []
+                self.logprobs = try container.decodeIfPresent([Components.Schemas.LogProb].self, forKey: .logprobs)
+            }
             /// Creates a new `OutputTextContent`.
             ///
             /// - Parameters:
@@ -11989,12 +12005,6 @@ public enum Components {
                 self.text = text
                 self.annotations = annotations
                 self.logprobs = logprobs
-            }
-            public enum CodingKeys: String, CodingKey {
-                case _type = "type"
-                case text
-                case annotations
-                case logprobs
             }
         }
         /// A refusal from the model.
