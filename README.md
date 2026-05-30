@@ -120,6 +120,18 @@ This SDK is more focused on working with OpenAI Platform, but also works with ot
 
 Use `.relaxed` parsing option on Configuration, or see more details on the topic [here](#support-for-other-providers)
 
+For example, you can route requests through Tuning Engines when your app uses a governed OpenAI-compatible endpoint for model access, policy checks, audit logs, traces, and usage/cost reporting:
+
+```swift
+let configuration = OpenAI.Configuration(
+    token: ProcessInfo.processInfo.environment["TUNING_ENGINES_API_KEY"],
+    host: "api.tuningengines.com",
+    basePath: "/v1",
+    parsingOptions: .relaxed
+)
+let openAI = OpenAI(configuration: configuration)
+```
+
 ### Cancelling requests
 
 For Swift Concurrency calls, you can simply cancel the calling task, and corresponding underlying `URLSessionDataTask` would get cancelled automatically.
