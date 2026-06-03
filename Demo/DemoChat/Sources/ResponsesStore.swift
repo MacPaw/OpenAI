@@ -583,14 +583,6 @@ public final class ResponsesStore: ObservableObject {
             case .done(let event):
                 print("Reasoning done: \(event.sequenceNumber)")
             }
-        case .reasoningSummary(let reasoningSummaryEvent):
-            // Handle reasoning summary events
-            switch reasoningSummaryEvent {
-            case .delta(let event):
-                print("Reasoning summary delta: \(event.sequenceNumber)")
-            case .done(let event):
-                print("Reasoning summary done: \(event.sequenceNumber)")
-            }
         case .audio(_ /* let audioEvent */):
             // Audio events - not implemented yet
             print("Audio event received (not implemented)")

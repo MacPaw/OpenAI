@@ -163,10 +163,6 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
                 .reasoning(.delta(try decode(data: data)))
         case .responseReasoningDone:
                 .reasoning(.done(try decode(data: data)))
-        case .responseReasoningSummaryDelta:
-                .reasoningSummary(.delta(try decode(data: data)))
-        case .responseReasoningSummaryDone:
-                .reasoningSummary(.done(try decode(data: data)))
         case .responseOutputTextAnnotationAdded:
                 .outputTextAnnotation(.added(try decode(data: data)))
         case .responseAudioDelta:

@@ -68,9 +68,6 @@ enum ModelResponseStreamEventType: String {
     case responseReasoningDelta = "response.reasoning.delta"
     case responseReasoningDone = "response.reasoning.done"
     
-    case responseReasoningSummaryDelta = "response.reasoning_summary.delta"
-    case responseReasoningSummaryDone = "response.reasoning_summary.done"
-    
     case error = "error"
     
     // The following events are not present in the API Reference at the moment, but they are in generated code, so we also include them just in case

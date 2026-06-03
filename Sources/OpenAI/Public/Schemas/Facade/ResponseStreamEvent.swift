@@ -138,13 +138,6 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
         case done(Schemas.ResponseReasoningTextDoneEvent)
     }
 
-    public enum ReasoningSummaryEvent: Codable, Equatable, Sendable {
-        /// Emitted when a delta is added to a reasoning summary text.
-        case delta(Schemas.ResponseReasoningSummaryTextDeltaEvent)
-        /// Emitted when a reasoning summary text is completed.
-        case done(Schemas.ResponseReasoningSummaryTextDoneEvent)
-    }
-    
     public enum AudioEvent: Codable, Equatable, Sendable {
         case delta(Schemas.ResponseAudioDeltaEvent)
         case done(Schemas.ResponseAudioDoneEvent)
@@ -199,204 +192,124 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
     case mcpListTools(MCPListToolsEvent)
     case outputTextAnnotation(OutputTextAnnotationEvent)
     case reasoning(ReasoningEvent)
-    case reasoningSummary(ReasoningSummaryEvent)
     
     enum ResponseStreamEventDecodingError: Error {
         case unknownEventType(String)
-        case unknownEvent(Components.Schemas.ResponseStreamEvent)
-        case unexpectedParsingCase
     }
-    
+
     public init(from decoder: any Decoder) throws {
-        do {
-            // Decoding Response Event
-            let responseEvent = try ResponseEvent(from: decoder)
-            guard let responseEventType = ModelResponseStreamEventType(rawValue: responseEvent.type) else {
-                throw ResponseStreamEventDecodingError.unknownEventType(responseEvent.type)
-            }
-            
-            switch responseEventType {
-            case .responseCreated:
-                self = .created(responseEvent)
-            case .responseInProgress:
-                self = .inProgress(responseEvent)
-            case .responseCompleted:
-                self = .completed(responseEvent)
-            case .responseFailed:
-                self = .failed(responseEvent)
-            case .responseIncomplete:
-                self = .incomplete(responseEvent)
-            case .responseQueued:
-                self = .queued(responseEvent)
-            default:
-                throw ResponseStreamEventDecodingError.unknownEventType(responseEvent.type)
-            }
-            return
-        } catch {
-            // Do nothing, will try other coding types
-        }
-        
-        do {
-            // Decoding Output Item events
-            let outputItemAddedEvent = try ResponseOutputItemAddedEvent(from: decoder)
-            self = .outputItem(.added(outputItemAddedEvent))
-            return
-        } catch {
-            // Do nothing, will try other coding types
-        }
-        
-        do {
-            // Decoding Output Item events
-            let outputItemDoneEvent = try ResponseOutputItemDoneEvent(from: decoder)
-            self = .outputItem(.done(outputItemDoneEvent))
-            return
-        } catch {
-            // Do nothing, will try other coding types
-        }
-        
-        // Decoding MCPCallArgumentsEvent
-        // Once OPENAI fix the response issue, can put back below code to rawEvent
-        //        else if let value = rawEvent.value40 {
-        //            self = .mcpCallArguments(.delta(value))
-        //        } else if let value = rawEvent.value41 {
-        //            self = .mcpCallArguments(.done(value))
-        //        }
-        do {
-            let mcpCallArgumentsEvent = try MCPCallArgumentsEvent(from: decoder)
-            switch mcpCallArgumentsEvent {
-            case .delta(let deltaEvent):
-                self = .mcpCallArguments(.delta(deltaEvent))
-            case .done(let doneEvent):
-                self = .mcpCallArguments(.done(doneEvent))
-            }
-            return
-        } catch {
-            //
+        struct TypeProbe: Decodable { let type: String }
+
+        let eventTypeString = try TypeProbe(from: decoder).type
+        guard let eventType = ModelResponseStreamEventType(rawValue: eventTypeString) else {
+            throw ResponseStreamEventDecodingError.unknownEventType(eventTypeString)
         }
 
-        // Decoding ResponseFunctionCallArgumentsDoneEvent via the locally
-        // extracted type so that `name` (missing from the generated schema)
-        // is preserved.
-        do {
-            let functionCallDoneEvent = try ResponseFunctionCallArgumentsDoneEvent(from: decoder)
-            self = .functionCallArguments(.done(functionCallDoneEvent))
-            return
-        } catch {
-            //
-        }
-
-        let rawEvent = try Components.Schemas.ResponseStreamEvent(from: decoder)
-        if rawEvent.value10 != nil || rawEvent.value13 != nil || rawEvent.value20 != nil || rawEvent.value21 != nil, rawEvent.value22 != nil, rawEvent.value42 != nil, rawEvent.value43 != nil, rawEvent.value51 != nil {
-            // The following events are handled elsewhere by non-generated types
-            // (search "Decoding Response Event")
-            //
-            // `response.completed`
-            // `response.created`
-            // `response.inProgress`
-            // `response.failed`
-            // `response.incomplete`
-            // `response.queued`
-            // `response.response.mcp_call_arguments.delta`
-            // `response.mcp_call_arguments.done`
-            throw ResponseStreamEventDecodingError.unexpectedParsingCase
-        } else if rawEvent.value23 != nil || rawEvent.value24 != nil {
-            // The following events are handled elsewhere by non-generated types
-            // (search "Decoding Output Item events")
-            //
-            // `response.output_item.added`
-            // `response.output_item.done`
-            throw ResponseStreamEventDecodingError.unexpectedParsingCase
-        } else if let audioDelta = rawEvent.value1 {
-            self = .audio(.delta(audioDelta))
-        } else if let value = rawEvent.value2 {
-            self = .audio(.done(value))
-        } else if let value = rawEvent.value3 {
-            self = .audioTranscript(.delta(value))
-        } else if let value = rawEvent.value4 {
-            self = .audioTranscript(.done(value))
-        } else if let value = rawEvent.value5 {
-            self = .codeInterpreterCall(.code(.delta(value)))
-        } else if let value = rawEvent.value6 {
-            self = .codeInterpreterCall(.code(.done(value)))
-        } else if let value = rawEvent.value7 {
-            self = .codeInterpreterCall(.completed(value))
-        } else if let value = rawEvent.value8 {
-            self = .codeInterpreterCall(.inProgress(value))
-        } else if let value = rawEvent.value9 {
-            self = .codeInterpreterCall(.interpreting(value))
-        } else if let value = rawEvent.value11 {
-            self = .contentPart(.added(value))
-        } else if let value = rawEvent.value12 {
-            self = .contentPart(.done(value))
-        } else if let value = rawEvent.value14 {
-            self = .error(value)
-        } else if let value = rawEvent.value15 {
-            self = .fileSearchCall(.completed(value))
-        } else if let value = rawEvent.value16 {
-            self = .fileSearchCall(.inProgress(value))
-        } else if let value = rawEvent.value17 {
-            self = .fileSearchCall(.searching(value))
-        } else if let value = rawEvent.value18 {
-            self = .functionCallArguments(.delta(value))
-        } else if let value = rawEvent.value19 {
-            self = .functionCallArguments(.done(.init(
-                _type: .response_functionCallArguments_done,
-                itemId: value.itemId,
-                outputIndex: value.outputIndex,
-                sequenceNumber: value.sequenceNumber,
-                arguments: value.arguments,
-                name: nil
-            )))
-        } else if let value = rawEvent.value25 {
-            self = .reasoningSummaryPart(.added(value))
-        } else if let value = rawEvent.value26 {
-            self = .reasoningSummaryPart(.done(value))
-        } else if let value = rawEvent.value27 {
-            self = .reasoningSummaryText(.delta(value))
-        } else if let value = rawEvent.value28 {
-            self = .reasoningSummaryText(.done(value))
-        } else if let value = rawEvent.value29 {
-            self = .reasoning(.delta(value))
-        } else if let value = rawEvent.value30 {
-            self = .reasoning(.done(value))
-        } else if let value = rawEvent.value31 {
-            self = .refusal(.delta(value))
-        } else if let value = rawEvent.value32 {
-            self = .refusal(.done(value))
-        } else if let value = rawEvent.value33 {
-            self = .outputText(.delta(value))
-        } else if let value = rawEvent.value34 {
-            self = .outputText(.done(value))
-        } else if let value = rawEvent.value35 {
-            self = .webSearchCall(.completed(value))
-        } else if let value = rawEvent.value36 {
-            self = .webSearchCall(.inProgress(value))
-        } else if let value = rawEvent.value37 {
-            self = .webSearchCall(.searching(value))
-        } else if let value = rawEvent.value38 {
-            self = .imageGenerationCall(.completed(value))
-        } else if let value = rawEvent.value39 {
-            self = .imageGenerationCall(.generating(value))
-        } else if let value = rawEvent.value40 {
-            self = .imageGenerationCall(.inProgress(value))
-        } else if let value = rawEvent.value41 {
-            self = .imageGenerationCall(.partialImage(value))
-        } else if let value = rawEvent.value44 {
-            self = .mcpCall(.completed(value))
-        } else if let value = rawEvent.value45 {
-            self = .mcpCall(.failed(value))
-        } else if let value = rawEvent.value46 {
-            self = .mcpCall(.inProgress(value))
-        } else if let value = rawEvent.value47 {
-            self = .mcpListTools(.completed(value))
-        } else if let value = rawEvent.value48 {
-            self = .mcpListTools(.failed(value))
-        } else if let value = rawEvent.value49 {
-            self = .mcpListTools(.inProgress(value))
-        } else if let value = rawEvent.value50 {
-            self = .outputTextAnnotation(.added(value))
-        } else {
-            throw ResponseStreamEventDecodingError.unknownEvent(rawEvent)
+        switch eventType {
+        case .responseCreated:
+            self = .created(try ResponseEvent(from: decoder))
+        case .responseInProgress:
+            self = .inProgress(try ResponseEvent(from: decoder))
+        case .responseCompleted:
+            self = .completed(try ResponseEvent(from: decoder))
+        case .responseFailed:
+            self = .failed(try ResponseEvent(from: decoder))
+        case .responseIncomplete:
+            self = .incomplete(try ResponseEvent(from: decoder))
+        case .responseQueued:
+            self = .queued(try ResponseEvent(from: decoder))
+        case .responseOutputItemAdded:
+            self = .outputItem(.added(try ResponseOutputItemAddedEvent(from: decoder)))
+        case .responseOutputItemDone:
+            self = .outputItem(.done(try ResponseOutputItemDoneEvent(from: decoder)))
+        case .responseContentPartAdded:
+            self = .contentPart(.added(try Schemas.ResponseContentPartAddedEvent(from: decoder)))
+        case .responseContentPartDone:
+            self = .contentPart(.done(try Schemas.ResponseContentPartDoneEvent(from: decoder)))
+        case .responseOutputTextDelta:
+            self = .outputText(.delta(try Schemas.ResponseTextDeltaEvent(from: decoder)))
+        case .responseOutputTextDone:
+            self = .outputText(.done(try Schemas.ResponseTextDoneEvent(from: decoder)))
+        case .responseRefusalDelta:
+            self = .refusal(.delta(try Schemas.ResponseRefusalDeltaEvent(from: decoder)))
+        case .responseRefusalDone:
+            self = .refusal(.done(try Schemas.ResponseRefusalDoneEvent(from: decoder)))
+        case .responseFunctionCallArgumentsDelta:
+            self = .functionCallArguments(.delta(try Schemas.ResponseFunctionCallArgumentsDeltaEvent(from: decoder)))
+        case .responseFunctionCallArgumentsDone:
+            // Uses the locally extracted type to preserve `name` (missing from the generated schema).
+            self = .functionCallArguments(.done(try ResponseFunctionCallArgumentsDoneEvent(from: decoder)))
+        case .responseFileSearchCallInProgress:
+            self = .fileSearchCall(.inProgress(try Schemas.ResponseFileSearchCallInProgressEvent(from: decoder)))
+        case .responseFileSearchCallSearching:
+            self = .fileSearchCall(.searching(try Schemas.ResponseFileSearchCallSearchingEvent(from: decoder)))
+        case .responseFileSearchCallCompleted:
+            self = .fileSearchCall(.completed(try Schemas.ResponseFileSearchCallCompletedEvent(from: decoder)))
+        case .responseWebSearchCallInProgress:
+            self = .webSearchCall(.inProgress(try Schemas.ResponseWebSearchCallInProgressEvent(from: decoder)))
+        case .responseWebSearchCallSearching:
+            self = .webSearchCall(.searching(try Schemas.ResponseWebSearchCallSearchingEvent(from: decoder)))
+        case .responseWebSearchCallCompleted:
+            self = .webSearchCall(.completed(try Schemas.ResponseWebSearchCallCompletedEvent(from: decoder)))
+        case .responseReasoningSummaryPartAdded:
+            self = .reasoningSummaryPart(.added(try Schemas.ResponseReasoningSummaryPartAddedEvent(from: decoder)))
+        case .responseReasoningSummaryPartDone:
+            self = .reasoningSummaryPart(.done(try Schemas.ResponseReasoningSummaryPartDoneEvent(from: decoder)))
+        case .responseReasoningSummaryTextDelta:
+            self = .reasoningSummaryText(.delta(try Schemas.ResponseReasoningSummaryTextDeltaEvent(from: decoder)))
+        case .responseReasoningSummaryTextDone:
+            self = .reasoningSummaryText(.done(try Schemas.ResponseReasoningSummaryTextDoneEvent(from: decoder)))
+        case .responseImageGenerationCallCompleted:
+            self = .imageGenerationCall(.completed(try Schemas.ResponseImageGenCallCompletedEvent(from: decoder)))
+        case .responseImageGenerationCallGenerating:
+            self = .imageGenerationCall(.generating(try Schemas.ResponseImageGenCallGeneratingEvent(from: decoder)))
+        case .responseImageGenerationCallInProgress:
+            self = .imageGenerationCall(.inProgress(try Schemas.ResponseImageGenCallInProgressEvent(from: decoder)))
+        case .responseImageGenerationCallPartialImage:
+            self = .imageGenerationCall(.partialImage(try Schemas.ResponseImageGenCallPartialImageEvent(from: decoder)))
+        case .responseMcpCallArgumentsDelta:
+            // 😌(🤬) See ModelResponseStreamEventType.responseMcpCallArgumentsDelta for context.
+            self = .mcpCallArguments(.delta(try ResponseMCPCallArgumentsDeltaEvent(from: decoder)))
+        case .responseMcpCallArgumentsDone:
+            self = .mcpCallArguments(.done(try ResponseMCPCallArgumentsDoneEvent(from: decoder)))
+        case .responseMcpCallCompleted:
+            self = .mcpCall(.completed(try Schemas.ResponseMCPCallCompletedEvent(from: decoder)))
+        case .responseMcpCallFailed:
+            self = .mcpCall(.failed(try Schemas.ResponseMCPCallFailedEvent(from: decoder)))
+        case .responseMcpCallInProgress:
+            self = .mcpCall(.inProgress(try Schemas.ResponseMCPCallInProgressEvent(from: decoder)))
+        case .responseMcpListToolsCompleted:
+            self = .mcpListTools(.completed(try Schemas.ResponseMCPListToolsCompletedEvent(from: decoder)))
+        case .responseMcpListToolsFailed:
+            self = .mcpListTools(.failed(try Schemas.ResponseMCPListToolsFailedEvent(from: decoder)))
+        case .responseMcpListToolsInProgress:
+            self = .mcpListTools(.inProgress(try Schemas.ResponseMCPListToolsInProgressEvent(from: decoder)))
+        case .responseOutputTextAnnotationAdded:
+            self = .outputTextAnnotation(.added(try Schemas.ResponseOutputTextAnnotationAddedEvent(from: decoder)))
+        case .responseReasoningDelta:
+            self = .reasoning(.delta(try Schemas.ResponseReasoningTextDeltaEvent(from: decoder)))
+        case .responseReasoningDone:
+            self = .reasoning(.done(try Schemas.ResponseReasoningTextDoneEvent(from: decoder)))
+        case .error:
+            self = .error(try Schemas.ResponseErrorEvent(from: decoder))
+        case .responseAudioDelta:
+            self = .audio(.delta(try Schemas.ResponseAudioDeltaEvent(from: decoder)))
+        case .responseAudioDone:
+            self = .audio(.done(try Schemas.ResponseAudioDoneEvent(from: decoder)))
+        case .responseAudioTranscriptDelta:
+            self = .audioTranscript(.delta(try Schemas.ResponseAudioTranscriptDeltaEvent(from: decoder)))
+        case .responseAudioTranscriptDone:
+            self = .audioTranscript(.done(try Schemas.ResponseAudioTranscriptDoneEvent(from: decoder)))
+        case .responseCodeInterpreterCallCodeDelta:
+            self = .codeInterpreterCall(.code(.delta(try Schemas.ResponseCodeInterpreterCallCodeDeltaEvent(from: decoder))))
+        case .responseCodeInterpreterCallCodeDone:
+            self = .codeInterpreterCall(.code(.done(try Schemas.ResponseCodeInterpreterCallCodeDoneEvent(from: decoder))))
+        case .responseCodeInterpreterCallInProgress:
+            self = .codeInterpreterCall(.inProgress(try Schemas.ResponseCodeInterpreterCallInProgressEvent(from: decoder)))
+        case .responseCodeInterpreterCallInterpreting:
+            self = .codeInterpreterCall(.interpreting(try Schemas.ResponseCodeInterpreterCallInterpretingEvent(from: decoder)))
+        case .responseCodeInterpreterCallCompleted:
+            self = .codeInterpreterCall(.completed(try Schemas.ResponseCodeInterpreterCallCompletedEvent(from: decoder)))
         }
     }
 }
