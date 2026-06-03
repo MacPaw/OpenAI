@@ -34,4 +34,13 @@ struct MockServerSentEvent {
         """
         return "data: \(json)\n\n".data(using: .utf8)!
     }
+
+    static func annotationAddedEvent(withExplicitEventField: Bool) -> Data {
+        let json = #"{"type":"response.output_text.annotation.added","item_id":"item_1","output_index":0,"content_index":0,"annotation_index":2,"sequence_number":5,"annotation":{}}"#
+        if withExplicitEventField {
+            return "event: response.output_text.annotation.added\ndata: \(json)\n\n".data(using: .utf8)!
+        } else {
+            return "data: \(json)\n\n".data(using: .utf8)!
+        }
+    }
 }
