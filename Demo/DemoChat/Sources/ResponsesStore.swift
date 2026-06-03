@@ -770,13 +770,9 @@ public final class ResponsesStore: ObservableObject {
     ) throws {
         try updateMessageBeingStreamed(messageId: messageId) { message in
             switch outputContent {
-            case .outputTextContent(let outputText):
-                message.text = outputText.text
-                message.annotations = outputText.annotations
-            case .refusalContent(let refusal):
-                message.refusalText = refusal.refusal
-            case .reasoningTextContent:
-                break
+            case .outputTextContent(let c): Self.apply(c, to: message)
+            case .refusalContent(let c): Self.apply(c, to: message)
+            case .reasoningTextContent: break
             }
         }
     }
@@ -787,13 +783,19 @@ public final class ResponsesStore: ObservableObject {
     ) throws {
         try updateMessageBeingStreamed(messageId: messageId) { message in
             switch outputContent {
-            case .outputTextContent(let outputText):
-                message.text = outputText.text
-                message.annotations = outputText.annotations
-            case .refusalContent(let refusal):
-                message.refusalText = refusal.refusal
+            case .outputTextContent(let c): Self.apply(c, to: message)
+            case .refusalContent(let c): Self.apply(c, to: message)
             }
         }
+    }
+
+    private static func apply(_ outputText: Components.Schemas.OutputTextContent, to message: MessageData) {
+        message.text = outputText.text
+        message.annotations = outputText.annotations
+    }
+
+    private static func apply(_ refusal: Components.Schemas.RefusalContent, to message: MessageData) {
+        message.refusalText = refusal.refusal
     }
     
     private func conversationTurn(withResponseData responseData: ResponseData, messageData: MessageData) -> ConversationTurn {
