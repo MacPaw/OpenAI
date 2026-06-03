@@ -484,6 +484,8 @@ public final class ResponsesStore: ObservableObject {
                         chatMessage: message
                     )
                 )
+            case .functionToolCall(let functionToolCall):
+                lastFinishedFunctionToolCall = functionToolCall
             default:
                 throw StoreError.unhandledOutputItem(output)
             }

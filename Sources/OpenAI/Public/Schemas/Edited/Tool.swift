@@ -48,102 +48,50 @@
     case applyPatchTool(Schemas.ApplyPatchToolParam)
 
     public init(from decoder: any Decoder) throws {
-        var errors: [any Error] = []
-        do {
+        let container = try decoder.container(keyedBy: _TypeCodingKey.self)
+        let type = try container.decode(String.self, forKey: .type)
+        switch type {
+        case "file_search":
             self = .fileSearchTool(try .init(from: decoder))
-            return
-        } catch {
-            errors.append(error)
-        }
-        do {
+        case "function":
             self = .functionTool(try .init(from: decoder))
-            return
-        } catch {
-            errors.append(error)
-        }
-        do {
+        case "computer":
             self = .computerTool(try .init(from: decoder))
-            return
-        } catch {
-            errors.append(error)
-        }
-        do {
+        case "computer_use_preview":
             self = .computerUsePreviewTool(try .init(from: decoder))
-            return
-        } catch {
-            errors.append(error)
-        }
-        do {
+        case "web_search", "web_search_2025_08_26":
             self = .webSearchTool(try .init(from: decoder))
-            return
-        } catch {
-            errors.append(error)
-        }
-        do {
+        case "web_search_preview", "web_search_preview_2025_03_11":
             self = .webSearchPreviewTool(try .init(from: decoder))
-            return
-        } catch {
-            errors.append(error)
-        }
-        do {
+        case "mcp":
             self = .mcpTool(try .init(from: decoder))
-            return
-        } catch {
-            errors.append(error)
-        }
-        do {
+        case "code_interpreter":
             self = .codeInterpreterTool(try .init(from: decoder))
-            return
-        } catch {
-            errors.append(error)
-        }
-        do {
+        case "image_generation":
             self = .imageGenerationTool(try .init(from: decoder))
-            return
-        } catch {
-            errors.append(error)
-        }
-        do {
+        case "local_shell":
             self = .localShellTool(try .init(from: decoder))
-            return
-        } catch {
-            errors.append(error)
-        }
-        do {
+        case "shell":
             self = .functionShellTool(try .init(from: decoder))
-            return
-        } catch {
-            errors.append(error)
-        }
-        do {
+        case "custom":
             self = .customTool(try .init(from: decoder))
-            return
-        } catch {
-            errors.append(error)
-        }
-        do {
+        case "namespace":
             self = .namespaceTool(try .init(from: decoder))
-            return
-        } catch {
-            errors.append(error)
-        }
-        do {
+        case "tool_search":
             self = .toolSearchTool(try .init(from: decoder))
-            return
-        } catch {
-            errors.append(error)
-        }
-        do {
+        case "apply_patch":
             self = .applyPatchTool(try .init(from: decoder))
-            return
-        } catch {
-            errors.append(error)
+        default:
+            throw DecodingError.dataCorruptedError(
+                forKey: .type,
+                in: container,
+                debugDescription: "Unknown tool type: \(type)"
+            )
         }
-        throw Swift.DecodingError.failedToDecodeOneOfSchema(
-            type: Self.self,
-            codingPath: decoder.codingPath,
-            errors: errors
-        )
+    }
+
+    private enum _TypeCodingKey: String, CodingKey {
+        case type
     }
     public func encode(to encoder: any Encoder) throws {
         switch self {
