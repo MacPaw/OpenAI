@@ -132,8 +132,6 @@ public struct ResponseObject: Codable, Equatable, Sendable {
     public let truncation: Truncation?
 
     /// Represents token usage details including input tokens, output tokens, a breakdown of output tokens, and the total tokens used.
-    /// [The Response Object API Reference Page](https://platform.openai.com/docs/api-reference/responses/object) says that the type of the field is Object, aka non-optional
-    /// But an example of [Streaming's response.created] shows that `usage` can be null. And a the moment we use this struct for both regulard and streaming replies.
     public let usage: Schemas.ResponseUsage?
 
     /// A stable identifier for your end-user.
