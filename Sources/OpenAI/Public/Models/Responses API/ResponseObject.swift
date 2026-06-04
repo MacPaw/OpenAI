@@ -12,7 +12,7 @@ import OpenAPIRuntime
 public struct ResponseObject: Codable, Equatable, Sendable {
     public typealias Schemas = Components.Schemas
     public typealias ResponseProperties = Schemas.ResponseProperties
-    public typealias IncompleteDetails = Schemas.Response.Value3Payload.IncompleteDetailsPayload?
+    public typealias IncompleteDetails = Schemas.Response.Value3Payload.IncompleteDetailsPayload
     public typealias Status = Schemas.Response.Value3Payload.StatusPayload
     public typealias Truncation = Schemas.ResponseProperties.TruncationPayload
     public typealias PromptCacheRetention = Schemas.ModelResponseProperties.PromptCacheRetentionPayload
