@@ -7,6 +7,10 @@ splices it into Components.swift, preserving the existing file header.
 import sys
 import re
 
+if len(sys.argv) != 3:
+    print("Usage: extract_components.py <Types.swift> <Components.swift>", file=sys.stderr)
+    sys.exit(1)
+
 TYPES_SWIFT = sys.argv[1]   # path to generated Types.swift
 COMPONENTS_SWIFT = sys.argv[2]  # path to Components.swift in the project
 
