@@ -29,10 +29,17 @@ struct MockServerSentEvent {
         delta: String = "",
         sequenceNumber: Int = 1
     ) -> Data {
-        let json = """
-        {"type":"\(payloadType)","output_index":\(outputIndex),"item_id":"\(itemId)","content_index":\(contentIndex),"delta":"\(delta)","sequence_number":\(sequenceNumber),"logprobs":[]}
-        """
-        return "data: \(json)\n\n".data(using: .utf8)!
+        let payload: [String: Any] = [
+            "type": payloadType,
+            "output_index": outputIndex,
+            "item_id": itemId,
+            "content_index": contentIndex,
+            "delta": delta,
+            "sequence_number": sequenceNumber,
+            "logprobs": [Any]()
+        ]
+        let jsonData = try! JSONSerialization.data(withJSONObject: payload)
+        return "data: \(String(data: jsonData, encoding: .utf8)!)\n\n".data(using: .utf8)!
     }
 
     static func annotationAddedEvent(withExplicitEventField: Bool) -> Data {
