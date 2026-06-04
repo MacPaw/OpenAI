@@ -27,7 +27,7 @@ public struct ResponseObject: Codable, Equatable, Sendable {
     public let conversation: Schemas.Conversation2?
 
     /// Unix timestamp (in seconds) of when this Response was created.
-    public let createdAt: Int
+    public let createdAt: Double
 
     /// An error object returned when the model fails to generate a Response.
     public let error: Schemas.ResponseError?
