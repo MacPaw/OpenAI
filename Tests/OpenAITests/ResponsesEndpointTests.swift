@@ -28,39 +28,14 @@ class ResponsesEndpointTests: XCTestCase {
         let task = DataTaskMock.successful(with: data)
         urlSession.dataTask = task
     }
-    
+
     func testCreateResponse() async throws {
-        // Build the query
         let query = CreateModelResponseQuery(
             input: .textInput("Hello"),
             model: "test-model"
         )
 
-        // Dummy response object
-        let dummy = ResponseObject(
-            createdAt: 123,
-            error: nil,
-            id: "resp-1",
-            incompleteDetails: nil,
-            instructions: nil,
-            maxOutputTokens: nil,
-            metadata: [:],
-            model: "test-model",
-            object: "response",
-            output: [],
-            parallelToolCalls: false,
-            previousResponseId: nil,
-            reasoning: nil,
-            status: "completed",
-            temperature: nil,
-            text: .init(format: nil),
-            toolChoice: .ToolChoiceOptions(.auto),
-            tools: [],
-            topP: nil,
-            truncation: nil,
-            usage: nil,
-            user: nil
-        )
+        let dummy = ResponseObject.makeMock()
         try stub(dummy)
 
         let result = try await openAI.responses.createResponse(query: query)
@@ -77,7 +52,6 @@ class ResponsesEndpointTests: XCTestCase {
             JSONSchemaField.properties(["foo": propSchema]),
             JSONSchemaField.required(["foo"])
         ])
-        // Create the function tool wrapper
         let functionTool = FunctionTool(
             type: "function",
             name: "my_function",
@@ -87,15 +61,13 @@ class ResponsesEndpointTests: XCTestCase {
         )
         let tool = Tool.functionTool(functionTool)
 
-        // Build the query
         let query = CreateModelResponseQuery(
             input: .textInput("Hello"),
             model: "test-model",
             tools: [tool]
         )
 
-        // Dummy response object
-        let dummy = makeResponse(tools: [tool])
+        let dummy = ResponseObject.makeMock(tools: [tool])
         try stub(dummy)
 
         let result = try await openAI.responses.createResponse(query: query)
@@ -105,44 +77,18 @@ class ResponsesEndpointTests: XCTestCase {
                 XCTFail("Expected function.parameters to be object")
                 return
             }
-            
+
             let type = (jsonSchemaObject["type"]?.value as? String)
             XCTAssertEqual(type, "object")
-            
+
             let properties = try XCTUnwrap(jsonSchemaObject["properties"]?.value as? JSONObject)
             let fooProperty = try XCTUnwrap(properties["foo"]?.value as? JSONObject)
             XCTAssertEqual(fooProperty["type"]?.value as? String, "string")
-            
+
             let required = try XCTUnwrap(jsonSchemaObject["required"]?.value as? [AnyJSONDocument])
             XCTAssertEqual(required.compactMap({ $0.value as? String }), ["foo"])
         default:
             XCTFail("Expected tool in response to be a function")
         }
-    }
-    private func makeResponse(output: [OutputItem] = [], tools: [Tool] = []) -> ResponseObject {
-        .init(
-            createdAt: 123,
-            error: nil,
-            id: "resp-1",
-            incompleteDetails: nil,
-            instructions: nil,
-            maxOutputTokens: nil,
-            metadata: [:],
-            model: "test-model",
-            object: "response",
-            output: output,
-            parallelToolCalls: false,
-            previousResponseId: nil,
-            reasoning: nil,
-            status: "completed",
-            temperature: nil,
-            text: .init(format: nil),
-            toolChoice: .ToolChoiceOptions(.auto),
-            tools: tools,
-            topP: nil,
-            truncation: nil,
-            usage: nil,
-            user: nil
-        )
     }
 }
