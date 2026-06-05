@@ -63,13 +63,10 @@ enum ModelResponseStreamEventType: String {
     case responseMcpListToolsFailed = "response.mcp_list_tools.failed"
     case responseMcpListToolsInProgress = "response.mcp_list_tools.in_progress"
     
-    case responseOutputTextAnnotationAdded = "response.output_text_annotation.added"
+    case responseOutputTextAnnotationAdded = "response.output_text.annotation.added"
     
     case responseReasoningDelta = "response.reasoning.delta"
     case responseReasoningDone = "response.reasoning.done"
-    
-    case responseReasoningSummaryDelta = "response.reasoning_summary.delta"
-    case responseReasoningSummaryDone = "response.reasoning_summary.done"
     
     case error = "error"
     

@@ -239,7 +239,7 @@ public final class ResponsesStore: ObservableObject {
                 .item(.functionCallOutputItemParam(.init(
                     callId: toolCall.callId,
                     _type: .functionCallOutput,
-                    output: result
+                    output: .case1(result)
                 )))
             ]),
             model: model,
@@ -328,7 +328,7 @@ public final class ResponsesStore: ObservableObject {
         var tools: [Tool] = []
 
         if webSearchEnabled {
-            tools.append(.webSearchTool(.init(_type: .webSearchPreview)))
+            tools.append(.webSearchPreviewTool(.init(_type: .webSearchPreview)))
         }
 
         if functionCallingEnabled {
@@ -408,8 +408,8 @@ public final class ResponsesStore: ObservableObject {
             encoder.outputFormatting = .prettyPrinted
             let jsonData = try encoder.encode(query)
             if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print("Request JSON:")
-                print(jsonString)
+                print("Request JSON, prefixed to 10000:")
+                print(jsonString.prefix(10000))
             }
         } catch {
             print("Failed to serialize request to JSON: \(error)")
@@ -484,6 +484,8 @@ public final class ResponsesStore: ObservableObject {
                         chatMessage: message
                     )
                 )
+            case .functionToolCall(let functionToolCall):
+                lastFinishedFunctionToolCall = functionToolCall
             default:
                 throw StoreError.unhandledOutputItem(output)
             }
@@ -582,14 +584,6 @@ public final class ResponsesStore: ObservableObject {
                 print("Reasoning delta: \(event.sequenceNumber)")
             case .done(let event):
                 print("Reasoning done: \(event.sequenceNumber)")
-            }
-        case .reasoningSummary(let reasoningSummaryEvent):
-            // Handle reasoning summary events
-            switch reasoningSummaryEvent {
-            case .delta(let event):
-                print("Reasoning summary delta: \(event.sequenceNumber)")
-            case .done(let event):
-                print("Reasoning summary done: \(event.sequenceNumber)")
             }
         case .audio(_ /* let audioEvent */):
             // Audio events - not implemented yet
@@ -776,13 +770,32 @@ public final class ResponsesStore: ObservableObject {
     ) throws {
         try updateMessageBeingStreamed(messageId: messageId) { message in
             switch outputContent {
-            case .OutputTextContent(let outputText):
-                message.text = outputText.text
-                message.annotations = outputText.annotations
-            case .RefusalContent(let refusal):
-                message.refusalText = refusal.refusal
+            case .outputTextContent(let c): Self.apply(c, to: message)
+            case .refusalContent(let c): Self.apply(c, to: message)
+            case .reasoningTextContent: break
             }
         }
+    }
+
+    private func updateMessageBeingStreamed(
+        messageId: String,
+        outputContent: Components.Schemas.OutputMessageContent
+    ) throws {
+        try updateMessageBeingStreamed(messageId: messageId) { message in
+            switch outputContent {
+            case .outputTextContent(let c): Self.apply(c, to: message)
+            case .refusalContent(let c): Self.apply(c, to: message)
+            }
+        }
+    }
+
+    private static func apply(_ outputText: Components.Schemas.OutputTextContent, to message: MessageData) {
+        message.text = outputText.text
+        message.annotations = outputText.annotations
+    }
+
+    private static func apply(_ refusal: Components.Schemas.RefusalContent, to message: MessageData) {
+        message.refusalText = refusal.refusal
     }
     
     private func conversationTurn(withResponseData responseData: ResponseData, messageData: MessageData) -> ConversationTurn {
@@ -889,50 +902,28 @@ public final class ResponsesStore: ObservableObject {
             return nil
         }
     }
-    
-    private func conversationTurn(
-        fromOutputContent outputContent: ResponseStreamEvent.Schemas.OutputContent,
-        messageId: String,
-        userId: String,
-        username: String
-    ) throws -> ConversationTurn {
-        guard let responseBeingStreamed else {
-            throw StoreError.noResponseToUpdate
-        }
-        
-        return .init(
-            id: responseBeingStreamed.id,
-            type: .response,
-            chatMessage: chatMessage(
-                fromOutputContent: outputContent,
-                messageId: messageId,
-                userId: userId,
-                username: username
-            )
-        )
-    }
-    
+
     private func chatMessage(
-        fromOutputContent outputContent: ResponseStreamEvent.Schemas.OutputContent,
+        fromOutputContent outputContent: Components.Schemas.OutputMessageContent,
         messageId: String,
         userId: String,
         username: String
     ) -> ExyteChat.Message {
         switch outputContent {
-        case .OutputTextContent(let outputText):
+        case .outputTextContent(let outputText):
             return makeChatMessage(
                 withText: outputText.text,
                 annotations: outputText.annotations,
                 messageId: messageId,
                 user: systemUser(withId: userId, username: username)
             )
-        case .RefusalContent(let refusal):
+        case .refusalContent(let refusal):
             let message = ExyteChat.Message(
                 id: messageId,
                 user: systemUser(withId: userId, username: username),
                 text: refusal.refusal
             )
-            
+
             return message
         }
     }

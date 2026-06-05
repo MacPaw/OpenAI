@@ -57,7 +57,7 @@ struct StreamingClientTests {
     }
     
     @Test func interceptResponsesRequest() async throws {
-        mockSession.dataTask = try DataTaskMock.successfulJson(with: ResponseStreamEvent.audio(.done(.init(_type: .response_audio_done, sequenceNumber: 0))))
+        mockSession.dataTask = try DataTaskMock.successfulJson(with: ResponseStreamEvent.audio(.done(.init(_type: .response_audio_done, responseId: "", sequenceNumber: 0))))
         mockMiddleware.interceptRequestReturnValue = .init(url: interceptedURL)
         _ = client.performResponsesStreamingRequest(
             request: JSONRequest<ResponseStreamEvent>(url: originalURL),

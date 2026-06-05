@@ -29,9 +29,25 @@ struct MockServerSentEvent {
         delta: String = "",
         sequenceNumber: Int = 1
     ) -> Data {
-        let json = """
-        {"type":"\(payloadType)","output_index":\(outputIndex),"item_id":"\(itemId)","content_index":\(contentIndex),"delta":"\(delta)","sequence_number":\(sequenceNumber)}
-        """
-        return "data: \(json)\n\n".data(using: .utf8)!
+        let payload: [String: Any] = [
+            "type": payloadType,
+            "output_index": outputIndex,
+            "item_id": itemId,
+            "content_index": contentIndex,
+            "delta": delta,
+            "sequence_number": sequenceNumber,
+            "logprobs": [Any]()
+        ]
+        let jsonData = try! JSONSerialization.data(withJSONObject: payload)
+        return "data: \(String(data: jsonData, encoding: .utf8)!)\n\n".data(using: .utf8)!
+    }
+
+    static func annotationAddedEvent(withExplicitEventField: Bool) -> Data {
+        let json = #"{"type":"response.output_text.annotation.added","item_id":"item_1","output_index":0,"content_index":0,"annotation_index":2,"sequence_number":5,"annotation":{}}"#
+        if withExplicitEventField {
+            return "event: response.output_text.annotation.added\ndata: \(json)\n\n".data(using: .utf8)!
+        } else {
+            return "data: \(json)\n\n".data(using: .utf8)!
+        }
     }
 }

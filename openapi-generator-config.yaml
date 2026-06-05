@@ -1,0 +1,13 @@
+generate:
+  - types
+namingStrategy: idiomatic
+accessModifier: public
+filter:
+  paths:
+    - /audio/transcriptions
+    - /responses
+    - /responses/{response_id}
+    - /responses/{response_id}/input_items
+  schemas:
+    - WebSearchLocation
+    - WebSearchContextSize

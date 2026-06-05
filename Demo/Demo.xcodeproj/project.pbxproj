@@ -315,6 +315,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Demo-Info.plist";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Use camera to send media input to OpenAI";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Exyte/Chat needs it for some reason";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Use media picker to send media input to OpenAI";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -355,6 +356,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Demo-Info.plist";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Use camera to send media input to OpenAI";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Exyte/Chat needs it for some reason";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Use media picker to send media input to OpenAI";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;

@@ -84,4 +84,64 @@ final class ModelResponseEventsStreamInterpreterTests: XCTestCase {
             XCTFail("Expected .outputText(.delta), got \(receivedEvent)")
         }
     }
+
+    func testOutputTextAnnotationAdded_withExplicitEventField() async throws {
+        let expectation = XCTestExpectation(description: "outputTextAnnotation(.added) received via SSE event field")
+        var receivedEvent: ResponseStreamEvent?
+
+        interpreter.setCallbackClosures { event in
+            Task {
+                await MainActor.run {
+                    receivedEvent = event
+                    expectation.fulfill()
+                }
+            }
+        } onError: { error in
+            XCTFail("Unexpected error: \(error)")
+        }
+
+        interpreter.processData(MockServerSentEvent.annotationAddedEvent(withExplicitEventField: true))
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        guard case .outputTextAnnotation(.added(let event)) = receivedEvent else {
+            XCTFail("Expected .outputTextAnnotation(.added), got \(String(describing: receivedEvent))")
+            return
+        }
+        XCTAssertEqual(event.itemId, "item_1")
+        XCTAssertEqual(event.outputIndex, 0)
+        XCTAssertEqual(event.contentIndex, 0)
+        XCTAssertEqual(event.annotationIndex, 2)
+        XCTAssertEqual(event.sequenceNumber, 5)
+    }
+
+    func testOutputTextAnnotationAdded_withoutEventField_fallsBackToPayloadType() async throws {
+        let expectation = XCTestExpectation(description: "outputTextAnnotation(.added) received via data.type fallback")
+        var receivedEvent: ResponseStreamEvent?
+
+        interpreter.setCallbackClosures { event in
+            Task {
+                await MainActor.run {
+                    receivedEvent = event
+                    expectation.fulfill()
+                }
+            }
+        } onError: { error in
+            XCTFail("Unexpected error: \(error)")
+        }
+
+        interpreter.processData(MockServerSentEvent.annotationAddedEvent(withExplicitEventField: false))
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        guard case .outputTextAnnotation(.added(let event)) = receivedEvent else {
+            XCTFail("Expected .outputTextAnnotation(.added), got \(String(describing: receivedEvent))")
+            return
+        }
+        XCTAssertEqual(event.itemId, "item_1")
+        XCTAssertEqual(event.outputIndex, 0)
+        XCTAssertEqual(event.contentIndex, 0)
+        XCTAssertEqual(event.annotationIndex, 2)
+        XCTAssertEqual(event.sequenceNumber, 5)
+    }
 }
