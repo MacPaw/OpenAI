@@ -27,6 +27,9 @@ public struct ChatStreamResult: Codable, Equatable, Sendable {
             /// The role of the author of this message.
             public let role: Self.Role?
             public let toolCalls: [Self.ChoiceDeltaToolCall]?
+            /// Annotations for the message, when applicable, as when using the web search tool.
+            /// Web search tool: https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat
+            public let annotations: [Annotation]?
 
             /// Value for `reasoning` field in response.
             ///
@@ -123,6 +126,7 @@ public struct ChatStreamResult: Codable, Equatable, Sendable {
                 case refusal
                 case audio
                 case role
+                case annotations
                 case toolCalls = "tool_calls"
                 case _reasoning = "reasoning"
                 case _reasoningContent = "reasoning_content"
