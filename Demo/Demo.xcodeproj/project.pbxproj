@@ -15,6 +15,7 @@
 		EFBC536829E0047400334182 /* APIKeyModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC536729E0047400334182 /* APIKeyModalView.swift */; };
 		EFBC536C29E0105800334182 /* SwiftUIAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFBC536B29E0105800334182 /* SwiftUIAdditions.swift */; };
 		EFE6B73329E0D47500884A87 /* APIProvidedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE6B73229E0D47500884A87 /* APIProvidedView.swift */; };
+		A12B308126480001AAAA0001 /* APIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12B308026480001AAAA0001 /* APIProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,7 @@
 		EFBC536729E0047400334182 /* APIKeyModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeyModalView.swift; sourceTree = "<group>"; };
 		EFBC536B29E0105800334182 /* SwiftUIAdditions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIAdditions.swift; sourceTree = "<group>"; };
 		EFE6B73229E0D47500884A87 /* APIProvidedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIProvidedView.swift; sourceTree = "<group>"; };
+		A12B308026480001AAAA0001 /* APIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIProvider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +70,7 @@
 				EFBC533F29DFB4EA00334182 /* DemoApp.swift */,
 				EFBC536729E0047400334182 /* APIKeyModalView.swift */,
 				EFE6B73229E0D47500884A87 /* APIProvidedView.swift */,
+				A12B308026480001AAAA0001 /* APIProvider.swift */,
 				EFBC536529DFFF3200334182 /* ContentView.swift */,
 				EFBC534329DFB4EB00334182 /* Assets.xcassets */,
 				EFBC534529DFB4EB00334182 /* Demo.entitlements */,
@@ -178,6 +181,7 @@
 				EFBC534029DFB4EA00334182 /* DemoApp.swift in Sources */,
 				EFE6B73329E0D47500884A87 /* APIProvidedView.swift in Sources */,
 				EFBC536829E0047400334182 /* APIKeyModalView.swift in Sources */,
+				A12B308126480001AAAA0001 /* APIProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
