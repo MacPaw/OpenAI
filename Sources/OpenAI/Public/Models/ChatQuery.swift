@@ -292,6 +292,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
         public init?(
             role: Role,
             content: String? = nil,
+            reasoningContent: String? = nil,
             imageData: Data? = nil,
             name: String? = nil,
             toolCalls: [Self.AssistantMessageParam.ToolCallParam]? = nil,
@@ -318,9 +319,9 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
                 }
             case .assistant:
                 if let content {
-                    self = .assistant(.init(content: .textContent(content), name: name, toolCalls: toolCalls))
+                    self = .assistant(.init(content: .textContent(content), reasoningContent: reasoningContent, name: name, toolCalls: toolCalls))
                 } else {
-                    self = .assistant(.init(content: nil, name: name, toolCalls: toolCalls))
+                    self = .assistant(.init(content: nil, reasoningContent: reasoningContent, name: name, toolCalls: toolCalls))
                 }
             case .tool:
                 if let content, let toolCallId {
@@ -783,6 +784,8 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
             public let role: Self.Role = .assistant
             /// The contents of the assistant message. Required unless `tool_calls` is specified.
             public let content: TextOrRefusalContent?
+            /// The reasoning content of the assistant message.
+            public let reasoningContent: String?
             /// Data about a previous audio response from the model.
             public let audio: Audio?
             /// The name of the author of this message. `name` is required if role is `function`, and it should be the name of the function whose response is in the `content`. May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
@@ -792,11 +795,13 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
 
             public init(
                 content: TextOrRefusalContent? = nil,
+                reasoningContent: String? = nil,
                 audio: Audio? = nil,
                 name: String? = nil,
                 toolCalls: [Self.ToolCallParam]? = nil
             ) {
                 self.content = content
+                self.reasoningContent = reasoningContent
                 self.audio = audio
                 self.name = name
                 self.toolCalls = toolCalls
@@ -806,6 +811,7 @@ public struct ChatQuery: Equatable, Codable, Streamable, Sendable {
                 case name
                 case role
                 case content
+                case reasoningContent = "reasoning_content"
                 case audio
                 case toolCalls = "tool_calls"
             }
