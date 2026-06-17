@@ -153,4 +153,36 @@ extension OpenAI {
             body: query
         )
     }
+
+    func makeFileContentRequest(id: String) -> JSONRequest<Data> {
+        .init(url: buildURL(path: .fileContent(id)), method: "GET")
+    }
+
+    func makeFileDeleteRequest(id: String) -> JSONRequest<FileDeleteResult> {
+        .init(url: buildURL(path: .file(id)), method: "DELETE")
+    }
+
+    // MARK: - Batch API
+
+    func makeBatchCreateRequest(query: BatchQuery) -> JSONRequest<BatchResult> {
+        .init(body: query, url: buildURL(path: .batches))
+    }
+
+    func makeBatchRetrieveRequest(id: String) -> JSONRequest<BatchResult> {
+        .init(url: buildURL(path: .batch(id)), method: "GET")
+    }
+
+    func makeBatchListRequest(after: String?, limit: Int) -> JSONRequest<BatchListResult> {
+        var components = URLComponents.components(perConfiguration: configuration, path: APIPath.batches)
+        var queryItems = [URLQueryItem(name: "limit", value: String(limit))]
+        if let after = after {
+            queryItems.append(URLQueryItem(name: "after", value: after))
+        }
+        components.queryItems = queryItems
+        return .init(url: components.urlSafe, method: "GET")
+    }
+
+    func makeBatchCancelRequest(id: String) -> JSONRequest<BatchResult> {
+        .init(url: buildURL(path: .batchCancel(id)), method: "POST")
+    }
 }
