@@ -48,7 +48,11 @@ extension OpenAI {
     func makeAudioTranslationsRequest(query: AudioTranslationQuery) -> MultipartFormDataRequest<AudioTranslationResult> {
         .init(body: query, url: buildURL(path: .audioTranslations))
     }
-    
+
+    func makeAudioChatsRequest(query: AudioChatQuery) -> JSONRequest<AudioChatResult> {
+        .init(body: query, url: buildURL(path: .chats))
+    }
+
     func makeAudioCreateSpeechRequest(query: AudioSpeechQuery) -> JSONRequest<AudioSpeechResult> {
         .init(body: query, url: buildURL(path: .audioSpeech))
     }
