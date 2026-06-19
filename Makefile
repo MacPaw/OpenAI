@@ -20,6 +20,13 @@
 #   local commit 33a4f7ccdc4adb577e20033562858ffc657a589a and corresponds to
 #   https://github.com/openai/openai-openapi/issues/542.
 #
+# - When inferred discriminator values collide across multiple oneOf schemas,
+#   fall back to structural decoding for the colliding value instead of
+#   generating duplicate switch patterns. The OpenAI spec uses `message` for
+#   both InputMessage and OutputMessage, so the discriminator alone cannot
+#   select the correct schema. This is implemented by local commit
+#   052065978bacae66db746ee5565dc36bd434b413.
+#
 # Expected diagnostic:
 # The generator warns that `InputMessageResource/value2` requires `type` even
 # though that property is declared by the sibling `InputMessage` schema in the

@@ -3456,15 +3456,16 @@ public enum Components {
                 case _type = "type"
             }
             public init(from decoder: any Swift.Decoder) throws {
+                var errors: [any Swift.Error] = []
                 let container = try decoder.container(keyedBy: CodingKeys.self)
                 let discriminator = try container.decode(
                     Swift.String.self,
                     forKey: ._type
                 )
                 switch discriminator {
-                case "InputMessage", "#/components/schemas/InputMessage", "message":
+                case "InputMessage", "#/components/schemas/InputMessage":
                     self = .inputMessage(try .init(from: decoder))
-                case "OutputMessage", "#/components/schemas/OutputMessage", "message":
+                case "OutputMessage", "#/components/schemas/OutputMessage":
                     self = .outputMessage(try .init(from: decoder))
                 case "FileSearchToolCall", "#/components/schemas/FileSearchToolCall", "file_search_call":
                     self = .fileSearchToolCall(try .init(from: decoder))
@@ -3514,6 +3515,24 @@ public enum Components {
                     self = .customToolCallOutput(try .init(from: decoder))
                 case "CustomToolCall", "#/components/schemas/CustomToolCall", "custom_tool_call":
                     self = .customToolCall(try .init(from: decoder))
+                case "message":
+                    do {
+                        self = .inputMessage(try .init(from: decoder))
+                        return
+                    } catch {
+                        errors.append(error)
+                    }
+                    do {
+                        self = .outputMessage(try .init(from: decoder))
+                        return
+                    } catch {
+                        errors.append(error)
+                    }
+                    throw Swift.DecodingError.failedToDecodeOneOfSchema(
+                        type: Self.self,
+                        codingPath: decoder.codingPath,
+                        errors: errors
+                    )
                 default:
                     throw Swift.DecodingError.unknownOneOfDiscriminator(
                         discriminatorKey: CodingKeys._type,
