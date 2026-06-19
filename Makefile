@@ -10,22 +10,19 @@
 #   branch while assigning the Swift type, then make the resulting type
 #   optional. Without this change, nullable properties are unsupported or are
 #   generated as an anyOf wrapper instead of the expected optional Swift type.
-#   This is implemented by local commit fe49fc3f7e17b255012ab11925f53863e4972933.
 #
 # - When a oneOf discriminator has no explicit mapping, also match the string
 #   enum values declared by the referenced schemas' discriminator property.
 #   The OpenAI spec uses runtime values such as `input_text`, which do not match
 #   schema names such as `InputTextContent`; without this change, decoding a
-#   valid response throws unknownOneOfDiscriminator. This is implemented by
-#   local commit 33a4f7ccdc4adb577e20033562858ffc657a589a and corresponds to
-#   https://github.com/openai/openai-openapi/issues/542.
+#   valid response throws unknownOneOfDiscriminator. See
+#   https://github.com/openai/openai-openapi/issues/542 for the spec issue.
 #
 # - When inferred discriminator values collide across multiple oneOf schemas,
 #   fall back to structural decoding for the colliding value instead of
 #   generating duplicate switch patterns. The OpenAI spec uses `message` for
 #   both InputMessage and OutputMessage, so the discriminator alone cannot
-#   select the correct schema. This is implemented by local commit
-#   052065978bacae66db746ee5565dc36bd434b413.
+#   select the correct schema.
 #
 # Expected diagnostic:
 # The generator warns that `InputMessageResource/value2` requires `type` even
