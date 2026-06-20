@@ -68,8 +68,13 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
             throw InterpreterError.unknownEventType(eventType)
         }
         
-        let responseStreamEvent = try responseStreamEvent(modelResponseEventType: modelResponseEventType, data: event.data)
-        onEventDispatched?(responseStreamEvent)
+        do {
+            let responseStreamEvent = try responseStreamEvent(modelResponseEventType: modelResponseEventType, data: event.data)
+            onEventDispatched?(responseStreamEvent)
+        } catch {
+            print("Decoding failed for modelResponseEventType: \(modelResponseEventType), String(data: event.data, encoding: .utf8): \(String(data: event.data, encoding: .utf8))")
+            throw error
+        }
     }
 
     private func processError(_ error: Error) {
