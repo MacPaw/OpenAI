@@ -11721,7 +11721,7 @@ public enum Components {
             ///
             ///
             /// - Remark: Generated from `#/components/schemas/WebSearchActionSearch/query`.
-            public var query: Swift.String
+            public var query: Swift.String?
             /// The search queries.
             ///
             ///
@@ -11785,7 +11785,7 @@ public enum Components {
             ///   - sources: The sources used in the search.
             public init(
                 _type: Components.Schemas.WebSearchActionSearch._TypePayload,
-                query: Swift.String,
+                query: Swift.String? = nil,
                 queries: [Swift.String]? = nil,
                 sources: Components.Schemas.WebSearchActionSearch.SourcesPayload? = nil
             ) {

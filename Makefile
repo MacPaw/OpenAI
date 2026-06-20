@@ -45,6 +45,14 @@ generate:
 	python3 -B "$(PROJECT_DIR)/Scripts/prepare_openapi.py" \
 		"$(PROJECT_DIR)/openapi.yaml" \
 		"$(PREPARED_OPENAPI)"
+	# The LocalShellToolCallOutput, MCP approval response, and response audio
+	# event removals are required-list entries without matching schema properties.
+	# They otherwise produce swift-openapi-generator warnings that the names are
+	# likely typos and will be skipped.
+	#
+	# WebSearchActionSearch/query is different: the property is declared, but the
+	# live API can omit the deprecated singular query and return queries instead.
+	# It must be optional so valid web-search response items decode successfully.
 	python3 -B "$(PROJECT_DIR)/Scripts/remove_required_properties.py" \
 		"$(PREPARED_OPENAPI)" \
 		"$(PREPARED_OPENAPI)" \
@@ -54,6 +62,7 @@ generate:
 		--remove-required "ResponseAudioDoneEvent" "response_id" \
 		--remove-required "ResponseAudioTranscriptDeltaEvent" "response_id" \
 		--remove-required "ResponseAudioTranscriptDoneEvent" "response_id" \
+		--remove-required "WebSearchActionSearch" "query" \
 		--diff-source "$(PROJECT_DIR)/openapi.yaml" \
 		--diff-output "$(OPENAPI_DIFF)"
 	cd "$(GENERATOR_DIR)" && swift run swift-openapi-generator generate \
