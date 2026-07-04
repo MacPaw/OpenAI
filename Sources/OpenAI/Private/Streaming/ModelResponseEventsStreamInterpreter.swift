@@ -72,7 +72,9 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
             let responseStreamEvent = try responseStreamEvent(modelResponseEventType: modelResponseEventType, data: event.data)
             onEventDispatched?(responseStreamEvent)
         } catch {
+#if DEBUG
             print("Decoding failed for modelResponseEventType: \(modelResponseEventType), String(data: event.data, encoding: .utf8): \(String(data: event.data, encoding: .utf8))")
+#endif
             throw error
         }
     }
