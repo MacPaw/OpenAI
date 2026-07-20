@@ -96,6 +96,15 @@ def remove_required_properties(
     for index in sorted(indexes_to_remove, reverse=True):
         del lines[index]
 
+    # Remove any required: key left with no items after deletions.
+    lines = [
+        line for i, line in enumerate(lines)
+        if not (
+            REQUIRED_KEY_RE.match(line)
+            and (i + 1 >= len(lines) or REQUIRED_ITEM_RE.match(lines[i + 1]) is None)
+        )
+    ]
+
     return "".join(lines), removals
 
 
