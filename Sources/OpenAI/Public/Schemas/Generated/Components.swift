@@ -434,11 +434,20 @@ public enum Components {
             /// Type of operation: `and` or `or`.
             ///
             /// - Remark: Generated from `#/components/schemas/CompoundFilter/type`.
-            public var _type: Components.Schemas.CompoundFilter._TypePayload
+            public var _type: Components.Schemas.CompoundFilter._TypePayload {
+                get  {
+                    self.storage.value._type
+                }
+                _modify {
+                    yield &self.storage.value._type
+                }
+            }
             /// - Remark: Generated from `#/components/schemas/CompoundFilter/FiltersPayload`.
             @frozen public enum FiltersPayloadPayload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/CompoundFilter/FiltersPayload/ComparisonFilter`.
                 case comparisonFilter(Components.Schemas.ComparisonFilter)
+                /// - Remark: Generated from `#/components/schemas/CompoundFilter/FiltersPayload/CompoundFilter`.
+                case compoundFilter(Components.Schemas.CompoundFilter)
                 public enum CodingKeys: String, CodingKey {
                     case _type = "type"
                 }
@@ -451,6 +460,8 @@ public enum Components {
                     switch discriminator {
                     case "ComparisonFilter", "#/components/schemas/ComparisonFilter", "eq", "ne", "gt", "gte", "lt", "lte", "in", "nin":
                         self = .comparisonFilter(try .init(from: decoder))
+                    case "CompoundFilter", "#/components/schemas/CompoundFilter", "and", "or":
+                        self = .compoundFilter(try .init(from: decoder))
                     default:
                         throw Swift.DecodingError.unknownOneOfDiscriminator(
                             discriminatorKey: CodingKeys._type,
@@ -463,6 +474,8 @@ public enum Components {
                     switch self {
                     case let .comparisonFilter(value):
                         try value.encode(to: encoder)
+                    case let .compoundFilter(value):
+                        try value.encode(to: encoder)
                     }
                 }
             }
@@ -473,7 +486,14 @@ public enum Components {
             /// Array of filters to combine. Items can be `ComparisonFilter` or `CompoundFilter`.
             ///
             /// - Remark: Generated from `#/components/schemas/CompoundFilter/filters`.
-            public var filters: Components.Schemas.CompoundFilter.FiltersPayload
+            public var filters: Components.Schemas.CompoundFilter.FiltersPayload {
+                get  {
+                    self.storage.value.filters
+                }
+                _modify {
+                    yield &self.storage.value.filters
+                }
+            }
             /// Creates a new `CompoundFilter`.
             ///
             /// - Parameters:
@@ -483,27 +503,103 @@ public enum Components {
                 _type: Components.Schemas.CompoundFilter._TypePayload,
                 filters: Components.Schemas.CompoundFilter.FiltersPayload
             ) {
-                self._type = _type
-                self.filters = filters
+                self.storage = .init(value: .init(
+                    _type: _type,
+                    filters: filters
+                ))
             }
             public enum CodingKeys: String, CodingKey {
                 case _type = "type"
                 case filters
             }
             public init(from decoder: any Swift.Decoder) throws {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                self._type = try container.decode(
-                    Components.Schemas.CompoundFilter._TypePayload.self,
-                    forKey: ._type
-                )
-                self.filters = try container.decode(
-                    Components.Schemas.CompoundFilter.FiltersPayload.self,
-                    forKey: .filters
-                )
-                try decoder.ensureNoAdditionalProperties(knownKeys: [
-                    "type",
-                    "filters"
-                ])
+                self.storage = try .init(from: decoder)
+            }
+            public func encode(to encoder: any Swift.Encoder) throws {
+                try self.storage.encode(to: encoder)
+            }
+            /// Internal reference storage to allow type recursion.
+            private var storage: OpenAPIRuntime.CopyOnWriteBox<Storage>
+            private struct Storage: Codable, Hashable, Sendable {
+                /// Type of operation: `and` or `or`.
+                ///
+                /// - Remark: Generated from `#/components/schemas/CompoundFilter/type`.
+                enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                    case and = "and"
+                    case or = "or"
+                }
+                /// Type of operation: `and` or `or`.
+                ///
+                /// - Remark: Generated from `#/components/schemas/CompoundFilter/type`.
+                var _type: Components.Schemas.CompoundFilter._TypePayload
+                /// - Remark: Generated from `#/components/schemas/CompoundFilter/FiltersPayload`.
+                enum FiltersPayloadPayload: Codable, Hashable, Sendable {
+                    /// - Remark: Generated from `#/components/schemas/CompoundFilter/FiltersPayload/ComparisonFilter`.
+                    case comparisonFilter(Components.Schemas.ComparisonFilter)
+                    /// - Remark: Generated from `#/components/schemas/CompoundFilter/FiltersPayload/CompoundFilter`.
+                    case compoundFilter(Components.Schemas.CompoundFilter)
+                    public enum CodingKeys: String, CodingKey {
+                        case _type = "type"
+                    }
+                    public init(from decoder: any Swift.Decoder) throws {
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        let discriminator = try container.decode(
+                            Swift.String.self,
+                            forKey: ._type
+                        )
+                        switch discriminator {
+                        case "ComparisonFilter", "#/components/schemas/ComparisonFilter", "eq", "ne", "gt", "gte", "lt", "lte", "in", "nin":
+                            self = .comparisonFilter(try .init(from: decoder))
+                        case "CompoundFilter", "#/components/schemas/CompoundFilter", "and", "or":
+                            self = .compoundFilter(try .init(from: decoder))
+                        default:
+                            throw Swift.DecodingError.unknownOneOfDiscriminator(
+                                discriminatorKey: CodingKeys._type,
+                                discriminatorValue: discriminator,
+                                codingPath: decoder.codingPath
+                            )
+                        }
+                    }
+                    public func encode(to encoder: any Swift.Encoder) throws {
+                        switch self {
+                        case let .comparisonFilter(value):
+                            try value.encode(to: encoder)
+                        case let .compoundFilter(value):
+                            try value.encode(to: encoder)
+                        }
+                    }
+                }
+                /// Array of filters to combine. Items can be `ComparisonFilter` or `CompoundFilter`.
+                ///
+                /// - Remark: Generated from `#/components/schemas/CompoundFilter/filters`.
+                typealias FiltersPayload = [Components.Schemas.CompoundFilter.FiltersPayloadPayload]
+                /// Array of filters to combine. Items can be `ComparisonFilter` or `CompoundFilter`.
+                ///
+                /// - Remark: Generated from `#/components/schemas/CompoundFilter/filters`.
+                var filters: Components.Schemas.CompoundFilter.FiltersPayload
+                init(
+                    _type: Components.Schemas.CompoundFilter._TypePayload,
+                    filters: Components.Schemas.CompoundFilter.FiltersPayload
+                ) {
+                    self._type = _type
+                    self.filters = filters
+                }
+                typealias CodingKeys = Components.Schemas.CompoundFilter.CodingKeys
+                init(from decoder: any Swift.Decoder) throws {
+                    let container = try decoder.container(keyedBy: CodingKeys.self)
+                    self._type = try container.decode(
+                        Components.Schemas.CompoundFilter._TypePayload.self,
+                        forKey: ._type
+                    )
+                    self.filters = try container.decode(
+                        Components.Schemas.CompoundFilter.FiltersPayload.self,
+                        forKey: .filters
+                    )
+                    try decoder.ensureNoAdditionalProperties(knownKeys: [
+                        "type",
+                        "filters"
+                    ])
+                }
             }
         }
         /// - Remark: Generated from `#/components/schemas/ComputerAction`.
@@ -596,7 +692,7 @@ public enum Components {
         ///
         /// - Remark: Generated from `#/components/schemas/ComputerScreenshotImage`.
         public struct ComputerScreenshotImage: Codable, Hashable, Sendable {
-            /// Specifies the event type. For a computer screenshot, this property is
+            /// Specifies the event type. For a computer screenshot, this property is 
             /// always set to `computer_screenshot`.
             ///
             ///
@@ -604,7 +700,7 @@ public enum Components {
             @frozen public enum _TypePayload: String, Codable, Hashable, Sendable, CaseIterable {
                 case computerScreenshot = "computer_screenshot"
             }
-            /// Specifies the event type. For a computer screenshot, this property is
+            /// Specifies the event type. For a computer screenshot, this property is 
             /// always set to `computer_screenshot`.
             ///
             ///
@@ -621,7 +717,7 @@ public enum Components {
             /// Creates a new `ComputerScreenshotImage`.
             ///
             /// - Parameters:
-            ///   - _type: Specifies the event type. For a computer screenshot, this property is
+            ///   - _type: Specifies the event type. For a computer screenshot, this property is 
             ///   - imageUrl: The URL of the screenshot image.
             ///   - fileId: The identifier of an uploaded file that contains the screenshot.
             public init(
@@ -924,8 +1020,10 @@ public enum Components {
             public var value1: Components.Schemas.ModelResponseProperties
             /// - Remark: Generated from `#/components/schemas/CreateModelResponseProperties/value2`.
             public struct Value2Payload: Codable, Hashable, Sendable {
-                /// An integer between 0 and 20 specifying the number of most likely tokens to
-                /// return at each token position, each with an associated log probability.
+                /// An integer between 0 and 20 specifying the maximum number of most likely
+                /// tokens to return at each token position, each with an associated log
+                /// probability. In some cases, the number of returned tokens may be fewer than
+                /// requested.
                 ///
                 ///
                 /// - Remark: Generated from `#/components/schemas/CreateModelResponseProperties/value2/top_logprobs`.
@@ -933,7 +1031,7 @@ public enum Components {
                 /// Creates a new `Value2Payload`.
                 ///
                 /// - Parameters:
-                ///   - topLogprobs: An integer between 0 and 20 specifying the number of most likely tokens to
+                ///   - topLogprobs: An integer between 0 and 20 specifying the maximum number of most likely
                 public init(topLogprobs: Swift.Int? = nil) {
                     self.topLogprobs = topLogprobs
                 }
@@ -1175,7 +1273,7 @@ public enum Components {
             case timestampGranularities(OpenAPIRuntime.MultipartPart<Components.Schemas.CreateTranscriptionRequest.TimestampGranularitiesPayload>)
             /// - Remark: Generated from `#/components/schemas/CreateTranscriptionRequest/chunking_strategy`.
             public struct ChunkingStrategyPayload: Sendable, Hashable {
-                /// Controls how the audio is cut into chunks. When set to `"auto"`, the server first normalizes loudness and then uses voice activity detection (VAD) to choose boundaries. `server_vad` object can be provided to tweak VAD detection parameters manually. If unset, the audio is transcribed as a single block. Required when using `gpt-4o-transcribe-diarize` for inputs longer than 30 seconds.
+                /// Controls how the audio is cut into chunks. When set to `"auto"`, the server first normalizes loudness and then uses voice activity detection (VAD) to choose boundaries. `server_vad` object can be provided to tweak VAD detection parameters manually. If unset, the audio is transcribed as a single block. Required when using `gpt-4o-transcribe-diarize` for inputs longer than 30 seconds. 
                 ///
                 /// - Remark: Generated from `#/components/schemas/CreateTranscriptionRequest/chunking_strategy/content/body`.
                 public struct BodyPayload: Codable, Hashable, Sendable {
@@ -2285,7 +2383,7 @@ public enum Components {
                 }
             }
         }
-        /// A tool call to run a function. See the
+        /// A tool call to run a function. See the 
         /// [function calling guide](/docs/guides/function-calling) for more information.
         ///
         ///
@@ -2732,20 +2830,63 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/ImageGenTool/quality`.
             public var quality: Components.Schemas.ImageGenTool.QualityPayload?
-            /// The size of the generated image. One of `1024x1024`, `1024x1536`,
-            /// `1536x1024`, or `auto`. Default: `auto`.
-            ///
+            /// The size of the generated images. For `gpt-image-2` and `gpt-image-2-2026-04-21`, arbitrary resolutions are supported as `WIDTHxHEIGHT` strings, for example `1536x864`. Width and height must both be divisible by 16 and the requested aspect ratio must be between 1:3 and 3:1. Resolutions above `2560x1440` are experimental, and the maximum supported resolution is `3840x2160`. The requested size must also satisfy the model's current pixel and edge limits. The standard sizes `1024x1024`, `1536x1024`, and `1024x1536` are supported by the GPT image models; `auto` is supported for models that allow automatic sizing. For `dall-e-2`, use one of `256x256`, `512x512`, or `1024x1024`. For `dall-e-3`, use one of `1024x1024`, `1792x1024`, or `1024x1792`.
             ///
             /// - Remark: Generated from `#/components/schemas/ImageGenTool/size`.
-            @frozen public enum SizePayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case _1024x1024 = "1024x1024"
-                case _1024x1536 = "1024x1536"
-                case _1536x1024 = "1536x1024"
-                case auto = "auto"
+            public struct SizePayload: Codable, Hashable, Sendable {
+                /// - Remark: Generated from `#/components/schemas/ImageGenTool/size/value1`.
+                public var value1: Swift.String?
+                /// - Remark: Generated from `#/components/schemas/ImageGenTool/size/value2`.
+                @frozen public enum Value2Payload: String, Codable, Hashable, Sendable, CaseIterable {
+                    case _1024x1024 = "1024x1024"
+                    case _1024x1536 = "1024x1536"
+                    case _1536x1024 = "1536x1024"
+                    case auto = "auto"
+                }
+                /// - Remark: Generated from `#/components/schemas/ImageGenTool/size/value2`.
+                public var value2: Components.Schemas.ImageGenTool.SizePayload.Value2Payload?
+                /// Creates a new `SizePayload`.
+                ///
+                /// - Parameters:
+                ///   - value1:
+                ///   - value2:
+                public init(
+                    value1: Swift.String? = nil,
+                    value2: Components.Schemas.ImageGenTool.SizePayload.Value2Payload? = nil
+                ) {
+                    self.value1 = value1
+                    self.value2 = value2
+                }
+                public init(from decoder: any Swift.Decoder) throws {
+                    var errors: [any Swift.Error] = []
+                    do {
+                        self.value1 = try decoder.decodeFromSingleValueContainer()
+                    } catch {
+                        errors.append(error)
+                    }
+                    do {
+                        self.value2 = try decoder.decodeFromSingleValueContainer()
+                    } catch {
+                        errors.append(error)
+                    }
+                    try Swift.DecodingError.verifyAtLeastOneSchemaIsNotNil(
+                        [
+                            self.value1,
+                            self.value2
+                        ],
+                        type: Self.self,
+                        codingPath: decoder.codingPath,
+                        errors: errors
+                    )
+                }
+                public func encode(to encoder: any Swift.Encoder) throws {
+                    try encoder.encodeFirstNonNilValueToSingleValueContainer([
+                        self.value1,
+                        self.value2
+                    ])
+                }
             }
-            /// The size of the generated image. One of `1024x1024`, `1024x1536`,
-            /// `1536x1024`, or `auto`. Default: `auto`.
-            ///
+            /// The size of the generated images. For `gpt-image-2` and `gpt-image-2-2026-04-21`, arbitrary resolutions are supported as `WIDTHxHEIGHT` strings, for example `1536x864`. Width and height must both be divisible by 16 and the requested aspect ratio must be between 1:3 and 3:1. Resolutions above `2560x1440` are experimental, and the maximum supported resolution is `3840x2160`. The requested size must also satisfy the model's current pixel and edge limits. The standard sizes `1024x1024`, `1536x1024`, and `1024x1536` are supported by the GPT image models; `auto` is supported for models that allow automatic sizing. For `dall-e-2`, use one of `256x256`, `512x512`, or `1024x1024`. For `dall-e-3`, use one of `1024x1024`, `1792x1024`, or `1024x1792`.
             ///
             /// - Remark: Generated from `#/components/schemas/ImageGenTool/size`.
             public var size: Components.Schemas.ImageGenTool.SizePayload?
@@ -2873,7 +3014,7 @@ public enum Components {
             ///   - _type: The type of the image generation tool. Always `image_generation`.
             ///   - model:
             ///   - quality: The quality of the generated image. One of `low`, `medium`, `high`,
-            ///   - size: The size of the generated image. One of `1024x1024`, `1024x1536`,
+            ///   - size: The size of the generated images. For `gpt-image-2` and `gpt-image-2-2026-04-21`, arbitrary resolutions are supported as `WIDTHxHEIGHT` strings, for example `1536x864`. Width and height must both be divisible by 16 and the requested aspect ratio must be between 1:3 and 3:1. Resolutions above `2560x1440` are experimental, and the maximum supported resolution is `3840x2160`. The requested size must also satisfy the model's current pixel and edge limits. The standard sizes `1024x1024`, `1536x1024`, and `1024x1536` are supported by the GPT image models; `auto` is supported for models that allow automatic sizing. For `dall-e-2`, use one of `256x256`, `512x512`, or `1024x1024`. For `dall-e-3`, use one of `1024x1024`, `1792x1024`, or `1024x1792`.
             ///   - outputFormat: The output format of the generated image. One of `png`, `webp`, or
             ///   - outputCompression: Compression level for the output image. Default: 100.
             ///   - moderation: Moderation level for the generated image. Default: `auto`.
@@ -3150,7 +3291,7 @@ public enum Components {
                 case content
             }
         }
-        /// A list of one or many input items to the model, containing different content
+        /// A list of one or many input items to the model, containing different content 
         /// types.
         ///
         ///
@@ -3315,15 +3456,16 @@ public enum Components {
                 case _type = "type"
             }
             public init(from decoder: any Swift.Decoder) throws {
+                var errors: [any Swift.Error] = []
                 let container = try decoder.container(keyedBy: CodingKeys.self)
                 let discriminator = try container.decode(
                     Swift.String.self,
                     forKey: ._type
                 )
                 switch discriminator {
-                case "InputMessage", "#/components/schemas/InputMessage", "message":
+                case "InputMessage", "#/components/schemas/InputMessage":
                     self = .inputMessage(try .init(from: decoder))
-                case "OutputMessage", "#/components/schemas/OutputMessage", "message":
+                case "OutputMessage", "#/components/schemas/OutputMessage":
                     self = .outputMessage(try .init(from: decoder))
                 case "FileSearchToolCall", "#/components/schemas/FileSearchToolCall", "file_search_call":
                     self = .fileSearchToolCall(try .init(from: decoder))
@@ -3373,6 +3515,24 @@ public enum Components {
                     self = .customToolCallOutput(try .init(from: decoder))
                 case "CustomToolCall", "#/components/schemas/CustomToolCall", "custom_tool_call":
                     self = .customToolCall(try .init(from: decoder))
+                case "message":
+                    do {
+                        self = .inputMessage(try .init(from: decoder))
+                        return
+                    } catch {
+                        errors.append(error)
+                    }
+                    do {
+                        self = .outputMessage(try .init(from: decoder))
+                        return
+                    } catch {
+                        errors.append(error)
+                    }
+                    throw Swift.DecodingError.failedToDecodeOneOfSchema(
+                        type: Self.self,
+                        codingPath: decoder.codingPath,
+                        errors: errors
+                    )
                 default:
                     throw Swift.DecodingError.unknownOneOfDiscriminator(
                         discriminatorKey: CodingKeys._type,
@@ -4765,7 +4925,7 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/ModelResponseProperties/prompt_cache_retention`.
             @frozen public enum PromptCacheRetentionPayload: String, Codable, Hashable, Sendable, CaseIterable {
-                case inMemory = "in-memory"
+                case inMemory = "in_memory"
                 case _24h = "24h"
             }
             /// - Remark: Generated from `#/components/schemas/ModelResponseProperties/prompt_cache_retention`.
@@ -5682,11 +5842,6 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseAudioDoneEvent/type`.
             public var _type: Components.Schemas.ResponseAudioDoneEvent._TypePayload
-            /// The ID of the response.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/ResponseAudioDoneEvent/response_id`.
-            public var responseId: Swift.String
             /// The sequence number of the delta.
             ///
             ///
@@ -5696,20 +5851,16 @@ public enum Components {
             ///
             /// - Parameters:
             ///   - _type: The type of the event. Always `response.audio.done`.
-            ///   - responseId: The ID of the response.
             ///   - sequenceNumber: The sequence number of the delta.
             public init(
                 _type: Components.Schemas.ResponseAudioDoneEvent._TypePayload,
-                responseId: Swift.String,
                 sequenceNumber: Swift.Int
             ) {
                 self._type = _type
-                self.responseId = responseId
                 self.sequenceNumber = sequenceNumber
             }
             public enum CodingKeys: String, CodingKey {
                 case _type = "type"
-                case responseId = "response_id"
                 case sequenceNumber = "sequence_number"
             }
         }
@@ -5729,11 +5880,6 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseAudioTranscriptDeltaEvent/type`.
             public var _type: Components.Schemas.ResponseAudioTranscriptDeltaEvent._TypePayload
-            /// The ID of the response.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/ResponseAudioTranscriptDeltaEvent/response_id`.
-            public var responseId: Swift.String
             /// The partial transcript of the audio response.
             ///
             ///
@@ -5747,23 +5893,19 @@ public enum Components {
             ///
             /// - Parameters:
             ///   - _type: The type of the event. Always `response.audio.transcript.delta`.
-            ///   - responseId: The ID of the response.
             ///   - delta: The partial transcript of the audio response.
             ///   - sequenceNumber: The sequence number of this event.
             public init(
                 _type: Components.Schemas.ResponseAudioTranscriptDeltaEvent._TypePayload,
-                responseId: Swift.String,
                 delta: Swift.String,
                 sequenceNumber: Swift.Int
             ) {
                 self._type = _type
-                self.responseId = responseId
                 self.delta = delta
                 self.sequenceNumber = sequenceNumber
             }
             public enum CodingKeys: String, CodingKey {
                 case _type = "type"
-                case responseId = "response_id"
                 case delta
                 case sequenceNumber = "sequence_number"
             }
@@ -5784,11 +5926,6 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseAudioTranscriptDoneEvent/type`.
             public var _type: Components.Schemas.ResponseAudioTranscriptDoneEvent._TypePayload
-            /// The ID of the response.
-            ///
-            ///
-            /// - Remark: Generated from `#/components/schemas/ResponseAudioTranscriptDoneEvent/response_id`.
-            public var responseId: Swift.String
             /// The sequence number of this event.
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseAudioTranscriptDoneEvent/sequence_number`.
@@ -5797,20 +5934,16 @@ public enum Components {
             ///
             /// - Parameters:
             ///   - _type: The type of the event. Always `response.audio.transcript.done`.
-            ///   - responseId: The ID of the response.
             ///   - sequenceNumber: The sequence number of this event.
             public init(
                 _type: Components.Schemas.ResponseAudioTranscriptDoneEvent._TypePayload,
-                responseId: Swift.String,
                 sequenceNumber: Swift.Int
             ) {
                 self._type = _type
-                self.responseId = responseId
                 self.sequenceNumber = sequenceNumber
             }
             public enum CodingKeys: String, CodingKey {
                 case _type = "type"
-                case responseId = "response_id"
                 case sequenceNumber = "sequence_number"
             }
         }
@@ -6925,7 +7058,7 @@ public enum Components {
             /// The name of the function that was called.
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDoneEvent/name`.
-            public var name: Swift.String?
+            public var name: Swift.String
             /// The index of the output item.
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseFunctionCallArgumentsDoneEvent/output_index`.
@@ -6950,7 +7083,7 @@ public enum Components {
             public init(
                 _type: Components.Schemas.ResponseFunctionCallArgumentsDoneEvent._TypePayload,
                 itemId: Swift.String,
-                name: Swift.String? = nil,
+                name: Swift.String,
                 outputIndex: Swift.Int,
                 sequenceNumber: Swift.Int,
                 arguments: Swift.String
@@ -7347,8 +7480,8 @@ public enum Components {
                 case lastId = "last_id"
             }
         }
-        /// A logprob is the logarithmic probability that the model assigns to producing
-        /// a particular token at a given position in the sequence. Less-negative (higher)
+        /// A logprob is the logarithmic probability that the model assigns to producing 
+        /// a particular token at a given position in the sequence. Less-negative (higher) 
         /// logprob values indicate greater model confidence in that token choice.
         ///
         ///
@@ -7390,12 +7523,12 @@ public enum Components {
                     case logprob
                 }
             }
-            /// The log probability of the top 20 most likely tokens.
+            /// The log probabilities of up to 20 of the most likely tokens.
             ///
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseLogProb/top_logprobs`.
             public typealias TopLogprobsPayload = [Components.Schemas.ResponseLogProb.TopLogprobsPayloadPayload]
-            /// The log probability of the top 20 most likely tokens.
+            /// The log probabilities of up to 20 of the most likely tokens.
             ///
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseLogProb/top_logprobs`.
@@ -7405,7 +7538,7 @@ public enum Components {
             /// - Parameters:
             ///   - token: A possible text token.
             ///   - logprob: The log probability of this token.
-            ///   - topLogprobs: The log probability of the top 20 most likely tokens.
+            ///   - topLogprobs: The log probabilities of up to 20 of the most likely tokens.
             public init(
                 token: Swift.String,
                 logprob: Swift.Double,
@@ -9812,7 +9945,7 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/ResponseUsage/input_tokens_details`.
             public struct InputTokensDetailsPayload: Codable, Hashable, Sendable {
-                /// The number of tokens that were retrieved from the cache.
+                /// The number of tokens that were retrieved from the cache. 
                 /// [More on prompt caching](/docs/guides/prompt-caching).
                 ///
                 ///
@@ -9821,7 +9954,7 @@ public enum Components {
                 /// Creates a new `InputTokensDetailsPayload`.
                 ///
                 /// - Parameters:
-                ///   - cachedTokens: The number of tokens that were retrieved from the cache.
+                ///   - cachedTokens: The number of tokens that were retrieved from the cache. 
                 public init(cachedTokens: Swift.Int) {
                     self.cachedTokens = cachedTokens
                 }
@@ -10077,8 +10210,8 @@ public enum Components {
         }
         /// An object specifying the format that the model must output.
         ///
-        /// Configuring `{ "type": "json_schema" }` enables Structured Outputs,
-        /// which ensures the model will match your supplied JSON schema. Learn more in the
+        /// Configuring `{ "type": "json_schema" }` enables Structured Outputs, 
+        /// which ensures the model will match your supplied JSON schema. Learn more in the 
         /// [Structured Outputs guide](/docs/guides/structured-outputs).
         ///
         /// The default format is `{ "type": "text" }` with no additional options.
@@ -10946,11 +11079,11 @@ public enum Components {
             /// Start timestamp of the segment in seconds.
             ///
             /// - Remark: Generated from `#/components/schemas/TranscriptTextSegmentEvent/start`.
-            public var start: Swift.Float
+            public var start: Swift.Double
             /// End timestamp of the segment in seconds.
             ///
             /// - Remark: Generated from `#/components/schemas/TranscriptTextSegmentEvent/end`.
-            public var end: Swift.Float
+            public var end: Swift.Double
             /// Transcript text for this segment.
             ///
             /// - Remark: Generated from `#/components/schemas/TranscriptTextSegmentEvent/text`.
@@ -10971,8 +11104,8 @@ public enum Components {
             public init(
                 _type: Components.Schemas.TranscriptTextSegmentEvent._TypePayload,
                 id: Swift.String,
-                start: Swift.Float,
-                end: Swift.Float,
+                start: Swift.Double,
+                end: Swift.Double,
                 text: Swift.String,
                 speaker: Swift.String
             ) {
@@ -11138,11 +11271,11 @@ public enum Components {
             /// Start timestamp of the segment in seconds.
             ///
             /// - Remark: Generated from `#/components/schemas/TranscriptionDiarizedSegment/start`.
-            public var start: Swift.Float
+            public var start: Swift.Double
             /// End timestamp of the segment in seconds.
             ///
             /// - Remark: Generated from `#/components/schemas/TranscriptionDiarizedSegment/end`.
-            public var end: Swift.Float
+            public var end: Swift.Double
             /// Transcript text for this segment.
             ///
             /// - Remark: Generated from `#/components/schemas/TranscriptionDiarizedSegment/text`.
@@ -11164,8 +11297,8 @@ public enum Components {
             public init(
                 _type: Components.Schemas.TranscriptionDiarizedSegment._TypePayload,
                 id: Swift.String,
-                start: Swift.Float,
-                end: Swift.Float,
+                start: Swift.Double,
+                end: Swift.Double,
                 text: Swift.String,
                 speaker: Swift.String
             ) {
@@ -11202,11 +11335,11 @@ public enum Components {
             /// Start time of the segment in seconds.
             ///
             /// - Remark: Generated from `#/components/schemas/TranscriptionSegment/start`.
-            public var start: Swift.Float
+            public var start: Swift.Double
             /// End time of the segment in seconds.
             ///
             /// - Remark: Generated from `#/components/schemas/TranscriptionSegment/end`.
-            public var end: Swift.Float
+            public var end: Swift.Double
             /// Text content of the segment.
             ///
             /// - Remark: Generated from `#/components/schemas/TranscriptionSegment/text`.
@@ -11247,8 +11380,8 @@ public enum Components {
             public init(
                 id: Swift.Int,
                 seek: Swift.Int,
-                start: Swift.Float,
-                end: Swift.Float,
+                start: Swift.Double,
+                end: Swift.Double,
                 text: Swift.String,
                 tokens: [Swift.Int],
                 temperature: Swift.Float,
@@ -11289,11 +11422,11 @@ public enum Components {
             /// Start time of the word in seconds.
             ///
             /// - Remark: Generated from `#/components/schemas/TranscriptionWord/start`.
-            public var start: Swift.Float
+            public var start: Swift.Double
             /// End time of the word in seconds.
             ///
             /// - Remark: Generated from `#/components/schemas/TranscriptionWord/end`.
-            public var end: Swift.Float
+            public var end: Swift.Double
             /// Creates a new `TranscriptionWord`.
             ///
             /// - Parameters:
@@ -11302,8 +11435,8 @@ public enum Components {
             ///   - end: End time of the word in seconds.
             public init(
                 word: Swift.String,
-                start: Swift.Float,
-                end: Swift.Float
+                start: Swift.Double,
+                end: Swift.Double
             ) {
                 self.word = word
                 self.start = start
@@ -11327,21 +11460,21 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/VadConfig/type`.
             public var _type: Components.Schemas.VadConfig._TypePayload
-            /// Amount of audio to include before the VAD detected speech (in
+            /// Amount of audio to include before the VAD detected speech (in 
             /// milliseconds).
             ///
             ///
             /// - Remark: Generated from `#/components/schemas/VadConfig/prefix_padding_ms`.
             public var prefixPaddingMs: Swift.Int?
             /// Duration of silence to detect speech stop (in milliseconds).
-            /// With shorter values the model will respond more quickly,
+            /// With shorter values the model will respond more quickly, 
             /// but may jump in on short pauses from the user.
             ///
             ///
             /// - Remark: Generated from `#/components/schemas/VadConfig/silence_duration_ms`.
             public var silenceDurationMs: Swift.Int?
-            /// Sensitivity threshold (0.0 to 1.0) for voice activity detection. A
-            /// higher threshold will require louder audio to activate the model, and
+            /// Sensitivity threshold (0.0 to 1.0) for voice activity detection. A 
+            /// higher threshold will require louder audio to activate the model, and 
             /// thus might perform better in noisy environments.
             ///
             ///
@@ -11351,9 +11484,9 @@ public enum Components {
             ///
             /// - Parameters:
             ///   - _type: Must be set to `server_vad` to enable manual chunking using server side VAD.
-            ///   - prefixPaddingMs: Amount of audio to include before the VAD detected speech (in
+            ///   - prefixPaddingMs: Amount of audio to include before the VAD detected speech (in 
             ///   - silenceDurationMs: Duration of silence to detect speech stop (in milliseconds).
-            ///   - threshold: Sensitivity threshold (0.0 to 1.0) for voice activity detection. A
+            ///   - threshold: Sensitivity threshold (0.0 to 1.0) for voice activity detection. A 
             public init(
                 _type: Components.Schemas.VadConfig._TypePayload,
                 prefixPaddingMs: Swift.Int? = nil,
@@ -11720,7 +11853,7 @@ public enum Components {
                 case timezone
             }
         }
-        /// High level guidance for the amount of context window space to use for the
+        /// High level guidance for the amount of context window space to use for the 
         /// search. One of `low`, `medium`, or `high`. `medium` is the default.
         ///
         ///
@@ -11734,7 +11867,7 @@ public enum Components {
         ///
         /// - Remark: Generated from `#/components/schemas/WebSearchLocation`.
         public struct WebSearchLocation: Codable, Hashable, Sendable {
-            /// The two-letter
+            /// The two-letter 
             /// [ISO country code](https://en.wikipedia.org/wiki/ISO_3166-1) of the user,
             /// e.g. `US`.
             ///
@@ -11751,7 +11884,7 @@ public enum Components {
             ///
             /// - Remark: Generated from `#/components/schemas/WebSearchLocation/city`.
             public var city: Swift.String?
-            /// The [IANA timezone](https://timeapi.io/documentation/iana-timezones)
+            /// The [IANA timezone](https://timeapi.io/documentation/iana-timezones) 
             /// of the user, e.g. `America/Los_Angeles`.
             ///
             ///
@@ -11760,10 +11893,10 @@ public enum Components {
             /// Creates a new `WebSearchLocation`.
             ///
             /// - Parameters:
-            ///   - country: The two-letter
+            ///   - country: The two-letter 
             ///   - region: Free text input for the region of the user, e.g. `California`.
             ///   - city: Free text input for the city of the user, e.g. `San Francisco`.
-            ///   - timezone: The [IANA timezone](https://timeapi.io/documentation/iana-timezones)
+            ///   - timezone: The [IANA timezone](https://timeapi.io/documentation/iana-timezones) 
             public init(
                 country: Swift.String? = nil,
                 region: Swift.String? = nil,
@@ -12213,6 +12346,7 @@ public enum Components {
             }
         }
         /// Specify additional output data to include in the model response. Currently supported values are:
+        /// - `web_search_call.results`: Include the search results of the web search tool call.
         /// - `web_search_call.action.sources`: Include the sources of the web search tool call.
         /// - `code_interpreter_call.outputs`: Includes the outputs of python code execution in code interpreter tool call items.
         /// - `computer_call_output.output.image_url`: Include image urls from the computer call output.
@@ -14988,8 +15122,8 @@ public enum Components {
                 case maxOutputLength = "max_output_length"
             }
         }
-        /// - Remark: Generated from `#/components/schemas/LocalShellCallStatus`.
-        @frozen public enum LocalShellCallStatus: String, Codable, Hashable, Sendable, CaseIterable {
+        /// - Remark: Generated from `#/components/schemas/FunctionShellCallStatus`.
+        @frozen public enum FunctionShellCallStatus: String, Codable, Hashable, Sendable, CaseIterable {
             case inProgress = "in_progress"
             case completed = "completed"
             case incomplete = "incomplete"
@@ -15081,7 +15215,7 @@ public enum Components {
             /// The status of the shell call. One of `in_progress`, `completed`, or `incomplete`.
             ///
             /// - Remark: Generated from `#/components/schemas/FunctionShellCall/status`.
-            public var status: Components.Schemas.LocalShellCallStatus
+            public var status: Components.Schemas.FunctionShellCallStatus
             /// - Remark: Generated from `#/components/schemas/FunctionShellCall/environment`.
             @frozen public enum EnvironmentPayload: Codable, Hashable, Sendable {
                 /// - Remark: Generated from `#/components/schemas/FunctionShellCall/environment/LocalEnvironmentResource`.
@@ -15140,7 +15274,7 @@ public enum Components {
                 id: Swift.String,
                 callId: Swift.String,
                 action: Components.Schemas.FunctionShellAction,
-                status: Components.Schemas.LocalShellCallStatus,
+                status: Components.Schemas.FunctionShellCallStatus,
                 environment: Components.Schemas.FunctionShellCall.EnvironmentPayload? = nil,
                 createdBy: Swift.String? = nil
             ) {
@@ -15162,8 +15296,8 @@ public enum Components {
                 case createdBy = "created_by"
             }
         }
-        /// - Remark: Generated from `#/components/schemas/LocalShellCallOutputStatusEnum`.
-        @frozen public enum LocalShellCallOutputStatusEnum: String, Codable, Hashable, Sendable, CaseIterable {
+        /// - Remark: Generated from `#/components/schemas/FunctionShellCallOutputStatusEnum`.
+        @frozen public enum FunctionShellCallOutputStatusEnum: String, Codable, Hashable, Sendable, CaseIterable {
             case inProgress = "in_progress"
             case completed = "completed"
             case incomplete = "incomplete"
@@ -15337,7 +15471,7 @@ public enum Components {
             /// The status of the shell call output. One of `in_progress`, `completed`, or `incomplete`.
             ///
             /// - Remark: Generated from `#/components/schemas/FunctionShellCallOutput/status`.
-            public var status: Components.Schemas.LocalShellCallOutputStatusEnum
+            public var status: Components.Schemas.FunctionShellCallOutputStatusEnum
             /// An array of shell call output contents
             ///
             /// - Remark: Generated from `#/components/schemas/FunctionShellCallOutput/output`.
@@ -15362,7 +15496,7 @@ public enum Components {
                 _type: Components.Schemas.FunctionShellCallOutput._TypePayload,
                 id: Swift.String,
                 callId: Swift.String,
-                status: Components.Schemas.LocalShellCallOutputStatusEnum,
+                status: Components.Schemas.FunctionShellCallOutputStatusEnum,
                 output: [Components.Schemas.FunctionShellCallOutputContent],
                 maxOutputLength: Swift.Int? = nil,
                 createdBy: Swift.String? = nil

@@ -485,7 +485,15 @@ public final class ResponsesStore: ObservableObject {
                     )
                 )
             case .functionToolCall(let functionToolCall):
+                guard functionToolCall.name == weatherFunctionTool.name else {
+                    throw StoreError.unknownFunctionCalled(name: functionToolCall.name)
+                }
+
                 lastFinishedFunctionToolCall = functionToolCall
+            case .webSearchToolCall:
+                // The non-streaming response includes the completed web-search call
+                // alongside the assistant message. There is no incremental state to update.
+                webSearchInProgress = false
             default:
                 throw StoreError.unhandledOutputItem(output)
             }
