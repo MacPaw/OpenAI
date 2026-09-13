@@ -29,6 +29,56 @@ Branch naming example: `feat/add-threads-API-handling` or `bug/fix-message-resul
 
 We'll appreciate you including tests to your code if it is needed and possible. ❤️
 
+## API stability
+
+The public API of this package is additive-only:
+
+- Anything declared `public` is part of the contract. That includes the generated
+  types in `Components.Schemas`, the `Edited` and `Facade` schema types, and every
+  hand-written query, result and protocol.
+- New functionality arrives as new optional parameters, new methods, new types or
+  new enum cases. Existing symbols are not renamed, removed or retyped.
+- A symbol that has to go away is marked `@available(*, deprecated, message:)`
+  with the reason and the replacement, and stays until the next major version.
+- A result type changes only when the API itself changed shape, and even then
+  prefer keeping the old member as a deprecated computed property over removing it.
+
+### How it is enforced
+
+The *API Breakage* workflow runs `swift package diagnose-api-breaking-changes` on
+every pull request, comparing the public API with the latest release tag. It fails
+on every reported break that is not listed in `.github/api-breakage-allowlist.txt`.
+Run the same check locally before opening a pull request, replacing `0.5.1` with
+the latest tag:
+
+```sh
+swift package diagnose-api-breaking-changes 0.5.1
+```
+
+### Accepting a break
+
+Sometimes the OpenAI spec forces a change that cannot be expressed additively, for
+example a field whose JSON type changed. In that case:
+
+1. Try the additive route first: extract the type into
+   `Sources/OpenAI/Public/Schemas/Edited/`, keep the old member as a deprecated
+   alias, and let the generated type change underneath.
+2. If a break is unavoidable, add the exact message from the workflow output to
+   `.github/api-breakage-allowlist.txt`, and describe the break and the migration
+   in the *Unreleased* section of `CHANGELOG.md`.
+3. Accepted breaks ship in a minor release with a call-out at the top of the
+   release notes. The allowlist is emptied when that release is tagged, because
+   the comparison baseline moves to the new tag.
+
+### Generated types
+
+`Components.swift` is regenerated from `openapi.yaml`, and each regeneration is a
+public API change. Run the breakage check on the regeneration diff, review every
+reported line, and add shims (typealiases, deprecated overloads, extracted `Edited`
+types) before accepting anything into the allowlist. Expose new API through
+hand-written or `Facade` types where possible, so that users depend on generated
+types as little as possible.
+
 ## Implementing an API
 
 There are two ways to add or change an API in this project: write the required
