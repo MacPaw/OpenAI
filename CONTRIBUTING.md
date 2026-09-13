@@ -43,6 +43,17 @@ The public API of this package is additive-only:
 - A result type changes only when the API itself changed shape, and even then
   prefer keeping the old member as a deprecated computed property over removing it.
 
+### Adding endpoints
+
+New endpoint groups are added as namespaces, following the Responses API: one
+`var responses: ResponsesEndpointProtocol { get }` style property on
+`OpenAIProtocol`, with the methods on the endpoint protocol in completion-handler,
+async and Combine flavours. Introducing a namespace costs one new protocol
+requirement, and adding a method to an existing endpoint protocol costs one as
+well; both are recorded in the allowlist with a changelog entry, because external
+conformers such as test mocks have to add the member. Do not add new methods
+directly to `OpenAIProtocol`, `OpenAIAsync` or `OpenAICombine`.
+
 ### How it is enforced
 
 The *API Breakage* workflow runs `swift package diagnose-api-breaking-changes` on

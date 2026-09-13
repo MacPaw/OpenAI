@@ -9,7 +9,7 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 ### Added
 - CI: an *API Breakage* workflow fails a pull request that changes the public API compared with the latest release tag. Consciously accepted breaks are listed in `.github/api-breakage-allowlist.txt` with a matching changelog entry.
 - CI: the *Swift Build* workflow now builds and tests on Linux with Swift 5.10, 6.0 and 6.3 containers, tests on macOS and the iOS Simulator, and builds for tvOS, watchOS and visionOS with Xcode. Tests written with Swift Testing only exist on toolchains that ship it (Swift 6); the XCTest suite runs everywhere.
-- CONTRIBUTING.md: API stability policy, including how generated `Components.Schemas` types are treated.
+- CONTRIBUTING.md: API stability policy, including how new endpoint groups are added as namespaces and how generated `Components.Schemas` types are treated.
 - This changelog.
 
 ### Fixed
