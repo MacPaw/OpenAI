@@ -24,12 +24,28 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 5.10 is the minimum declared in Package.swift, 6.0 the first Swift 6, 6.3 the current release.
-        swift: [ "5.10", "6.0", "6.3" ]
+        include:
+          # 5.10 is the minimum declared in Package.swift and 6.0 the first Swift 6. Package.resolved pins
+          # dependency versions whose manifests need a newer toolchain, and a consumer of this library never
+          # uses our Package.resolved, so these lanes resolve dependencies the way such a consumer would.
+          - swift: "5.10"
+            resolution: consumer
+          - swift: "6.0"
+            resolution: consumer
+          # The current release builds with the pinned dependency versions, like the Apple lanes.
+          - swift: "6.3"
+            resolution: pinned
     steps:
       - uses: actions/checkout@v7
       - name: Toolchain
         run: swift --version
+      - name: Resolve dependencies like a consumer on this toolchain
+        if: matrix.resolution == 'consumer'
+        run: |
+          rm -f Package.resolved
+          swift package resolve
+          echo "Resolved dependency versions:"
+          swift package show-dependencies --format flatlist
       - name: Build
         run: swift build -v
       - name: Test
@@ -67,12 +83,26 @@ jobs:
           DESTINATION: ${{ matrix.destination }}
         run: |
           if [ "$DESTINATION" = "ios-simulator" ]; then
-            device="$(xcrun simctl list devices available -j | python3 -c 'import json, sys; runtimes = json.load(sys.stdin)["devices"]; names = [d["name"] for runtime, devices in runtimes.items() if "iOS" in runtime for d in devices if d["name"].startswith("iPhone")]; print(names[-1] if names else "")')"
-            if [ -z "$device" ]; then
+            # Pick an iPhone from the newest installed iOS runtime and address it by UDID, so the choice does
+            # not depend on device names that differ between runtimes and runner images.
+            udid="$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          runtimes = json.load(sys.stdin)["devices"]
+          def version(identifier):
+              return tuple(int(part) for part in identifier.rsplit("iOS-", 1)[-1].split("-") if part.isdigit())
+          for identifier in sorted((r for r in runtimes if ".iOS-" in r), key=version, reverse=True):
+              phones = [d for d in runtimes[identifier] if d["name"].startswith("iPhone")]
+              if phones:
+                  print(phones[0]["udid"] + " " + phones[0]["name"] + " " + identifier.rsplit(".", 1)[-1])
+                  break
+          ')"
+            if [ -z "$udid" ]; then
               echo "::error::No iPhone simulator is available on this runner"
+              xcrun simctl list devices available
               exit 1
             fi
-            DESTINATION="platform=iOS Simulator,name=$device"
+            echo "Selected simulator: $udid"
+            DESTINATION="platform=iOS Simulator,id=${udid%% *}"
           fi
           echo "Using destination: $DESTINATION"
           echo "value=$DESTINATION" >> "$GITHUB_OUTPUT"
