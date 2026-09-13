@@ -21,7 +21,9 @@ extension URLSession {
         let taskHolder = CancellableDataTaskHolder()
         return try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<(Data, URLResponse), Error>) in
-                let task = self.dataTask(with: request) { data, response, error in
+                // `as URLSessionDataTask` selects Foundation's method over the URLSessionProtocol overload
+                // that returns URLSessionDataTaskProtocol, the same way URLSessionProtocol.swift does.
+                let task = self.dataTask(with: request, completionHandler: { data, response, error in
                     if let error {
                         continuation.resume(throwing: error)
                     } else if let data, let response {
@@ -29,7 +31,7 @@ extension URLSession {
                     } else {
                         continuation.resume(throwing: URLError(.unknown))
                     }
-                }
+                }) as URLSessionDataTask
                 taskHolder.start(task)
             }
         } onCancel: {
