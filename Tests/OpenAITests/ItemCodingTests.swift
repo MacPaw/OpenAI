@@ -1,3 +1,5 @@
+// Swift Testing ships with Swift 6 toolchains. The package still supports Swift 5.10, where these tests do not exist.
+#if canImport(Testing)
 import Foundation
 import Testing
 @testable import OpenAI
@@ -75,3 +77,4 @@ private extension Components.Schemas.Item {
         return action.queries
     }
 }
+#endif
