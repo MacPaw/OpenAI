@@ -15,6 +15,7 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 ### Fixed
 - Build warning in `ModelResponseEventsStreamInterpreter` when logging a failed stream event decode in debug builds.
 - The test target compiles for the package's minimum iOS deployment target again; it used `Regex`, which requires iOS 16.
+- Building on Linux with Swift 5.10 works again. swift-corelibs-foundation gained the async `URLSession` APIs only in Swift 6, so the async client now bridges the completion-handler API on older Linux toolchains.
 
 ## [0.5.1] - 2026-07-21
 
