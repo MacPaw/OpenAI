@@ -1,0 +1,11 @@
+# Consciously accepted public API breaks, compared with the latest release tag.
+#
+# The "API Breakage" workflow runs `swift package diagnose-api-breaking-changes`
+# against the newest semver tag and fails on every reported break that is not
+# listed here. Add one exact message per line, without the emoji, for example:
+#
+# API breakage: func foo() has been removed
+#
+# Every entry needs a CHANGELOG entry explaining why the break is accepted.
+# Entries are deleted when the release that contains the break is tagged,
+# because the comparison baseline moves to that tag.

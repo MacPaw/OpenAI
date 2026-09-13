@@ -1,0 +1,87 @@
+name: API Breakage
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      baseline:
+        description: "Git treeish to compare against (default: latest release tag)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api-breakage:
+    name: Compare public API with latest release
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Select baseline
+        id: baseline
+        env:
+          REQUESTED: ${{ inputs.baseline }}
+        run: |
+          if [ -n "$REQUESTED" ]; then
+            baseline="$REQUESTED"
+          else
+            baseline="$(git tag --list --sort=-version:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)"
+          fi
+          if [ -z "$baseline" ]; then
+            echo "::error::Could not determine a baseline release tag"
+            exit 1
+          fi
+          echo "Comparing the public API against $baseline"
+          echo "baseline=$baseline" >> "$GITHUB_OUTPUT"
+
+      - name: Diagnose API breaking changes
+        env:
+          BASELINE: ${{ steps.baseline.outputs.baseline }}
+        run: |
+          set -o pipefail
+          status=0
+          swift package diagnose-api-breaking-changes "$BASELINE" \
+            --products OpenAI \
+            --breakage-allowlist-path .github/api-breakage-allowlist.txt \
+            2>&1 | tee api-breakage.log || status=$?
+
+          if grep -q "API breakage" api-breakage.log; then
+            {
+              echo "## 💔 Public API breaks compared with \`$BASELINE\`"
+              echo
+              echo "Fix each line below, or consciously accept it by adding the exact message to \`.github/api-breakage-allowlist.txt\` together with a CHANGELOG entry."
+              echo
+              echo '```'
+              grep "API breakage" api-breakage.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::Public API breaking changes detected compared with $BASELINE. See the job summary."
+            exit 1
+          fi
+
+          if [ "$status" -ne 0 ]; then
+            echo "::error::swift package diagnose-api-breaking-changes exited with status $status"
+            exit "$status"
+          fi
+
+          echo "## ✅ No public API breaks compared with \`$BASELINE\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: api-breakage-report
+          path: api-breakage.log
+          if-no-files-found: ignore
