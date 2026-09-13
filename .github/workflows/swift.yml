@@ -1,5 +1,5 @@
-# This workflow will build a Swift project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
+# Builds and tests the package on every platform and toolchain it declares support for.
+# Package.swift promises Swift 5.10 and macOS, iOS, tvOS, watchOS and visionOS; this is where that promise is checked.
 
 name: Swift Build
 
@@ -9,14 +9,83 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
-
+  linux:
+    name: Linux · Swift ${{ matrix.swift }}
     runs-on: ubuntu-latest
-
+    container: swift:${{ matrix.swift }}-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        # 5.10 is the minimum declared in Package.swift, 6.0 the first Swift 6, 6.3 the current release.
+        swift: [ "5.10", "6.0", "6.3" ]
     steps:
-    - uses: actions/checkout@v7
-    - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test
+      - uses: actions/checkout@v7
+      - name: Toolchain
+        run: swift --version
+      - name: Build
+        run: swift build -v
+      - name: Test
+        run: swift test
+
+  apple:
+    name: ${{ matrix.name }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS · test
+            action: test
+            destination: platform=macOS
+          - name: iOS Simulator · test
+            action: test
+            destination: ios-simulator
+          - name: tvOS · build
+            action: build
+            destination: generic/platform=tvOS
+          - name: watchOS · build
+            action: build
+            destination: generic/platform=watchOS
+          - name: visionOS · build
+            action: build
+            destination: generic/platform=visionOS
+    steps:
+      - uses: actions/checkout@v7
+      - name: Toolchain
+        run: xcodebuild -version
+      - name: Resolve destination
+        id: destination
+        env:
+          DESTINATION: ${{ matrix.destination }}
+        run: |
+          if [ "$DESTINATION" = "ios-simulator" ]; then
+            device="$(xcrun simctl list devices available -j | python3 -c 'import json, sys; runtimes = json.load(sys.stdin)["devices"]; names = [d["name"] for runtime, devices in runtimes.items() if "iOS" in runtime for d in devices if d["name"].startswith("iPhone")]; print(names[-1] if names else "")')"
+            if [ -z "$device" ]; then
+              echo "::error::No iPhone simulator is available on this runner"
+              exit 1
+            fi
+            DESTINATION="platform=iOS Simulator,name=$device"
+          fi
+          echo "Using destination: $DESTINATION"
+          echo "value=$DESTINATION" >> "$GITHUB_OUTPUT"
+      - name: xcodebuild ${{ matrix.action }}
+        env:
+          ACTION: ${{ matrix.action }}
+          DESTINATION: ${{ steps.destination.outputs.value }}
+        run: |
+          set -o pipefail
+          xcodebuild "$ACTION" \
+            -scheme OpenAI \
+            -destination "$DESTINATION" \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            | if command -v xcbeautify >/dev/null 2>&1; then xcbeautify --renderer github-actions; else cat; fi
