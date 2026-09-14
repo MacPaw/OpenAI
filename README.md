@@ -947,9 +947,11 @@ Review [Structured Output Documentation](https://platform.openai.com/docs/guides
 ## Tools
 ### Remote MCP (Model Context Protocol)
 
-The Model Context Protocol (MCP) enables AI models to securely connect to external data sources and tools through standardized server connections. This OpenAI Swift library supports MCP integration, allowing you to extend model capabilities with remote tools and services.
+The Model Context Protocol (MCP) enables AI models to securely connect to external data sources and tools through standardized server connections. This OpenAI Swift library supports MCP integration through the Responses API, allowing you to extend model capabilities with remote tools and services.
 
-You can use the [MCP Swift library](https://github.com/modelcontextprotocol/swift-sdk) to connect to MCP servers and discover available tools, then integrate those tools with OpenAI's chat completions.
+You can use the [MCP Swift library](https://github.com/modelcontextprotocol/swift-sdk) to connect to MCP servers and discover available tools, then integrate those tools with OpenAI's Responses API.
+
+MCP tools are a Responses API feature and are not supported by Chat Completions (`ChatQuery`), whose `tools` parameter accepts function tools only.
 
 #### MCP Tool Integration
 
@@ -970,13 +972,13 @@ let mcpTool = Tool.mcpTool(
     )
 )
 
-let query = ChatQuery(
-    messages: [
-        .user(.init(content: .string("Search for Swift repositories on GitHub")))
-    ],
+let query = CreateModelResponseQuery(
+    input: .textInput("Search for Swift repositories on GitHub"),
     model: .gpt4_o,
     tools: [mcpTool]
 )
+
+let response = try await openAI.responses.createResponse(query: query)
 ```
 
 **MCP Tool Properties**
@@ -1017,14 +1019,14 @@ let mcpTool = Tool.mcpTool(
     )
 )
 
-// Use in chat completion
-let query = ChatQuery(
-    messages: [.user(.init(content: .string("Help me search GitHub repositories")))],
+// Use in the Responses API
+let query = CreateModelResponseQuery(
+    input: .textInput("Help me search GitHub repositories"),
     model: .gpt4_o,
     tools: [mcpTool]
 )
 
-let chatResult = try await openAI.chats(query: query)
+let response = try await openAI.responses.createResponse(query: query)
 ```
 
 **MCP Tool Call Handling**
@@ -1032,24 +1034,28 @@ let chatResult = try await openAI.chats(query: query)
 When using MCP tools, the model may generate tool calls that are executed on the remote MCP server. Handle MCP-specific output items in your response processing:
 
 ```swift
-// Handle MCP tool calls in streaming responses
-for try await result in openAI.chatsStream(query: query) {
-    for choice in result.choices {
-        if let outputItem = choice.delta.content {
-            switch outputItem {
-            case .mcpToolCall(let mcpCall):
-                print("MCP tool call: \(mcpCall.name)")
-                if let output = mcpCall.output {
-                    print("Result: \(output)")
-                }
-            case .mcpApprovalRequest(let approvalRequest):
-                // Handle approval request if requireApproval is enabled
-                print("MCP tool requires approval: \(approvalRequest)")
-            default:
-                // Handle other output types
-                break
-            }
+let response = try await openAI.responses.createResponse(query: query)
+
+for outputItem in response.output {
+    switch outputItem {
+    case .mcpToolCall(let mcpCall):
+        print("MCP tool call: \(mcpCall.name)")
+        if let output = mcpCall.output {
+            print("Result: \(output)")
         }
+        if let error = mcpCall.error {
+            print("Error: \(error)")
+        }
+    case .mcpListTools(let list):
+        let toolNames = list.tools.map(\.name).joined(separator: ", ")
+        print("MCP tools available from \(list.serverLabel): \(toolNames)")
+    case .mcpApprovalRequest(let approvalRequest):
+        // Handle approval request if requireApproval is enabled
+        print("MCP tool requires approval: \(approvalRequest.name)")
+        print("Arguments: \(approvalRequest.arguments)")
+    default:
+        // Handle other output types
+        break
     }
 }
 ```
