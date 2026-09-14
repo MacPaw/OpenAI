@@ -3,6 +3,8 @@
 //  OpenAI
 //
 
+// Swift Testing ships with Swift 6 toolchains. The package still supports Swift 5.10, where these tests do not exist.
+#if canImport(Testing)
 import Testing
 @testable import OpenAI
 import Foundation
@@ -83,3 +85,4 @@ struct ResponseObjectCodingTests {
         try JSONDecoder().decode(ResponseObject.self, from: Data(json.utf8))
     }
 }
+#endif
