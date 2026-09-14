@@ -16,6 +16,7 @@ struct ResponseObjectCodingTests {
         "created_at": 1717459200,
         "output": [],
         "tools": [],
+        "tool_choice": "auto",
         "metadata": {},
         "parallel_tool_calls": false
     }
@@ -49,6 +50,7 @@ struct ResponseObjectCodingTests {
             "created_at": 1717459200,
             "output": [],
             "tools": [],
+            "tool_choice": "auto",
             "metadata": {},
             "parallel_tool_calls": false,
             "incomplete_details": null
@@ -67,6 +69,7 @@ struct ResponseObjectCodingTests {
             "created_at": 1717459200,
             "output": [],
             "tools": [],
+            "tool_choice": "auto",
             "metadata": {},
             "parallel_tool_calls": false,
             "incomplete_details": { "reason": "max_output_tokens" }
