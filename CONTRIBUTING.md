@@ -76,7 +76,10 @@ example a field whose JSON type changed. In that case:
    alias, and let the generated type change underneath.
 2. If a break is unavoidable, add the exact message from the workflow output to
    `.github/api-breakage-allowlist.txt`, and describe the break and the migration
-   in the *Unreleased* section of `CHANGELOG.md`.
+   in the *Unreleased* section of `CHANGELOG.md`. The file holds one message per
+   line and nothing else: with a comment or blank line present, the checker
+   matches none of the entries. Explain accepted breaks in the changelog, not in
+   the file.
 3. Accepted breaks ship in a minor release with a call-out at the top of the
    release notes. The allowlist is emptied when that release is tagged, because
    the comparison baseline moves to the new tag.
@@ -118,10 +121,11 @@ uses handwritten `CreateModelResponseQuery`, `ResponseObject`, and
 `ResponseStreamEvent` types, while their supporting schemas come from
 `Components.Schemas`.
 
-The workflow is automated by [`make generate`](Makefile). The Makefile is the
-source of truth for prerequisites and the exact commands; in particular, it
-documents the required sibling checkout of the project's Swift OpenAPI Generator
-fork and the generator changes that fork must contain.
+The workflow is automated by [`make generate`](Makefile). It needs a Swift
+toolchain, `python3` with `venv`, and network access on the first run. No fork
+of the generator and no sibling checkout are required: the Makefile clones and
+builds the pinned Swift OpenAPI Generator release under `.build/` and installs
+the Python dependency (PyYAML) into a virtualenv there.
 
 Before running generation, update
 [`openapi-generator-config.yaml`](openapi-generator-config.yaml) with every path
@@ -133,17 +137,25 @@ make generate
 
 The command:
 
-1. prepares a generator-compatible copy of `openapi.yaml` under `.build/`;
-2. applies the narrowly scoped workarounds documented in [`Scripts/`](Scripts/);
-3. runs Swift OpenAPI Generator with the repository's configuration; and
-4. extracts the generated `Components` enum into
-   `Sources/OpenAI/Public/Schemas/Generated/Components.swift` while preserving
-   that file's imports and header.
+1. applies the conditional, line-based spec fixes in [`Scripts/`](Scripts/)
+   (`prepare_openapi.py`, `remove_required_properties.py`) and writes their diff
+   to `.build/openapi-generator/openapi.patch`;
+2. runs `Scripts/transform_openapi.py`, which collapses OpenAI's
+   `anyOf: [X, {type: 'null'}]` nullability into optional properties (the
+   generator does not support that form, see apple/swift-openapi-generator#906)
+   and records the wire values of every discriminated union, because the spec's
+   discriminators have no `mapping` (openai/openai-openapi#542);
+3. runs Swift OpenAPI Generator (types only) with the repository's configuration;
+4. runs `Scripts/postprocess_components.py`, which re-wraps the generated schemas
+   under the existing header of `Components.swift`, appends the wire values to
+   each union's decoder, and adds a fallback for the one value that names two
+   schemas (`message` in `Item` and `ItemResource`).
 
-The source specification is not modified during this process. The final
-preparation diff is written to `.build/openapi-generator/openapi.patch`; review
-it along with the generated Swift diff. Build the package and run the relevant
-tests before submitting the change.
+Review `.build/openapi-generator/openapi.patch` and the generated Swift diff, run
+`swift package diagnose-api-breaking-changes` against the latest tag (every
+regeneration is a public API change, see *API stability*), build the package and
+run the tests. The `Generation` workflow in CI runs `make generate` and fails
+when the committed `Components.swift` does not match the pipeline's output.
 
 Do not edit `Components.swift` by hand. It is deliberately replaceable output,
 so a later generation would discard such edits.
