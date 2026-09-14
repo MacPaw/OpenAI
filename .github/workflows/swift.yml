@@ -1,5 +1,5 @@
-# This workflow will build a Swift project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
+# Builds and tests the package on every platform and toolchain it declares support for.
+# Package.swift promises Swift 5.10 and macOS, iOS, tvOS, watchOS and visionOS; this is where that promise is checked.
 
 name: Swift Build
 
@@ -9,14 +9,113 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
-
+  linux:
+    name: Linux · Swift ${{ matrix.swift }}
     runs-on: ubuntu-latest
-
+    container: swift:${{ matrix.swift }}-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # 5.10 is the minimum declared in Package.swift and 6.0 the first Swift 6. Package.resolved pins
+          # dependency versions whose manifests need a newer toolchain, and a consumer of this library never
+          # uses our Package.resolved, so these lanes resolve dependencies the way such a consumer would.
+          - swift: "5.10"
+            resolution: consumer
+          - swift: "6.0"
+            resolution: consumer
+          # The current release builds with the pinned dependency versions, like the Apple lanes.
+          - swift: "6.3"
+            resolution: pinned
     steps:
-    - uses: actions/checkout@v7
-    - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test
+      - uses: actions/checkout@v7
+      - name: Toolchain
+        run: swift --version
+      - name: Resolve dependencies like a consumer on this toolchain
+        if: matrix.resolution == 'consumer'
+        run: |
+          rm -f Package.resolved
+          swift package resolve
+          echo "Resolved dependency versions:"
+          swift package show-dependencies --format flatlist
+      - name: Build
+        run: swift build -v
+      - name: Test
+        run: swift test
+
+  apple:
+    name: ${{ matrix.name }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS · test
+            action: test
+            destination: platform=macOS
+          - name: iOS Simulator · test
+            action: test
+            destination: ios-simulator
+          - name: tvOS · build
+            action: build
+            destination: generic/platform=tvOS
+          - name: watchOS · build
+            action: build
+            destination: generic/platform=watchOS
+          - name: visionOS · build
+            action: build
+            destination: generic/platform=visionOS
+    steps:
+      - uses: actions/checkout@v7
+      - name: Toolchain
+        run: xcodebuild -version
+      - name: Resolve destination
+        id: destination
+        env:
+          DESTINATION: ${{ matrix.destination }}
+        run: |
+          if [ "$DESTINATION" = "ios-simulator" ]; then
+            # Pick an iPhone from the newest installed iOS runtime and address it by UDID, so the choice does
+            # not depend on device names that differ between runtimes and runner images.
+            udid="$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          runtimes = json.load(sys.stdin)["devices"]
+          def version(identifier):
+              return tuple(int(part) for part in identifier.rsplit("iOS-", 1)[-1].split("-") if part.isdigit())
+          for identifier in sorted((r for r in runtimes if ".iOS-" in r), key=version, reverse=True):
+              phones = [d for d in runtimes[identifier] if d["name"].startswith("iPhone")]
+              if phones:
+                  print(phones[0]["udid"] + " " + phones[0]["name"] + " " + identifier.rsplit(".", 1)[-1])
+                  break
+          ')"
+            if [ -z "$udid" ]; then
+              echo "::error::No iPhone simulator is available on this runner"
+              xcrun simctl list devices available
+              exit 1
+            fi
+            echo "Selected simulator: $udid"
+            DESTINATION="platform=iOS Simulator,id=${udid%% *}"
+          fi
+          echo "Using destination: $DESTINATION"
+          echo "value=$DESTINATION" >> "$GITHUB_OUTPUT"
+      - name: xcodebuild ${{ matrix.action }}
+        env:
+          ACTION: ${{ matrix.action }}
+          DESTINATION: ${{ steps.destination.outputs.value }}
+        run: |
+          set -o pipefail
+          xcodebuild "$ACTION" \
+            -scheme OpenAI \
+            -destination "$DESTINATION" \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            | if command -v xcbeautify >/dev/null 2>&1; then xcbeautify --renderer github-actions; else cat; fi

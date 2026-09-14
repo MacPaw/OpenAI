@@ -286,13 +286,13 @@ class OpenAITests: XCTestCase {
     func testModerationsIterable() {
         let categories = ModerationsResult.Moderation.Categories(harassment: false, harassmentThreatening: false, hate: false, hateThreatening: false, selfHarm: false, selfHarmIntent: false, selfHarmInstructions: false, sexual: false, sexualMinors: false, violence: false, violenceGraphic: false)
         Mirror(reflecting: categories).children.enumerated().forEach { index, element in
-            let label = ModerationsResult.Moderation.Categories.CodingKeys.allCases[index].stringValue.replacing(try! Regex("[/-]"), with: { _ in "" })
+            let label = ModerationsResult.Moderation.Categories.CodingKeys.allCases[index].stringValue.replacingOccurrences(of: "[/-]", with: "", options: .regularExpression)
             XCTAssertEqual(label, element.label!.lowercased())
         }
 
         let categoryScores = ModerationsResult.Moderation.CategoryScores(harassment: 0.1, harassmentThreatening: 0.1, hate: 0.1, hateThreatening: 0.1, selfHarm: 0.1, selfHarmIntent: 0.1, selfHarmInstructions: 0.1, sexual: 0.1, sexualMinors: 0.1, violence: 0.1, violenceGraphic: 0.1)
         Mirror(reflecting: categoryScores).children.enumerated().forEach { index, element in
-            let label = ModerationsResult.Moderation.CategoryScores.CodingKeys.allCases[index].stringValue.replacing(try! Regex("[/-]"), with: { _ in "" })
+            let label = ModerationsResult.Moderation.CategoryScores.CodingKeys.allCases[index].stringValue.replacingOccurrences(of: "[/-]", with: "", options: .regularExpression)
             XCTAssertEqual(label, element.label!.lowercased())
         }
     }
