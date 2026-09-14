@@ -12,6 +12,8 @@ import SwiftUI
 @main
 struct DemoApp: App {
     @AppStorage("apiKey") var apiKey: String = ""
+    @AppStorage("apiProvider") var providerRawValue = APIProvider.openAI.rawValue
+    @AppStorage("apiBaseURL") var baseURL = APIProvider.openAI.defaultBaseURL ?? ""
     @AppStorage("githubToken") var githubToken: String = ""
     @State var isShowingAPIConfigModal: Bool = true
 
@@ -30,17 +32,27 @@ struct DemoApp: App {
             Group {
                 APIProvidedView(
                     apiKey: $apiKey,
+                    providerRawValue: $providerRawValue,
+                    baseURL: $baseURL,
                     githubToken: $githubToken,
                     idProvider: idProvider
                 )
             }
             #if os(iOS)
             .fullScreenCover(isPresented: $isShowingAPIConfigModal) {
-                APIKeyModalView(apiKey: $apiKey)
+                APIKeyModalView(
+                    apiKey: $apiKey,
+                    providerRawValue: $providerRawValue,
+                    baseURL: $baseURL
+                )
             }
             #elseif os(macOS)
             .popover(isPresented: $isShowingAPIConfigModal) {
-                APIKeyModalView(apiKey: $apiKey)
+                APIKeyModalView(
+                    apiKey: $apiKey,
+                    providerRawValue: $providerRawValue,
+                    baseURL: $baseURL
+                )
             }
             #endif
         }

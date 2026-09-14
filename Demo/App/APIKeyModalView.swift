@@ -5,6 +5,7 @@
 //  Created by Sihao Lu on 4/7/23.
 //
 
+import DemoChat
 import SwiftUI
 
 struct APIKeyModalView: View {
@@ -13,15 +14,35 @@ struct APIKeyModalView: View {
     let isMandatory: Bool
 
     @Binding private var apiKey: String
+    @Binding private var providerRawValue: String
+    @Binding private var baseURL: String
+
     @State private var internalAPIKey: String
+    @State private var internalProvider: APIProvider
+    @State private var internalBaseURL: String
 
     public init(
         apiKey: Binding<String>,
+        providerRawValue: Binding<String>,
+        baseURL: Binding<String>,
         isMandatory: Bool = true
     ) {
         self._apiKey = apiKey
+        self._providerRawValue = providerRawValue
+        self._baseURL = baseURL
         self._internalAPIKey = State(initialValue: apiKey.wrappedValue)
+        let provider = APIProvider(rawValue: providerRawValue.wrappedValue) ?? .custom
+        self._internalProvider = State(initialValue: provider)
+        self._internalBaseURL = State(
+            initialValue: baseURL.wrappedValue.isEmpty
+                ? provider.defaultBaseURL ?? ""
+                : baseURL.wrappedValue
+        )
         self.isMandatory = isMandatory
+    }
+
+    private var isConfigurationValid: Bool {
+        !internalAPIKey.isEmpty && APIEndpoint(baseURL: internalBaseURL) != nil
     }
 
     private var strokeColor: Color {
@@ -35,18 +56,56 @@ struct APIKeyModalView: View {
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Provider")
+                        .font(.caption)
+
+                    Picker("Provider", selection: $internalProvider) {
+                        ForEach(APIProvider.allCases) { provider in
+                            Text(provider.displayName).tag(provider)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: internalProvider) { _, provider in
+                        if let defaultBaseURL = provider.defaultBaseURL {
+                            internalBaseURL = defaultBaseURL
+                        }
+                    }
+                }
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(
-                    "You can find and configure your OpenAI API key at"
-                    )
-                    .font(.caption)
+                    Text("Base URL")
+                        .font(.caption)
 
-                    Link(
-                        "https://platform.openai.com/account/api-keys",
-                        destination: URL(string: "https://platform.openai.com/account/api-keys")!
-                    )
-                    .font(.caption)
+                    TextField("https://api.example.com/v1", text: $internalBaseURL)
+                        .textFieldStyle(.roundedBorder)
+                        .disabled(internalProvider != .custom)
+                        .autocorrectionDisabled(true)
+                        #if os(iOS)
+                        .textInputAutocapitalization(.never)
+                        #endif
+
+                    if APIEndpoint(baseURL: internalBaseURL) == nil {
+                        Text("Enter a valid HTTP or HTTPS base URL.")
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("API Key")
+                        .font(.caption)
+
+                    if internalProvider == .openAI {
+                        let apiKeysURL = URL(
+                            string: "https://platform.openai.com/account/api-keys"
+                        )!
+                        Link(
+                            "Get an API key at platform.openai.com",
+                            destination: apiKeysURL
+                        )
+                        .font(.caption)
+                    }
                 }
 
                 TextEditor(
@@ -73,8 +132,7 @@ struct APIKeyModalView: View {
                         Spacer()
 
                         Button {
-                            apiKey = internalAPIKey
-                            dismiss()
+                            commitAndDismiss()
                         } label: {
                           Text(
                             "Continue"
@@ -82,38 +140,52 @@ struct APIKeyModalView: View {
                           .padding(8)
                         }
                         .buttonStyle(.borderedProminent)
-                        .disabled(internalAPIKey.isEmpty)
+                        .disabled(!isConfigurationValid)
 
                         Spacer()
                     }
                 }
             }
             .padding()
-            .navigationTitle("OpenAI API Key")
+            .navigationTitle("API Configuration")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     if isMandatory {
                         EmptyView()
                     } else {
                         Button("Close") {
-                            apiKey = internalAPIKey
-                            dismiss()
+                            commitAndDismiss()
                         }
+                        .disabled(!isConfigurationValid)
                     }
                 }
             }
         }
+    }
+
+    private func commitAndDismiss() {
+        guard isConfigurationValid else {
+            return
+        }
+        apiKey = internalAPIKey
+        providerRawValue = internalProvider.rawValue
+        baseURL = internalBaseURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        dismiss()
     }
 }
 
 struct APIKeyModalView_Previews: PreviewProvider {
     struct APIKeyModalView_PreviewsContainerView: View {
         @State var apiKey = ""
+        @State var providerRawValue = APIProvider.openAI.rawValue
+        @State var baseURL = APIProvider.openAI.defaultBaseURL ?? ""
         let isMandatory: Bool
 
         var body: some View {
             APIKeyModalView(
                 apiKey: $apiKey,
+                providerRawValue: $providerRawValue,
+                baseURL: $baseURL,
                 isMandatory: isMandatory
             )
         }
