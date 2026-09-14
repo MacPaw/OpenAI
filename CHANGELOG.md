@@ -11,6 +11,11 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 - CI: the *Swift Build* workflow now builds and tests on Linux with Swift 5.10, 6.0 and 6.3 containers, tests on macOS and the iOS Simulator, and builds for tvOS, watchOS and visionOS with Xcode. Tests written with Swift Testing only exist on toolchains that ship it (Swift 6); the XCTest suite runs everywhere.
 - CONTRIBUTING.md: API stability policy, including how new endpoint groups are added as namespaces and how generated `Components.Schemas` types are treated.
 - This changelog.
+- CI: a *Generation* workflow runs `make generate` and fails when the committed `Components.swift` differs from the pipeline's output.
+
+### Changed
+- Code generation no longer needs a private fork of Swift OpenAPI Generator. `make generate` clones and builds the stock generator (1.13.1) under `.build/`, and two new scripts replace the fork's patches: `Scripts/transform_openapi.py` collapses OpenAI's `anyOf: [X, {type: 'null'}]` nullability into optional properties and records discriminator wire values, and `Scripts/postprocess_components.py` applies them to the generated Swift and adds the fallback for the `message` value shared by `InputMessage` and `OutputMessage`. `Scripts/fix_recursive_reference.py` now handles any number of `$recursiveRef` occurrences.
+- Regenerated `Components.Schemas` with that pipeline from the unchanged vendored spec. Generated-type changes, all listed in `.github/api-breakage-allowlist.txt`: 23 nested typealiases that were artifacts of the fork's nullable handling are gone (for example `OutputMessage.MessagePhase` and `CreateResponse.Value3Payload.IncludeEnum`; the top-level `Components.Schemas` types they aliased are unchanged), `CreateTranscriptionRequest.ChunkingStrategyPayload.body` is no longer optional, and `CreateTranscriptionRequest` gained a `stream` part. Decoding improvements: `ItemResource` accepts input messages, `InputItem` accepts `item_reference`, and nested unions such as `WebSearchToolCall.action` decode by wire value.
 
 ### Fixed
 - Build warning in `ModelResponseEventsStreamInterpreter` when logging a failed stream event decode in debug builds.

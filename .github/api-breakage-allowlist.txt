@@ -1,11 +1,29 @@
-# Consciously accepted public API breaks, compared with the latest release tag.
-#
-# The "API Breakage" workflow runs `swift package diagnose-api-breaking-changes`
-# against the newest semver tag and fails on every reported break that is not
-# listed here. Add one exact message per line, without the emoji, for example:
-#
-# API breakage: func foo() has been removed
-#
-# Every entry needs a CHANGELOG entry explaining why the break is accepted.
-# Entries are deleted when the release that contains the break is tagged,
-# because the comparison baseline moves to that tag.
+API breakage: accessor Components.Schemas.CreateTranscriptionRequest.ChunkingStrategyPayload.body.Get() has return type change from OpenAI.Components.Schemas.CreateTranscriptionRequest.ChunkingStrategyPayload.BodyPayload? to OpenAI.Components.Schemas.CreateTranscriptionRequest.ChunkingStrategyPayload.BodyPayload
+API breakage: accessor Components.Schemas.CreateTranscriptionRequest.ChunkingStrategyPayload.body.Set() has parameter 0 type change from OpenAI.Components.Schemas.CreateTranscriptionRequest.ChunkingStrategyPayload.BodyPayload? to OpenAI.Components.Schemas.CreateTranscriptionRequest.ChunkingStrategyPayload.BodyPayload
+API breakage: constructor Components.Schemas.CreateTranscriptionRequest.ChunkingStrategyPayload.init(body:) has parameter 0 type change from OpenAI.Components.Schemas.CreateTranscriptionRequest.ChunkingStrategyPayload.BodyPayload? to OpenAI.Components.Schemas.CreateTranscriptionRequest.ChunkingStrategyPayload.BodyPayload
+API breakage: constructor Components.Schemas.CreateTranscriptionRequest.ChunkingStrategyPayload.init(body:) has removed default argument from parameter 0
+API breakage: enumelement Components.Schemas.CreateTranscriptionRequest.stream has been added as a new enum case
+API breakage: typealias Components.Schemas.AutoCodeInterpreterToolParam.ContainerMemoryLimit has been removed
+API breakage: typealias Components.Schemas.ComputerCallOutputItemParam.ComputerCallSafetyCheckParam has been removed
+API breakage: typealias Components.Schemas.ComputerCallOutputItemParam.FunctionCallItemStatus has been removed
+API breakage: typealias Components.Schemas.ContainerAutoParam.ContainerMemoryLimit has been removed
+API breakage: typealias Components.Schemas.CreateResponse.Value3Payload.ContextManagementParam has been removed
+API breakage: typealias Components.Schemas.CreateResponse.Value3Payload.ConversationParam has been removed
+API breakage: typealias Components.Schemas.CreateResponse.Value3Payload.IncludeEnum has been removed
+API breakage: typealias Components.Schemas.EasyInputMessage.MessagePhase has been removed
+API breakage: typealias Components.Schemas.FileSearchTool.Filters has been removed
+API breakage: typealias Components.Schemas.FunctionCallOutputItemParam.FunctionCallItemStatus has been removed
+API breakage: typealias Components.Schemas.FunctionShellCallItemParam.FunctionShellCallItemStatus has been removed
+API breakage: typealias Components.Schemas.FunctionShellCallOutputItemParam.FunctionShellCallItemStatus has been removed
+API breakage: typealias Components.Schemas.FunctionToolParam.EmptyModelParam has been removed
+API breakage: typealias Components.Schemas.ImageGenTool.InputFidelity has been removed
+API breakage: typealias Components.Schemas.InputImageContentParamAutoParam.DetailEnum has been removed
+API breakage: typealias Components.Schemas.MCPListToolsTool.OpenAPIObjectContainer has been removed
+API breakage: typealias Components.Schemas.OutputMessage.MessagePhase has been removed
+API breakage: typealias Components.Schemas.Response.Value3Payload.Conversation2 has been removed
+API breakage: typealias Components.Schemas.ResponseProperties.Reasoning has been removed
+API breakage: typealias Components.Schemas.ToolSearchCallItemParam.FunctionCallItemStatus has been removed
+API breakage: typealias Components.Schemas.ToolSearchOutputItemParam.FunctionCallItemStatus has been removed
+API breakage: typealias Components.Schemas.ToolSearchToolParam.EmptyModelParam has been removed
+API breakage: typealias Components.Schemas.WebSearchPreviewTool.ApproximateLocation has been removed
+API breakage: var Components.Schemas.CreateTranscriptionRequest.ChunkingStrategyPayload.body has declared type change from OpenAI.Components.Schemas.CreateTranscriptionRequest.ChunkingStrategyPayload.BodyPayload? to OpenAI.Components.Schemas.CreateTranscriptionRequest.ChunkingStrategyPayload.BodyPayload

@@ -53,6 +53,50 @@ struct ItemCodingTests {
         #expect(item.webSearchQueries == ["baseball in Ukraine"])
     }
 
+    // The generated decoders match wire values (`message`, `item_reference`) rather than schema names. These two
+    // cases were undecodable with the previous generator patches, which did not resolve the values of
+    // allOf-based resources or of nullable `type` properties.
+
+    @Test func itemResourceMessageWithUserRoleDecodesAsInputMessageResource() throws {
+        let item = try JSONDecoder().decode(
+            Components.Schemas.ItemResource.self,
+            from: Data(
+                """
+                {
+                  "id": "msg_123",
+                  "type": "message",
+                  "role": "user",
+                  "content": []
+                }
+                """.utf8
+            )
+        )
+
+        guard case .inputMessageResource = item else {
+            Issue.record("Expected inputMessageResource, got \(item)")
+            return
+        }
+    }
+
+    @Test func inputItemDecodesItemReferenceByWireValue() throws {
+        let item = try JSONDecoder().decode(
+            Components.Schemas.InputItem.self,
+            from: Data(
+                """
+                {
+                  "type": "item_reference",
+                  "id": "msg_123"
+                }
+                """.utf8
+            )
+        )
+
+        guard case .itemReferenceParam = item else {
+            Issue.record("Expected itemReferenceParam, got \(item)")
+            return
+        }
+    }
+
     private func decode(_ json: String) throws -> Components.Schemas.Item {
         try JSONDecoder().decode(Components.Schemas.Item.self, from: Data(json.utf8))
     }
