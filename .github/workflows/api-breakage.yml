@@ -61,7 +61,7 @@ jobs:
             {
               echo "## 💔 Public API breaks compared with \`$BASELINE\`"
               echo
-              echo "Fix each line below, or consciously accept it by adding the exact message to \`.github/api-breakage-allowlist.txt\` together with a CHANGELOG entry."
+              echo "Fix each line below, or consciously accept it by adding the exact message on its own line to \`.github/api-breakage-allowlist.txt\` (messages only, no comments) together with a CHANGELOG entry."
               echo
               echo '```'
               grep "API breakage" api-breakage.log

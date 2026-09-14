@@ -76,7 +76,10 @@ example a field whose JSON type changed. In that case:
    alias, and let the generated type change underneath.
 2. If a break is unavoidable, add the exact message from the workflow output to
    `.github/api-breakage-allowlist.txt`, and describe the break and the migration
-   in the *Unreleased* section of `CHANGELOG.md`.
+   in the *Unreleased* section of `CHANGELOG.md`. The file holds one message per
+   line and nothing else: with a comment or blank line present, the checker
+   matches none of the entries. Explain accepted breaks in the changelog, not in
+   the file.
 3. Accepted breaks ship in a minor release with a call-out at the top of the
    release notes. The allowlist is emptied when that release is tagged, because
    the comparison baseline moves to the new tag.
