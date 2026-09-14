@@ -1,0 +1,48 @@
+# Regenerates Components.swift with `make generate` and fails when the committed file differs, so the
+# generated schemas can never drift from what the pipeline in the repository produces.
+
+name: Generation
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regenerate:
+    name: Components.swift matches make generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Toolchain
+        id: toolchain
+        run: |
+          swift --version
+          echo "generator=$(make -s generator-version)" >> "$GITHUB_OUTPUT"
+          echo "swift=$(swift --version 2>&1 | head -n 1 | tr -c 'A-Za-z0-9.\n' '-')" >> "$GITHUB_OUTPUT"
+      - name: Cache the built generator
+        uses: actions/cache@v6
+        with:
+          path: .build/openapi-generator/swift-openapi-generator-${{ steps.toolchain.outputs.generator }}
+          key: swift-openapi-generator-${{ steps.toolchain.outputs.generator }}-${{ steps.toolchain.outputs.swift }}
+      - name: Regenerate
+        run: make generate
+      - name: Committed file must match the pipeline output
+        run: |
+          if ! git diff --exit-code --stat -- Sources/OpenAI/Public/Schemas/Generated/Components.swift; then
+            echo "::error::Components.swift is out of date. Run 'make generate' and commit the result."
+            exit 1
+          fi
+          echo "Components.swift matches make generate."
