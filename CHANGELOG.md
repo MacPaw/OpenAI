@@ -17,6 +17,7 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ### Fixed
 - `ResponseStreamEvent.reasoningText` streaming events never decoded: `ModelResponseStreamEventType` listened for `response.reasoning.delta`/`.done`, but the API sends `response.reasoning_text.delta`/`.done`, so reasoning-text deltas always failed with an `unknownEventType` error.
+- `make download-spec` could leave the tracked `openapi.yaml` truncated if `curl` was interrupted mid-transfer; it now downloads to a temp file and moves it into place only on success.
 - Build warning in `ModelResponseEventsStreamInterpreter` when logging a failed stream event decode in debug builds.
 - The test target compiles for the package's minimum iOS deployment target again; it used `Regex`, which requires iOS 16.
 - Building on Linux with Swift 5.10 works again. swift-corelibs-foundation gained the async `URLSession` APIs only in Swift 6, so the async client now bridges the completion-handler API on older Linux toolchains.
