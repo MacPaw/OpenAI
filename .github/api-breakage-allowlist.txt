@@ -1,0 +1,2 @@
+API breakage: var ResponseObject.instructions has declared type change from Swift.String? to OpenAI.ResponseObject.Instructions?
+API breakage: accessor ResponseObject.instructions.Get() has return type change from Swift.String? to OpenAI.ResponseObject.Instructions?

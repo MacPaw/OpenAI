@@ -15,6 +15,9 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 - CONTRIBUTING.md: API stability policy, including how new endpoint groups are added as namespaces and how generated `Components.Schemas` types are treated.
 - This changelog.
 
+### Changed
+- **Breaking:** `ResponseObject.instructions` changed from `String?` to `ResponseObject.Instructions?`, matching the latest spec, which lets `instructions` be either a plain string or a list of input items. `Instructions` is a generated two-case enum (`.case1(String)` for the string form, `.case2([InputItem])` for the list form); code that read `instructions` as a `String` needs to switch over it instead. This mirrors how the official Python SDK models the same field (`Union[str, List[ResponseInputItem], None]`) rather than adding a second property under a new name.
+
 ### Fixed
 - `ResponseStreamEvent.reasoningText` streaming events never decoded: `ModelResponseStreamEventType` listened for `response.reasoning.delta`/`.done`, but the API sends `response.reasoning_text.delta`/`.done`, so reasoning-text deltas always failed with an `unknownEventType` error.
 - `make download-spec` could leave the tracked `openapi.yaml` truncated if `curl` was interrupted mid-transfer; it now downloads to a temp file and moves it into place only on success.
