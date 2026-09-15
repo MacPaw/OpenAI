@@ -1,2 +1,322 @@
-API breakage: var ResponseObject.instructions has declared type change from Swift.String? to OpenAI.ResponseObject.Instructions?
+API breakage: accessor Components.Schemas.FunctionCallOutputItemParam.callId.Get() has return type change from Swift.String to Swift.String?
+API breakage: accessor Components.Schemas.FunctionCallOutputItemParam.callId.Set() has parameter 0 type change from Swift.String to Swift.String?
+API breakage: accessor Components.Schemas.FunctionToolCallOutput.callId.Get() has return type change from Swift.String to Swift.String?
+API breakage: accessor Components.Schemas.FunctionToolCallOutput.callId.Set() has parameter 0 type change from Swift.String to Swift.String?
+API breakage: accessor Components.Schemas.MCPToolCall.error.Get() has return type change from Swift.String? to OpenAI.Components.Schemas.MCPToolCallError?
+API breakage: accessor Components.Schemas.MCPToolCall.error.Set() has parameter 0 type change from Swift.String? to OpenAI.Components.Schemas.MCPToolCallError?
+API breakage: accessor Components.Schemas.Response.Value3Payload.conversation.Get() has return type change from OpenAI.Components.Schemas.Conversation2? to OpenAI.Components.Schemas.ResponseConversation?
+API breakage: accessor Components.Schemas.Response.Value3Payload.conversation.Set() has parameter 0 type change from OpenAI.Components.Schemas.Conversation2? to OpenAI.Components.Schemas.ResponseConversation?
+API breakage: accessor Components.Schemas.ResponseOutputTextAnnotationAddedEvent.annotation.Get() has return type change from OpenAPIRuntime.OpenAPIObjectContainer to OpenAI.Components.Schemas.Annotation?
+API breakage: accessor Components.Schemas.ResponseOutputTextAnnotationAddedEvent.annotation.Set() has parameter 0 type change from OpenAPIRuntime.OpenAPIObjectContainer to OpenAI.Components.Schemas.Annotation?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value20.Get() has return type change from OpenAI.Components.Schemas.ResponseInProgressEvent? to OpenAI.Components.Schemas.ResponseShellCallCommandAddedStreamingEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value20.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseInProgressEvent? to OpenAI.Components.Schemas.ResponseShellCallCommandAddedStreamingEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value21.Get() has return type change from OpenAI.Components.Schemas.ResponseFailedEvent? to OpenAI.Components.Schemas.ResponseShellCallCommandDeltaStreamingEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value21.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseFailedEvent? to OpenAI.Components.Schemas.ResponseShellCallCommandDeltaStreamingEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value22.Get() has return type change from OpenAI.Components.Schemas.ResponseIncompleteEvent? to OpenAI.Components.Schemas.ResponseShellCallCommandDoneStreamingEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value22.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseIncompleteEvent? to OpenAI.Components.Schemas.ResponseShellCallCommandDoneStreamingEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value23.Get() has return type change from OpenAI.Components.Schemas.ResponseOutputItemAddedEvent? to OpenAI.Components.Schemas.ResponseShellCallOutputContentDeltaStreamingEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value23.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseOutputItemAddedEvent? to OpenAI.Components.Schemas.ResponseShellCallOutputContentDeltaStreamingEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value24.Get() has return type change from OpenAI.Components.Schemas.ResponseOutputItemDoneEvent? to OpenAI.Components.Schemas.ResponseShellCallOutputContentDoneStreamingEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value24.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseOutputItemDoneEvent? to OpenAI.Components.Schemas.ResponseShellCallOutputContentDoneStreamingEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value25.Get() has return type change from OpenAI.Components.Schemas.ResponseReasoningSummaryPartAddedEvent? to OpenAI.Components.Schemas.ResponseInProgressEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value25.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseReasoningSummaryPartAddedEvent? to OpenAI.Components.Schemas.ResponseInProgressEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value26.Get() has return type change from OpenAI.Components.Schemas.ResponseReasoningSummaryPartDoneEvent? to OpenAI.Components.Schemas.ResponseFailedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value26.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseReasoningSummaryPartDoneEvent? to OpenAI.Components.Schemas.ResponseFailedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value27.Get() has return type change from OpenAI.Components.Schemas.ResponseReasoningSummaryTextDeltaEvent? to OpenAI.Components.Schemas.ResponseIncompleteEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value27.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseReasoningSummaryTextDeltaEvent? to OpenAI.Components.Schemas.ResponseIncompleteEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value28.Get() has return type change from OpenAI.Components.Schemas.ResponseReasoningSummaryTextDoneEvent? to OpenAI.Components.Schemas.ResponseOutputItemAddedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value28.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseReasoningSummaryTextDoneEvent? to OpenAI.Components.Schemas.ResponseOutputItemAddedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value29.Get() has return type change from OpenAI.Components.Schemas.ResponseReasoningTextDeltaEvent? to OpenAI.Components.Schemas.ResponseOutputItemDoneEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value29.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseReasoningTextDeltaEvent? to OpenAI.Components.Schemas.ResponseOutputItemDoneEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value30.Get() has return type change from OpenAI.Components.Schemas.ResponseReasoningTextDoneEvent? to OpenAI.Components.Schemas.ResponseReasoningSummaryPartAddedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value30.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseReasoningTextDoneEvent? to OpenAI.Components.Schemas.ResponseReasoningSummaryPartAddedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value31.Get() has return type change from OpenAI.Components.Schemas.ResponseRefusalDeltaEvent? to OpenAI.Components.Schemas.ResponseReasoningSummaryPartDoneEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value31.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseRefusalDeltaEvent? to OpenAI.Components.Schemas.ResponseReasoningSummaryPartDoneEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value32.Get() has return type change from OpenAI.Components.Schemas.ResponseRefusalDoneEvent? to OpenAI.Components.Schemas.ResponseReasoningSummaryTextDeltaEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value32.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseRefusalDoneEvent? to OpenAI.Components.Schemas.ResponseReasoningSummaryTextDeltaEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value33.Get() has return type change from OpenAI.Components.Schemas.ResponseTextDeltaEvent? to OpenAI.Components.Schemas.ResponseReasoningSummaryTextDoneEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value33.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseTextDeltaEvent? to OpenAI.Components.Schemas.ResponseReasoningSummaryTextDoneEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value34.Get() has return type change from OpenAI.Components.Schemas.ResponseTextDoneEvent? to OpenAI.Components.Schemas.ResponseReasoningTextDeltaEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value34.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseTextDoneEvent? to OpenAI.Components.Schemas.ResponseReasoningTextDeltaEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value35.Get() has return type change from OpenAI.Components.Schemas.ResponseWebSearchCallCompletedEvent? to OpenAI.Components.Schemas.ResponseReasoningTextDoneEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value35.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseWebSearchCallCompletedEvent? to OpenAI.Components.Schemas.ResponseReasoningTextDoneEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value36.Get() has return type change from OpenAI.Components.Schemas.ResponseWebSearchCallInProgressEvent? to OpenAI.Components.Schemas.ResponseRefusalDeltaEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value36.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseWebSearchCallInProgressEvent? to OpenAI.Components.Schemas.ResponseRefusalDeltaEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value37.Get() has return type change from OpenAI.Components.Schemas.ResponseWebSearchCallSearchingEvent? to OpenAI.Components.Schemas.ResponseRefusalDoneEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value37.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseWebSearchCallSearchingEvent? to OpenAI.Components.Schemas.ResponseRefusalDoneEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value38.Get() has return type change from OpenAI.Components.Schemas.ResponseImageGenCallCompletedEvent? to OpenAI.Components.Schemas.ResponseTextDeltaEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value38.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseImageGenCallCompletedEvent? to OpenAI.Components.Schemas.ResponseTextDeltaEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value39.Get() has return type change from OpenAI.Components.Schemas.ResponseImageGenCallGeneratingEvent? to OpenAI.Components.Schemas.ResponseTextDoneEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value39.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseImageGenCallGeneratingEvent? to OpenAI.Components.Schemas.ResponseTextDoneEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value40.Get() has return type change from OpenAI.Components.Schemas.ResponseImageGenCallInProgressEvent? to OpenAI.Components.Schemas.ResponseWebSearchCallCompletedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value40.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseImageGenCallInProgressEvent? to OpenAI.Components.Schemas.ResponseWebSearchCallCompletedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value41.Get() has return type change from OpenAI.Components.Schemas.ResponseImageGenCallPartialImageEvent? to OpenAI.Components.Schemas.ResponseWebSearchCallInProgressEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value41.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseImageGenCallPartialImageEvent? to OpenAI.Components.Schemas.ResponseWebSearchCallInProgressEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value42.Get() has return type change from OpenAI.Components.Schemas.ResponseMCPCallArgumentsDeltaEvent? to OpenAI.Components.Schemas.ResponseWebSearchCallSearchingEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value42.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseMCPCallArgumentsDeltaEvent? to OpenAI.Components.Schemas.ResponseWebSearchCallSearchingEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value43.Get() has return type change from OpenAI.Components.Schemas.ResponseMCPCallArgumentsDoneEvent? to OpenAI.Components.Schemas.ResponseImageGenCallCompletedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value43.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseMCPCallArgumentsDoneEvent? to OpenAI.Components.Schemas.ResponseImageGenCallCompletedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value44.Get() has return type change from OpenAI.Components.Schemas.ResponseMCPCallCompletedEvent? to OpenAI.Components.Schemas.ResponseImageGenCallGeneratingEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value44.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseMCPCallCompletedEvent? to OpenAI.Components.Schemas.ResponseImageGenCallGeneratingEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value45.Get() has return type change from OpenAI.Components.Schemas.ResponseMCPCallFailedEvent? to OpenAI.Components.Schemas.ResponseImageGenCallInProgressEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value45.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseMCPCallFailedEvent? to OpenAI.Components.Schemas.ResponseImageGenCallInProgressEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value46.Get() has return type change from OpenAI.Components.Schemas.ResponseMCPCallInProgressEvent? to OpenAI.Components.Schemas.ResponseImageGenCallPartialImageEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value46.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseMCPCallInProgressEvent? to OpenAI.Components.Schemas.ResponseImageGenCallPartialImageEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value47.Get() has return type change from OpenAI.Components.Schemas.ResponseMCPListToolsCompletedEvent? to OpenAI.Components.Schemas.ResponseMCPCallArgumentsDeltaEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value47.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseMCPListToolsCompletedEvent? to OpenAI.Components.Schemas.ResponseMCPCallArgumentsDeltaEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value48.Get() has return type change from OpenAI.Components.Schemas.ResponseMCPListToolsFailedEvent? to OpenAI.Components.Schemas.ResponseMCPCallArgumentsDoneEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value48.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseMCPListToolsFailedEvent? to OpenAI.Components.Schemas.ResponseMCPCallArgumentsDoneEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value49.Get() has return type change from OpenAI.Components.Schemas.ResponseMCPListToolsInProgressEvent? to OpenAI.Components.Schemas.ResponseMCPCallCompletedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value49.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseMCPListToolsInProgressEvent? to OpenAI.Components.Schemas.ResponseMCPCallCompletedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value50.Get() has return type change from OpenAI.Components.Schemas.ResponseOutputTextAnnotationAddedEvent? to OpenAI.Components.Schemas.ResponseMCPCallFailedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value50.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseOutputTextAnnotationAddedEvent? to OpenAI.Components.Schemas.ResponseMCPCallFailedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value51.Get() has return type change from OpenAI.Components.Schemas.ResponseQueuedEvent? to OpenAI.Components.Schemas.ResponseMCPCallInProgressEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value51.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseQueuedEvent? to OpenAI.Components.Schemas.ResponseMCPCallInProgressEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value52.Get() has return type change from OpenAI.Components.Schemas.ResponseCustomToolCallInputDeltaEvent? to OpenAI.Components.Schemas.ResponseMCPListToolsCompletedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value52.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseCustomToolCallInputDeltaEvent? to OpenAI.Components.Schemas.ResponseMCPListToolsCompletedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value53.Get() has return type change from OpenAI.Components.Schemas.ResponseCustomToolCallInputDoneEvent? to OpenAI.Components.Schemas.ResponseMCPListToolsFailedEvent?
+API breakage: accessor Components.Schemas.ResponseStreamEvent.value53.Set() has parameter 0 type change from OpenAI.Components.Schemas.ResponseCustomToolCallInputDoneEvent? to OpenAI.Components.Schemas.ResponseMCPListToolsFailedEvent?
+API breakage: accessor Components.Schemas.ServiceTier.allCases.Get() has return type change from [OpenAI.Components.Schemas.ServiceTier] to [OpenAI.Components.Schemas.ServiceTierResponses]
+API breakage: accessor Components.Schemas.WebSearchToolCall.status.Get() has return type change from OpenAI.Components.Schemas.WebSearchToolCall.StatusPayload to OpenAI.Components.Schemas.WebSearchCallStatus
+API breakage: accessor Components.Schemas.WebSearchToolCall.status.Set() has parameter 0 type change from OpenAI.Components.Schemas.WebSearchToolCall.StatusPayload to OpenAI.Components.Schemas.WebSearchCallStatus
+API breakage: accessor ResponseObject.conversation.Get() has return type change from OpenAI.ResponseObject.Schemas.Conversation2? to OpenAI.ResponseObject.Schemas.ResponseConversation?
 API breakage: accessor ResponseObject.instructions.Get() has return type change from Swift.String? to OpenAI.ResponseObject.Instructions?
+API breakage: accessor ResponseObject.metadata.Get() has return type change from [Swift.String : Swift.String] to [Swift.String : Swift.String]?
+API breakage: accessor ResponseObject.serviceTier.Get() has return type change from OpenAI.ResponseObject.Schemas.ServiceTier? to OpenAI.ResponseObject.Schemas.ServiceTierResponses?
+API breakage: accessor ResponseObject.toolChoice.Get() has return type change from OpenAI.ResponseObject.Schemas.ToolChoiceParam? to OpenAI.ResponseObject.Schemas.ToolChoiceParam
+API breakage: constructor Components.Schemas.ApplyPatchToolCall.init(_type:id:callId:status:operation:createdBy:) has been removed
+API breakage: constructor Components.Schemas.ApplyPatchToolCallItemParam.init(_type:id:callId:status:operation:) has been removed
+API breakage: constructor Components.Schemas.ApplyPatchToolCallOutput.init(_type:id:callId:status:output:createdBy:) has been removed
+API breakage: constructor Components.Schemas.ApplyPatchToolCallOutputItemParam.init(_type:id:callId:status:output:) has been removed
+API breakage: constructor Components.Schemas.ApplyPatchToolParam.init(_type:) has been removed
+API breakage: constructor Components.Schemas.CodeInterpreterTool.init(_type:container:) has been removed
+API breakage: constructor Components.Schemas.CreateModelResponseProperties.Value2Payload.init(topLogprobs:) has been removed
+API breakage: constructor Components.Schemas.CreateResponse.Value3Payload.init(input:include:parallelToolCalls:store:instructions:stream:streamOptions:conversation:contextManagement:maxOutputTokens:) has been removed
+API breakage: constructor Components.Schemas.CreateTranscriptionResponseJson.init(text:logprobs:usage:) has been removed
+API breakage: constructor Components.Schemas.CustomToolCall.init(_type:id:callId:namespace:name:input:) has been removed
+API breakage: constructor Components.Schemas.CustomToolCallOutput.init(_type:id:callId:output:) has been removed
+API breakage: constructor Components.Schemas.CustomToolParam.init(_type:name:description:format:deferLoading:) has been removed
+API breakage: constructor Components.Schemas.FunctionCallOutputItemParam.init(id:callId:_type:output:status:) has been removed
+API breakage: constructor Components.Schemas.FunctionShellCall.init(_type:id:callId:action:status:environment:createdBy:) has been removed
+API breakage: constructor Components.Schemas.FunctionShellCallItemParam.init(id:callId:_type:action:status:environment:) has been removed
+API breakage: constructor Components.Schemas.FunctionShellCallOutput.init(_type:id:callId:status:output:maxOutputLength:createdBy:) has been removed
+API breakage: constructor Components.Schemas.FunctionShellCallOutputItemParam.init(id:callId:_type:output:status:maxOutputLength:) has been removed
+API breakage: constructor Components.Schemas.FunctionShellToolParam.init(_type:environment:) has been removed
+API breakage: constructor Components.Schemas.FunctionTool.init(_type:name:description:parameters:strict:deferLoading:) has been removed
+API breakage: constructor Components.Schemas.FunctionToolCall.init(id:_type:callId:namespace:name:arguments:status:) has been removed
+API breakage: constructor Components.Schemas.FunctionToolCallOutput.init(id:_type:callId:output:status:) has been removed
+API breakage: constructor Components.Schemas.FunctionToolParam.init(name:description:parameters:strict:_type:deferLoading:) has been removed
+API breakage: constructor Components.Schemas.ImageGenToolCall.init(_type:id:status:result:) has been removed
+API breakage: constructor Components.Schemas.InputFileContent.init(_type:fileId:filename:fileData:fileUrl:detail:) has been removed
+API breakage: constructor Components.Schemas.InputFileContentParam.init(_type:fileId:filename:fileData:fileUrl:detail:) has been removed
+API breakage: constructor Components.Schemas.InputImageContent.init(_type:imageUrl:fileId:detail:) has been removed
+API breakage: constructor Components.Schemas.InputImageContentParamAutoParam.init(_type:imageUrl:fileId:detail:) has been removed
+API breakage: constructor Components.Schemas.InputTextContent.init(_type:text:) has been removed
+API breakage: constructor Components.Schemas.InputTextContentParam.init(_type:text:) has been removed
+API breakage: constructor Components.Schemas.MCPTool.init(_type:serverLabel:serverUrl:connectorId:authorization:serverDescription:headers:allowedTools:requireApproval:deferLoading:) has been removed
+API breakage: constructor Components.Schemas.MCPToolCall.init(_type:id:serverLabel:name:arguments:output:error:status:approvalRequestId:) has parameter 6 type change from Swift.String? to OpenAI.Components.Schemas.MCPToolCallError?
+API breakage: constructor Components.Schemas.ModelResponseProperties.init(metadata:topLogprobs:temperature:topP:user:safetyIdentifier:promptCacheKey:serviceTier:promptCacheRetention:) has been removed
+API breakage: constructor Components.Schemas.Reasoning.init(effort:summary:generateSummary:) has been removed
+API breakage: constructor Components.Schemas.Response.Value3Payload.init(id:object:status:createdAt:completedAt:error:incompleteDetails:output:instructions:outputText:usage:parallelToolCalls:conversation:maxOutputTokens:) has been removed
+API breakage: constructor Components.Schemas.ResponseError.init(code:message:) has been removed
+API breakage: constructor Components.Schemas.ResponseFunctionCallArgumentsDoneEvent.init(_type:itemId:name:outputIndex:sequenceNumber:arguments:) has been removed
+API breakage: constructor Components.Schemas.ResponseImageGenCallPartialImageEvent.init(_type:outputIndex:itemId:sequenceNumber:partialImageIndex:partialImageB64:) has been removed
+API breakage: constructor Components.Schemas.ResponseOutputTextAnnotationAddedEvent.init(_type:itemId:outputIndex:contentIndex:annotationIndex:sequenceNumber:annotation:) has parameter 6 type change from OpenAPIRuntime.OpenAPIObjectContainer to OpenAI.Components.Schemas.Annotation?
+API breakage: constructor Components.Schemas.ResponseProperties.init(previousResponseId:model:reasoning:background:maxToolCalls:text:tools:toolChoice:prompt:truncation:) has been removed
+API breakage: constructor Components.Schemas.ResponseReasoningSummaryPartDoneEvent.init(_type:itemId:outputIndex:summaryIndex:sequenceNumber:part:) has been removed
+API breakage: constructor Components.Schemas.ResponseStreamEvent.init(value1:value2:value3:value4:value5:value6:value7:value8:value9:value10:value11:value12:value13:value14:value15:value16:value17:value18:value19:value20:value21:value22:value23:value24:value25:value26:value27:value28:value29:value30:value31:value32:value33:value34:value35:value36:value37:value38:value39:value40:value41:value42:value43:value44:value45:value46:value47:value48:value49:value50:value51:value52:value53:) has been removed
+API breakage: constructor Components.Schemas.ResponseUsage.InputTokensDetailsPayload.init(cachedTokens:) has been removed
+API breakage: constructor Components.Schemas.ServiceTier.init(rawValue:) has return type change from OpenAI.Components.Schemas.ServiceTier? to OpenAI.Components.Schemas.ServiceTierResponses?
+API breakage: constructor Components.Schemas.TranscriptTextDoneEvent.init(_type:text:logprobs:usage:) has been removed
+API breakage: constructor Components.Schemas.WebSearchTool.init(_type:filters:userLocation:searchContextSize:) has been removed
+API breakage: constructor Components.Schemas.WebSearchToolCall.init(id:_type:status:action:) has parameter 2 type change from OpenAI.Components.Schemas.WebSearchToolCall.StatusPayload to OpenAI.Components.Schemas.WebSearchCallStatus
+API breakage: constructor Components.Schemas._Error.init(code:message:param:_type:) has been removed
+API breakage: enum Components.Schemas.ResponseProperties.TruncationPayload has been removed
+API breakage: enum Components.Schemas.ServiceTier has been renamed to enum ServiceTierResponses
+API breakage: enum Components.Schemas.WebSearchToolCall.StatusPayload has been removed
+API breakage: enum ResponseStreamEvent.ReasoningEvent has been removed
+API breakage: enumelement Components.Schemas.ApplyPatchToolCall.CodingKeys.caller has been added as a new enum case
+API breakage: enumelement Components.Schemas.ApplyPatchToolCallItemParam.CodingKeys.caller has been added as a new enum case
+API breakage: enumelement Components.Schemas.ApplyPatchToolCallOutput.CodingKeys.caller has been added as a new enum case
+API breakage: enumelement Components.Schemas.ApplyPatchToolCallOutputItemParam.CodingKeys.caller has been added as a new enum case
+API breakage: enumelement Components.Schemas.ApplyPatchToolParam.CodingKeys.allowedCallers has been added as a new enum case
+API breakage: enumelement Components.Schemas.CodeInterpreterTool.CodingKeys.allowedCallers has been added as a new enum case
+API breakage: enumelement Components.Schemas.CreateModelResponseProperties.Value2Payload.CodingKeys.promptCacheOptions has been added as a new enum case
+API breakage: enumelement Components.Schemas.CreateResponse.Value3Payload.CodingKeys.moderation has been added as a new enum case
+API breakage: enumelement Components.Schemas.CreateResponse.Value3Payload.CodingKeys.promptCacheOptions has been added as a new enum case
+API breakage: enumelement Components.Schemas.CreateResponse.Value3Payload.CodingKeys.reasoning has been added as a new enum case
+API breakage: enumelement Components.Schemas.CreateResponse.Value3Payload.CodingKeys.serviceTier has been added as a new enum case
+API breakage: enumelement Components.Schemas.CreateResponse.Value3Payload.CodingKeys.truncation has been added as a new enum case
+API breakage: enumelement Components.Schemas.CreateTranscriptionRequest.keywords has been added as a new enum case
+API breakage: enumelement Components.Schemas.CreateTranscriptionRequest.languages has been added as a new enum case
+API breakage: enumelement Components.Schemas.CreateTranscriptionResponseJson.CodingKeys.languages has been added as a new enum case
+API breakage: enumelement Components.Schemas.CustomToolCall.CodingKeys.async has been added as a new enum case
+API breakage: enumelement Components.Schemas.CustomToolCall.CodingKeys.caller has been added as a new enum case
+API breakage: enumelement Components.Schemas.CustomToolCallOutput.CodingKeys.caller has been added as a new enum case
+API breakage: enumelement Components.Schemas.CustomToolParam.CodingKeys.allowedCallers has been added as a new enum case
+API breakage: enumelement Components.Schemas.CustomToolParam.CodingKeys.async has been added as a new enum case
+API breakage: enumelement Components.Schemas.FileDetailEnum.auto has been added as a new enum case
+API breakage: enumelement Components.Schemas.FileInputDetail.auto has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionCallOutputItemParam.CodingKeys.caller has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionCallOutputItemParam.CodingKeys.name has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionCallOutputItemParam.CodingKeys.namespace has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionShellCall.CodingKeys.caller has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionShellCallItemParam.CodingKeys.caller has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionShellCallOutput.CodingKeys.caller has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionShellCallOutputItemParam.CodingKeys.caller has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionShellToolParam.CodingKeys.allowedCallers has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionTool.CodingKeys.allowedCallers has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionTool.CodingKeys.async has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionTool.CodingKeys.outputSchema has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionToolCall.CodingKeys.async has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionToolCall.CodingKeys.caller has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionToolCallOutput.CodingKeys.caller has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionToolCallOutput.CodingKeys.name has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionToolCallOutput.CodingKeys.namespace has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionToolParam.CodingKeys.allowedCallers has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionToolParam.CodingKeys.async has been added as a new enum case
+API breakage: enumelement Components.Schemas.FunctionToolParam.CodingKeys.outputSchema has been added as a new enum case
+API breakage: enumelement Components.Schemas.ImageGenTool.ModelPayload.Value2Payload.gptImage2 has been added as a new enum case
+API breakage: enumelement Components.Schemas.ImageGenTool.ModelPayload.Value2Payload.gptImage220260421 has been added as a new enum case
+API breakage: enumelement Components.Schemas.ImageGenTool.ModelPayload.Value2Payload.gptImage2_5Flare has been added as a new enum case
+API breakage: enumelement Components.Schemas.ImageGenTool.ModelPayload.Value2Payload.gptImage2_5Flare20260908 has been added as a new enum case
+API breakage: enumelement Components.Schemas.ImageGenTool.ModelPayload.Value2Payload.gptImage2_5Sunburst has been added as a new enum case
+API breakage: enumelement Components.Schemas.ImageGenTool.ModelPayload.Value2Payload.gptImage2_5Sunburst20260908 has been added as a new enum case
+API breakage: enumelement Components.Schemas.ImageGenTool.QualityPayload.max has been added as a new enum case
+API breakage: enumelement Components.Schemas.ImageGenTool.QualityPayload.xhigh has been added as a new enum case
+API breakage: enumelement Components.Schemas.ImageGenToolCall.CodingKeys.action has been added as a new enum case
+API breakage: enumelement Components.Schemas.ImageGenToolCall.CodingKeys.background has been added as a new enum case
+API breakage: enumelement Components.Schemas.ImageGenToolCall.CodingKeys.outputFormat has been added as a new enum case
+API breakage: enumelement Components.Schemas.ImageGenToolCall.CodingKeys.quality has been added as a new enum case
+API breakage: enumelement Components.Schemas.ImageGenToolCall.CodingKeys.revisedPrompt has been added as a new enum case
+API breakage: enumelement Components.Schemas.ImageGenToolCall.CodingKeys.size has been added as a new enum case
+API breakage: enumelement Components.Schemas.InputFileContent.CodingKeys.promptCacheBreakpoint has been added as a new enum case
+API breakage: enumelement Components.Schemas.InputFileContentParam.CodingKeys.promptCacheBreakpoint has been added as a new enum case
+API breakage: enumelement Components.Schemas.InputImageContent.CodingKeys.promptCacheBreakpoint has been added as a new enum case
+API breakage: enumelement Components.Schemas.InputImageContentParamAutoParam.CodingKeys.promptCacheBreakpoint has been added as a new enum case
+API breakage: enumelement Components.Schemas.InputItem.compactionTriggerItemParam has been added as a new enum case
+API breakage: enumelement Components.Schemas.InputItem.programItemParam has been added as a new enum case
+API breakage: enumelement Components.Schemas.InputItem.programOutputItemParam has been added as a new enum case
+API breakage: enumelement Components.Schemas.InputTextContent.CodingKeys.promptCacheBreakpoint has been added as a new enum case
+API breakage: enumelement Components.Schemas.InputTextContentParam.CodingKeys.promptCacheBreakpoint has been added as a new enum case
+API breakage: enumelement Components.Schemas.Item.additionalToolsItemParam has been added as a new enum case
+API breakage: enumelement Components.Schemas.Item.responseConfigurationUpdateItemParam has been added as a new enum case
+API breakage: enumelement Components.Schemas.ItemResource.additionalTools has been added as a new enum case
+API breakage: enumelement Components.Schemas.ItemResource.program has been added as a new enum case
+API breakage: enumelement Components.Schemas.ItemResource.programOutput has been added as a new enum case
+API breakage: enumelement Components.Schemas.ItemResource.responseConfigurationUpdate has been added as a new enum case
+API breakage: enumelement Components.Schemas.MCPTool.CodingKeys.allowedCallers has been added as a new enum case
+API breakage: enumelement Components.Schemas.MCPTool.CodingKeys.tunnelId has been added as a new enum case
+API breakage: enumelement Components.Schemas.ModelIdsResponses.Value2Payload.gpt5_5Pro has been added as a new enum case
+API breakage: enumelement Components.Schemas.ModelIdsResponses.Value2Payload.gpt5_5Pro20260423 has been added as a new enum case
+API breakage: enumelement Components.Schemas.ModelIdsResponses.Value2Payload.gpt5_6Cyber has been added as a new enum case
+API breakage: enumelement Components.Schemas.ModelIdsResponses.Value2Payload.gptDaybreakBlueLatest has been added as a new enum case
+API breakage: enumelement Components.Schemas.ModelIdsResponses.Value2Payload.gptDaybreakRedLatest has been added as a new enum case
+API breakage: enumelement Components.Schemas.ModelIdsShared.Value2Payload.gpt5_5 has been added as a new enum case
+API breakage: enumelement Components.Schemas.ModelIdsShared.Value2Payload.gpt5_520260423 has been added as a new enum case
+API breakage: enumelement Components.Schemas.ModelIdsShared.Value2Payload.gpt5_6Luna has been added as a new enum case
+API breakage: enumelement Components.Schemas.ModelIdsShared.Value2Payload.gpt5_6Sol has been added as a new enum case
+API breakage: enumelement Components.Schemas.ModelIdsShared.Value2Payload.gpt5_6Terra has been added as a new enum case
+API breakage: enumelement Components.Schemas.ModelIdsShared.Value2Payload.gpt6Astra has been added as a new enum case
+API breakage: enumelement Components.Schemas.ModelResponseProperties.CodingKeys.serviceTier has been removed
+API breakage: enumelement Components.Schemas.OutputItem.additionalTools has been added as a new enum case
+API breakage: enumelement Components.Schemas.OutputItem.program has been added as a new enum case
+API breakage: enumelement Components.Schemas.OutputItem.programOutput has been added as a new enum case
+API breakage: enumelement Components.Schemas.Reasoning.CodingKeys.context has been added as a new enum case
+API breakage: enumelement Components.Schemas.Reasoning.CodingKeys.mode has been added as a new enum case
+API breakage: enumelement Components.Schemas.ReasoningEffort.max has been added as a new enum case
+API breakage: enumelement Components.Schemas.Response.Value3Payload.CodingKeys.moderation has been added as a new enum case
+API breakage: enumelement Components.Schemas.Response.Value3Payload.CodingKeys.promptCacheDiagnostics has been added as a new enum case
+API breakage: enumelement Components.Schemas.Response.Value3Payload.CodingKeys.promptCacheOptions has been added as a new enum case
+API breakage: enumelement Components.Schemas.Response.Value3Payload.CodingKeys.reasoning has been added as a new enum case
+API breakage: enumelement Components.Schemas.Response.Value3Payload.CodingKeys.serviceTier has been added as a new enum case
+API breakage: enumelement Components.Schemas.Response.Value3Payload.CodingKeys.truncation has been added as a new enum case
+API breakage: enumelement Components.Schemas.Response.Value3Payload.IncompleteDetailsPayload.ReasonPayload.maxMessages has been added as a new enum case
+API breakage: enumelement Components.Schemas.Response.Value3Payload.IncompleteDetailsPayload.ReasonPayload.steered has been added as a new enum case
+API breakage: enumelement Components.Schemas.ResponseError.CodingKeys.misalignment has been added as a new enum case
+API breakage: enumelement Components.Schemas.ResponseErrorCode.bioPolicy has been added as a new enum case
+API breakage: enumelement Components.Schemas.ResponseErrorCode.dataResidencyMismatch has been added as a new enum case
+API breakage: enumelement Components.Schemas.ResponseErrorCode.misalignmentPolicyViolation has been added as a new enum case
+API breakage: enumelement Components.Schemas.ResponseFunctionCallArgumentsDoneEvent.CodingKeys.name has been removed
+API breakage: enumelement Components.Schemas.ResponseImageGenCallPartialImageEvent.CodingKeys.background has been added as a new enum case
+API breakage: enumelement Components.Schemas.ResponseImageGenCallPartialImageEvent.CodingKeys.outputFormat has been added as a new enum case
+API breakage: enumelement Components.Schemas.ResponseImageGenCallPartialImageEvent.CodingKeys.quality has been added as a new enum case
+API breakage: enumelement Components.Schemas.ResponseImageGenCallPartialImageEvent.CodingKeys.size has been added as a new enum case
+API breakage: enumelement Components.Schemas.ResponseProperties.CodingKeys.reasoning has been removed
+API breakage: enumelement Components.Schemas.ResponseProperties.CodingKeys.truncation has been removed
+API breakage: enumelement Components.Schemas.ResponseReasoningSummaryPartDoneEvent.CodingKeys.status has been added as a new enum case
+API breakage: enumelement Components.Schemas.ResponseUsage.InputTokensDetailsPayload.CodingKeys.cacheWriteTokens has been added as a new enum case
+API breakage: enumelement Components.Schemas.ServiceTier._default has declared type change from (OpenAI.Components.Schemas.ServiceTier.Type) -> OpenAI.Components.Schemas.ServiceTier to (OpenAI.Components.Schemas.ServiceTierResponses.Type) -> OpenAI.Components.Schemas.ServiceTierResponses
+API breakage: enumelement Components.Schemas.ServiceTier.auto has declared type change from (OpenAI.Components.Schemas.ServiceTier.Type) -> OpenAI.Components.Schemas.ServiceTier to (OpenAI.Components.Schemas.ServiceTierResponses.Type) -> OpenAI.Components.Schemas.ServiceTierResponses
+API breakage: enumelement Components.Schemas.ServiceTier.flex has declared type change from (OpenAI.Components.Schemas.ServiceTier.Type) -> OpenAI.Components.Schemas.ServiceTier to (OpenAI.Components.Schemas.ServiceTierResponses.Type) -> OpenAI.Components.Schemas.ServiceTierResponses
+API breakage: enumelement Components.Schemas.ServiceTier.priority has declared type change from (OpenAI.Components.Schemas.ServiceTier.Type) -> OpenAI.Components.Schemas.ServiceTier to (OpenAI.Components.Schemas.ServiceTierResponses.Type) -> OpenAI.Components.Schemas.ServiceTierResponses
+API breakage: enumelement Components.Schemas.ServiceTier.scale has declared type change from (OpenAI.Components.Schemas.ServiceTier.Type) -> OpenAI.Components.Schemas.ServiceTier to (OpenAI.Components.Schemas.ServiceTierResponses.Type) -> OpenAI.Components.Schemas.ServiceTierResponses
+API breakage: enumelement Components.Schemas.ServiceTierResponses.fast has been added as a new enum case
+API breakage: enumelement Components.Schemas.ServiceTierResponses.ultrafast has been added as a new enum case
+API breakage: enumelement Components.Schemas.Tool.programmaticToolCallingParam has been added as a new enum case
+API breakage: enumelement Components.Schemas.ToolChoiceParam.SpecificProgrammaticToolCallingParam has been added as a new enum case
+API breakage: enumelement Components.Schemas.TranscriptTextDoneEvent.CodingKeys.languages has been added as a new enum case
+API breakage: enumelement Components.Schemas.WebSearchTool.CodingKeys.externalWebAccess has been added as a new enum case
+API breakage: enumelement Components.Schemas._Error.CodingKeys.misalignment has been added as a new enum case
+API breakage: enumelement OutputItem.additionalTools has been added as a new enum case
+API breakage: enumelement OutputItem.program has been added as a new enum case
+API breakage: enumelement OutputItem.programOutput has been added as a new enum case
+API breakage: enumelement ResponseStreamEvent.customToolCallInput has been added as a new enum case
+API breakage: enumelement ResponseStreamEvent.reasoning has been renamed to enumelement reasoningText
+API breakage: enumelement ResponseStreamEvent.reasoning has declared type change from (OpenAI.ResponseStreamEvent.Type) -> (OpenAI.ResponseStreamEvent.ReasoningEvent) -> OpenAI.ResponseStreamEvent to (OpenAI.ResponseStreamEvent.Type) -> (OpenAI.ResponseStreamEvent.ReasoningTextEvent) -> OpenAI.ResponseStreamEvent
+API breakage: enumelement ResponseStreamEvent.shellCall has been added as a new enum case
+API breakage: enumelement Tool.programmaticToolCallingTool has been added as a new enum case
+API breakage: struct Components.Schemas.Conversation2 has been removed
+API breakage: typealias Components.Schemas.Response.Value3Payload.Conversation2 has been removed
+API breakage: typealias Components.Schemas.ResponseProperties.Reasoning has been removed
+API breakage: typealias Components.Schemas.ServiceTier.AllCases has underlying type change from [OpenAI.Components.Schemas.ServiceTier] to [OpenAI.Components.Schemas.ServiceTierResponses]
+API breakage: var Components.Schemas.FunctionCallOutputItemParam.callId has declared type change from Swift.String to Swift.String?
+API breakage: var Components.Schemas.FunctionToolCallOutput.callId has declared type change from Swift.String to Swift.String?
+API breakage: var Components.Schemas.MCPToolCall.error has declared type change from Swift.String? to OpenAI.Components.Schemas.MCPToolCallError?
+API breakage: var Components.Schemas.ModelResponseProperties.serviceTier has been removed
+API breakage: var Components.Schemas.Response.Value3Payload.conversation has declared type change from OpenAI.Components.Schemas.Conversation2? to OpenAI.Components.Schemas.ResponseConversation?
+API breakage: var Components.Schemas.ResponseFunctionCallArgumentsDoneEvent.name has been removed
+API breakage: var Components.Schemas.ResponseOutputTextAnnotationAddedEvent.annotation has declared type change from OpenAPIRuntime.OpenAPIObjectContainer to OpenAI.Components.Schemas.Annotation?
+API breakage: var Components.Schemas.ResponseProperties.reasoning has been removed
+API breakage: var Components.Schemas.ResponseProperties.truncation has been removed
+API breakage: var Components.Schemas.ResponseStreamEvent.value20 has declared type change from OpenAI.Components.Schemas.ResponseInProgressEvent? to OpenAI.Components.Schemas.ResponseShellCallCommandAddedStreamingEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value21 has declared type change from OpenAI.Components.Schemas.ResponseFailedEvent? to OpenAI.Components.Schemas.ResponseShellCallCommandDeltaStreamingEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value22 has declared type change from OpenAI.Components.Schemas.ResponseIncompleteEvent? to OpenAI.Components.Schemas.ResponseShellCallCommandDoneStreamingEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value23 has declared type change from OpenAI.Components.Schemas.ResponseOutputItemAddedEvent? to OpenAI.Components.Schemas.ResponseShellCallOutputContentDeltaStreamingEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value24 has declared type change from OpenAI.Components.Schemas.ResponseOutputItemDoneEvent? to OpenAI.Components.Schemas.ResponseShellCallOutputContentDoneStreamingEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value25 has declared type change from OpenAI.Components.Schemas.ResponseReasoningSummaryPartAddedEvent? to OpenAI.Components.Schemas.ResponseInProgressEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value26 has declared type change from OpenAI.Components.Schemas.ResponseReasoningSummaryPartDoneEvent? to OpenAI.Components.Schemas.ResponseFailedEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value27 has declared type change from OpenAI.Components.Schemas.ResponseReasoningSummaryTextDeltaEvent? to OpenAI.Components.Schemas.ResponseIncompleteEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value28 has declared type change from OpenAI.Components.Schemas.ResponseReasoningSummaryTextDoneEvent? to OpenAI.Components.Schemas.ResponseOutputItemAddedEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value29 has declared type change from OpenAI.Components.Schemas.ResponseReasoningTextDeltaEvent? to OpenAI.Components.Schemas.ResponseOutputItemDoneEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value30 has declared type change from OpenAI.Components.Schemas.ResponseReasoningTextDoneEvent? to OpenAI.Components.Schemas.ResponseReasoningSummaryPartAddedEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value31 has declared type change from OpenAI.Components.Schemas.ResponseRefusalDeltaEvent? to OpenAI.Components.Schemas.ResponseReasoningSummaryPartDoneEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value32 has declared type change from OpenAI.Components.Schemas.ResponseRefusalDoneEvent? to OpenAI.Components.Schemas.ResponseReasoningSummaryTextDeltaEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value33 has declared type change from OpenAI.Components.Schemas.ResponseTextDeltaEvent? to OpenAI.Components.Schemas.ResponseReasoningSummaryTextDoneEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value34 has declared type change from OpenAI.Components.Schemas.ResponseTextDoneEvent? to OpenAI.Components.Schemas.ResponseReasoningTextDeltaEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value35 has declared type change from OpenAI.Components.Schemas.ResponseWebSearchCallCompletedEvent? to OpenAI.Components.Schemas.ResponseReasoningTextDoneEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value36 has declared type change from OpenAI.Components.Schemas.ResponseWebSearchCallInProgressEvent? to OpenAI.Components.Schemas.ResponseRefusalDeltaEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value37 has declared type change from OpenAI.Components.Schemas.ResponseWebSearchCallSearchingEvent? to OpenAI.Components.Schemas.ResponseRefusalDoneEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value38 has declared type change from OpenAI.Components.Schemas.ResponseImageGenCallCompletedEvent? to OpenAI.Components.Schemas.ResponseTextDeltaEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value39 has declared type change from OpenAI.Components.Schemas.ResponseImageGenCallGeneratingEvent? to OpenAI.Components.Schemas.ResponseTextDoneEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value40 has declared type change from OpenAI.Components.Schemas.ResponseImageGenCallInProgressEvent? to OpenAI.Components.Schemas.ResponseWebSearchCallCompletedEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value41 has declared type change from OpenAI.Components.Schemas.ResponseImageGenCallPartialImageEvent? to OpenAI.Components.Schemas.ResponseWebSearchCallInProgressEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value42 has declared type change from OpenAI.Components.Schemas.ResponseMCPCallArgumentsDeltaEvent? to OpenAI.Components.Schemas.ResponseWebSearchCallSearchingEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value43 has declared type change from OpenAI.Components.Schemas.ResponseMCPCallArgumentsDoneEvent? to OpenAI.Components.Schemas.ResponseImageGenCallCompletedEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value44 has declared type change from OpenAI.Components.Schemas.ResponseMCPCallCompletedEvent? to OpenAI.Components.Schemas.ResponseImageGenCallGeneratingEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value45 has declared type change from OpenAI.Components.Schemas.ResponseMCPCallFailedEvent? to OpenAI.Components.Schemas.ResponseImageGenCallInProgressEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value46 has declared type change from OpenAI.Components.Schemas.ResponseMCPCallInProgressEvent? to OpenAI.Components.Schemas.ResponseImageGenCallPartialImageEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value47 has declared type change from OpenAI.Components.Schemas.ResponseMCPListToolsCompletedEvent? to OpenAI.Components.Schemas.ResponseMCPCallArgumentsDeltaEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value48 has declared type change from OpenAI.Components.Schemas.ResponseMCPListToolsFailedEvent? to OpenAI.Components.Schemas.ResponseMCPCallArgumentsDoneEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value49 has declared type change from OpenAI.Components.Schemas.ResponseMCPListToolsInProgressEvent? to OpenAI.Components.Schemas.ResponseMCPCallCompletedEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value50 has declared type change from OpenAI.Components.Schemas.ResponseOutputTextAnnotationAddedEvent? to OpenAI.Components.Schemas.ResponseMCPCallFailedEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value51 has declared type change from OpenAI.Components.Schemas.ResponseQueuedEvent? to OpenAI.Components.Schemas.ResponseMCPCallInProgressEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value52 has declared type change from OpenAI.Components.Schemas.ResponseCustomToolCallInputDeltaEvent? to OpenAI.Components.Schemas.ResponseMCPListToolsCompletedEvent?
+API breakage: var Components.Schemas.ResponseStreamEvent.value53 has declared type change from OpenAI.Components.Schemas.ResponseCustomToolCallInputDoneEvent? to OpenAI.Components.Schemas.ResponseMCPListToolsFailedEvent?
+API breakage: var Components.Schemas.ServiceTier.allCases has declared type change from [OpenAI.Components.Schemas.ServiceTier] to [OpenAI.Components.Schemas.ServiceTierResponses]
+API breakage: var Components.Schemas.WebSearchToolCall.status has declared type change from OpenAI.Components.Schemas.WebSearchToolCall.StatusPayload to OpenAI.Components.Schemas.WebSearchCallStatus
+API breakage: var ResponseObject.conversation has declared type change from OpenAI.ResponseObject.Schemas.Conversation2? to OpenAI.ResponseObject.Schemas.ResponseConversation?
+API breakage: var ResponseObject.instructions has declared type change from Swift.String? to OpenAI.ResponseObject.Instructions?
+API breakage: var ResponseObject.metadata has declared type change from [Swift.String : Swift.String] to [Swift.String : Swift.String]?
+API breakage: var ResponseObject.serviceTier has declared type change from OpenAI.ResponseObject.Schemas.ServiceTier? to OpenAI.ResponseObject.Schemas.ServiceTierResponses?
+API breakage: var ResponseObject.toolChoice has declared type change from OpenAI.ResponseObject.Schemas.ToolChoiceParam? to OpenAI.ResponseObject.Schemas.ToolChoiceParam

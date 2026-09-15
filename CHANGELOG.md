@@ -16,7 +16,14 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 - This changelog.
 
 ### Changed
-- **Breaking:** `ResponseObject.instructions` changed from `String?` to `ResponseObject.Instructions?`, matching the latest spec, which lets `instructions` be either a plain string or a list of input items. `Instructions` is a generated two-case enum (`.case1(String)` for the string form, `.case2([InputItem])` for the list form); code that read `instructions` as a `String` needs to switch over it instead. This mirrors how the official Python SDK models the same field (`Union[str, List[ResponseInputItem], None]`) rather than adding a second property under a new name.
+- **Breaking:** Regenerated `Components.Schemas` from the latest OpenAPI spec. Most of the reported breaks are mechanical (new cases added to generated enums, and generated memberwise initializers gaining parameters for new optional fields) and are allowlisted in `.github/api-breakage-allowlist.txt` without individual call-outs, matching how the `0.5.1` regeneration was documented. The changes worth knowing about if you read or construct these types directly:
+  - `ResponseObject.instructions` changed from `String?` to `ResponseObject.Instructions?`, letting `instructions` be either a plain string or a list of input items. `Instructions` is a generated two-case enum (`.case1(String)` for the string form, `.case2([InputItem])` for the list form); code that read `instructions` as a `String` needs to switch over it instead. This mirrors how the official Python SDK models the same field (`Union[str, List[ResponseInputItem], None]`) rather than adding a second property under a new name.
+  - `Components.Schemas.ServiceTier` was renamed to `ServiceTierResponses`.
+  - `Components.Schemas.Conversation2` was removed; `Response.conversation` and `ResponseProperties`-derived types now use `ResponseConversation` instead.
+  - `MCPToolCall.error` changed from `String?` to `MCPToolCallError?`.
+  - `ResponseOutputTextAnnotationAddedEvent.annotation` changed from `OpenAPIObjectContainer` to `Annotation?`, matching the stricter `Annotation` schema.
+  - `FunctionToolCallOutput.callId` and `FunctionCallOutputItemParam.callId` changed from `String` to `String?`.
+  - `ResponseStreamEvent.reasoning` was renamed to `.reasoningText`, with its payload changing from `ReasoningEvent` to `ReasoningTextEvent`.
 
 ### Fixed
 - `ResponseStreamEvent.reasoningText` streaming events never decoded: `ModelResponseStreamEventType` listened for `response.reasoning.delta`/`.done`, but the API sends `response.reasoning_text.delta`/`.done`, so reasoning-text deltas always failed with an `unknownEventType` error.
