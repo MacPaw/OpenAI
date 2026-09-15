@@ -144,4 +144,145 @@ final class ModelResponseEventsStreamInterpreterTests: XCTestCase {
         XCTAssertEqual(event.annotationIndex, 2)
         XCTAssertEqual(event.sequenceNumber, 5)
     }
+
+    func testParsesReasoningTextDelta() async throws {
+        let expectation = XCTestExpectation(description: "Reasoning delta event received")
+        var receivedEvent: ResponseStreamEvent?
+
+        interpreter.setCallbackClosures { event in
+            Task {
+                await MainActor.run {
+                    receivedEvent = event
+                    expectation.fulfill()
+                }
+            }
+        } onError: { error in
+            XCTFail("Unexpected error received: \(error)")
+        }
+
+        interpreter.processData(
+            MockServerSentEvent.responseStreamEvent(
+                itemId: "item_1",
+                payloadType: "response.reasoning_text.delta",
+                outputIndex: 0,
+                contentIndex: 0,
+                delta: "Because",
+                sequenceNumber: 1
+            )
+        )
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        guard case .reasoningText(.delta(let event)) = receivedEvent else {
+            XCTFail("Expected .reasoningText(.delta), got \(String(describing: receivedEvent))")
+            return
+        }
+        XCTAssertEqual(event.itemId, "item_1")
+        XCTAssertEqual(event.delta, "Because")
+        XCTAssertEqual(event.sequenceNumber, 1)
+    }
+
+    func testParsesReasoningTextDone() async throws {
+        let expectation = XCTestExpectation(description: "Reasoning done event received")
+        var receivedEvent: ResponseStreamEvent?
+
+        interpreter.setCallbackClosures { event in
+            Task {
+                await MainActor.run {
+                    receivedEvent = event
+                    expectation.fulfill()
+                }
+            }
+        } onError: { error in
+            XCTFail("Unexpected error received: \(error)")
+        }
+
+        interpreter.processData(
+            MockServerSentEvent.reasoningTextDoneEvent(
+                itemId: "item_1",
+                text: "Because the sky is blue.",
+                sequenceNumber: 2
+            )
+        )
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        guard case .reasoningText(.done(let event)) = receivedEvent else {
+            XCTFail("Expected .reasoningText(.done), got \(String(describing: receivedEvent))")
+            return
+        }
+        XCTAssertEqual(event.itemId, "item_1")
+        XCTAssertEqual(event.text, "Because the sky is blue.")
+        XCTAssertEqual(event.sequenceNumber, 2)
+    }
+
+    func testParsesCustomToolCallInputDelta() async throws {
+        let expectation = XCTestExpectation(description: "Custom tool call input delta event received")
+        var receivedEvent: ResponseStreamEvent?
+
+        interpreter.setCallbackClosures { event in
+            Task {
+                await MainActor.run {
+                    receivedEvent = event
+                    expectation.fulfill()
+                }
+            }
+        } onError: { error in
+            XCTFail("Unexpected error received: \(error)")
+        }
+
+        interpreter.processData(
+            MockServerSentEvent.responseStreamEvent(
+                itemId: "item_1",
+                payloadType: "response.custom_tool_call_input.delta",
+                outputIndex: 0,
+                delta: "{\"query\":",
+                sequenceNumber: 1
+            )
+        )
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        guard case .customToolCallInput(.delta(let event)) = receivedEvent else {
+            XCTFail("Expected .customToolCallInput(.delta), got \(String(describing: receivedEvent))")
+            return
+        }
+        XCTAssertEqual(event.itemId, "item_1")
+        XCTAssertEqual(event.delta, "{\"query\":")
+        XCTAssertEqual(event.sequenceNumber, 1)
+    }
+
+    func testParsesCustomToolCallInputDone() async throws {
+        let expectation = XCTestExpectation(description: "Custom tool call input done event received")
+        var receivedEvent: ResponseStreamEvent?
+
+        interpreter.setCallbackClosures { event in
+            Task {
+                await MainActor.run {
+                    receivedEvent = event
+                    expectation.fulfill()
+                }
+            }
+        } onError: { error in
+            XCTFail("Unexpected error received: \(error)")
+        }
+
+        interpreter.processData(
+            MockServerSentEvent.customToolCallInputDoneEvent(
+                itemId: "item_1",
+                input: "{\"query\":\"weather\"}",
+                sequenceNumber: 2
+            )
+        )
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        guard case .customToolCallInput(.done(let event)) = receivedEvent else {
+            XCTFail("Expected .customToolCallInput(.done), got \(String(describing: receivedEvent))")
+            return
+        }
+        XCTAssertEqual(event.itemId, "item_1")
+        XCTAssertEqual(event.input, "{\"query\":\"weather\"}")
+        XCTAssertEqual(event.sequenceNumber, 2)
+    }
 }

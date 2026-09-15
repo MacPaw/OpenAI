@@ -167,10 +167,10 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
                 .mcpListTools(.inProgress(try decode(data: data)))
         case .responseQueued:
                 .queued(try decode(data: data))
-        case .responseReasoningDelta:
-                .reasoning(.delta(try decode(data: data)))
-        case .responseReasoningDone:
-                .reasoning(.done(try decode(data: data)))
+        case .responseReasoningTextDelta:
+                .reasoningText(.delta(try decode(data: data)))
+        case .responseReasoningTextDone:
+                .reasoningText(.done(try decode(data: data)))
         case .responseOutputTextAnnotationAdded:
                 .outputTextAnnotation(.added(try decode(data: data)))
         case .responseAudioDelta:
@@ -213,6 +213,10 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
                 .shellCall(.outputContent(.delta(try decode(data: data))))
         case .responseShellCallOutputContentDone:
                 .shellCall(.outputContent(.done(try decode(data: data))))
+        case .responseCustomToolCallInputDelta:
+                .customToolCallInput(.delta(try decode(data: data)))
+        case .responseCustomToolCallInputDone:
+                .customToolCallInput(.done(try decode(data: data)))
         case .error:
                 .error(try decode(data: data))
         }
