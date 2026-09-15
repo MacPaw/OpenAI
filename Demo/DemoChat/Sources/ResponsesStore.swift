@@ -621,6 +621,10 @@ public final class ResponsesStore: ObservableObject {
             // Reasoning summary text events - not implemented yet
             print("Reasoning summary text event received (not implemented)")
             break
+        case .shellCall(_ /* let shellCallEvent */):
+            // Shell call events - not implemented yet
+            print("Shell call event received (not implemented)")
+            break
         }
     }
     

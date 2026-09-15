@@ -203,6 +203,16 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
                 .codeInterpreterCall(.interpreting(try decode(data: data)))
         case .responseCodeInterpreterCallCompleted:
                 .codeInterpreterCall(.completed(try decode(data: data)))
+        case .responseShellCallCommandAdded:
+                .shellCall(.command(.added(try decode(data: data))))
+        case .responseShellCallCommandDelta:
+                .shellCall(.command(.delta(try decode(data: data))))
+        case .responseShellCallCommandDone:
+                .shellCall(.command(.done(try decode(data: data))))
+        case .responseShellCallOutputContentDelta:
+                .shellCall(.outputContent(.delta(try decode(data: data))))
+        case .responseShellCallOutputContentDone:
+                .shellCall(.outputContent(.done(try decode(data: data))))
         case .error:
                 .error(try decode(data: data))
         }

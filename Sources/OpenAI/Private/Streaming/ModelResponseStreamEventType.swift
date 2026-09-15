@@ -67,7 +67,13 @@ enum ModelResponseStreamEventType: String {
     
     case responseReasoningDelta = "response.reasoning.delta"
     case responseReasoningDone = "response.reasoning.done"
-    
+
+    case responseShellCallCommandAdded = "response.shell_call_command.added"
+    case responseShellCallCommandDelta = "response.shell_call_command.delta"
+    case responseShellCallCommandDone = "response.shell_call_command.done"
+    case responseShellCallOutputContentDelta = "response.shell_call_output_content.delta"
+    case responseShellCallOutputContentDone = "response.shell_call_output_content.done"
+
     case error = "error"
     
     // The following events are not present in the API Reference at the moment, but they are in generated code, so we also include them just in case
