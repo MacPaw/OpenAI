@@ -42,8 +42,44 @@ struct MockServerSentEvent {
         return "data: \(String(data: jsonData, encoding: .utf8)!)\n\n".data(using: .utf8)!
     }
 
+    static func reasoningTextDoneEvent(
+        itemId: String = "item_1",
+        outputIndex: Int = 0,
+        contentIndex: Int = 0,
+        text: String = "Because the sky is blue.",
+        sequenceNumber: Int = 1
+    ) -> Data {
+        let payload: [String: Any] = [
+            "type": "response.reasoning_text.done",
+            "item_id": itemId,
+            "output_index": outputIndex,
+            "content_index": contentIndex,
+            "text": text,
+            "sequence_number": sequenceNumber
+        ]
+        let jsonData = try! JSONSerialization.data(withJSONObject: payload)
+        return "data: \(String(data: jsonData, encoding: .utf8)!)\n\n".data(using: .utf8)!
+    }
+
+    static func customToolCallInputDoneEvent(
+        itemId: String = "item_1",
+        outputIndex: Int = 0,
+        input: String = "{}",
+        sequenceNumber: Int = 1
+    ) -> Data {
+        let payload: [String: Any] = [
+            "type": "response.custom_tool_call_input.done",
+            "item_id": itemId,
+            "output_index": outputIndex,
+            "input": input,
+            "sequence_number": sequenceNumber
+        ]
+        let jsonData = try! JSONSerialization.data(withJSONObject: payload)
+        return "data: \(String(data: jsonData, encoding: .utf8)!)\n\n".data(using: .utf8)!
+    }
+
     static func annotationAddedEvent(withExplicitEventField: Bool) -> Data {
-        let json = #"{"type":"response.output_text.annotation.added","item_id":"item_1","output_index":0,"content_index":0,"annotation_index":2,"sequence_number":5,"annotation":{}}"#
+        let json = #"{"type":"response.output_text.annotation.added","item_id":"item_1","output_index":0,"content_index":0,"annotation_index":2,"sequence_number":5,"annotation":{"type":"url_citation","url":"https://example.com","start_index":0,"end_index":1,"title":"Example"}}"#
         if withExplicitEventField {
             return "event: response.output_text.annotation.added\ndata: \(json)\n\n".data(using: .utf8)!
         } else {

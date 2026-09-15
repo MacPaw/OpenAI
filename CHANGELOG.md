@@ -7,12 +7,17 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 ## [Unreleased]
 
 ### Added
+- `ResponseStreamEvent.shellCall`, covering the new shell-call streaming events (`response.shell_call_command.added/delta/done`, `response.shell_call_output_content.delta/done`) added by the latest OpenAPI spec.
+- `Tool.programmaticToolCallingTool`, the tool case paired with the `OutputItem.program`/`.programOutput` response items; without it, decoding a response whose `tools` array contains a `programmatic_tool_calling` tool would throw.
+- `ResponseStreamEvent.customToolCallInput`, covering the previously unhandled `response.custom_tool_call_input.delta/done` streaming events; without it, a custom-tool streaming response would fail the whole stream with an `unknownEventType` error.
 - CI: an *API Breakage* workflow fails a pull request that changes the public API compared with the latest release tag. Consciously accepted breaks are listed in `.github/api-breakage-allowlist.txt` with a matching changelog entry.
 - CI: the *Swift Build* workflow now builds and tests on Linux with Swift 5.10, 6.0 and 6.3 containers, tests on macOS and the iOS Simulator, and builds for tvOS, watchOS and visionOS with Xcode. Tests written with Swift Testing only exist on toolchains that ship it (Swift 6); the XCTest suite runs everywhere.
 - CONTRIBUTING.md: API stability policy, including how new endpoint groups are added as namespaces and how generated `Components.Schemas` types are treated.
 - This changelog.
 
 ### Fixed
+- `ResponseStreamEvent.reasoningText` streaming events never decoded: `ModelResponseStreamEventType` listened for `response.reasoning.delta`/`.done`, but the API sends `response.reasoning_text.delta`/`.done`, so reasoning-text deltas always failed with an `unknownEventType` error.
+- `make download-spec` could leave the tracked `openapi.yaml` truncated if `curl` was interrupted mid-transfer; it now downloads to a temp file and moves it into place only on success.
 - Build warning in `ModelResponseEventsStreamInterpreter` when logging a failed stream event decode in debug builds.
 - The test target compiles for the package's minimum iOS deployment target again; it used `Regex`, which requires iOS 16.
 - Building on Linux with Swift 5.10 works again. swift-corelibs-foundation gained the async `URLSession` APIs only in Swift 6, so the async client now bridges the completion-handler API on older Linux toolchains.
