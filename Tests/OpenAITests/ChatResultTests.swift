@@ -153,6 +153,69 @@ final class ChatResultTests: XCTestCase {
         XCTAssertEqual(result.serviceTier, .flexTier)
     }
     
+    func testDecodeMessageAudio() throws {
+        let jsonString = """
+            {
+                "id": "some_id",
+                "object": "chat.completion",
+                "created": 1677652288,
+                "model": "gpt-audio-1.5",
+                "choices": [
+                    {
+                        "index": 0,
+                        "finish_reason": "stop",
+                        "message": {
+                            "role": "assistant",
+                            "content": null,
+                            "refusal": null,
+                            "audio": {
+                                "id": "audio_abc123",
+                                "data": "ZmFrZS1hdWRpby1ieXRlcw==",
+                                "expires_at": 1677655888,
+                                "transcript": "Hello there"
+                            }
+                        }
+                    }
+                ]
+            }
+            """
+        
+        let audio = try XCTUnwrap(decode(jsonString).choices.first?.message.audio)
+        XCTAssertEqual(audio.id, "audio_abc123")
+        XCTAssertEqual(audio.data, "ZmFrZS1hdWRpby1ieXRlcw==")
+        XCTAssertEqual(audio.expiresAt, 1677655888)
+        XCTAssertEqual(audio.transcript, "Hello there")
+        XCTAssertEqual(Data(base64Encoded: audio.data), Data("fake-audio-bytes".utf8))
+    }
+    
+    func testDecodeAudioTokenUsage() throws {
+        let jsonString = """
+            {
+                "id": "some_id",
+                "object": "chat.completion",
+                "created": 1677652288,
+                "model": "gpt-audio-1.5",
+                "choices": [],
+                "usage": {
+                    "prompt_tokens": 60,
+                    "completion_tokens": 40,
+                    "total_tokens": 100,
+                    "prompt_tokens_details": {
+                        "audio_tokens": 55,
+                        "cached_tokens": 0
+                    },
+                    "completion_tokens_details": {
+                        "audio_tokens": 35
+                    }
+                }
+            }
+            """
+        
+        let usage = try XCTUnwrap(decode(jsonString).usage)
+        XCTAssertEqual(usage.promptTokensDetails?.audioTokens, 55)
+        XCTAssertEqual(usage.completionTokensDetails?.audioTokens, 35)
+    }
+    
     private func decode(_ jsonString: String) throws -> ChatResult {
         let jsonData = jsonString.data(using: .utf8)!
         return try decoder.decode(ChatResult.self, from: jsonData)
