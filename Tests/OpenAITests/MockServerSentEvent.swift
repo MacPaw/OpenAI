@@ -78,6 +78,110 @@ struct MockServerSentEvent {
         return "data: \(String(data: jsonData, encoding: .utf8)!)\n\n".data(using: .utf8)!
     }
 
+    static func shellCallCommandAddedEvent(
+        outputIndex: Int = 0,
+        commandIndex: Int = 0,
+        command: String = "ls -la",
+        sequenceNumber: Int = 1
+    ) -> Data {
+        let payload: [String: Any] = [
+            "type": "response.shell_call_command.added",
+            "output_index": outputIndex,
+            "command_index": commandIndex,
+            "command": command,
+            "sequence_number": sequenceNumber
+        ]
+        let jsonData = try! JSONSerialization.data(withJSONObject: payload)
+        return "data: \(String(data: jsonData, encoding: .utf8)!)\n\n".data(using: .utf8)!
+    }
+
+    static func shellCallCommandDeltaEvent(
+        outputIndex: Int = 0,
+        commandIndex: Int = 0,
+        delta: String = " -la",
+        sequenceNumber: Int = 1
+    ) -> Data {
+        let payload: [String: Any] = [
+            "type": "response.shell_call_command.delta",
+            "output_index": outputIndex,
+            "command_index": commandIndex,
+            "delta": delta,
+            "sequence_number": sequenceNumber
+        ]
+        let jsonData = try! JSONSerialization.data(withJSONObject: payload)
+        return "data: \(String(data: jsonData, encoding: .utf8)!)\n\n".data(using: .utf8)!
+    }
+
+    static func shellCallCommandDoneEvent(
+        outputIndex: Int = 0,
+        commandIndex: Int = 0,
+        command: String = "ls -la",
+        sequenceNumber: Int = 1
+    ) -> Data {
+        let payload: [String: Any] = [
+            "type": "response.shell_call_command.done",
+            "output_index": outputIndex,
+            "command_index": commandIndex,
+            "command": command,
+            "sequence_number": sequenceNumber
+        ]
+        let jsonData = try! JSONSerialization.data(withJSONObject: payload)
+        return "data: \(String(data: jsonData, encoding: .utf8)!)\n\n".data(using: .utf8)!
+    }
+
+    static func shellCallOutputContentDeltaEvent(
+        itemId: String = "item_1",
+        outputIndex: Int = 0,
+        commandIndex: Int = 0,
+        stdout: String? = "hello",
+        stderr: String? = nil,
+        sequenceNumber: Int = 1
+    ) -> Data {
+        var delta: [String: Any] = [:]
+        if let stdout { delta["stdout"] = stdout }
+        if let stderr { delta["stderr"] = stderr }
+        let payload: [String: Any] = [
+            "type": "response.shell_call_output_content.delta",
+            "item_id": itemId,
+            "output_index": outputIndex,
+            "command_index": commandIndex,
+            "delta": delta,
+            "sequence_number": sequenceNumber
+        ]
+        let jsonData = try! JSONSerialization.data(withJSONObject: payload)
+        return "data: \(String(data: jsonData, encoding: .utf8)!)\n\n".data(using: .utf8)!
+    }
+
+    static func shellCallOutputContentDoneEvent(
+        itemId: String = "item_1",
+        outputIndex: Int = 0,
+        commandIndex: Int = 0,
+        stdout: String = "hello\n",
+        stderr: String = "",
+        exitCode: Int = 0,
+        sequenceNumber: Int = 1
+    ) -> Data {
+        let payload: [String: Any] = [
+            "type": "response.shell_call_output_content.done",
+            "item_id": itemId,
+            "output_index": outputIndex,
+            "command_index": commandIndex,
+            "output": [
+                [
+                    "stdout": stdout,
+                    "stderr": stderr,
+                    "outcome": [
+                        "type": "exit",
+                        "exit_code": exitCode
+                    ]
+                ]
+            ],
+            "sequence_number": sequenceNumber
+        ]
+        let jsonData = try! JSONSerialization.data(withJSONObject: payload)
+        return "data: \(String(data: jsonData, encoding: .utf8)!)\n\n".data(using: .utf8)!
+    }
+
     static func annotationAddedEvent(withExplicitEventField: Bool) -> Data {
         let json = #"{"type":"response.output_text.annotation.added","item_id":"item_1","output_index":0,"content_index":0,"annotation_index":2,"sequence_number":5,"annotation":{"type":"url_citation","url":"https://example.com","start_index":0,"end_index":1,"title":"Example"}}"#
         if withExplicitEventField {
