@@ -24,6 +24,7 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
   - `ResponseOutputTextAnnotationAddedEvent.annotation` changed from `OpenAPIObjectContainer` to `Annotation?`, matching the stricter `Annotation` schema.
   - `FunctionToolCallOutput.callId` and `FunctionCallOutputItemParam.callId` changed from `String` to `String?`.
   - `ResponseStreamEvent.reasoning` was renamed to `.reasoningText`, with its payload changing from `ReasoningEvent` to `ReasoningTextEvent`.
+  - `ResponseObject.toolChoice` changed from `Schemas.ToolChoiceParam?` to `Schemas.ToolChoiceParam`. The generated `ResponseProperties.toolChoice` is optional only because that schema is shared with request bodies, where `tool_choice` may be omitted; an actual `Response` always includes it, which we verified against the API docs and the official Python SDK (`Response.tool_choice: ToolChoice`, non-optional). This corrects a facade type that didn't match the real response shape, but is still a source-breaking type change for callers who read `toolChoice` as optional.
 
 ### Fixed
 - `ResponseStreamEvent.reasoningText` streaming events never decoded: `ModelResponseStreamEventType` listened for `response.reasoning.delta`/`.done`, but the API sends `response.reasoning_text.delta`/`.done`, so reasoning-text deltas always failed with an `unknownEventType` error.
