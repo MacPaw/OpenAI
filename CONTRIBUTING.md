@@ -43,6 +43,19 @@ The public API of this package is additive-only:
 - A result type changes only when the API itself changed shape, and even then
   prefer keeping the old member as a deprecated computed property over removing it.
 
+swift-openapi-generator's own docs recommend against exposing generated code as
+part of a package's public API, precisely because a `oneOf` schema gaining a
+case, a response gaining a content type, and similar spec changes are breaking
+in generated Swift even when they're additive in OpenAPI (see
+[API stability of generated code](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/api-stability-of-generated-code)).
+This package does it anyway, because generating and exposing `Components.Schemas`
+directly is what makes it practical to track a spec as large and fast-moving as
+OpenAI's: hand-writing and maintaining a wrapper type behind every generated
+schema would make keeping up with new APIs far slower. This section, and the
+*API Breakage* CI workflow described below, exist to make that trade-off safe:
+every such break has to be noticed and consciously accepted rather than
+silently shipped.
+
 ### Adding endpoints
 
 New endpoint groups are added as namespaces, following the Responses API: one
