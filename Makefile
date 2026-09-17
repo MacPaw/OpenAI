@@ -39,6 +39,10 @@ PREPARED_OPENAPI := $(PROJECT_DIR)/.build/openapi-generator/openapi.yaml
 OPENAPI_DIFF     := $(PROJECT_DIR)/.build/openapi-generator/openapi.patch
 OPENAPI_SPEC_URL := https://raw.githubusercontent.com/openai/openai-openapi/main/openapi.yaml
 
+# download-spec is defined first so `generate` can depend on it, but a plain
+# `make` should still run the full pipeline, not just refresh the spec.
+.DEFAULT_GOAL := generate
+
 .PHONY: download-spec
 download-spec:
 	# Refresh the vendored spec from upstream so `generate` always starts from
