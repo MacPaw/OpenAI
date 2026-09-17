@@ -61,6 +61,17 @@ public extension Model {
     /// `gpt-5.1-chat-latest` Latest GPT-5.1 model optimized for chat interactions
     static let gpt5_1_chat_latest = "gpt-5.1-chat-latest"
 
+    // GPT-5.6
+
+    /// `gpt-5.6-sol` Most capable GPT-5.6 model for frontier reasoning and agentic workloads
+    static let gpt5_6_sol = "gpt-5.6-sol"
+
+    /// `gpt-5.6-terra` Balanced GPT-5.6 model for general-purpose workloads
+    static let gpt5_6_terra = "gpt-5.6-terra"
+
+    /// `gpt-5.6-luna` GPT-5.6 model optimized for cost-sensitive, high-volume workloads
+    static let gpt5_6_luna = "gpt-5.6-luna"
+
     // GPT-5
 
     /// `gpt-5` OpenAI's best AI system with significant leap in intelligence, designed for logic and multi-step tasks with deep reasoning
@@ -269,7 +280,7 @@ public extension Model {
             // reasoning
             .o4_mini, o3, o3_mini, .o1,
             // flagship
-            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt4_1, .gpt4_o, .gpt_4o_audio_preview, chatgpt_4o_latest,
+            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o, .gpt_4o_audio_preview, chatgpt_4o_latest,
             // cost-optimized
             .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini, .gpt_4o_mini_audio_preview,
             // tool-specific
@@ -282,7 +293,7 @@ public extension Model {
             // reasoning
             .o4_mini, .o3, .o3_mini, .o1, .o1_pro,
             // flagship
-            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt4_1, .gpt4_o, .chatgpt_4o_latest,
+            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o, .chatgpt_4o_latest,
             // cost-optimized
             .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini,
             .gpt4_turbo, .gpt4, .gpt3_5Turbo,
