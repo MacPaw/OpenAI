@@ -473,6 +473,49 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "OpenAI-Organization"), "org")
     }
     
+    func testPerRequestHeadersAddAndOverrideConfiguredHeaders() throws {
+        let configuration = OpenAI.Configuration(token: "foo", timeoutInterval: 14, customHeaders: ["X-Configured": "config", "X-Both": "config"])
+        let completionQuery = ChatQuery(messages: [.user(.init(content: .string("how are you?")))], model: .gpt3_5Turbo_16k)
+        let jsonRequest = JSONRequest<ChatResult>(
+            body: completionQuery,
+            url: URL(string: "http://google.com")!,
+            customHeaders: ["X-Per-Request": "once", "X-Both": "request"]
+        )
+        let urlRequest = try jsonRequest.build(configuration: configuration)
+        
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "X-Configured"), "config")
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "X-Per-Request"), "once")
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "X-Both"), "request")
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "Authorization"), "Bearer foo")
+    }
+    
+    func testChatsForwardsPerRequestHeaders() async throws {
+        let configuration = OpenAI.Configuration(token: "foo", customHeaders: ["X-Configured": "config", "X-Both": "config"])
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession, streamingSessionFactory: MockStreamingSessionFactory())
+        try self.stub(result: makeChatResult())
+        
+        _ = try await openAI.chats(query: makeChatQuery(), headers: ["X-Per-Request": "once", "X-Both": "request"])
+        
+        let request = try XCTUnwrap(urlSession.dataAsyncCalls.last?.request)
+        XCTAssertEqual(request.value(forHTTPHeaderField: "X-Configured"), "config")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "X-Per-Request"), "once")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "X-Both"), "request")
+    }
+    
+    func testChatsStreamForwardsPerRequestHeaders() throws {
+        let configuration = OpenAI.Configuration(token: "foo", customHeaders: ["X-Configured": "config", "X-Both": "config"])
+        let streamingFactory = MockStreamingSessionFactory()
+        let openAI = OpenAI(configuration: configuration, session: self.urlSession, streamingSessionFactory: streamingFactory)
+        streamingFactory.urlSessionFactory.urlSession.dataTask = try DataTaskMock.successfulJson(with: ChatResult.mock)
+        
+        _ = openAI.chatsStream(query: makeChatQuery(), headers: ["X-Per-Request": "once", "X-Both": "request"], onResult: { _ in }, completion: nil)
+        
+        let request = try XCTUnwrap(streamingFactory.urlSessionFactory.urlSession.dataTaskCalls.first?.request)
+        XCTAssertEqual(request.value(forHTTPHeaderField: "X-Configured"), "config")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "X-Per-Request"), "once")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "X-Both"), "request")
+    }
+    
     func testDefaultHostURLBuilt() {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
         let openAI = OpenAI(configuration: configuration, session: self.urlSession, streamingSessionFactory: MockStreamingSessionFactory())

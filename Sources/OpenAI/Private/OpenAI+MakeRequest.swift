@@ -25,8 +25,8 @@ extension OpenAI {
         .init(body: query, url: buildURL(path: .embeddings))
     }
     
-    func makeChatsRequest(query: ChatQuery) -> JSONRequest<ChatResult> {
-        .init(body: query, url: buildURL(path: .chats))
+    func makeChatsRequest(query: ChatQuery, headers: [String: String] = [:]) -> JSONRequest<ChatResult> {
+        .init(body: query, url: buildURL(path: .chats), customHeaders: headers)
     }
     
     func makeModelRequest(query: ModelQuery) -> JSONRequest<ModelResult> {

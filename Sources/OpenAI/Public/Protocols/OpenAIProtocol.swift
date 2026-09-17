@@ -101,6 +101,10 @@ public protocol OpenAIProtocol: OpenAIModern {
      **/
     @discardableResult func chats(query: ChatQuery, completion: @escaping @Sendable (Result<ChatResult, Error>) -> Void) -> CancellableRequest
     
+    /// Like `chats(query:completion:)` with additional headers applied to
+    /// this call only, on top of `Configuration.customHeaders`.
+    @discardableResult func chats(query: ChatQuery, headers: [String: String], completion: @escaping @Sendable (Result<ChatResult, Error>) -> Void) -> CancellableRequest
+    
     /**
      This function sends a chat query to the OpenAI API and retrieves chat stream conversation responses. The Chat API enables you to build chatbots or conversational applications using OpenAI's powerful natural language models, like GPT-3. The result is returned by chunks.
      
@@ -124,6 +128,10 @@ public protocol OpenAIProtocol: OpenAIModern {
      - Note: This method creates and configures separate session object specifically for streaming. In order for it to work properly and don't leak memory you should hold a reference to the returned value, and when you're done - call cancel() on it.
      */
     @discardableResult func chatsStream(query: ChatQuery, onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest
+    
+    /// Like `chatsStream(query:onResult:completion:)` with additional headers
+    /// applied to this call only, on top of `Configuration.customHeaders`.
+    @discardableResult func chatsStream(query: ChatQuery, headers: [String: String], onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest
     
     /**
      This function sends a model query to the OpenAI API and retrieves a model instance, providing owner information. The Models API in this usage enables you to gather detailed information on the model in question, like GPT-3.
@@ -450,4 +458,16 @@ public protocol OpenAIProtocol: OpenAIModern {
      Returns a `Result` of type `FilesResult` if successful, or an `Error` if an error occurs.
      **/
     @discardableResult func files(query: FilesQuery, completion: @escaping @Sendable (Result<FilesResult, Error>) -> Void) -> CancellableRequest
+}
+
+// Default implementations keep existing conformers source-compatible: a
+// conformer that does not support per-request headers ignores them.
+public extension OpenAIProtocol {
+    @discardableResult func chats(query: ChatQuery, headers: [String: String], completion: @escaping @Sendable (Result<ChatResult, Error>) -> Void) -> CancellableRequest {
+        chats(query: query, completion: completion)
+    }
+    
+    @discardableResult func chatsStream(query: ChatQuery, headers: [String: String], onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest {
+        chatsStream(query: query, onResult: onResult, completion: completion)
+    }
 }

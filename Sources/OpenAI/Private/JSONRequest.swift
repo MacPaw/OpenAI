@@ -15,11 +15,15 @@ final class JSONRequest<ResultType> {
     let body: (Codable & Sendable)?
     let url: URL
     let method: String
+    /// Per-request headers applied after the configuration's headers, so a
+    /// caller can add or override a header for a single call.
+    let customHeaders: [String: String]
     
     init(body: (Codable & Sendable)? = nil, url: URL, method: String = "POST", customHeaders: [String: String] = [:]) {
         self.body = body
         self.url = url
         self.method = method
+        self.customHeaders = customHeaders
     }
 }
 
@@ -42,6 +46,9 @@ extension JSONRequest: URLRequestBuildable {
         }
         
         for (headerField, value) in customHeaders {
+            request.setValue(value, forHTTPHeaderField: headerField)
+        }
+        for (headerField, value) in self.customHeaders {
             request.setValue(value, forHTTPHeaderField: headerField)
         }
         

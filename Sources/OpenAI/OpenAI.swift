@@ -352,12 +352,24 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
     }
     
     public func chats(query: ChatQuery, completion: @escaping @Sendable (Result<ChatResult, Error>) -> Void) -> CancellableRequest {
-        performRequest(request: makeChatsRequest(query: query.makeNonStreamable()), completion: completion)
+        chats(query: query, headers: [:], completion: completion)
+    }
+    
+    /// Sends a chat completion request with additional headers applied to
+    /// this call only, on top of `Configuration.customHeaders`.
+    public func chats(query: ChatQuery, headers: [String: String], completion: @escaping @Sendable (Result<ChatResult, Error>) -> Void) -> CancellableRequest {
+        performRequest(request: makeChatsRequest(query: query.makeNonStreamable(), headers: headers), completion: completion)
     }
     
     public func chatsStream(query: ChatQuery, onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest {
+        chatsStream(query: query, headers: [:], onResult: onResult, completion: completion)
+    }
+    
+    /// Streams a chat completion with additional headers applied to this
+    /// call only, on top of `Configuration.customHeaders`.
+    public func chatsStream(query: ChatQuery, headers: [String: String], onResult: @escaping @Sendable (Result<ChatStreamResult, Error>) -> Void, completion: (@Sendable (Error?) -> Void)?) -> CancellableRequest {
         performStreamingRequest(
-            request: JSONRequest<ChatStreamResult>(body: query.makeStreamable(), url: buildURL(path: .chats)),
+            request: JSONRequest<ChatStreamResult>(body: query.makeStreamable(), url: buildURL(path: .chats), customHeaders: headers),
             onResult: onResult,
             completion: completion
         )

@@ -13,7 +13,13 @@ public protocol OpenAIAsync: Sendable {
     func imageVariations(query: ImageVariationsQuery) async throws -> ImagesResult
     func embeddings(query: EmbeddingsQuery) async throws -> EmbeddingsResult
     func chats(query: ChatQuery) async throws -> ChatResult
+    /// Like `chats(query:)` with additional headers applied to this call only,
+    /// on top of `OpenAI.Configuration.customHeaders`.
+    func chats(query: ChatQuery, headers: [String: String]) async throws -> ChatResult
     func chatsStream(query: ChatQuery) -> AsyncThrowingStream<ChatStreamResult, Error>
+    /// Like `chatsStream(query:)` with additional headers applied to this call
+    /// only, on top of `OpenAI.Configuration.customHeaders`.
+    func chatsStream(query: ChatQuery, headers: [String: String]) -> AsyncThrowingStream<ChatStreamResult, Error>
     func model(query: ModelQuery) async throws -> ModelResult
     func models() async throws -> ModelsResult
     func moderations(query: ModerationsQuery) async throws -> ModerationsResult
@@ -37,4 +43,16 @@ public protocol OpenAIAsync: Sendable {
     func threadsMessages(threadId: String, before: String?) async throws -> ThreadsMessagesResult
     func threadsAddMessage(threadId: String, query: MessageQuery) async throws -> ThreadAddMessageResult
     func files(query: FilesQuery) async throws -> FilesResult
+}
+
+// Default implementations keep existing conformers source-compatible: a
+// conformer that does not support per-request headers ignores them.
+public extension OpenAIAsync {
+    func chats(query: ChatQuery, headers: [String: String]) async throws -> ChatResult {
+        try await chats(query: query)
+    }
+    
+    func chatsStream(query: ChatQuery, headers: [String: String]) -> AsyncThrowingStream<ChatStreamResult, Error> {
+        chatsStream(query: query)
+    }
 }
