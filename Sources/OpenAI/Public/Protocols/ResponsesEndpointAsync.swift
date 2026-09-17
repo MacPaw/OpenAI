@@ -10,4 +10,6 @@ import Foundation
 public protocol ResponsesEndpointAsync: Sendable {
     func createResponse(query: CreateModelResponseQuery) async throws -> ResponseObject
     func createResponseStreaming(query: CreateModelResponseQuery) -> AsyncThrowingStream<ResponseStreamEvent, Error>
+    func retrieveResponse(query: GetModelResponseQuery) async throws -> ResponseObject
+    func cancelResponse(query: CancelModelResponseQuery) async throws -> ResponseObject
 }
