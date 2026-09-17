@@ -10,11 +10,11 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 - `ResponseStreamEvent.shellCall`, covering the new shell-call streaming events (`response.shell_call_command.added/delta/done`, `response.shell_call_output_content.delta/done`) added by the latest OpenAPI spec.
 - `Tool.programmaticToolCallingTool`, the tool case paired with the `OutputItem.program`/`.programOutput` response items; without it, decoding a response whose `tools` array contains a `programmatic_tool_calling` tool would throw.
 - `ResponseStreamEvent.customToolCallInput`, covering the previously unhandled `response.custom_tool_call_input.delta/done` streaming events; without it, a custom-tool streaming response would fail the whole stream with an `unknownEventType` error.
+- `InputItem.compactionTriggerItemParam`, `.programItemParam`, and `.programOutputItemParam`, the item cases added by the latest OpenAPI spec; without them, decoding an input item with `type: "compaction_trigger"`, `"program"`, or `"program_output"` would throw `unknownOneOfDiscriminator`.
 - CI: an *API Breakage* workflow fails a pull request that changes the public API compared with the latest release tag. Consciously accepted breaks are listed in `.github/api-breakage-allowlist.txt` with a matching changelog entry.
 - CI: the *Swift Build* workflow now builds and tests on Linux with Swift 5.10, 6.0 and 6.3 containers, tests on macOS and the iOS Simulator, and builds for tvOS, watchOS and visionOS with Xcode. Tests written with Swift Testing only exist on toolchains that ship it (Swift 6); the XCTest suite runs everywhere.
 - CONTRIBUTING.md: API stability policy, including how new endpoint groups are added as namespaces and how generated `Components.Schemas` types are treated.
 - This changelog.
-- `InputItem.compactionTriggerItemParam`, `.programItemParam`, and `.programOutputItemParam`, the item cases added by the latest OpenAPI spec; without them, decoding an input item with `type: "compaction_trigger"`, `"program"`, or `"program_output"` would throw `unknownOneOfDiscriminator`.
 
 ### Changed
 - **Breaking:** Regenerated `Components.Schemas` from the latest OpenAPI spec. Most of the reported breaks are mechanical (new cases added to generated enums, and generated memberwise initializers gaining parameters for new optional fields) and are allowlisted in `.github/api-breakage-allowlist.txt` without individual call-outs, matching how the `0.5.1` regeneration was documented. The changes worth knowing about if you read or construct these types directly:

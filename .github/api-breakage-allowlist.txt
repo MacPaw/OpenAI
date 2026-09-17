@@ -258,6 +258,9 @@ API breakage: enumelement Components.Schemas.ToolChoiceParam.SpecificProgrammati
 API breakage: enumelement Components.Schemas.TranscriptTextDoneEvent.CodingKeys.languages has been added as a new enum case
 API breakage: enumelement Components.Schemas.WebSearchTool.CodingKeys.externalWebAccess has been added as a new enum case
 API breakage: enumelement Components.Schemas._Error.CodingKeys.misalignment has been added as a new enum case
+API breakage: enumelement InputItem.compactionTriggerItemParam has been added as a new enum case
+API breakage: enumelement InputItem.programItemParam has been added as a new enum case
+API breakage: enumelement InputItem.programOutputItemParam has been added as a new enum case
 API breakage: enumelement OutputItem.additionalTools has been added as a new enum case
 API breakage: enumelement OutputItem.program has been added as a new enum case
 API breakage: enumelement OutputItem.programOutput has been added as a new enum case
