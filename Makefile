@@ -46,11 +46,15 @@ OPENAPI_SPEC_URL := https://raw.githubusercontent.com/openai/openai-openapi/main
 .PHONY: download-spec
 download-spec:
 	# Refresh the vendored spec from upstream so `generate` always starts from
-	# the latest published OpenAPI document. Download to a temp file first and
-	# move it into place only on success, so an interrupted transfer can't
-	# leave the tracked openapi.yaml truncated.
-	curl -fsSL "$(OPENAPI_SPEC_URL)" -o "$(PROJECT_DIR)/openapi.yaml.tmp"
-	mv "$(PROJECT_DIR)/openapi.yaml.tmp" "$(PROJECT_DIR)/openapi.yaml"
+	# the latest published OpenAPI document. Download to a unique temp file
+	# first and move it into place only on success, so an interrupted
+	# transfer -- or another concurrent `make download-spec`/`generate` using
+	# the same fixed temp name -- can't leave the tracked openapi.yaml
+	# truncated or corrupted.
+	tmp="$$(mktemp "$(PROJECT_DIR)/openapi.yaml.XXXXXX")"; \
+	trap 'rm -f "$$tmp"' EXIT; \
+	curl -fsSL "$(OPENAPI_SPEC_URL)" -o "$$tmp" && \
+	mv "$$tmp" "$(PROJECT_DIR)/openapi.yaml"
 
 .PHONY: generate
 generate: download-spec
