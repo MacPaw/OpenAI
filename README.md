@@ -1170,6 +1170,10 @@ public extension Model {
     static let gpt5_1 = "gpt-5.1"
     static let gpt5_1_chat_latest = "gpt-5.1-chat-latest"
 
+    static let gpt5_6_sol = "gpt-5.6-sol"
+    static let gpt5_6_terra = "gpt-5.6-terra"
+    static let gpt5_6_luna = "gpt-5.6-luna"
+
     static let gpt5 = "gpt-5"
     static let gpt5_mini = "gpt-5-mini"
     static let gpt5_nano = "gpt-5-nano"

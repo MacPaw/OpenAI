@@ -5,6 +5,8 @@
 //  Created by Oleksii Nezhyborets on 20.05.2025.
 //
 
+// Swift Testing ships with Swift 6 toolchains. The package still supports Swift 5.10, where these tests do not exist.
+#if canImport(Testing)
 import Testing
 @testable import OpenAI
 import Foundation
@@ -384,3 +386,4 @@ struct ChatQueryCodingTests {
         NSDictionary(dictionary: try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any])
     }
 }
+#endif
