@@ -3356,7 +3356,7 @@ public enum Components {
                     self = .item(try .init(from: decoder))
                 case "CompactionTriggerItemParam", "#/components/schemas/CompactionTriggerItemParam", "compaction_trigger":
                     self = .compactionTriggerItemParam(try .init(from: decoder))
-                case "ItemReferenceParam", "#/components/schemas/ItemReferenceParam":
+                case "ItemReferenceParam", "#/components/schemas/ItemReferenceParam", "item_reference":
                     self = .itemReferenceParam(try .init(from: decoder))
                 case "ProgramItemParam", "#/components/schemas/ProgramItemParam", "program":
                     self = .programItemParam(try .init(from: decoder))
