@@ -69,3 +69,33 @@ public final class ResponsesEndpoint: ResponsesEndpointProtocol, Sendable {
             .buildURL()
     }
 }
+
+// MARK: - Retrieve Response
+
+extension ResponsesEndpoint {
+    
+    public func retrieveResponse(query: GetModelResponseQuery, completion: @escaping @Sendable (Result<ResponseObject, any Error>) -> Void) -> any CancellableRequest {
+        client.performRequest(request: makeRetrieveResponseRequest(query: query),
+                              completion: completion)
+    }
+    
+    func makeRetrieveResponseRequest(query: GetModelResponseQuery) -> JSONRequest<ResponseObject> {
+        let path = String.Responses.getModelResponse(responseId: query.responseId).stringValue
+        return .init(url: buildURL(path: path), method: "GET")
+    }
+}
+
+// MARK: - Cancel Response
+
+extension ResponsesEndpoint {
+    
+    public func cancelResponse(query: CancelModelResponseQuery, completion: @escaping (Result<ResponseObject, any Error>) -> Void) -> any CancellableRequest {
+        client.performRequest(request: makeCancelResponseRequest(query: query),
+                              completion: completion)
+    }
+    
+    func makeCancelResponseRequest(query: CancelModelResponseQuery) -> JSONRequest<ResponseObject> {
+        let path = String.Responses.cancelModelResponse(responseId: query.responseId).stringValue
+        return .init(body: query, url: buildURL(path: path))
+    }
+}
