@@ -204,7 +204,6 @@ public struct ResponsesChatDetailView: View {
                 }
         })
         .setAvailableInputs([.text, .media])
-        .messageUseMarkdown(true)
     }
 }
 
