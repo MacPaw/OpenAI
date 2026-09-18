@@ -13,7 +13,11 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 - CONTRIBUTING.md: API stability policy, including how new endpoint groups are added as namespaces and how generated `Components.Schemas` types are treated.
 - This changelog.
 
+### Changed
+- `Components.Schemas.ResponseErrorCode` is now an open `String` instead of a closed enum. A `response.failed` event carrying a code outside the spec's list (OpenAI adds codes without a spec bump; OpenAI-compatible servers emit their own, such as `upstream_error`) used to fail to decode, hiding the error message behind a `DecodingError`. The spec's codes are available as constants on `Components.Schemas.ResponseErrorCodes`. Migration: replace `case .serverError` with `case ResponseErrorCodes.serverError` (or compare the string), and drop exhaustive switches over the code. Not reported by the API breakage check, which sees a `String` typealias as compatible with the previous raw-representable enum.
+
 ### Fixed
+- `response.failed` stream events with a non-enumerated error code now decode.
 - Build warning in `ModelResponseEventsStreamInterpreter` when logging a failed stream event decode in debug builds.
 - The test target compiles for the package's minimum iOS deployment target again; it used `Regex`, which requires iOS 16.
 - Building on Linux with Swift 5.10 works again. swift-corelibs-foundation gained the async `URLSession` APIs only in Swift 6, so the async client now bridges the completion-handler API on older Linux toolchains.

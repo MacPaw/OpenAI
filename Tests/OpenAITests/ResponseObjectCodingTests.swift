@@ -78,6 +78,54 @@ struct ResponseObjectCodingTests {
         #expect(response.incompleteDetails != nil)
     }
 
+    // Servers attach their own codes to failed responses (OpenAI adds codes
+    // without a spec bump; OpenAI-compatible servers use codes such as
+    // `upstream_error`). A failed response must decode whatever the code is,
+    // so callers see the human-readable message instead of a decoding error.
+    @Test(arguments: ["server_error", "rate_limit_exceeded", "upstream_error", "server_is_overloaded", "model_unavailable"])
+    func decodeFailedResponseWithAnyErrorCode(code: String) throws {
+        let json = """
+        {
+            "id": "resp-abc123",
+            "object": "response",
+            "model": "gpt-4o",
+            "created_at": 1717459200,
+            "status": "failed",
+            "output": [],
+            "tools": [],
+            "metadata": {},
+            "parallel_tool_calls": false,
+            "error": { "code": "\(code)", "message": "The server had an error while processing your request." }
+        }
+        """
+        let response = try decode(json)
+        #expect(response.error?.code == code)
+        #expect(response.error?.message == "The server had an error while processing your request.")
+    }
+
+    @Test func decodeFailedResponseEventWithUnknownErrorCode() throws {
+        let json = """
+        {
+            "type": "response.failed",
+            "sequence_number": 7,
+            "response": {
+                "id": "resp-abc123",
+                "object": "response",
+                "model": "gpt-4o",
+                "created_at": 1717459200,
+                "status": "failed",
+                "output": [],
+                "tools": [],
+                "metadata": {},
+                "parallel_tool_calls": false,
+                "error": { "code": "upstream_error", "message": "boom" }
+            }
+        }
+        """
+        let event = try JSONDecoder().decode(Components.Schemas.ResponseFailedEvent.self, from: Data(json.utf8))
+        #expect(event.response.value3.error?.code == "upstream_error")
+    }
+
     private func decode(_ json: String) throws -> ResponseObject {
         try JSONDecoder().decode(ResponseObject.self, from: Data(json.utf8))
     }

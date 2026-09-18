@@ -24,6 +24,10 @@ from fix_recursive_reference import (
     fix_recursive_reference,
     report_result as report_recursive_reference_result,
 )
+from open_response_error_code import (
+    open_response_error_code,
+    report_result as report_open_response_error_code_result,
+)
 from remove_unsupported_webhooks import (
     remove_unsupported_webhooks,
     report_result as report_unsupported_webhooks_result,
@@ -57,6 +61,9 @@ def main() -> None:
 
     document, recursive_reference_replacement_count = fix_recursive_reference(document)
     report_recursive_reference_result(recursive_reference_replacement_count)
+
+    document, response_error_code_enum_lines = open_response_error_code(document)
+    report_open_response_error_code_result(response_error_code_enum_lines)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(document, encoding="utf-8")
