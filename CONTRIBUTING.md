@@ -43,6 +43,19 @@ The public API of this package is additive-only:
 - A result type changes only when the API itself changed shape, and even then
   prefer keeping the old member as a deprecated computed property over removing it.
 
+swift-openapi-generator's own docs recommend against exposing generated code as
+part of a package's public API, precisely because a `oneOf` schema gaining a
+case, a response gaining a content type, and similar spec changes are breaking
+in generated Swift even when they're additive in OpenAPI (see
+[API stability of generated code](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/api-stability-of-generated-code)).
+This package does it anyway, because generating and exposing `Components.Schemas`
+directly is what makes it practical to track a spec as large and fast-moving as
+OpenAI's: hand-writing and maintaining a wrapper type behind every generated
+schema would make keeping up with new APIs far slower. This section, and the
+*API Breakage* CI workflow described below, exist to make that trade-off safe:
+every such break has to be noticed and consciously accepted rather than
+silently shipped.
+
 ### Adding endpoints
 
 New endpoint groups are added as namespaces, following the Responses API: one
@@ -136,17 +149,24 @@ make generate
 
 The command:
 
-1. prepares a generator-compatible copy of `openapi.yaml` under `.build/`;
-2. applies the narrowly scoped workarounds documented in [`Scripts/`](Scripts/);
-3. runs Swift OpenAPI Generator with the repository's configuration; and
-4. extracts the generated `Components` enum into
+1. downloads the latest `openapi.yaml` from
+   [openai/openai-openapi](https://github.com/openai/openai-openapi), overwriting
+   the repository's copy;
+2. prepares a generator-compatible copy of that spec under `.build/`;
+3. applies the narrowly scoped workarounds documented in [`Scripts/`](Scripts/);
+4. runs Swift OpenAPI Generator with the repository's configuration; and
+5. extracts the generated `Components` enum into
    `Sources/OpenAI/Public/Schemas/Generated/Components.swift` while preserving
    that file's imports and header.
 
-The source specification is not modified during this process. The final
-preparation diff is written to `.build/openapi-generator/openapi.patch`; review
-it along with the generated Swift diff. Build the package and run the relevant
+The downloaded `openapi.yaml` is committed as-is; only the working copy under
+`.build/` receives the workarounds. The final preparation diff is written to
+`.build/openapi-generator/openapi.patch`; review it, the `openapi.yaml` diff,
+and the generated Swift diff together. Build the package and run the relevant
 tests before submitting the change.
+
+Run `make download-spec` on its own to refresh `openapi.yaml` without
+regenerating types.
 
 Do not edit `Components.swift` by hand. It is deliberately replaceable output,
 so a later generation would discard such edits.

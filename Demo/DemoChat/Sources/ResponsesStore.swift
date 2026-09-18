@@ -585,7 +585,7 @@ public final class ResponsesStore: ObservableObject {
                 // TODO: Implement proper annotation handling when type conversion is resolved
                 print("Text annotation added: itemId=\(event.itemId), annotationIndex=\(event.annotationIndex)")
             }
-        case .reasoning(let reasoningEvent):
+        case .reasoningText(let reasoningEvent):
             // Handle reasoning events - could show reasoning in UI
             switch reasoningEvent {
             case .delta(let event):
@@ -620,6 +620,14 @@ public final class ResponsesStore: ObservableObject {
         case .reasoningSummaryText(_ /* let reasoningSummaryTextEvent */):
             // Reasoning summary text events - not implemented yet
             print("Reasoning summary text event received (not implemented)")
+            break
+        case .shellCall(_ /* let shellCallEvent */):
+            // Shell call events - not implemented yet
+            print("Shell call event received (not implemented)")
+            break
+        case .customToolCallInput(_ /* let customToolCallInputEvent */):
+            // Custom tool call input events - not implemented yet
+            print("Custom tool call input event received (not implemented)")
             break
         }
     }

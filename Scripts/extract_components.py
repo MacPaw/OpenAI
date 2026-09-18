@@ -63,7 +63,33 @@ for line in lines[start_index : end_index + 1]:
         continue
     filtered.append(line)
 
-components_block = "".join(filtered)
+# --- Drop duplicate typealiases within the same struct/enum scope ---
+# The generator emits one `public typealias NAME = ...` immediately before each
+# property that references an external component. When two sibling properties
+# in the same type reference the same component, the identical typealias is
+# emitted twice in the same scope, causing an "invalid redeclaration" build
+# error. Keep only the first occurrence per scope.
+
+deduped = []
+scope_stack = [set()]
+duplicates_removed = 0
+for line in filtered:
+    for ch in line:
+        if ch == "{":
+            scope_stack.append(set())
+        elif ch == "}" and len(scope_stack) > 1:
+            scope_stack.pop()
+    m = TYPEALIAS_RE.match(line)
+    if m:
+        name = m.group(1)
+        seen = scope_stack[-1]
+        if name in seen:
+            duplicates_removed += 1
+            continue
+        seen.add(name)
+    deduped.append(line)
+
+components_block = "".join(deduped)
 
 # --- Read the existing header from Components.swift (up to and including #endif) ---
 
@@ -90,7 +116,7 @@ with open(COMPONENTS_SWIFT, "w") as f:
     f.write(components_block)
     f.write("\n")
 
-print(f"Written {len(filtered)} lines of Components enum to {COMPONENTS_SWIFT}")
+print(f"Written {len(deduped)} lines of Components enum to {COMPONENTS_SWIFT}")
 if removed > 0:
     print(
         f"Note: stripped {removed} typealias line(s) that shadow Swift built-in type names "
@@ -99,4 +125,12 @@ if removed > 0:
         f"causing 'invalid redeclaration' build errors. "
         f"Check https://github.com/apple/swift-openapi-generator/issues for a related bug report — "
         f"if it has been fixed, this stripping step may no longer be necessary."
+    )
+if duplicates_removed > 0:
+    print(
+        f"Note: dropped {duplicates_removed} duplicate typealias line(s) declared twice in "
+        f"the same type (e.g. two sibling properties referencing the same external "
+        f"component). swift-openapi-generator emits one typealias per reference, which "
+        f"collides when a scope has more than one reference to the same component, "
+        f"causing an 'invalid redeclaration' build error."
     )

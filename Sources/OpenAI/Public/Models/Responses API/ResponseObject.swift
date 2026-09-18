@@ -14,7 +14,8 @@ public struct ResponseObject: Codable, Equatable, Sendable {
     public typealias ResponseProperties = Schemas.ResponseProperties
     public typealias IncompleteDetails = Schemas.Response.Value3Payload.IncompleteDetailsPayload
     public typealias Status = Schemas.Response.Value3Payload.StatusPayload
-    public typealias Truncation = Schemas.ResponseProperties.TruncationPayload
+    public typealias Truncation = Schemas.Response.Value3Payload.TruncationPayload
+    public typealias Instructions = Schemas.Response.Value3Payload.InstructionsPayload
     public typealias PromptCacheRetention = Schemas.ModelResponseProperties.PromptCacheRetentionPayload
 
     /// Whether to run the model response in the background.
@@ -23,8 +24,8 @@ public struct ResponseObject: Codable, Equatable, Sendable {
     /// Unix timestamp (in seconds) of when this Response was completed.
     public let completedAt: Double?
 
-    /// The conversation associated with this response.
-    public let conversation: Schemas.Conversation2?
+    /// The conversation that this response belonged to. Input items and output items from this response were automatically added to this conversation.
+    public let conversation: Schemas.ResponseConversation?
 
     /// Unix timestamp (in seconds) of when this Response was created.
     public let createdAt: Double
@@ -38,10 +39,10 @@ public struct ResponseObject: Codable, Equatable, Sendable {
     /// Details about why the response is incomplete.
     public let incompleteDetails: IncompleteDetails?
 
-    /// Inserts a system (or developer) message as the first item in the model's context.
+    /// A system (or developer) message inserted into the model's context, either as a plain string or a list of input items.
     ///
     /// When using along with `previous_response_id`, the instructions from a previous response will not be carried over to the next response. This makes it simple to swap out system (or developer) messages in new responses.
-    public let instructions: String?
+    public let instructions: Instructions?
 
     /// An upper bound for the number of tokens that can be generated for a response, including visible output tokens and [reasoning tokens](https://platform.openai.com/docs/guides/reasoning).
     public let maxOutputTokens: Int?
@@ -52,12 +53,15 @@ public struct ResponseObject: Codable, Equatable, Sendable {
     /// Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format, and querying for objects via API or the dashboard.
     ///
     /// Keys are strings with a maximum length of 64 characters. Values are strings with a maximum length of 512 characters.
-    public let metadata: [String: String]
+    public let metadata: [String: String]?
 
     /// Model ID used to generate the response, like `gpt-4o` or `o3`. OpenAI offers a wide range of models with different capabilities, performance characteristics, and price points. Refer to the [model guide](https://platform.openai.com/docs/models) to browse and compare available models.
     ///
     /// Typed as `String` rather than the spec's `ModelIdsResponses` enum because the API returns arbitrary model strings (including `ResponsesOnlyModel` variants) and an open-ended string avoids breaking changes as new models are added.
     public let model: String
+
+    /// Moderation results or errors for the response input and output.
+    public let moderation: Schemas.Moderation?
 
     /// The object type of this resource - always set to `response`.
     public let object: String
@@ -79,10 +83,20 @@ public struct ResponseObject: Codable, Equatable, Sendable {
     /// The prompt template and its variables used to generate this response, if any.
     public let prompt: Schemas.Prompt?
 
+    /// Prompt cache diagnostics requested for this response.
+    public let promptCacheDiagnostics: Schemas.PromptCacheDiagnostics?
+
     /// Used by OpenAI to cache responses for similar requests to optimize your cache hit rates. Replaces the deprecated `user` field. [Learn more](https://platform.openai.com/docs/guides/prompt-caching).
     public let promptCacheKey: String?
 
-    /// The retention policy for the prompt cache.
+    /// The prompt-cache options used to generate this response, including the minimum lifetime applied to each cache breakpoint.
+    public let promptCacheOptions: Schemas.PromptCacheOptions?
+
+    /// Deprecated. Use `promptCacheOptions.ttl` instead.
+    ///
+    /// The retention policy for the prompt cache. Set to `24h` to enable extended prompt caching, which keeps cached prefixes active for longer, up to a maximum of 24 hours.
+    /// This field expresses a maximum retention policy, while `promptCacheOptions.ttl` expresses a minimum cache lifetime. The two fields are independent and do not interact.
+    @available(*, deprecated, message: "Use promptCacheOptions.ttl instead.")
     public let promptCacheRetention: PromptCacheRetention?
 
     /// **o-series models only**
@@ -93,8 +107,16 @@ public struct ResponseObject: Codable, Equatable, Sendable {
     /// A stable identifier used to help detect users of your application that may be violating OpenAI's usage policies. [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#safety-identifiers).
     public let safetyIdentifier: String?
 
-    /// Specifies the latency tier to use for processing the request.
-    public let serviceTier: Schemas.ServiceTier?
+    /// Specifies the processing type used for serving the request.
+    ///   - If set to 'auto', then the request will be processed with the service tier configured in the Project settings. Unless otherwise configured, the Project will use 'default'.
+    ///   - If set to 'default', then the request will be processed with the standard pricing and performance for the selected model.
+    ///   - If set to '[flex](https://platform.openai.com/docs/guides/flex-processing)', then the request will be processed with the Flex Processing service tier.
+    ///   - To opt-in to [Fast mode](https://platform.openai.com/docs/guides/fast-mode) at the request level, include the `service_tier=fast` or `service_tier=priority` parameter for Responses or Chat Completions. The response will show `service_tier=priority` regardless of if you specify `service_tier=fast` or `priority` in your request.
+    ///   - If set to 'ultrafast', then the request will be processed with the access-controlled Ultrafast Processing service tier.
+    ///   - When not set, the default behavior is 'auto'.
+    ///
+    ///   When the `service_tier` parameter is set, the response body will include the `service_tier` value based on the processing mode actually used to serve the request. This response value may be different from the value set in the parameter.
+    public let serviceTier: Schemas.ServiceTierResponses?
 
     /// The status of the response generation. One of `completed`, `failed`, `in_progress`, `cancelled`, `queued`, or `incomplete`.
     public let status: Status?
@@ -108,7 +130,7 @@ public struct ResponseObject: Codable, Equatable, Sendable {
     public let text: Schemas.ResponseTextParam?
 
     /// How the model should select which tool (or tools) to use when generating a response. See the `tools` parameter to see how to specify which tools the model can call.
-    public let toolChoice: Schemas.ToolChoiceParam?
+    public let toolChoice: Schemas.ToolChoiceParam
 
     /// An array of tools the model may call while generating a response. You can specify which tool to use by setting the `tool_choice` parameter.
     ///
@@ -153,13 +175,16 @@ public struct ResponseObject: Codable, Equatable, Sendable {
         case maxToolCalls = "max_tool_calls"
         case metadata
         case model
+        case moderation
         case object
         case output
         case outputText = "output_text"
         case parallelToolCalls = "parallel_tool_calls"
         case previousResponseId = "previous_response_id"
         case prompt
+        case promptCacheDiagnostics = "prompt_cache_diagnostics"
         case promptCacheKey = "prompt_cache_key"
+        case promptCacheOptions = "prompt_cache_options"
         case promptCacheRetention = "prompt_cache_retention"
         case reasoning
         case safetyIdentifier = "safety_identifier"

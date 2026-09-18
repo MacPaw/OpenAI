@@ -7,12 +7,30 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 ## [Unreleased]
 
 ### Added
+- `ResponseStreamEvent.shellCall`, covering the new shell-call streaming events (`response.shell_call_command.added/delta/done`, `response.shell_call_output_content.delta/done`) added by the latest OpenAPI spec.
+- `Tool.programmaticToolCallingTool`, the tool case paired with the `OutputItem.program`/`.programOutput` response items; without it, decoding a response whose `tools` array contains a `programmatic_tool_calling` tool would throw.
+- `ResponseStreamEvent.customToolCallInput`, covering the previously unhandled `response.custom_tool_call_input.delta/done` streaming events; without it, a custom-tool streaming response would fail the whole stream with an `unknownEventType` error.
+- `InputItem.compactionTriggerItemParam`, `.programItemParam`, and `.programOutputItemParam`, the item cases added by the latest OpenAPI spec; without them, decoding an input item with `type: "compaction_trigger"`, `"program"`, or `"program_output"` would throw `unknownOneOfDiscriminator`.
 - CI: an *API Breakage* workflow fails a pull request that changes the public API compared with the latest release tag. Consciously accepted breaks are listed in `.github/api-breakage-allowlist.txt` with a matching changelog entry.
 - CI: the *Swift Build* workflow now builds and tests on Linux with Swift 5.10, 6.0 and 6.3 containers, tests on macOS and the iOS Simulator, and builds for tvOS, watchOS and visionOS with Xcode. Tests written with Swift Testing only exist on toolchains that ship it (Swift 6); the XCTest suite runs everywhere.
 - CONTRIBUTING.md: API stability policy, including how new endpoint groups are added as namespaces and how generated `Components.Schemas` types are treated.
 - This changelog.
 
+### Changed
+- **Breaking:** Regenerated `Components.Schemas` from the latest OpenAPI spec. Most of the reported breaks are mechanical (new cases added to generated enums, and generated memberwise initializers gaining parameters for new optional fields) and are allowlisted in `.github/api-breakage-allowlist.txt` without individual call-outs, matching how the `0.5.1` regeneration was documented. The changes worth knowing about if you read or construct these types directly:
+  - `ResponseObject.instructions` changed from `String?` to `ResponseObject.Instructions?`, letting `instructions` be either a plain string or a list of input items. `Instructions` is a generated two-case enum (`.case1(String)` for the string form, `.case2([InputItem])` for the list form); code that read `instructions` as a `String` needs to switch over it instead. This mirrors how the official Python SDK models the same field (`Union[str, List[ResponseInputItem], None]`) rather than adding a second property under a new name.
+  - `Components.Schemas.ServiceTier` was renamed to `ServiceTierResponses`.
+  - `Components.Schemas.Conversation2` was removed; `Response.conversation` and `ResponseProperties`-derived types now use `ResponseConversation` instead.
+  - `MCPToolCall.error` changed from `String?` to `MCPToolCallError?`.
+  - `ResponseOutputTextAnnotationAddedEvent.annotation` changed from `OpenAPIObjectContainer` to `Annotation?`, matching the stricter `Annotation` schema.
+  - `FunctionToolCallOutput.callId` and `FunctionCallOutputItemParam.callId` changed from `String` to `String?`.
+  - `ResponseStreamEvent.reasoning` was renamed to `.reasoningText`, with its payload changing from `ReasoningEvent` to `ReasoningTextEvent`.
+  - `ResponseObject.toolChoice` changed from `Schemas.ToolChoiceParam?` to `Schemas.ToolChoiceParam`. The generated `ResponseProperties.toolChoice` is optional only because that schema is shared with request bodies, where `tool_choice` may be omitted; an actual `Response` always includes it, which we verified against the API docs and the official Python SDK (`Response.tool_choice: ToolChoice`, non-optional). This corrects a facade type that didn't match the real response shape, but is still a source-breaking type change for callers who read `toolChoice` as optional.
+
 ### Fixed
+- `Components.Schemas.InputItem` and the `InputItem` facade failed to decode a valid `{ "type": "item_reference", "id": "..." }` payload with `unknownOneOfDiscriminator`. The generator only matched discriminator values declared as a plain string enum, but `ItemReferenceParam.type` is declared as a nullable `anyOf: [<string enum>, {type: null}]`, which it didn't unwrap; the `InputItem` facade also fixed the same bug independently, plus a stale `"ItemReference"` discriminator string (missing the `Param` suffix) and a missing `"message"` match for `EasyInputMessage`.
+- `ResponseStreamEvent.reasoningText` streaming events never decoded: `ModelResponseStreamEventType` listened for `response.reasoning.delta`/`.done`, but the API sends `response.reasoning_text.delta`/`.done`, so reasoning-text deltas always failed with an `unknownEventType` error.
+- `make download-spec` could leave the tracked `openapi.yaml` truncated if `curl` was interrupted mid-transfer; it now downloads to a temp file and moves it into place only on success.
 - Build warning in `ModelResponseEventsStreamInterpreter` when logging a failed stream event decode in debug builds.
 - The test target compiles for the package's minimum iOS deployment target again; it used `Regex`, which requires iOS 16.
 - Building on Linux with Swift 5.10 works again. swift-corelibs-foundation gained the async `URLSession` APIs only in Swift 6, so the async client now bridges the completion-handler API on older Linux toolchains.

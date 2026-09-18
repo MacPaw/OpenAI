@@ -37,9 +37,27 @@ TYPES_SWIFT      := $(GENERATOR_DIR)/Types.swift
 COMPONENTS_SWIFT := $(PROJECT_DIR)/Sources/OpenAI/Public/Schemas/Generated/Components.swift
 PREPARED_OPENAPI := $(PROJECT_DIR)/.build/openapi-generator/openapi.yaml
 OPENAPI_DIFF     := $(PROJECT_DIR)/.build/openapi-generator/openapi.patch
+OPENAPI_SPEC_URL := https://raw.githubusercontent.com/openai/openai-openapi/main/openapi.yaml
+
+# download-spec is defined first so `generate` can depend on it, but a plain
+# `make` should still run the full pipeline, not just refresh the spec.
+.DEFAULT_GOAL := generate
+
+.PHONY: download-spec
+download-spec:
+	# Refresh the vendored spec from upstream so `generate` always starts from
+	# the latest published OpenAPI document. Download to a unique temp file
+	# first and move it into place only on success, so an interrupted
+	# transfer -- or another concurrent `make download-spec`/`generate` using
+	# the same fixed temp name -- can't leave the tracked openapi.yaml
+	# truncated or corrupted.
+	tmp="$$(mktemp "$(PROJECT_DIR)/openapi.yaml.XXXXXX")"; \
+	trap 'rm -f "$$tmp"' EXIT; \
+	curl -fsSL "$(OPENAPI_SPEC_URL)" -o "$$tmp" && \
+	mv "$$tmp" "$(PROJECT_DIR)/openapi.yaml"
 
 .PHONY: generate
-generate:
+generate: download-spec
 	# Prepare a working copy with conditional, documented upstream-spec fixes.
 	# See the scripts called by prepare_openapi.py for each error and its fix.
 	python3 -B "$(PROJECT_DIR)/Scripts/prepare_openapi.py" \
@@ -49,10 +67,6 @@ generate:
 	# event removals are required-list entries without matching schema properties.
 	# They otherwise produce swift-openapi-generator warnings that the names are
 	# likely typos and will be skipped.
-	#
-	# WebSearchActionSearch/query is different: the property is declared, but the
-	# live API can omit the deprecated singular query and return queries instead.
-	# It must be optional so valid web-search response items decode successfully.
 	python3 -B "$(PROJECT_DIR)/Scripts/remove_required_properties.py" \
 		"$(PREPARED_OPENAPI)" \
 		"$(PREPARED_OPENAPI)" \
@@ -62,7 +76,6 @@ generate:
 		--remove-required "ResponseAudioDoneEvent" "response_id" \
 		--remove-required "ResponseAudioTranscriptDeltaEvent" "response_id" \
 		--remove-required "ResponseAudioTranscriptDoneEvent" "response_id" \
-		--remove-required "WebSearchActionSearch" "query" \
 		--diff-source "$(PROJECT_DIR)/openapi.yaml" \
 		--diff-output "$(OPENAPI_DIFF)"
 	cd "$(GENERATOR_DIR)" && swift run swift-openapi-generator generate \

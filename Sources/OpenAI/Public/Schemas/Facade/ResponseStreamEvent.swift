@@ -131,7 +131,7 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
         case added(Schemas.ResponseOutputTextAnnotationAddedEvent)
     }
     
-    public enum ReasoningEvent: Codable, Equatable, Sendable {
+    public enum ReasoningTextEvent: Codable, Equatable, Sendable {
         /// Emitted when a delta is added to a reasoning text.
         case delta(Schemas.ResponseReasoningTextDeltaEvent)
         /// Emitted when a reasoning text is completed.
@@ -153,13 +153,41 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
             case delta(Schemas.ResponseCodeInterpreterCallCodeDeltaEvent)
             case done(Schemas.ResponseCodeInterpreterCallCodeDoneEvent)
         }
-        
+
         case code(CodeEvent)
         case completed(Schemas.ResponseCodeInterpreterCallCompletedEvent)
         case inProgress(Schemas.ResponseCodeInterpreterCallInProgressEvent)
         case interpreting(Schemas.ResponseCodeInterpreterCallInterpretingEvent)
     }
-    
+
+    public enum ShellCallEvent: Codable, Equatable, Sendable {
+        public enum CommandEvent: Codable, Equatable, Sendable {
+            /// Emitted when a shell command is added.
+            case added(Schemas.ResponseShellCallCommandAddedStreamingEvent)
+            /// Emitted when a shell command is incrementally updated.
+            case delta(Schemas.ResponseShellCallCommandDeltaStreamingEvent)
+            /// Emitted when a shell command is completed.
+            case done(Schemas.ResponseShellCallCommandDoneStreamingEvent)
+        }
+
+        public enum OutputContentEvent: Codable, Equatable, Sendable {
+            /// Emitted when shell call output is incrementally added.
+            case delta(Schemas.ResponseShellCallOutputContentDeltaStreamingEvent)
+            /// Emitted when shell call output is completed.
+            case done(Schemas.ResponseShellCallOutputContentDoneStreamingEvent)
+        }
+
+        case command(CommandEvent)
+        case outputContent(OutputContentEvent)
+    }
+
+    public enum CustomToolCallInputEvent: Codable, Equatable, Sendable {
+        /// Emitted when there is a delta (partial update) to the input of a custom tool call.
+        case delta(Schemas.ResponseCustomToolCallInputDeltaEvent)
+        /// Emitted when the input for a custom tool call is finalized.
+        case done(Schemas.ResponseCustomToolCallInputDoneEvent)
+    }
+
     /// An event that is emitted when a response is created.
     case created(ResponseEvent)
     /// Emitted when the response is in progress.
@@ -191,8 +219,10 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
     case mcpCallArguments(MCPCallArgumentsEvent)
     case mcpListTools(MCPListToolsEvent)
     case outputTextAnnotation(OutputTextAnnotationEvent)
-    case reasoning(ReasoningEvent)
-    
+    case reasoningText(ReasoningTextEvent)
+    case shellCall(ShellCallEvent)
+    case customToolCallInput(CustomToolCallInputEvent)
+
     enum ResponseStreamEventDecodingError: Error {
         case unknownEventType(String)
     }
@@ -286,10 +316,10 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
             self = .mcpListTools(.inProgress(try Schemas.ResponseMCPListToolsInProgressEvent(from: decoder)))
         case .responseOutputTextAnnotationAdded:
             self = .outputTextAnnotation(.added(try Schemas.ResponseOutputTextAnnotationAddedEvent(from: decoder)))
-        case .responseReasoningDelta:
-            self = .reasoning(.delta(try Schemas.ResponseReasoningTextDeltaEvent(from: decoder)))
-        case .responseReasoningDone:
-            self = .reasoning(.done(try Schemas.ResponseReasoningTextDoneEvent(from: decoder)))
+        case .responseReasoningTextDelta:
+            self = .reasoningText(.delta(try Schemas.ResponseReasoningTextDeltaEvent(from: decoder)))
+        case .responseReasoningTextDone:
+            self = .reasoningText(.done(try Schemas.ResponseReasoningTextDoneEvent(from: decoder)))
         case .error:
             self = .error(try Schemas.ResponseErrorEvent(from: decoder))
         case .responseAudioDelta:
@@ -310,6 +340,20 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
             self = .codeInterpreterCall(.interpreting(try Schemas.ResponseCodeInterpreterCallInterpretingEvent(from: decoder)))
         case .responseCodeInterpreterCallCompleted:
             self = .codeInterpreterCall(.completed(try Schemas.ResponseCodeInterpreterCallCompletedEvent(from: decoder)))
+        case .responseShellCallCommandAdded:
+            self = .shellCall(.command(.added(try Schemas.ResponseShellCallCommandAddedStreamingEvent(from: decoder))))
+        case .responseShellCallCommandDelta:
+            self = .shellCall(.command(.delta(try Schemas.ResponseShellCallCommandDeltaStreamingEvent(from: decoder))))
+        case .responseShellCallCommandDone:
+            self = .shellCall(.command(.done(try Schemas.ResponseShellCallCommandDoneStreamingEvent(from: decoder))))
+        case .responseShellCallOutputContentDelta:
+            self = .shellCall(.outputContent(.delta(try Schemas.ResponseShellCallOutputContentDeltaStreamingEvent(from: decoder))))
+        case .responseShellCallOutputContentDone:
+            self = .shellCall(.outputContent(.done(try Schemas.ResponseShellCallOutputContentDoneStreamingEvent(from: decoder))))
+        case .responseCustomToolCallInputDelta:
+            self = .customToolCallInput(.delta(try Schemas.ResponseCustomToolCallInputDeltaEvent(from: decoder)))
+        case .responseCustomToolCallInputDone:
+            self = .customToolCallInput(.done(try Schemas.ResponseCustomToolCallInputDoneEvent(from: decoder)))
         }
     }
 }
