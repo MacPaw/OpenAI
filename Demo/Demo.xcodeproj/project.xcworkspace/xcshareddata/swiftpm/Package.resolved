@@ -1,5 +1,5 @@
 {
-  "originHash" : "b59e45c156047708fcdfb0d1fe8756e421ca9d409879fd2f07ea0f0991951c22",
+  "originHash" : "413e0f11af60153179b28c3af1a3e2f551ab5eec31cb11e96335bcd5b4cb99e9",
   "pins" : [
     {
       "identity" : "activityindicatorview",
@@ -22,10 +22,10 @@
     {
       "identity" : "chat",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/nezhyborets/Chat.git",
+      "location" : "https://github.com/exyte/Chat.git",
       "state" : {
-        "branch" : "macpaw-xcode27-init-fix",
-        "revision" : "85152a86a97152139fe7c887cb7c32eb579fbac7"
+        "revision" : "60ff30bc7065581d3e231fd475b269d416b427f5",
+        "version" : "3.3.3"
       }
     },
     {
