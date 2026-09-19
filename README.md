@@ -33,6 +33,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
     - [Audio Create Speech](#audio-create-speech)
     - [Audio Transcriptions](#audio-transcriptions)
     - [Audio Translations](#audio-translations)
+    - [Audio input and output with Chat Completions](#audio-input-and-output-with-chat-completions)
 - [Structured Outputs](#structured-outputs)
 - [Specialized models](#specialized-models)
     - [Embeddings](#embeddings)
@@ -735,6 +736,113 @@ openAI.audioTranslations(query: query) { result in
 //or
 let result = try await openAI.audioTranslations(query: query)
 ```
+
+### Audio input and output with Chat Completions
+
+Models like `gpt-audio-1.5` take audio as input and answer with spoken audio in a single Chat Completions call, so a separate transcription → chat → speech pipeline is not needed.
+
+There is no separate audio endpoint: use the same `ChatQuery` with `func chats(query:)` and `func chatsStream(query:)`. Two parameters opt a query into audio:
+
+- `modalities` — pass `[.text, .audio]` to get both a transcript and generated speech back
+- `audioOptions` — the `voice` and the `format` of the generated audio
+
+Audio input is a content part on a user message, so it mixes freely with text and image parts.
+
+**Models:** `.gpt_audio_1_5` (recommended), `.gpt_audio`, `.gpt_audio_mini`
+
+**Formats:**
+
+- Input audio: `wav` and `mp3`
+- Output audio: `mp3`, `opus`, `flac`, `wav` and `pcm16` — prefer `pcm16` when streaming, it is the cheapest to play back chunk by chunk
+
+**Example: audio in, audio out**
+
+```swift
+let audioData = try Data(contentsOf: audioFileURL)
+
+let query = ChatQuery(
+    messages: [
+        .system(.init(content: .textContent("You are a helpful voice assistant."))),
+        .user(.init(content: .contentParts([
+            .audio(.init(inputAudio: .init(data: audioData, format: .wav)))
+        ])))
+    ],
+    model: .gpt_audio_1_5,
+    modalities: [.text, .audio],
+    audioOptions: .init(format: .wav, voice: .alloy)
+)
+
+let result = try await openAI.chats(query: query)
+
+if let audio = result.choices.first?.message.audio {
+    print(audio.transcript)
+    let spokenReply = Data(base64Encoded: audio.data)
+}
+```
+
+`InputAudio` has an initializer that takes raw `Data` and base64-encodes it for you, and one that takes an already base64-encoded `String`.
+
+**Example: text in, audio out**
+
+Audio output does not require audio input — a plain text message works too.
+
+```swift
+let query = ChatQuery(
+    messages: [
+        .user(.init(content: .string("Tell me a joke about Swift")))
+    ],
+    model: .gpt_audio_1_5,
+    modalities: [.text, .audio],
+    audioOptions: .init(format: .mp3, voice: .sage)
+)
+
+let result = try await openAI.chats(query: query)
+```
+
+**Example: streaming**
+
+Streaming delivers the transcript and the audio in chunks on the delta. Every field of the delta audio is optional, since a chunk usually carries only one of them.
+
+```swift
+for try await result in openAI.chatsStream(query: query) {
+    guard let audio = result.choices.first?.delta.audio else { continue }
+
+    if let transcript = audio.transcript {
+        print(transcript, terminator: "")
+    }
+
+    if let data = audio.data, let chunk = Data(base64Encoded: data) {
+        // append to your player buffer
+    }
+}
+```
+
+**Example: multi-turn conversations**
+
+A generated audio response has an `id` that stays valid until `expiresAt`. Reference that id from an assistant message on the next turn instead of uploading the audio again.
+
+```swift
+guard let previousAudio = result.choices.first?.message.audio else { return }
+
+let nextTurn = ChatQuery(
+    messages: [
+        .user(.init(content: .contentParts([
+            .audio(.init(inputAudio: .init(data: firstQuestionAudio, format: .wav)))
+        ]))),
+        .assistant(.init(audio: .init(id: previousAudio.id))),
+        .user(.init(content: .contentParts([
+            .audio(.init(inputAudio: .init(data: secondQuestionAudio, format: .wav)))
+        ])))
+    ],
+    model: .gpt_audio_1_5,
+    modalities: [.text, .audio],
+    audioOptions: .init(format: .wav, voice: .alloy)
+)
+```
+
+Once `expiresAt` has passed the id is rejected, so keep the transcript around and send it as a text assistant message instead.
+
+Audio tokens are reported separately in `result.usage` — `promptTokensDetails.audioTokens` and `completionTokensDetails.audioTokens`.
 
 Review [Audio Documentation](https://platform.openai.com/docs/api-reference/audio) for more info.
 
