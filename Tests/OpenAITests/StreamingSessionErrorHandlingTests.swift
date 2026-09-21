@@ -17,6 +17,7 @@ final class StreamingSessionErrorHandlingTests: XCTestCase {
     private var receivedContentCount = 0
     private var processingErrors: [Error] = []
     private var completionErrors: [Error?] = []
+    private var receivedDispositions: [URLSession.ResponseDisposition] = []
 
     private lazy var streamingSession = StreamingSession(
         urlSessionFactory: urlSessionFactory,
@@ -49,15 +50,14 @@ final class StreamingSessionErrorHandlingTests: XCTestCase {
         _ = streamingSession
         let dataTask = DataTaskMock()
 
-        var disposition: URLSession.ResponseDisposition?
         streamingSession.urlSession(
             urlSessionFactory.urlSession,
             dataTask: dataTask,
             didReceive: makeErrorResponse()
-        ) { disposition = $0 }
+        ) { self.receivedDispositions.append($0) }
 
         // The connection must be kept open (not cancelled) so the error body can still be read.
-        XCTAssertEqual(disposition, .allow)
+        XCTAssertEqual(receivedDispositions, [.allow])
 
         let errorBody = """
         {"error": {"message": "The model `gpt-5.6-terra` does not exist", "type": "invalid_request_error", "param": null, "code": "model_not_found"}}
@@ -112,11 +112,10 @@ final class StreamingSessionErrorHandlingTests: XCTestCase {
             headerFields: nil
         )!
 
-        var disposition: URLSession.ResponseDisposition?
         streamingSession.urlSession(urlSessionFactory.urlSession, dataTask: dataTask, didReceive: successResponse) {
-            disposition = $0
+            self.receivedDispositions.append($0)
         }
-        XCTAssertEqual(disposition, .allow)
+        XCTAssertEqual(receivedDispositions, [.allow])
 
         streamingSession.urlSession(urlSessionFactory.urlSession, dataTask: dataTask, didReceive: Data("chunk".utf8))
         streamingSession.urlSession(urlSessionFactory.urlSession, task: dataTask, didCompleteWithError: nil)
