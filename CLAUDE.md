@@ -45,3 +45,8 @@ import FoundationNetworking
 the failure only shows up on Linux. If you can't run the Linux job yourself,
 at least double-check new files against this pattern before considering the
 change done.
+
+## Wait for explicit instructions to push
+
+CI takes several minutes to run, so commit locally as you go but don't run
+`git push` unless the user explicitly asks for it at that point.
