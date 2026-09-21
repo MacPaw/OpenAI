@@ -1579,7 +1579,7 @@ We'll appreciate you including tests to your code if it is needed and possible. 
 ```
 MIT License
 
-Copyright (c) 2023 MacPaw Inc.
+Copyright (c) 2023 MacPaw Way Ltd.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
