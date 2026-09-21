@@ -17,6 +17,11 @@ public struct GetModelResponseQuery: Codable, Equatable, Sendable {
     /// * `computer_call_output.output.image_url`: Include image urls from the computer call output.
     public let include: [Components.Schemas.IncludeEnum]?
     
+    public init(responseId: String, include: [Components.Schemas.IncludeEnum]?) {
+        self.responseId = responseId
+        self.include = include
+    }
+    
     private enum CodingKeys: String, CodingKey {
         case responseId = "response_id"
         case include

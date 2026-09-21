@@ -18,4 +18,15 @@ public protocol ResponsesEndpointProtocol: ResponsesEndpointModern {
         onResult: @escaping @Sendable (Result<ResponseStreamEvent, Error>) -> Void,
         completion: (@Sendable (Error?) -> Void)?
     ) -> CancellableRequest
+    
+    func retrieveResponse(
+        query: GetModelResponseQuery,
+        completion: @escaping @Sendable (Result<ResponseObject, Error>) -> Void
+    ) -> CancellableRequest
+    
+    func cancelResponse(
+        query: CancelModelResponseQuery,
+        completion: @escaping @Sendable (Result<ResponseObject, Error>) -> Void
+    ) -> CancellableRequest
+
 }
