@@ -101,6 +101,35 @@ final class StreamingSessionErrorHandlingTests: XCTestCase {
         XCTAssertEqual(statusCode, 400)
     }
 
+    func testErrorBodyIsCappedAndTaskIsCancelledWhenBodyNeverEnds() throws {
+        _ = streamingSession
+        let dataTask = DataTaskMock()
+
+        streamingSession.urlSession(
+            urlSessionFactory.urlSession,
+            dataTask: dataTask,
+            didReceive: makeErrorResponse()
+        ) { _ in }
+
+        // Simulate a server that keeps sending a never-ending error body: this must not be
+        // buffered without limit, and the task must be cancelled once the cap is exceeded.
+        let chunk = Data(repeating: 0x61, count: 64 * 1024)
+        for _ in 0..<8 {
+            streamingSession.urlSession(urlSessionFactory.urlSession, dataTask: dataTask, didReceive: chunk)
+        }
+
+        XCTAssertGreaterThan(dataTask.cancelCallCount, 0, "The task should be cancelled once the buffered error body exceeds the cap")
+
+        streamingSession.urlSession(urlSessionFactory.urlSession, task: dataTask, didCompleteWithError: nil)
+
+        // The truncated body isn't valid JSON, so this must still resolve to a bounded failure
+        // (statusError), not hang or crash.
+        XCTAssertEqual(processingErrors.count, 1)
+        guard case .statusError? = processingErrors.first as? OpenAIError else {
+            return XCTFail("Expected OpenAIError.statusError, got \(String(describing: processingErrors.first))")
+        }
+    }
+
     func testSuccessfulResponseIsUnaffected() {
         _ = streamingSession
         let dataTask = DataTaskMock()

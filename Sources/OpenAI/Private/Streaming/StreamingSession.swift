@@ -11,6 +11,10 @@ import Foundation
 import FoundationNetworking
 #endif
 
+/// Real API error bodies are at most a few KB. Cap how much of a non-2xx body we'll buffer so a
+/// malformed or malicious server can't force unbounded memory growth by never ending the response.
+private let maxErrorBodyByteCount = 256 * 1024
+
 final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifiable, URLSessionDataDelegateProtocol, @unchecked Sendable {
     typealias ResultType = Interpreter.ResultType
     
@@ -80,6 +84,11 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
 
             if self.errorResponse != nil {
                 self.errorData.append(data)
+                if self.errorData.count > maxErrorBodyByteCount {
+                    // Give up on this body: stop letting the server grow it further and let
+                    // didCompleteWithError fall back to statusError with whatever we have.
+                    dataTask.cancel()
+                }
                 return
             }
 
