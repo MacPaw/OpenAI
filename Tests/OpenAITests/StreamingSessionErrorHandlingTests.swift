@@ -4,6 +4,9 @@
 //
 
 import XCTest
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 @testable import OpenAI
 
 final class StreamingSessionErrorHandlingTests: XCTestCase {
