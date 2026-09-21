@@ -11,7 +11,7 @@ import OpenAI
 
 @MainActor
 public final class ResponsesStore: ObservableObject {
-    struct ConversationTurn: Identifiable, Hashable, Sendable {
+    struct ConversationTurn: Identifiable, Sendable {
         public enum TurnType: Sendable {
             case userInput
             case response
