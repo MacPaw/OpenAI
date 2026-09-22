@@ -115,6 +115,65 @@ final class ChatStreamResultTests: XCTestCase {
         XCTAssertEqual(result.serviceTier, .flexTier)
     }
     
+    func testDecodeDeltaAudio() throws {
+        let jsonString = """
+            {
+                "id": "some_id",
+                "object": "chat.completion.chunk",
+                "created": 1677652288,
+                "model": "gpt-audio-1.5",
+                "choices": [
+                    {
+                        "index": 0,
+                        "delta": {
+                            "role": "assistant",
+                            "audio": {
+                                "id": "audio_abc123",
+                                "transcript": "Hello",
+                                "expires_at": 1677655888,
+                                "data": "ZmFrZS1hdWRpby1ieXRlcw=="
+                            }
+                        }
+                    }
+                ]
+            }
+            """
+        
+        let audio = try XCTUnwrap(decode(jsonString).choices.first?.delta.audio)
+        XCTAssertEqual(audio.id, "audio_abc123")
+        XCTAssertEqual(audio.transcript, "Hello")
+        XCTAssertEqual(audio.expiresAt, 1677655888)
+        XCTAssertEqual(audio.data, "ZmFrZS1hdWRpby1ieXRlcw==")
+    }
+    
+    /// Audio chunks in a stream usually carry a single field, so every field of the delta audio must be optional.
+    func testDecodeDeltaAudioWithDataOnly() throws {
+        let jsonString = """
+            {
+                "id": "some_id",
+                "object": "chat.completion.chunk",
+                "created": 1677652288,
+                "model": "gpt-audio-1.5",
+                "choices": [
+                    {
+                        "index": 0,
+                        "delta": {
+                            "audio": {
+                                "data": "ZmFrZS1hdWRpby1ieXRlcw=="
+                            }
+                        }
+                    }
+                ]
+            }
+            """
+        
+        let audio = try XCTUnwrap(decode(jsonString).choices.first?.delta.audio)
+        XCTAssertEqual(audio.data, "ZmFrZS1hdWRpby1ieXRlcw==")
+        XCTAssertNil(audio.id)
+        XCTAssertNil(audio.transcript)
+        XCTAssertNil(audio.expiresAt)
+    }
+    
     private func decode(_ jsonString: String) throws -> ChatStreamResult {
         let jsonData = jsonString.data(using: .utf8)!
         return try decoder.decode(ChatStreamResult.self, from: jsonData)

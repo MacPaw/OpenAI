@@ -103,6 +103,7 @@ public extension Model {
     static let gpt4_o = "gpt-4o"
     
     /// `gpt-4o-audio-preview`, this is a preview release of the GPT-4o Audio models. These models accept audio inputs and outputs, and can be used in the Chat Completions REST API.
+    @available(*, deprecated, message: "gpt-4o-audio-preview was shut down on May 7th, 2026. Recommended replacement: gpt-audio-1.5")
     static let gpt_4o_audio_preview = "gpt-4o-audio-preview"
     
     /// `chatgpt-4o-latest`: GPT-4o model used in ChatGPT
@@ -119,6 +120,22 @@ public extension Model {
     /// `gpt-4o-mini-audio-preview`, this is a preview release of the smaller GPT-4o Audio mini model. It's designed to input audio or create audio outputs via the REST API.
     static let gpt_4o_mini_audio_preview = "gpt-4o-mini-audio-preview"
 
+    // MARK: - Audio models
+    // Models that accept audio inputs and produce audio outputs in the Chat Completions API.
+    
+    /// `gpt-audio-1.5`: OpenAI's recommended model for audio in, audio out over Chat Completions.
+    ///
+    /// Improves on the GPT-4o Audio preview models in instruction following, tool calling and multilingual accuracy.
+    ///
+    /// See the [audio guide](https://platform.openai.com/docs/guides/audio).
+    static let gpt_audio_1_5 = "gpt-audio-1.5"
+    
+    /// `gpt-audio`: audio model that accepts audio inputs and produces audio outputs in the Chat Completions API.
+    static let gpt_audio = "gpt-audio"
+    
+    /// `gpt-audio-mini`: smaller and cheaper audio model for audio inputs and outputs in the Chat Completions API.
+    static let gpt_audio_mini = "gpt-audio-mini"
+    
     // MARK: - Realtime models
     // Models capable of realtime text and audio inputs and outputs.
     
@@ -280,7 +297,9 @@ public extension Model {
             // reasoning
             .o4_mini, o3, o3_mini, .o1,
             // flagship
-            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o, .gpt_4o_audio_preview, chatgpt_4o_latest,
+            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o, chatgpt_4o_latest,
+            // audio
+            .gpt_audio_1_5, .gpt_audio, .gpt_audio_mini,
             // cost-optimized
             .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini, .gpt_4o_mini_audio_preview,
             // tool-specific

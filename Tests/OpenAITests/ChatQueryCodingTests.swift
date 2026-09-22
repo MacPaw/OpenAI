@@ -161,6 +161,80 @@ struct ChatQueryCodingTests {
         #expect(try equal(query, expected))
     }
     
+    @Test func encodeUserMessageWithInputAudioContentPart() throws {
+        let query = ChatQuery(
+            messages: [
+                .user(.init(
+                    content: .contentParts([
+                        .text(.init(text: "What is this recording about?")),
+                        .audio(.init(inputAudio: .init(data: Data("fake-audio-bytes".utf8), format: .wav)))
+                    ])
+                ))
+            ],
+            model: .gpt_audio_1_5,
+            modalities: [.text, .audio],
+            audioOptions: .init(format: .pcm16, voice: .alloy)
+        )
+        
+        let expected = """
+        {
+            "model": "gpt-audio-1.5",
+            "messages": [
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "What is this recording about?"
+                  },
+                  {
+                    "type": "input_audio",
+                    "input_audio": {
+                      "data": "ZmFrZS1hdWRpby1ieXRlcw==",
+                      "format": "wav"
+                    }
+                  }
+                ]
+              }
+            ],
+            "modalities": ["text", "audio"],
+            "audio": {
+                "format": "pcm16",
+                "voice": "alloy"
+            },
+            "stream": false
+        }
+        """
+        
+        #expect(try equal(query, expected))
+    }
+    
+    @Test func encodeAssistantMessageReferencingPreviousAudio() throws {
+        let query = ChatQuery(
+            messages: [
+                .assistant(.init(audio: .init(id: "audio_abc123")))
+            ],
+            model: .gpt_audio_1_5
+        )
+        
+        let expected = """
+        {
+            "model": "gpt-audio-1.5",
+            "messages": [
+              {
+                "role": "assistant",
+                "audio": {
+                  "id": "audio_abc123"
+                }
+              }
+            ],
+            "stream": false
+        }
+        """
+        
+        #expect(try equal(query, expected))
+    }
+    
     private func equal(_ query: Codable, _ expected: String) throws -> Bool {
         let encodedQuery = try encodedAndComparable(query)
         let decodedExpectation = try decodedAndComparable(expected)
