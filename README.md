@@ -120,6 +120,22 @@ This SDK is more focused on working with OpenAI Platform, but also works with ot
 
 Use `.relaxed` parsing option on Configuration, or see more details on the topic [here](#support-for-other-providers)
 
+If you need to switch between OpenAI and another OpenAI-compatible endpoint in different environments, you can build the configuration from `OPENAI_BASE_URL`:
+
+```swift
+let baseURL = URL(string: ProcessInfo.processInfo.environment["OPENAI_BASE_URL"] ?? "https://api.openai.com/v1")!
+
+let configuration = OpenAI.Configuration(
+    token: ProcessInfo.processInfo.environment["OPENAI_API_KEY"],
+    host: baseURL.host ?? "api.openai.com",
+    port: baseURL.port ?? 443,
+    scheme: baseURL.scheme ?? "https",
+    basePath: baseURL.path.isEmpty ? "/v1" : baseURL.path,
+    parsingOptions: .relaxed
+)
+let openAI = OpenAI(configuration: configuration)
+```
+
 ### Cancelling requests
 
 For Swift Concurrency calls, you can simply cancel the calling task, and corresponding underlying `URLSessionDataTask` would get cancelled automatically.
