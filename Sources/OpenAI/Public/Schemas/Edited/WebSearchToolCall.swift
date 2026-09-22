@@ -12,7 +12,8 @@
 /// Hand-written replacement for `Components.Schemas.WebSearchToolCall`. The spec marks `action`
 /// required, but the live API can emit this item without one, e.g. in a
 /// `response.output_item.added` event while `status` is still `in_progress` and no action has
-/// been decided on yet.
+/// been decided on yet. This is an acknowledged upstream spec bug, not something we should try to
+/// second-guess by status: see [openai/openai-openapi#572](https://github.com/openai/openai-openapi/issues/572).
 public struct WebSearchToolCall: Codable, Hashable, Sendable {
     public typealias ActionPayload = Components.Schemas.WebSearchToolCall.ActionPayload
 
