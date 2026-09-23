@@ -7,6 +7,7 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 ## [Unreleased]
 
 ### Added
+- `Model.gpt6_astra`, `Model.gpt6_sol` and `Model.gpt6_luna`, also returned by `Model.allModels(satisfying:)` for the Chat Completions and Responses endpoints and the MCP tool.
 - `Model.Filter.Tool.mcp` and `Model.Filter.requiredTools`, so `Model.allModels(satisfying:)` can narrow results to models that support remote MCP servers in the Responses API.
 - `ResponseStreamEvent.shellCall`, covering the new shell-call streaming events (`response.shell_call_command.added/delta/done`, `response.shell_call_output_content.delta/done`) added by the latest OpenAPI spec.
 - `Tool.programmaticToolCallingTool`, the tool case paired with the `OutputItem.program`/`.programOutput` response items; without it, decoding a response whose `tools` array contains a `programmatic_tool_calling` tool would throw.
