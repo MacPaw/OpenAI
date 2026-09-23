@@ -3,8 +3,10 @@ name: API Breakage
 on:
   pull_request:
     branches: [ "main" ]
+    paths-ignore: [ "**.md", "LICENSE" ]
   push:
     branches: [ "main" ]
+    paths-ignore: [ "**.md", "LICENSE" ]
   workflow_dispatch:
     inputs:
       baseline:
