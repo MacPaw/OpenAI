@@ -339,13 +339,10 @@ public final class ResponsesStore: ObservableObject {
 
         if mcpEnabled {
             // Check if model supports MCP tools
-            let mcpCompatibleModels: Set<String> = [
-                Model.gpt4_o, Model.gpt4_1, Model.chatgpt_4o_latest,
-                Model.gpt4_o_mini, Model.gpt4_1_mini, Model.gpt4_1_nano
-            ]
+            let mcpCompatibleModels = Model.allModels(satisfying: .init(supportedEndpoints: [.responses], requiredTools: [.mcp]))
 
             if !mcpCompatibleModels.contains(model) {
-                print("Warning: Model '\(model)' may not support MCP tools. Recommended models: \(mcpCompatibleModels.joined(separator: ", "))")
+                print("Warning: Model '\(model)' may not support MCP tools. Recommended models: \(mcpCompatibleModels.sorted().joined(separator: ", "))")
             }
             
             // make it flexiable

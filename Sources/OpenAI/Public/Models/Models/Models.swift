@@ -53,6 +53,17 @@ public extension Model {
     @available(*, deprecated, message: "On April 14th, 2025, developers were notified that the gpt-4.5-preview model is deprecated and will be removed from the API in the coming months. Recommended replacement: gpt-4.1")
     static let gpt4_5_preview = "gpt-4.5-preview"
 
+    // GPT-6
+
+    /// `gpt-6-astra` Most capable GPT-6 model, built for the hardest end-to-end work
+    static let gpt6_astra = "gpt-6-astra"
+
+    /// `gpt-6-sol` GPT-6 model built to power complex coding and agentic workflows
+    static let gpt6_sol = "gpt-6-sol"
+
+    /// `gpt-6-luna` Most efficient GPT-6 model for focused, high-volume tasks
+    static let gpt6_luna = "gpt-6-luna"
+
     // GPT-5.1
 
     /// `gpt-5.1` Enhanced version of GPT-5 with improved reasoning and performance
@@ -280,7 +291,7 @@ public extension Model {
             // reasoning
             .o4_mini, o3, o3_mini, .o1,
             // flagship
-            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o, .gpt_4o_audio_preview, chatgpt_4o_latest,
+            .gpt6_astra, .gpt6_sol, .gpt6_luna, .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o, .gpt_4o_audio_preview, chatgpt_4o_latest,
             // cost-optimized
             .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini, .gpt_4o_mini_audio_preview,
             // tool-specific
@@ -293,11 +304,21 @@ public extension Model {
             // reasoning
             .o4_mini, .o3, .o3_mini, .o1, .o1_pro,
             // flagship
-            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o, .chatgpt_4o_latest,
+            .gpt6_astra, .gpt6_sol, .gpt6_luna, .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o, .chatgpt_4o_latest,
             // cost-optimized
             .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini,
             .gpt4_turbo, .gpt4, .gpt3_5Turbo,
             .computer_use_preview
+        ]
+        
+        // Models whose docs page lists `mcp` among the tools supported in the Responses API
+        let mcpTool: Set<Model> = [
+            // reasoning
+            .o4_mini, .o3, .o3_mini, .o1, .o1_pro,
+            // flagship
+            .gpt6_astra, .gpt6_sol, .gpt6_luna, .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o,
+            // cost-optimized
+            .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini
         ]
         
         let allModels = chatCompletionsEndpoint.union(responsesEndpoint)
@@ -310,6 +331,13 @@ public extension Model {
                 final.formIntersection(chatCompletionsEndpoint)
             case .responses:
                 final.formIntersection(responsesEndpoint)
+            }
+        }
+        
+        for tool in filter.requiredTools {
+            switch tool {
+            case .mcp:
+                final.formIntersection(mcpTool)
             }
         }
         
@@ -326,10 +354,22 @@ public extension Model {
         
         enum Feature {}
         
+        /// Tools a model supports when used with the Responses API.
+        public enum Tool {
+            /// Remote MCP servers via the `mcp` tool.
+            case mcp
+        }
+        
         public let supportedEndpoints: [Endpoint]
+        public let requiredTools: [Tool]
         
         public init(supportedEndpoints: [Endpoint]) {
+            self.init(supportedEndpoints: supportedEndpoints, requiredTools: [])
+        }
+        
+        public init(supportedEndpoints: [Endpoint], requiredTools: [Tool]) {
             self.supportedEndpoints = supportedEndpoints
+            self.requiredTools = requiredTools
         }
     }
 }
