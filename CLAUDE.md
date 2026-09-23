@@ -1,11 +1,11 @@
 # Agent instructions
 
-## Always build the Demo app too
+## Build the Demo app when it could be affected
 
-Whenever a change touches anything the `Demo` app could depend on (public API
-in `Sources/OpenAI`, generated `Components.Schemas`, the `Edited`/`Facade`
-types, streaming events, etc.), don't stop at `swift build` / `swift test`
-passing for the package. Also build the Demo app:
+Build the Demo app in addition to `swift build` / `swift test` when a change
+touches `Demo`'s own code, or the **public** API of `Sources/OpenAI` (public
+types/members in generated `Components.Schemas`, the `Edited`/`Facade` types,
+streaming events, etc.):
 
 ```sh
 xcodebuild -project Demo/Demo.xcodeproj -scheme Demo \
@@ -16,9 +16,14 @@ xcodebuild -project Demo/Demo.xcodeproj -scheme Demo \
 falls behind — e.g. an exhaustive `switch` over a `Facade` enum (like
 `ResponseStreamEvent`) that doesn't get a new case added, or `DemoChat` code
 that still calls a removed/renamed API. The goal is for Demo to stay complete
-and up to date with the package, not silently lag behind. Only skip this
-build when the change clearly cannot affect Demo (docs, CI config, tests-only
-changes, etc.).
+and up to date with the package, not silently lag behind.
+
+A change confined to the package's internals — `private`/`internal` members,
+implementation details behind an unchanged public signature, doc comments,
+tests — cannot break a consumer's build, so skip the Demo build for those
+(along with docs, CI config, and other changes that plainly can't touch
+`Demo`). When in doubt about whether something is really internal-only, build
+Demo anyway.
 
 ## Foundation types that don't exist on Linux
 
