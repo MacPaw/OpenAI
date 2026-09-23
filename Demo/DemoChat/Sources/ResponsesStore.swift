@@ -269,8 +269,10 @@ public final class ResponsesStore: ObservableObject {
         pendingMCPApprovalRequest = approvalRequest
         showMCPApprovalDialog = true
 
-        // Store the current response ID for the approval response
-        mcpApprovalRequestResponseId = responseBeingStreamed?.id
+        // Store the current response ID for the approval response. `responseBeingStreamed` is only
+        // set while streaming a response; fall back to `lastOpenAIResponseId` (kept in sync for both
+        // paths) so a non-streaming response's approval request still gets a response ID to continue from.
+        mcpApprovalRequestResponseId = responseBeingStreamed?.id ?? lastOpenAIResponseId
     }
 
     func respondToMCPApprovalRequest(approve: Bool, model: Model, stream: Bool, webSearchEnabled: Bool, functionCallingEnabled: Bool, mcpEnabled: Bool = true) async throws {
