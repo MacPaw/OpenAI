@@ -269,8 +269,10 @@ public final class ResponsesStore: ObservableObject {
         pendingMCPApprovalRequest = approvalRequest
         showMCPApprovalDialog = true
 
-        // Store the current response ID for the approval response
-        mcpApprovalRequestResponseId = responseBeingStreamed?.id
+        // Store the current response ID for the approval response. `responseBeingStreamed` is only
+        // set while streaming a response; fall back to `lastOpenAIResponseId` (kept in sync for both
+        // paths) so a non-streaming response's approval request still gets a response ID to continue from.
+        mcpApprovalRequestResponseId = responseBeingStreamed?.id ?? lastOpenAIResponseId
     }
 
     func respondToMCPApprovalRequest(approve: Bool, model: Model, stream: Bool, webSearchEnabled: Bool, functionCallingEnabled: Bool, mcpEnabled: Bool = true) async throws {
@@ -494,6 +496,17 @@ public final class ResponsesStore: ObservableObject {
                 // The non-streaming response includes the completed web-search call
                 // alongside the assistant message. There is no incremental state to update.
                 webSearchInProgress = false
+            case .reasoning(let reasoningItem):
+                print("reasoning output item, summary: \(reasoningItem.summary)")
+            case .mcpApprovalRequest(let approvalRequest):
+                handleMCPApprovalRequest(approvalRequest)
+            case .mcpListTools(let mcpListTools):
+                print("MCP tools listed: \(mcpListTools.tools.map(\.name))")
+            case .mcpToolCall(let mcpCall):
+                print("MCP tool call completed: \(mcpCall.name)")
+                if let output = mcpCall.output {
+                    print("Result: \(output)")
+                }
             default:
                 throw StoreError.unhandledOutputItem(output)
             }

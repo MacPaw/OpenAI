@@ -24,7 +24,7 @@ public enum OutputItem: Codable, Hashable, Sendable {
     case functionToolCallOutputResource(Schemas.FunctionToolCallOutputResource)
     /// The results of a web search tool call. See the
     /// [web search guide](https://platform.openai.com/docs/guides/tools-web-search) for more information.
-    case webSearchToolCall(Schemas.WebSearchToolCall)
+    case webSearchToolCall(WebSearchToolCall)
     /// A tool call to a computer use tool. See the
     /// [computer use guide](https://platform.openai.com/docs/guides/tools-computer-use) for more information.
     case computerToolCall(Schemas.ComputerToolCall)
@@ -73,7 +73,23 @@ public enum OutputItem: Codable, Hashable, Sendable {
     /// The output resource of a custom tool call.
     case customToolCallOutputResource(Schemas.CustomToolCallOutputResource)
 
+    private enum DiscriminatorCodingKeys: String, CodingKey {
+        case type
+    }
+
     public init(from decoder: any Decoder) throws {
+        // WebSearchToolCall's `action` is decoded leniently (see that type's doc comment), so it's
+        // handled before delegating to the generated, spec-strict `Schemas.OutputItem` decoding.
+        let discriminatorContainer = try decoder.container(keyedBy: DiscriminatorCodingKeys.self)
+        let discriminator = try discriminatorContainer.decode(String.self, forKey: .type)
+        switch discriminator {
+        case "WebSearchToolCall", "#/components/schemas/WebSearchToolCall", "web_search_call":
+            self = .webSearchToolCall(try .init(from: decoder))
+            return
+        default:
+            break
+        }
+
         let generated = try Schemas.OutputItem(from: decoder)
         switch generated {
         case .outputMessage(let value):
@@ -85,7 +101,7 @@ public enum OutputItem: Codable, Hashable, Sendable {
         case .functionToolCallOutputResource(let value):
             self = .functionToolCallOutputResource(value)
         case .webSearchToolCall(let value):
-            self = .webSearchToolCall(value)
+            self = .webSearchToolCall(WebSearchToolCall(value))
         case .computerToolCall(let value):
             self = .computerToolCall(value)
         case .computerToolCallOutputResource(let value):
