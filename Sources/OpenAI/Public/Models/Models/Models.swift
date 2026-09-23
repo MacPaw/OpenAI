@@ -300,6 +300,16 @@ public extension Model {
             .computer_use_preview
         ]
         
+        // Models whose docs page lists `mcp` among the tools supported in the Responses API
+        let mcpTool: Set<Model> = [
+            // reasoning
+            .o4_mini, .o3, .o3_mini, .o1, .o1_pro,
+            // flagship
+            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o,
+            // cost-optimized
+            .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini
+        ]
+        
         let allModels = chatCompletionsEndpoint.union(responsesEndpoint)
         
         var final: Set<Model> = allModels
@@ -310,6 +320,13 @@ public extension Model {
                 final.formIntersection(chatCompletionsEndpoint)
             case .responses:
                 final.formIntersection(responsesEndpoint)
+            }
+        }
+        
+        for tool in filter.requiredTools {
+            switch tool {
+            case .mcp:
+                final.formIntersection(mcpTool)
             }
         }
         
@@ -326,10 +343,22 @@ public extension Model {
         
         enum Feature {}
         
+        /// Tools a model supports when used with the Responses API.
+        public enum Tool {
+            /// Remote MCP servers via the `mcp` tool.
+            case mcp
+        }
+        
         public let supportedEndpoints: [Endpoint]
+        public let requiredTools: [Tool]
         
         public init(supportedEndpoints: [Endpoint]) {
+            self.init(supportedEndpoints: supportedEndpoints, requiredTools: [])
+        }
+        
+        public init(supportedEndpoints: [Endpoint], requiredTools: [Tool]) {
             self.supportedEndpoints = supportedEndpoints
+            self.requiredTools = requiredTools
         }
     }
 }
