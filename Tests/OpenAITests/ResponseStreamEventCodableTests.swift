@@ -57,6 +57,7 @@ final class ResponseStreamEventCodableTests: XCTestCase {
         {
           "type": "response.output_item.added",
           "output_index": 0,
+          "sequence_number": 6,
           "item": {
             "id": "msg_123",
             "type": "message",
@@ -73,6 +74,7 @@ final class ResponseStreamEventCodableTests: XCTestCase {
         {
           "type": "response.output_item.done",
           "output_index": 1,
+          "sequence_number": 8,
           "item": {
             "id": "fc_123",
             "type": "function_call",
