@@ -356,4 +356,116 @@ public enum ResponseStreamEvent: Codable, Equatable, Sendable {
             self = .customToolCallInput(.done(try Schemas.ResponseCustomToolCallInputDoneEvent(from: decoder)))
         }
     }
+
+    public func encode(to encoder: any Encoder) throws {
+        switch self {
+        case .created(let event), .inProgress(let event), .completed(let event),
+             .failed(let event), .incomplete(let event), .queued(let event):
+            try event.encode(to: encoder)
+        case .outputItem(.added(let event)):
+            try event.encode(to: encoder)
+        case .outputItem(.done(let event)):
+            try event.encode(to: encoder)
+        case .contentPart(.added(let event)):
+            try event.encode(to: encoder)
+        case .contentPart(.done(let event)):
+            try event.encode(to: encoder)
+        case .outputText(.delta(let event)):
+            try event.encode(to: encoder)
+        case .outputText(.done(let event)):
+            try event.encode(to: encoder)
+        case .refusal(.delta(let event)):
+            try event.encode(to: encoder)
+        case .refusal(.done(let event)):
+            try event.encode(to: encoder)
+        case .functionCallArguments(.delta(let event)):
+            try event.encode(to: encoder)
+        case .functionCallArguments(.done(let event)):
+            try event.encode(to: encoder)
+        case .fileSearchCall(.inProgress(let event)):
+            try event.encode(to: encoder)
+        case .fileSearchCall(.searching(let event)):
+            try event.encode(to: encoder)
+        case .fileSearchCall(.completed(let event)):
+            try event.encode(to: encoder)
+        case .webSearchCall(.inProgress(let event)):
+            try event.encode(to: encoder)
+        case .webSearchCall(.searching(let event)):
+            try event.encode(to: encoder)
+        case .webSearchCall(.completed(let event)):
+            try event.encode(to: encoder)
+        case .reasoningSummaryPart(.added(let event)):
+            try event.encode(to: encoder)
+        case .reasoningSummaryPart(.done(let event)):
+            try event.encode(to: encoder)
+        case .reasoningSummaryText(.delta(let event)):
+            try event.encode(to: encoder)
+        case .reasoningSummaryText(.done(let event)):
+            try event.encode(to: encoder)
+        case .imageGenerationCall(.completed(let event)):
+            try event.encode(to: encoder)
+        case .imageGenerationCall(.generating(let event)):
+            try event.encode(to: encoder)
+        case .imageGenerationCall(.inProgress(let event)):
+            try event.encode(to: encoder)
+        case .imageGenerationCall(.partialImage(let event)):
+            try event.encode(to: encoder)
+        case .mcpCallArguments(.delta(let event)):
+            try event.encode(to: encoder)
+        case .mcpCallArguments(.done(let event)):
+            try event.encode(to: encoder)
+        case .mcpCall(.completed(let event)):
+            try event.encode(to: encoder)
+        case .mcpCall(.failed(let event)):
+            try event.encode(to: encoder)
+        case .mcpCall(.inProgress(let event)):
+            try event.encode(to: encoder)
+        case .mcpListTools(.completed(let event)):
+            try event.encode(to: encoder)
+        case .mcpListTools(.failed(let event)):
+            try event.encode(to: encoder)
+        case .mcpListTools(.inProgress(let event)):
+            try event.encode(to: encoder)
+        case .outputTextAnnotation(.added(let event)):
+            try event.encode(to: encoder)
+        case .reasoningText(.delta(let event)):
+            try event.encode(to: encoder)
+        case .reasoningText(.done(let event)):
+            try event.encode(to: encoder)
+        case .error(let event):
+            try event.encode(to: encoder)
+        case .audio(.delta(let event)):
+            try event.encode(to: encoder)
+        case .audio(.done(let event)):
+            try event.encode(to: encoder)
+        case .audioTranscript(.delta(let event)):
+            try event.encode(to: encoder)
+        case .audioTranscript(.done(let event)):
+            try event.encode(to: encoder)
+        case .codeInterpreterCall(.code(.delta(let event))):
+            try event.encode(to: encoder)
+        case .codeInterpreterCall(.code(.done(let event))):
+            try event.encode(to: encoder)
+        case .codeInterpreterCall(.inProgress(let event)):
+            try event.encode(to: encoder)
+        case .codeInterpreterCall(.interpreting(let event)):
+            try event.encode(to: encoder)
+        case .codeInterpreterCall(.completed(let event)):
+            try event.encode(to: encoder)
+        case .shellCall(.command(.added(let event))):
+            try event.encode(to: encoder)
+        case .shellCall(.command(.delta(let event))):
+            try event.encode(to: encoder)
+        case .shellCall(.command(.done(let event))):
+            try event.encode(to: encoder)
+        case .shellCall(.outputContent(.delta(let event))):
+            try event.encode(to: encoder)
+        case .shellCall(.outputContent(.done(let event))):
+            try event.encode(to: encoder)
+        case .customToolCallInput(.delta(let event)):
+            try event.encode(to: encoder)
+        case .customToolCallInput(.done(let event)):
+            try event.encode(to: encoder)
+        }
+    }
 }

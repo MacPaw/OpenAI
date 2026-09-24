@@ -150,4 +150,65 @@ public enum OutputItem: Codable, Hashable, Sendable {
             self = .customToolCallOutputResource(value)
         }
     }
+
+    public func encode(to encoder: any Encoder) throws {
+        switch self {
+        case .outputMessage(let value):
+            try value.encode(to: encoder)
+        case .fileSearchToolCall(let value):
+            try value.encode(to: encoder)
+        case .functionToolCall(let value):
+            try value.encode(to: encoder)
+        case .functionToolCallOutputResource(let value):
+            try value.encode(to: encoder)
+        case .webSearchToolCall(let value):
+            try value.encode(to: encoder)
+        case .computerToolCall(let value):
+            try value.encode(to: encoder)
+        case .computerToolCallOutputResource(let value):
+            try value.encode(to: encoder)
+        case .reasoning(let value):
+            try value.encode(to: encoder)
+        case .program(let value):
+            try value.encode(to: encoder)
+        case .programOutput(let value):
+            try value.encode(to: encoder)
+        case .toolSearchCall(let value):
+            try value.encode(to: encoder)
+        case .toolSearchOutput(let value):
+            try value.encode(to: encoder)
+        case .additionalTools(let value):
+            try value.encode(to: encoder)
+        case .compactionBody(let value):
+            try value.encode(to: encoder)
+        case .imageGenerationCall(let value):
+            try value.encode(to: encoder)
+        case .codeInterpreterToolCall(let value):
+            try value.encode(to: encoder)
+        case .localShellCall(let value):
+            try value.encode(to: encoder)
+        case .localShellToolCallOutput(let value):
+            try value.encode(to: encoder)
+        case .functionShellCall(let value):
+            try value.encode(to: encoder)
+        case .functionShellCallOutput(let value):
+            try value.encode(to: encoder)
+        case .applyPatchToolCall(let value):
+            try value.encode(to: encoder)
+        case .applyPatchToolCallOutput(let value):
+            try value.encode(to: encoder)
+        case .mcpToolCall(let value):
+            try value.encode(to: encoder)
+        case .mcpListTools(let value):
+            try value.encode(to: encoder)
+        case .mcpApprovalRequest(let value):
+            try value.encode(to: encoder)
+        case .mcpApprovalResponseResource(let value):
+            try value.encode(to: encoder)
+        case .customToolCall(let value):
+            try value.encode(to: encoder)
+        case .customToolCallOutputResource(let value):
+            try value.encode(to: encoder)
+        }
+    }
 }
