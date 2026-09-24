@@ -11,6 +11,8 @@ import SwiftUI
 
 struct APIProvidedView: View {
     @Binding var apiKey: String
+    @Binding var providerRawValue: String
+    @Binding var baseURL: String
     @Binding var githubToken: String
     @StateObject var chatStore: ChatStore
     @StateObject var imageStore: ImageStore
@@ -26,13 +28,21 @@ struct APIProvidedView: View {
 
     init(
         apiKey: Binding<String>,
+        providerRawValue: Binding<String>,
+        baseURL: Binding<String>,
         githubToken: Binding<String>,
         idProvider: @escaping () -> String
     ) {
         self._apiKey = apiKey
+        self._providerRawValue = providerRawValue
+        self._baseURL = baseURL
         self._githubToken = githubToken
-        
-        let client = APIProvidedView.makeClient(apiKey: apiKey.wrappedValue)
+
+        let client = APIProvidedView.makeClient(
+            apiKey: apiKey.wrappedValue,
+            providerRawValue: providerRawValue.wrappedValue,
+            baseURL: baseURL.wrappedValue
+        )
         self._chatStore = StateObject(
             wrappedValue: ChatStore(
                 openAIClient: client,
@@ -57,10 +67,7 @@ struct APIProvidedView: View {
         )
         self._responsesStore = StateObject(
             wrappedValue: ResponsesStore(
-                client: OpenAI(
-                    configuration: .init(token: apiKey.wrappedValue),
-                    middlewares: [LoggingMiddleware()]
-                ).responses
+                client: client.responses
             )
         )
         self._mcpToolsStore = StateObject(
@@ -81,17 +88,38 @@ struct APIProvidedView: View {
             // Connect MCP tools store to responses store
             responsesStore.mcpToolsStore = mcpToolsStore
         }
-        .onChange(of: apiKey) { _, newApiKey in
-            let client = APIProvidedView.makeClient(apiKey: newApiKey)
-            chatStore.openAIClient = client
-            imageStore.openAIClient = client
-            assistantStore.openAIClient = client
-            miscStore.openAIClient = client
-            responsesStore.client = client.responses
-        }
+        .onChange(of: apiKey) { _, _ in rewireClient() }
+        .onChange(of: providerRawValue) { _, _ in rewireClient() }
+        .onChange(of: baseURL) { _, _ in rewireClient() }
     }
-    
-    private static func makeClient(apiKey: String) -> OpenAIProtocol {
-        OpenAI(apiToken: apiKey)
+
+    private func rewireClient() {
+        let client = APIProvidedView.makeClient(
+            apiKey: apiKey,
+            providerRawValue: providerRawValue,
+            baseURL: baseURL
+        )
+        chatStore.openAIClient = client
+        imageStore.openAIClient = client
+        assistantStore.openAIClient = client
+        miscStore.openAIClient = client
+        responsesStore.client = client.responses
+    }
+
+    private static func makeClient(
+        apiKey: String,
+        providerRawValue: String,
+        baseURL: String
+    ) -> OpenAI {
+        let provider = APIProvider(rawValue: providerRawValue) ?? .custom
+        let configuration = APIEndpoint(baseURL: baseURL)?.configuration(
+            token: apiKey,
+            parsingOptions: provider.parsingOptions
+        )
+            ?? OpenAI.Configuration(token: apiKey)
+        return OpenAI(
+            configuration: configuration,
+            middlewares: [LoggingMiddleware()]
+        )
     }
 }
