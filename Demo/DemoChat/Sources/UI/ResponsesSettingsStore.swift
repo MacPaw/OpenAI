@@ -9,7 +9,7 @@ import SwiftUI
 import OpenAI
 
 class ResponsesSettingsStore: ObservableObject {
-    @Published public var selectedModel: Model = .gpt4_o
+    @Published public var selectedModel: Model = .gpt6_luna
     @Published public var stream = true
     @Published public var webSearchEnabled = true
     @Published public var functionCallingEnabled = false

@@ -19,7 +19,7 @@ struct DetailView: View {
     @State var inputText: String = ""
     @FocusState private var isFocused: Bool
     @State private var showsModelSelectionSheet = false
-    @State private var selectedChatModel: Model = .gpt4_o_mini
+    @State private var selectedChatModel: Model = .gpt5_6_luna
     @State private var streamEnabled = true
     var availableAssistants: [Assistant]
 
