@@ -287,11 +287,14 @@ public extension Model {
     static let computer_use_preview = "computer-use-preview"
     
     static func allModels(satisfying filter: Filter) -> Set<Model> {
+        // Models described by a `ModelSpec` are filtered by their spec; the sets below cover the rest
+        let specModels = ModelSpec.all.filter { $0.satisfies(filter) }.map(\.id)
+        
         let chatCompletionsEndpoint: Set<Model> = [
             // reasoning
             .o4_mini, o3, o3_mini, .o1,
             // flagship
-            .gpt6_astra, .gpt6_sol, .gpt6_luna, .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o, .gpt_4o_audio_preview, chatgpt_4o_latest,
+            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o, .gpt_4o_audio_preview, chatgpt_4o_latest,
             // cost-optimized
             .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini, .gpt_4o_mini_audio_preview,
             // tool-specific
@@ -304,7 +307,7 @@ public extension Model {
             // reasoning
             .o4_mini, .o3, .o3_mini, .o1, .o1_pro,
             // flagship
-            .gpt6_astra, .gpt6_sol, .gpt6_luna, .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o, .chatgpt_4o_latest,
+            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o, .chatgpt_4o_latest,
             // cost-optimized
             .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini,
             .gpt4_turbo, .gpt4, .gpt3_5Turbo,
@@ -316,7 +319,7 @@ public extension Model {
             // reasoning
             .o4_mini, .o3, .o3_mini, .o1, .o1_pro,
             // flagship
-            .gpt6_astra, .gpt6_sol, .gpt6_luna, .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o,
+            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o,
             // cost-optimized
             .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini
         ]
@@ -341,24 +344,15 @@ public extension Model {
             }
         }
         
-        return final
+        return final.union(specModels)
     }
     
     struct Filter {
         enum Modality {}
         
-        public enum Endpoint {
-            case chatCompletions
-            case responses
-        }
-        
-        enum Feature {}
-        
-        /// Tools a model supports when used with the Responses API.
-        public enum Tool {
-            /// Remote MCP servers via the `mcp` tool.
-            case mcp
-        }
+        public typealias Endpoint = ModelSpec.Endpoint
+        public typealias Feature = ModelSpec.Feature
+        public typealias Tool = ModelSpec.Tool
         
         public let supportedEndpoints: [Endpoint]
         public let requiredTools: [Tool]
