@@ -30,6 +30,17 @@ class ModelSpecTests: XCTestCase {
         XCTAssertFalse(responses.contains(.gpt_4o_search_preview))
     }
 
+    func testMCPFilterForModelsWithoutSpec() {
+        let responses = Model.allModels(satisfying: .init(supportedEndpoints: [.responses]))
+        let mcp = Model.allModels(satisfying: .init(supportedEndpoints: [.responses], requiredTools: [.mcp]))
+
+        XCTAssertTrue(mcp.contains(.gpt4_o))
+        // Supports Responses but not MCP, so only the tool filter can exclude it
+        XCTAssertTrue(responses.contains(.chatgpt_4o_latest))
+        XCTAssertFalse(mcp.contains(.chatgpt_4o_latest))
+        XCTAssertFalse(mcp.contains(.computer_use_preview))
+    }
+
     func testReasoningEffortConversions() {
         for effort in ModelSpec.ReasoningEffort.allCases {
             XCTAssertEqual(Components.Schemas.ReasoningEffort(effort).rawValue, effort.rawValue)
