@@ -131,6 +131,8 @@ API breakage: constructor Components.Schemas.TranscriptTextDoneEvent.init(_type:
 API breakage: constructor Components.Schemas.WebSearchTool.init(_type:filters:userLocation:searchContextSize:) has been removed
 API breakage: constructor Components.Schemas.WebSearchToolCall.init(id:_type:status:action:) has parameter 2 type change from OpenAI.Components.Schemas.WebSearchToolCall.StatusPayload to OpenAI.Components.Schemas.WebSearchCallStatus
 API breakage: constructor Components.Schemas._Error.init(code:message:param:_type:) has been removed
+API breakage: constructor ResponseOutputItemAddedEvent.init(type:outputIndex:item:) has been removed
+API breakage: constructor ResponseOutputItemDoneEvent.init(type:outputIndex:item:) has been removed
 API breakage: enum Components.Schemas.ResponseProperties.TruncationPayload has been removed
 API breakage: enum Components.Schemas.ServiceTier has been renamed to enum ServiceTierResponses
 API breakage: enum Components.Schemas.WebSearchToolCall.StatusPayload has been removed
@@ -264,6 +266,8 @@ API breakage: enumelement InputItem.programOutputItemParam has been added as a n
 API breakage: enumelement OutputItem.additionalTools has been added as a new enum case
 API breakage: enumelement OutputItem.program has been added as a new enum case
 API breakage: enumelement OutputItem.programOutput has been added as a new enum case
+API breakage: enumelement ResponseOutputItemAddedEvent.CodingKeys.sequenceNumber has been added as a new enum case
+API breakage: enumelement ResponseOutputItemDoneEvent.CodingKeys.sequenceNumber has been added as a new enum case
 API breakage: enumelement ResponseStreamEvent.customToolCallInput has been added as a new enum case
 API breakage: enumelement ResponseStreamEvent.reasoning has been renamed to enumelement reasoningText
 API breakage: enumelement ResponseStreamEvent.reasoning has declared type change from (OpenAI.ResponseStreamEvent.Type) -> (OpenAI.ResponseStreamEvent.ReasoningEvent) -> OpenAI.ResponseStreamEvent to (OpenAI.ResponseStreamEvent.Type) -> (OpenAI.ResponseStreamEvent.ReasoningTextEvent) -> OpenAI.ResponseStreamEvent
