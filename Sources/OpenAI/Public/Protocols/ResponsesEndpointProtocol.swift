@@ -20,7 +20,7 @@ public protocol ResponsesEndpointProtocol: ResponsesEndpointModern {
     ) -> CancellableRequest
     
     func retrieveResponse(
-        query: GetModelResponseQuery,
+        query: RetrieveModelResponseQuery,
         completion: @escaping @Sendable (Result<ResponseObject, Error>) -> Void
     ) -> CancellableRequest
     

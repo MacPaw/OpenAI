@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct GetModelResponseQuery: Codable, Equatable, Sendable {
+public struct RetrieveModelResponseQuery: Codable, Equatable, Sendable {
     /// The ID of the response to retrieve.
     public let responseId: String
     
