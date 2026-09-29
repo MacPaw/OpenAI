@@ -57,7 +57,15 @@ public struct APIEndpoint: Equatable, Sendable {
             return nil
         }
 
-        let valueWithScheme = trimmedBaseURL.contains("://")
+        let hasScheme = trimmedBaseURL.contains("://")
+        if !hasScheme {
+            let lowercasedBaseURL = trimmedBaseURL.lowercased()
+            guard !lowercasedBaseURL.hasPrefix("http:"), !lowercasedBaseURL.hasPrefix("https:") else {
+                return nil
+            }
+        }
+
+        let valueWithScheme = hasScheme
             ? trimmedBaseURL
             : "https://\(trimmedBaseURL)"
 
@@ -67,6 +75,7 @@ public struct APIEndpoint: Equatable, Sendable {
             scheme == "http" || scheme == "https",
             let host = components.host,
             !host.isEmpty,
+            scheme == "https" || Self.isLoopbackHost(host),
             components.user == nil,
             components.password == nil,
             components.query == nil,
@@ -85,6 +94,22 @@ public struct APIEndpoint: Equatable, Sendable {
         self.host = host
         self.port = port
         self.basePath = components.path.isEmpty ? "/v1" : components.path
+    }
+
+    private static func isLoopbackHost(_ host: String) -> Bool {
+        let lowercasedHost = host.lowercased()
+        if lowercasedHost == "localhost" || lowercasedHost == "[::1]" {
+            return true
+        }
+
+        let octets = lowercasedHost.split(separator: ".", omittingEmptySubsequences: false)
+        return octets.count == 4 && octets[0] == "127" && octets.allSatisfy { octet in
+            guard let value = UInt8(octet) else {
+                return false
+            }
+            // Only accept canonical decimal octets, not shorthand, signed, or octal forms.
+            return String(value) == octet
+        }
     }
 
     public func configuration(

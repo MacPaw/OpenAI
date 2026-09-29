@@ -86,7 +86,7 @@ struct APIKeyModalView: View {
                         #endif
 
                     if APIEndpoint(baseURL: internalBaseURL) == nil {
-                        Text("Enter a valid HTTP or HTTPS base URL.")
+                        Text("Use a valid HTTPS base URL, or HTTP with localhost, 127.x.x.x, or [::1].")
                             .font(.caption)
                             .foregroundColor(.red)
                     }

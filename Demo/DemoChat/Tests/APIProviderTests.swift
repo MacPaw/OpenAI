@@ -31,6 +31,23 @@ import Testing
     #expect(endpoint.basePath == "/v1")
 }
 
+@Test func endpointSupportsHostOnlyInputWithPort() throws {
+    let endpoint = try #require(APIEndpoint(baseURL: "localhost:8080/custom"))
+
+    #expect(endpoint.scheme == "https")
+    #expect(endpoint.host == "localhost")
+    #expect(endpoint.port == 8080)
+    #expect(endpoint.basePath == "/custom")
+}
+
+@Test func endpointSupportsUppercaseHTTPS() throws {
+    let endpoint = try #require(APIEndpoint(baseURL: "HTTPS://example.com/v1"))
+
+    #expect(endpoint.scheme == "https")
+    #expect(endpoint.host == "example.com")
+    #expect(endpoint.port == 443)
+}
+
 @Test func endpointSupportsLocalHTTPPort() throws {
     let endpoint = try #require(APIEndpoint(baseURL: "http://localhost:8080/custom"))
 
@@ -38,6 +55,52 @@ import Testing
     #expect(endpoint.host == "localhost")
     #expect(endpoint.port == 8080)
     #expect(endpoint.basePath == "/custom")
+}
+
+@Test(arguments: ["localhost", "LOCALHOST", "127.0.0.1", "127.255.255.255", "[::1]"])
+func endpointSupportsLoopbackHTTP(host: String) throws {
+    let endpoint = try #require(APIEndpoint(baseURL: "http://\(host):8080/custom"))
+
+    #expect(endpoint.scheme == "http")
+    #expect(endpoint.host == host)
+    #expect(endpoint.port == 8080)
+    #expect(endpoint.basePath == "/custom")
+}
+
+@Test(
+    arguments: [
+        "http://example.com/v1",
+        "http://192.168.1.10:8080/v1",
+        "http://localhost.example.com/v1",
+        "http://example.localhost/v1",
+        "http://127.0.0.1.example.com/v1",
+        "http://128.0.0.1/v1",
+        "http://127.0.0.256/v1",
+        "http://127.0.0.01/v1",
+        "http://127.+0.0.1/v1",
+        "http://127.0..1/v1",
+        "http://127.1/v1",
+        "http://0x7f000001/v1",
+        "http://[::]/v1",
+        "http://[2001:db8::1]/v1",
+    ]
+)
+func endpointRejectsNonLoopbackHTTP(baseURL: String) {
+    #expect(APIEndpoint(baseURL: baseURL) == nil)
+}
+
+@Test(
+    arguments: [
+        "http:example.com/v1",
+        "http:/example.com/v1",
+        "https:example.com/v1",
+        "https:/example.com/v1",
+        "HTTPS:/example.com/v1",
+        "HtTp:/localhost:8080/v1",
+    ]
+)
+func endpointRejectsMalformedHTTPSchemes(baseURL: String) {
+    #expect(APIEndpoint(baseURL: baseURL) == nil)
 }
 
 @Test func endpointBuildsOpenAIConfiguration() throws {
