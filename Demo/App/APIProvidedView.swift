@@ -10,9 +10,7 @@ import OpenAI
 import SwiftUI
 
 struct APIProvidedView: View {
-    @Binding var apiKey: String
-    @Binding var providerRawValue: String
-    @Binding var baseURL: String
+    @Binding var configuration: DemoAPIConfiguration
     @Binding var githubToken: String
     @StateObject var chatStore: ChatStore
     @StateObject var imageStore: ImageStore
@@ -21,27 +19,20 @@ struct APIProvidedView: View {
     @StateObject var responsesStore: ResponsesStore
     @StateObject var mcpToolsStore: MCPToolsStore
 
-    @State var isShowingAPIConfigModal: Bool = true
-
     @Environment(\.idProviderValue) var idProvider
     @Environment(\.dateProviderValue) var dateProvider
 
     init(
-        apiKey: Binding<String>,
-        providerRawValue: Binding<String>,
-        baseURL: Binding<String>,
+        configuration: Binding<DemoAPIConfiguration>,
+        sdkConfiguration: OpenAI.Configuration,
         githubToken: Binding<String>,
         idProvider: @escaping () -> String
     ) {
-        self._apiKey = apiKey
-        self._providerRawValue = providerRawValue
-        self._baseURL = baseURL
+        self._configuration = configuration
         self._githubToken = githubToken
 
         let client = APIProvidedView.makeClient(
-            apiKey: apiKey.wrappedValue,
-            providerRawValue: providerRawValue.wrappedValue,
-            baseURL: baseURL.wrappedValue
+            configuration: sdkConfiguration
         )
         self._chatStore = StateObject(
             wrappedValue: ChatStore(
@@ -84,21 +75,18 @@ struct APIProvidedView: View {
             responsesStore: responsesStore,
             mcpToolsStore: mcpToolsStore
         )
+        .environment(\.apiProvider, configuration.provider)
+        .environment(\.configuredChatModel, configuration.normalized.chatModel)
         .onAppear {
             // Connect MCP tools store to responses store
             responsesStore.mcpToolsStore = mcpToolsStore
         }
-        .onChange(of: apiKey) { _, _ in rewireClient() }
-        .onChange(of: providerRawValue) { _, _ in rewireClient() }
-        .onChange(of: baseURL) { _, _ in rewireClient() }
+        .onChange(of: configuration) { _, _ in rewireClient() }
     }
 
     private func rewireClient() {
-        let client = APIProvidedView.makeClient(
-            apiKey: apiKey,
-            providerRawValue: providerRawValue,
-            baseURL: baseURL
-        )
+        guard let sdkConfiguration = configuration.sdkConfiguration else { return }
+        let client = APIProvidedView.makeClient(configuration: sdkConfiguration)
         chatStore.openAIClient = client
         imageStore.openAIClient = client
         assistantStore.openAIClient = client
@@ -107,17 +95,9 @@ struct APIProvidedView: View {
     }
 
     private static func makeClient(
-        apiKey: String,
-        providerRawValue: String,
-        baseURL: String
+        configuration: OpenAI.Configuration
     ) -> OpenAI {
-        let provider = APIProvider(rawValue: providerRawValue) ?? .custom
-        let configuration = APIEndpoint(baseURL: baseURL)?.configuration(
-            token: apiKey,
-            parsingOptions: provider.parsingOptions
-        )
-            ?? OpenAI.Configuration(token: apiKey)
-        return OpenAI(
+        OpenAI(
             configuration: configuration,
             middlewares: [LoggingMiddleware()]
         )

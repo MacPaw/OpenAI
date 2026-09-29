@@ -13,179 +13,186 @@ struct APIKeyModalView: View {
 
     let isMandatory: Bool
 
-    @Binding private var apiKey: String
-    @Binding private var providerRawValue: String
-    @Binding private var baseURL: String
-
-    @State private var internalAPIKey: String
-    @State private var internalProvider: APIProvider
-    @State private var internalBaseURL: String
+    @Binding private var configuration: DemoAPIConfiguration
+    @State private var draft: DemoAPIConfiguration
 
     public init(
-        apiKey: Binding<String>,
-        providerRawValue: Binding<String>,
-        baseURL: Binding<String>,
+        configuration: Binding<DemoAPIConfiguration>,
         isMandatory: Bool = true
     ) {
-        self._apiKey = apiKey
-        self._providerRawValue = providerRawValue
-        self._baseURL = baseURL
-        self._internalAPIKey = State(initialValue: apiKey.wrappedValue)
-        let provider = APIProvider(rawValue: providerRawValue.wrappedValue) ?? .custom
-        self._internalProvider = State(initialValue: provider)
-        self._internalBaseURL = State(
-            initialValue: baseURL.wrappedValue.isEmpty
-                ? provider.defaultBaseURL ?? ""
-                : baseURL.wrappedValue
-        )
+        self._configuration = configuration
+        self._draft = State(initialValue: configuration.wrappedValue)
         self.isMandatory = isMandatory
     }
 
     private var isConfigurationValid: Bool {
-        !internalAPIKey.isEmpty && APIEndpoint(baseURL: internalBaseURL) != nil
+        draft.sdkConfiguration != nil
+    }
+
+    private var selectedProvider: Binding<APIProvider> {
+        Binding(get: { draft.provider }, set: { draft.selectProvider($0) })
+    }
+
+    private var baseURL: Binding<String> {
+        Binding(get: { draft.baseURL }, set: { draft.customBaseURL = $0 })
     }
 
     private var strokeColor: Color {
         #if os(iOS)
-        return Color(uiColor: UIColor.systemGray5)
+            return Color(uiColor: UIColor.systemGray5)
         #elseif os(macOS)
-        return Color(nsColor: NSColor.lightGray)
+            return Color(nsColor: NSColor.lightGray)
         #endif
     }
 
     var body: some View {
         NavigationView {
-            VStack(alignment: .leading, spacing: 16) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Provider")
-                        .font(.caption)
-
-                    Picker("Provider", selection: $internalProvider) {
-                        ForEach(APIProvider.allCases) { provider in
-                            Text(provider.displayName).tag(provider)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .onChange(of: internalProvider) { _, provider in
-                        if let defaultBaseURL = provider.defaultBaseURL {
-                            internalBaseURL = defaultBaseURL
-                        }
-                    }
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Base URL")
-                        .font(.caption)
-
-                    TextField("https://api.example.com/v1", text: $internalBaseURL)
-                        .textFieldStyle(.roundedBorder)
-                        .disabled(internalProvider != .custom)
-                        .autocorrectionDisabled(true)
-                        #if os(iOS)
-                        .textInputAutocapitalization(.never)
-                        #endif
-
-                    if APIEndpoint(baseURL: internalBaseURL) == nil {
-                        Text("Use a valid HTTPS base URL, or HTTP with localhost, 127.x.x.x, or [::1].")
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Provider")
                             .font(.caption)
-                            .foregroundColor(.red)
-                    }
-                }
 
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("API Key")
-                        .font(.caption)
-
-                    if internalProvider == .openAI {
-                        let apiKeysURL = URL(
-                            string: "https://platform.openai.com/account/api-keys"
-                        )!
-                        Link(
-                            "Get an API key at platform.openai.com",
-                            destination: apiKeysURL
+                        Picker("Provider", selection: selectedProvider) {
+                            ForEach(APIProvider.allCases) { provider in
+                                Text(provider.displayName).tag(provider)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        Text(
+                            "Changing provider clears the API key and model. Enter credentials for the selected provider."
                         )
                         .font(.caption)
+                        .foregroundStyle(.secondary)
                     }
-                }
 
-                TextEditor(
-                    text: $internalAPIKey
-                )
-                .frame(height: 120)
-                .font(.caption)
-                .padding(8)
-                .background(
-                    RoundedRectangle(
-                        cornerRadius: 8
-                    )
-                    .stroke(
-                        strokeColor,
-                        lineWidth: 1
-                    )
-                )
-                .padding(4)
-                .background(Color.white)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Base URL")
+                            .font(.caption)
 
-                if isMandatory {
-                    HStack {
-                        Spacer()
+                        TextField("https://api.example.com/v1", text: baseURL)
+                            .textFieldStyle(.roundedBorder)
+                            .disabled(draft.provider != .custom)
+                            .autocorrectionDisabled(true)
+                            #if os(iOS)
+                                .textInputAutocapitalization(.never)
+                            #endif
 
-                        Button {
-                            commitAndDismiss()
-                        } label: {
-                          Text(
-                            "Continue"
-                          )
-                          .padding(8)
+                        if let endpoint = APIEndpoint(baseURL: draft.baseURL) {
+                            Text("Effective base URL: \(endpoint.baseURL)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Text("Use a valid HTTPS base URL, or HTTP with localhost, 127.x.x.x, or [::1].")
+                                .font(.caption)
+                                .foregroundColor(.red)
                         }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(!isConfigurationValid)
+                    }
 
-                        Spacer()
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Chat model ID")
+                            .font(.caption)
+                        TextField("Enter a model supported by this provider", text: $draft.chatModel)
+                            .textFieldStyle(.roundedBorder)
+                            .autocorrectionDisabled(true)
+                            #if os(iOS)
+                                .textInputAutocapitalization(.never)
+                            #endif
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("API Key")
+                            .font(.caption)
+
+                        if draft.provider == .openAI {
+                            let apiKeysURL = URL(
+                                string: "https://platform.openai.com/account/api-keys"
+                            )!
+                            Link(
+                                "Get an API key at platform.openai.com",
+                                destination: apiKeysURL
+                            )
+                            .font(.caption)
+                        }
+                    }
+
+                    TextEditor(
+                        text: $draft.apiKey
+                    )
+                    .frame(height: 120)
+                    .font(.caption)
+                    .padding(8)
+                    .background(
+                        RoundedRectangle(
+                            cornerRadius: 8
+                        )
+                        .stroke(
+                            strokeColor,
+                            lineWidth: 1
+                        )
+                    )
+                    .padding(4)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                    if isMandatory {
+                        HStack {
+                            Spacer()
+
+                            Button {
+                                commitAndDismiss()
+                            } label: {
+                                Text(
+                                    "Continue"
+                                )
+                                .padding(8)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .disabled(!isConfigurationValid)
+
+                            Spacer()
+                        }
                     }
                 }
+                .padding()
             }
-            .padding()
             .navigationTitle("API Configuration")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     if isMandatory {
                         EmptyView()
                     } else {
-                        Button("Close") {
-                            commitAndDismiss()
-                        }
-                        .disabled(!isConfigurationValid)
+                        Button("Save", action: commitAndDismiss)
+                            .disabled(!isConfigurationValid)
+                    }
+                }
+                ToolbarItem(placement: .cancellationAction) {
+                    if !isMandatory {
+                        Button("Cancel", role: .cancel) { dismiss() }
                     }
                 }
             }
         }
+        .interactiveDismissDisabled(isMandatory)
     }
 
     private func commitAndDismiss() {
         guard isConfigurationValid else {
             return
         }
-        apiKey = internalAPIKey
-        providerRawValue = internalProvider.rawValue
-        baseURL = internalBaseURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        configuration = draft.normalized
         dismiss()
     }
 }
 
 struct APIKeyModalView_Previews: PreviewProvider {
     struct APIKeyModalView_PreviewsContainerView: View {
-        @State var apiKey = ""
-        @State var providerRawValue = APIProvider.openAI.rawValue
-        @State var baseURL = APIProvider.openAI.defaultBaseURL ?? ""
+        @State var configuration = DemoAPIConfiguration()
         let isMandatory: Bool
 
         var body: some View {
             APIKeyModalView(
-                apiKey: $apiKey,
-                providerRawValue: $providerRawValue,
-                baseURL: $baseURL,
+                configuration: $configuration,
                 isMandatory: isMandatory
             )
         }

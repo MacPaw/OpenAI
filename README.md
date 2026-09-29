@@ -1533,6 +1533,14 @@ Currently we handle such cases by simply adding additional fields to main model 
 
 You can find example iOS application in [Demo](/Demo) folder. 
 
+Use **API Configuration** to choose OpenAI, Gemini, or a custom OpenAI-compatible
+base URL, enter that provider's API key, and set a supported chat model ID. Provider
+changes clear the key and model; custom URLs are retained separately from the
+presets. Host-only URLs use HTTPS, and the form shows the effective URL. For local
+HTTP servers, include `http://` explicitly. Root-mounted endpoints are supported;
+include `/v1` or another API prefix only when required by the server. Save applies
+the settings together, while Cancel discards edits.
+
 ![mockuuups-iphone-13-pro-mockup-perspective-right](https://user-images.githubusercontent.com/1411778/231449395-2ad6bab6-c21f-43dc-8977-f45f505b609d.png)
 
 ## Contribution Guidelines

@@ -19,11 +19,17 @@ struct DetailView: View {
     @State var inputText: String = ""
     @FocusState private var isFocused: Bool
     @State private var showsModelSelectionSheet = false
-    @State private var selectedChatModel: Model = .gpt4_o_mini
+    @State private var selectedOpenAIModel: Model?
     @State private var streamEnabled = true
+    @Environment(\.apiProvider) private var apiProvider
+    @Environment(\.configuredChatModel) private var configuredChatModel
     var availableAssistants: [Assistant]
 
     private static let availableChatModels: [Model] = Array(Model.allModels(satisfying: .init(supportedEndpoints: [.chatCompletions]))).sorted(by: >)
+
+    private var selectedChatModel: Model {
+        apiProvider == .openAI ? selectedOpenAIModel ?? configuredChatModel : configuredChatModel
+    }
 
     let conversation: Conversation
     let error: Error?
@@ -100,11 +106,13 @@ struct DetailView: View {
                             Text(streamEnabled ? "Disable streaming" : "Enable streaming")
                         }
                         
-                        ForEach(DetailView.availableChatModels, id: \.self) { model in
-                            Button {
-                                selectedChatModel = model
-                            } label: {
-                                Text(model)
+                        if apiProvider == .openAI {
+                            ForEach(DetailView.availableChatModels, id: \.self) { model in
+                                Button {
+                                    selectedOpenAIModel = model
+                                } label: {
+                                    Text(model)
+                                }
                             }
                         }
 
@@ -113,13 +121,15 @@ struct DetailView: View {
                         }
                     },
                     message: {
-                        Text(
-                            "View https://platform.openai.com/docs/models/overview for details"
-                        )
+                        Text(apiProvider == .openAI
+                            ? "View https://platform.openai.com/docs/models/overview for details"
+                            : "Set this provider's model ID in API Configuration.")
                         .font(.caption)
                     }
                 )
         }
+        .onChange(of: configuredChatModel) { _ in selectedOpenAIModel = nil }
+        .onChange(of: apiProvider) { _ in selectedOpenAIModel = nil }
     }
     
     @ViewBuilder
@@ -213,4 +223,3 @@ struct DetailView_Previews: PreviewProvider {
         )
     }
 }
-

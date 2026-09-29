@@ -1,5 +1,7 @@
+import Foundation
 import Testing
 @testable import DemoChat
+@testable import OpenAI
 
 @Test func providerPresetsUseExpectedBaseURLs() {
     #expect(APIProvider.openAI.defaultBaseURL == "https://api.openai.com/v1")
@@ -97,6 +99,9 @@ func endpointRejectsNonLoopbackHTTP(baseURL: String) {
         "https:/example.com/v1",
         "HTTPS:/example.com/v1",
         "HtTp:/localhost:8080/v1",
+        "https://https://example.com/v1",
+        "https://https:/example.com/v1",
+        "HTTPS://HtTp:/example.com/v1",
     ]
 )
 func endpointRejectsMalformedHTTPSchemes(baseURL: String) {
@@ -141,4 +146,103 @@ func endpointRejectsOutOfRangePorts(port: Int) {
 )
 func endpointRejectsUnsupportedBaseURLs(baseURL: String) {
     #expect(APIEndpoint(baseURL: baseURL) == nil)
+}
+
+@Test(arguments: ["https://example.com", "https://example.com/", "https://example.com///"])
+func endpointSupportsRootMountedServers(baseURL: String) throws {
+    let endpoint = try #require(APIEndpoint(baseURL: baseURL))
+    #expect(endpoint.basePath.isEmpty)
+}
+
+@Test(arguments: ["https://example.com/v1/", "https://example.com/v1///", " \nhttps://example.com/v1/\t"])
+func endpointNormalizesTrailingSlashesAndWhitespace(baseURL: String) throws {
+    let endpoint = try #require(APIEndpoint(baseURL: baseURL))
+    #expect(endpoint.basePath == "/v1")
+}
+
+@Test(arguments: [APIProvider.openAI, .gemini, .custom])
+func configurationMapsEachProvider(provider: APIProvider) throws {
+    let value = DemoAPIConfiguration(
+        provider: provider,
+        apiKey: " \ntest-token\t",
+        customBaseURL: "http://localhost:8080/custom/",
+        chatModel: " test-model "
+    )
+    let configuration = try #require(value.sdkConfiguration)
+    let endpoint = try #require(APIEndpoint(baseURL: provider.defaultBaseURL ?? value.customBaseURL))
+    #expect(configuration.token == "test-token")
+    #expect(configuration.host == endpoint.host)
+    #expect(configuration.scheme == endpoint.scheme)
+    #expect(configuration.port == endpoint.port)
+    #expect(configuration.basePath == endpoint.basePath)
+    #expect(configuration.parsingOptions == provider.parsingOptions)
+}
+
+@Test(arguments: ["", " \n\t"])
+func configurationRejectsEmptyCredentialsAndModels(empty: String) {
+    #expect(DemoAPIConfiguration(apiKey: empty).sdkConfiguration == nil)
+    #expect(DemoAPIConfiguration(apiKey: "test-token", chatModel: empty).sdkConfiguration == nil)
+}
+
+@Test func invalidCustomConfigurationDoesNotFallBackToOpenAI() {
+    let value = DemoAPIConfiguration(provider: .custom, apiKey: "test-token", customBaseURL: "https:/bad", chatModel: "model")
+    #expect(value.sdkConfiguration == nil)
+}
+
+@Test func providerSwitchClearsCredentialsAndRetainsCustomURL() {
+    var value = DemoAPIConfiguration(apiKey: "openai-token", customBaseURL: "http://localhost:8080")
+    value.selectProvider(.gemini)
+    #expect(value.apiKey.isEmpty)
+    #expect(value.chatModel.isEmpty)
+    #expect(value.sdkConfiguration == nil)
+    value.apiKey = "gemini-token"
+    value.chatModel = "gemini-model"
+    value.selectProvider(.custom)
+    #expect(value.apiKey.isEmpty)
+    #expect(value.chatModel.isEmpty)
+    #expect(value.customBaseURL == "http://localhost:8080")
+    value.selectProvider(.openAI)
+    #expect(value.chatModel == Model.gpt4_o_mini)
+    #expect(value.apiKey.isEmpty)
+}
+
+@Test func selectingSameProviderPreservesDraft() {
+    var value = DemoAPIConfiguration(apiKey: "test-token")
+    let original = value
+    value.selectProvider(.openAI)
+    #expect(value == original)
+}
+
+@Test func presetsIgnoreLegacyStoredURL() {
+    let value = DemoAPIConfiguration.migrating(apiKey: "test-token", providerRawValue: "openAI", baseURL: "https://stale.example.com/v1")
+    #expect(value.customBaseURL.isEmpty)
+    #expect(value.sdkConfiguration?.host == "api.openai.com")
+}
+
+@Test func customLegacySettingsAreRetained() {
+    let value = DemoAPIConfiguration.migrating(apiKey: "test-token", providerRawValue: "custom", baseURL: "http://localhost:8080/")
+    #expect(value.customBaseURL == "http://localhost:8080/")
+    #expect(value.chatModel.isEmpty)
+    #expect(value.sdkConfiguration == nil)
+}
+
+@Test func configurationRoundTripsAsSingleValue() throws {
+    let value = DemoAPIConfiguration(provider: .custom, apiKey: " token ", customBaseURL: " http://localhost:8080/ ", chatModel: " model ").normalized
+    let decoded = try JSONDecoder().decode(DemoAPIConfiguration.self, from: JSONEncoder().encode(value))
+    #expect(decoded == value)
+    #expect(decoded.apiKey == "token")
+    #expect(decoded.chatModel == "model")
+    #expect(decoded.customBaseURL == "http://localhost:8080/")
+}
+
+@Test(arguments: ["https://example.com", "https://example.com/", "https://example.com///"])
+func rootEndpointBuildsSingleSlashSDKPath(baseURL: String) throws {
+    let endpoint = try #require(APIEndpoint(baseURL: baseURL))
+    let components = URLComponents.components(perConfiguration: endpoint.configuration(token: "test-token"), path: "chat/completions")
+    #expect(components.path == "/chat/completions")
+}
+
+@Test func hostOnlyEndpointDisplaysEffectiveHTTPSURL() throws {
+    let endpoint = try #require(APIEndpoint(baseURL: "localhost:8080/custom/"))
+    #expect(endpoint.baseURL == "https://localhost:8080/custom")
 }

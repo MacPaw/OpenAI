@@ -6,7 +6,7 @@
 import Foundation
 import OpenAI
 
-public enum APIProvider: String, CaseIterable, Identifiable, Sendable {
+public enum APIProvider: String, CaseIterable, Codable, Identifiable, Sendable {
     case openAI
     case gemini
     case custom
@@ -45,6 +45,65 @@ public enum APIProvider: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
+/// The demo saves provider, credentials and model as one configuration.
+public struct DemoAPIConfiguration: Codable, Equatable, Sendable {
+    public var provider: APIProvider
+    public var apiKey: String
+    public var customBaseURL: String
+    public var chatModel: String
+
+    public init(
+        provider: APIProvider = .openAI,
+        apiKey: String = "",
+        customBaseURL: String = "",
+        chatModel: String? = nil
+    ) {
+        self.provider = provider
+        self.apiKey = apiKey
+        self.customBaseURL = customBaseURL
+        self.chatModel = chatModel ?? (provider == .openAI ? Model.gpt4_o_mini : "")
+    }
+
+    public var baseURL: String {
+        provider.defaultBaseURL ?? customBaseURL
+    }
+
+    public var normalized: Self {
+        Self(
+            provider: provider,
+            apiKey: apiKey.trimmingCharacters(in: .whitespacesAndNewlines),
+            customBaseURL: customBaseURL.trimmingCharacters(in: .whitespacesAndNewlines),
+            chatModel: chatModel.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+    }
+
+    public var sdkConfiguration: OpenAI.Configuration? {
+        let value = normalized
+        guard !value.apiKey.isEmpty, !value.chatModel.isEmpty,
+              let endpoint = APIEndpoint(baseURL: value.baseURL) else {
+            return nil
+        }
+        return endpoint.configuration(token: value.apiKey, parsingOptions: value.provider.parsingOptions)
+    }
+
+    public mutating func selectProvider(_ newProvider: APIProvider) {
+        guard provider != newProvider else { return }
+        provider = newProvider
+        // Never carry credentials or an OpenAI model to a different provider.
+        apiKey = ""
+        chatModel = newProvider == .openAI ? Model.gpt4_o_mini : ""
+    }
+
+    public static func migrating(apiKey: String, providerRawValue: String, baseURL: String) -> Self {
+        let provider = APIProvider(rawValue: providerRawValue) ?? .custom
+        return Self(
+            provider: provider,
+            apiKey: apiKey,
+            customBaseURL: provider == .custom ? baseURL : ""
+        )
+    }
+}
+
 public struct APIEndpoint: Equatable, Sendable {
     public let scheme: String
     public let host: String
@@ -68,6 +127,13 @@ public struct APIEndpoint: Equatable, Sendable {
         let valueWithScheme = hasScheme
             ? trimmedBaseURL
             : "https://\(trimmedBaseURL)"
+
+        if let schemeEnd = valueWithScheme.range(of: "://") {
+            let authority = valueWithScheme[schemeEnd.upperBound...].lowercased()
+            guard !authority.hasPrefix("http:/"), !authority.hasPrefix("https:/") else {
+                return nil
+            }
+        }
 
         guard
             let components = URLComponents(string: valueWithScheme),
@@ -93,7 +159,21 @@ public struct APIEndpoint: Equatable, Sendable {
         self.scheme = scheme
         self.host = host
         self.port = port
-        self.basePath = components.path.isEmpty ? "/v1" : components.path
+        var path = components.path
+        while path.hasSuffix("/") {
+            path.removeLast()
+        }
+        self.basePath = path
+    }
+
+    /// Display the effective scheme and endpoint, including HTTPS inferred for host-only input.
+    public var baseURL: String {
+        var components = URLComponents()
+        components.scheme = scheme
+        components.host = host
+        components.port = port == (scheme == "https" ? 443 : 80) ? nil : port
+        components.path = basePath
+        return components.string ?? ""
     }
 
     private static func isLoopbackHost(_ host: String) -> Bool {
