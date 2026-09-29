@@ -164,7 +164,6 @@ struct DetailView: View {
                 }
         })
         .setAvailableInputs([.text, .media])
-        .messageUseMarkdown(true)
         .betweenListAndInputViewBuilder(infoMessage)
     }
     

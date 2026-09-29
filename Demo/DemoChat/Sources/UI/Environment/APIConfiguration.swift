@@ -10,5 +10,5 @@ import SwiftUI
 
 extension EnvironmentValues {
     @Entry public var apiProvider: APIProvider = .openAI
-    @Entry public var configuredChatModel: Model = .gpt4_o_mini
+    @Entry public var configuredChatModel: Model = .gpt5_6_luna
 }

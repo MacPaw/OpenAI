@@ -202,7 +202,7 @@ func configurationRejectsEmptyCredentialsAndModels(empty: String) {
     #expect(value.chatModel.isEmpty)
     #expect(value.customBaseURL == "http://localhost:8080")
     value.selectProvider(.openAI)
-    #expect(value.chatModel == Model.gpt4_o_mini)
+    #expect(value.chatModel == Model.gpt5_6_luna)
     #expect(value.apiKey.isEmpty)
 }
 
