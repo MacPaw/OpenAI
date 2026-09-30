@@ -6,6 +6,8 @@
 //
 
 #if canImport(Combine)
+// Swift Testing ships with Swift 6 toolchains. The package still supports Swift 5.10, where these tests do not exist.
+#if canImport(Testing)
 import Testing
 import Foundation
 @testable import OpenAI
@@ -44,4 +46,5 @@ struct CombineClientTests {
         #expect(mockSession.dataTaskPublisherCalls[0].request.url == interceptedURL)
     }
 }
+#endif
 #endif

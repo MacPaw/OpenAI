@@ -5,6 +5,8 @@
 //  Created by Oleksii Nezhyborets on 03.02.2025.
 //
 
+// Swift Testing ships with Swift 6 toolchains. The package still supports Swift 5.10, where these tests do not exist.
+#if canImport(Testing)
 import Testing
 import Foundation
 @testable import OpenAI
@@ -105,3 +107,4 @@ struct ServerSentEventsStreamInterpreterTests {
 private actor ChatStreamResultsActor {
     var chatStreamResults: [ChatStreamResult] = []
 }
+#endif

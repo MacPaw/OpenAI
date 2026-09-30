@@ -1170,6 +1170,10 @@ public extension Model {
     static let gpt5_1 = "gpt-5.1"
     static let gpt5_1_chat_latest = "gpt-5.1-chat-latest"
 
+    static let gpt5_6_sol = "gpt-5.6-sol"
+    static let gpt5_6_terra = "gpt-5.6-terra"
+    static let gpt5_6_luna = "gpt-5.6-luna"
+
     static let gpt5 = "gpt-5"
     static let gpt5_mini = "gpt-5-mini"
     static let gpt5_nano = "gpt-5-nano"
@@ -1529,6 +1533,14 @@ Currently we handle such cases by simply adding additional fields to main model 
 
 You can find example iOS application in [Demo](/Demo) folder. 
 
+Use **API Configuration** to choose OpenAI, Gemini, or a custom OpenAI-compatible
+base URL, enter that provider's API key, and set a supported chat model ID. Provider
+changes clear the key and model; custom URLs are retained separately from the
+presets. Host-only URLs use HTTPS, and the form shows the effective URL. For local
+HTTP servers, include `http://` explicitly. Root-mounted endpoints are supported;
+include `/v1` or another API prefix only when required by the server. Save applies
+the settings together, while Cancel discards edits.
+
 ![mockuuups-iphone-13-pro-mockup-perspective-right](https://user-images.githubusercontent.com/1411778/231449395-2ad6bab6-c21f-43dc-8977-f45f505b609d.png)
 
 ## Contribution Guidelines
@@ -1575,7 +1587,7 @@ We'll appreciate you including tests to your code if it is needed and possible. 
 ```
 MIT License
 
-Copyright (c) 2023 MacPaw Inc.
+Copyright (c) 2023 MacPaw Way Ltd.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

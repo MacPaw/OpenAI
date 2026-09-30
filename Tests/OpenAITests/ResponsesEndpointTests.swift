@@ -91,4 +91,25 @@ class ResponsesEndpointTests: XCTestCase {
             XCTFail("Expected tool in response to be a function")
         }
     }
+
+    func testCreateResponseWithProgrammaticToolCallingTool() async throws {
+        let tool = Tool.programmaticToolCallingTool(.init(_type: .programmaticToolCalling))
+
+        let query = CreateModelResponseQuery(
+            input: .textInput("Hello"),
+            model: "test-model",
+            tools: [tool]
+        )
+
+        let dummy = ResponseObject.makeMock(tools: [tool])
+        try stub(dummy)
+
+        let result = try await openAI.responses.createResponse(query: query)
+        switch result.tools[0] {
+        case .programmaticToolCallingTool:
+            break
+        default:
+            XCTFail("Expected tool in response to be programmaticToolCallingTool")
+        }
+    }
 }

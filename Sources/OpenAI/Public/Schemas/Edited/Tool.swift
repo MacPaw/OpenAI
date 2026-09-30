@@ -46,6 +46,8 @@
     case toolSearchTool(Schemas.ToolSearchToolParam)
     /// A tool that applies patches.
     case applyPatchTool(Schemas.ApplyPatchToolParam)
+    /// Enables calling tools from model-generated code.
+    case programmaticToolCallingTool(Schemas.ProgrammaticToolCallingParam)
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: _TypeCodingKey.self)
@@ -81,6 +83,8 @@
             self = .toolSearchTool(try .init(from: decoder))
         case "apply_patch":
             self = .applyPatchTool(try .init(from: decoder))
+        case "programmatic_tool_calling":
+            self = .programmaticToolCallingTool(try .init(from: decoder))
         default:
             throw DecodingError.dataCorruptedError(
                 forKey: .type,
@@ -124,6 +128,8 @@
         case let .toolSearchTool(value):
             try value.encode(to: encoder)
         case let .applyPatchTool(value):
+            try value.encode(to: encoder)
+        case let .programmaticToolCallingTool(value):
             try value.encode(to: encoder)
         }
     }
