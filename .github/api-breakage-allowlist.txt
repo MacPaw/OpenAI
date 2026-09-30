@@ -131,6 +131,7 @@ API breakage: constructor Components.Schemas.TranscriptTextDoneEvent.init(_type:
 API breakage: constructor Components.Schemas.WebSearchTool.init(_type:filters:userLocation:searchContextSize:) has been removed
 API breakage: constructor Components.Schemas.WebSearchToolCall.init(id:_type:status:action:) has parameter 2 type change from OpenAI.Components.Schemas.WebSearchToolCall.StatusPayload to OpenAI.Components.Schemas.WebSearchCallStatus
 API breakage: constructor Components.Schemas._Error.init(code:message:param:_type:) has been removed
+API breakage: constructor CreateModelResponseQuery.init(input:model:include:background:instructions:maxOutputTokens:metadata:parallelToolCalls:previousResponseId:prompt:promptCacheKey:reasoning:serviceTier:store:stream:temperature:text:toolChoice:tools:topP:truncation:user:) has been removed
 API breakage: constructor ResponseOutputItemAddedEvent.init(type:outputIndex:item:) has been removed
 API breakage: constructor ResponseOutputItemDoneEvent.init(type:outputIndex:item:) has been removed
 API breakage: enum Components.Schemas.ResponseProperties.TruncationPayload has been removed
@@ -273,7 +274,14 @@ API breakage: enumelement ResponseStreamEvent.reasoning has been renamed to enum
 API breakage: enumelement ResponseStreamEvent.reasoning has declared type change from (OpenAI.ResponseStreamEvent.Type) -> (OpenAI.ResponseStreamEvent.ReasoningEvent) -> OpenAI.ResponseStreamEvent to (OpenAI.ResponseStreamEvent.Type) -> (OpenAI.ResponseStreamEvent.ReasoningTextEvent) -> OpenAI.ResponseStreamEvent
 API breakage: enumelement ResponseStreamEvent.shellCall has been added as a new enum case
 API breakage: enumelement Tool.programmaticToolCallingTool has been added as a new enum case
+API breakage: func ResponsesEndpointAsync.cancelResponse(id:) has been added as a protocol requirement
+API breakage: func ResponsesEndpointAsync.retrieveResponse(query:) has been added as a protocol requirement
+API breakage: func ResponsesEndpointCombine.cancelResponse(id:) has been added as a protocol requirement
+API breakage: func ResponsesEndpointCombine.retrieveResponse(query:) has been added as a protocol requirement
+API breakage: func ResponsesEndpointProtocol.cancelResponse(id:completion:) has been added as a protocol requirement
+API breakage: func ResponsesEndpointProtocol.retrieveResponse(query:completion:) has been added as a protocol requirement
 API breakage: struct Components.Schemas.Conversation2 has been removed
+API breakage: struct GetModelResponseQuery has been removed
 API breakage: typealias Components.Schemas.Response.Value3Payload.Conversation2 has been removed
 API breakage: typealias Components.Schemas.ResponseProperties.Reasoning has been removed
 API breakage: typealias Components.Schemas.ServiceTier.AllCases has underlying type change from [OpenAI.Components.Schemas.ServiceTier] to [OpenAI.Components.Schemas.ServiceTierResponses]

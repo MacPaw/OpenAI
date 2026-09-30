@@ -17,19 +17,19 @@ protocol URLBuilder: Sendable {
 struct DefaultURLBuilder: URLBuilder {
     private let configuration: OpenAI.Configuration
     private let path: String
-    private let after: String?
+    private let queryItems: [URLQueryItem]
     
-    init(configuration: OpenAI.Configuration, path: String, after: String? = nil) {
+    init(configuration: OpenAI.Configuration, path: String, queryItems: [URLQueryItem] = []) {
         self.configuration = configuration
         self.path = path
-        self.after = after
+        self.queryItems = queryItems
     }
     
     func buildURL() -> URL {
         var components = URLComponents.components(perConfiguration: configuration, path: path)
         
-        if let after {
-            components.queryItems = [URLQueryItem(name: "after", value: after)]
+        if !queryItems.isEmpty {
+            components.queryItems = queryItems
         }
         
         return components.urlSafe
