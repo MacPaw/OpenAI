@@ -954,6 +954,21 @@ class OpenAITestsDecoder: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(dict["prompt_cache_key"] as? String), "user-1234")
     }
 
+    func testCreateResponseQueryEncodesContextManagement() throws {
+        let query = CreateModelResponseQuery(
+            input: .textInput("Hello"),
+            model: .gpt4_o,
+            contextManagement: [.init(_type: "compaction", compactThreshold: 1000)]
+        )
+
+        let data = try JSONEncoder().encode(query)
+        let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let contextManagement = try XCTUnwrap(dict["context_management"] as? [[String: Any]])
+        XCTAssertEqual(contextManagement.count, 1)
+        XCTAssertEqual(contextManagement.first?["type"] as? String, "compaction")
+        XCTAssertEqual(contextManagement.first?["compact_threshold"] as? Int, 1000)
+    }
+
     func testCreateResponseQueryOmitsPromptCacheKeyWhenNil() throws {
         let query = CreateModelResponseQuery(
             input: .textInput("Hello"),

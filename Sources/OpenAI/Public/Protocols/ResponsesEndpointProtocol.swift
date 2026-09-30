@@ -25,7 +25,7 @@ public protocol ResponsesEndpointProtocol: ResponsesEndpointModern {
     ) -> CancellableRequest
     
     func cancelResponse(
-        query: CancelModelResponseQuery,
+        id: String,
         completion: @escaping @Sendable (Result<ResponseObject, Error>) -> Void
     ) -> CancellableRequest
 

@@ -1,5 +1,5 @@
 //
-//  GetModelResponseQuery.swift
+//  RetrieveModelResponseQuery.swift
 //  OpenAI
 //
 //  Created by Oleksii Nezhyborets on 27.03.2025.
@@ -17,7 +17,7 @@ public struct RetrieveModelResponseQuery: Codable, Equatable, Sendable {
     /// * `computer_call_output.output.image_url`: Include image urls from the computer call output.
     public let include: [Components.Schemas.IncludeEnum]?
     
-    public init(responseId: String, include: [Components.Schemas.IncludeEnum]?) {
+    public init(responseId: String, include: [Components.Schemas.IncludeEnum]? = nil) {
         self.responseId = responseId
         self.include = include
     }

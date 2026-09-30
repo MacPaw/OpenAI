@@ -11,5 +11,5 @@ public protocol ResponsesEndpointAsync: Sendable {
     func createResponse(query: CreateModelResponseQuery) async throws -> ResponseObject
     func createResponseStreaming(query: CreateModelResponseQuery) -> AsyncThrowingStream<ResponseStreamEvent, Error>
     func retrieveResponse(query: RetrieveModelResponseQuery) async throws -> ResponseObject
-    func cancelResponse(query: CancelModelResponseQuery) async throws -> ResponseObject
+    func cancelResponse(id: String) async throws -> ResponseObject
 }
