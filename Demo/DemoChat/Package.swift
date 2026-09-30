@@ -32,5 +32,10 @@ let package = Package(
             ],
             path: "Sources"
         ),
+        .testTarget(
+            name: "DemoChatTests",
+            dependencies: ["DemoChat"],
+            path: "Tests"
+        ),
     ]
 )
