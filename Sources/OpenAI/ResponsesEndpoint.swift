@@ -64,8 +64,8 @@ public final class ResponsesEndpoint: ResponsesEndpointProtocol, Sendable {
         .init(body: query, url: buildURL(path: .Responses.createModelResponse.stringValue))
     }
     
-    private func buildURL(path: String, after: String? = nil, queryItems: [URLQueryItem] = []) -> URL {
-        DefaultURLBuilder(configuration: configuration, path: path, after: after, queryItems: queryItems)
+    private func buildURL(path: String, queryItems: [URLQueryItem] = []) -> URL {
+        DefaultURLBuilder(configuration: configuration, path: path, queryItems: queryItems)
             .buildURL()
     }
 }

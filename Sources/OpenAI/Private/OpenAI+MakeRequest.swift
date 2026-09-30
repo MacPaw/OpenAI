@@ -127,7 +127,11 @@ extension OpenAI {
     
     func makeAssistantsRequest(_ after: String?) -> AssistantsRequest<AssistantsResult> {
         .jsonRequest(
-            urlBuilder: DefaultURLBuilder(configuration: configuration, path: .Assistants.assistants.stringValue, after: after),
+            urlBuilder: DefaultURLBuilder(
+                configuration: configuration,
+                path: .Assistants.assistants.stringValue,
+                queryItems: after.map { [URLQueryItem(name: "after", value: $0)] } ?? []
+            ),
             body: nil,
             method: "GET"
         )
