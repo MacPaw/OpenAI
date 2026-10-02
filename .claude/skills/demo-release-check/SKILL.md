@@ -59,6 +59,13 @@ replace the saved provider and key.
 ## Procedure
 
 1. **Read `test-cases.md`** and pick the cases in scope for the argument.
+   Then **check requirements before touching the simulator**: test which of
+   `OPENAI_API_KEY` and `GITHUB_TOKEN` are set (presence only, as above) and
+   compare with each case's `Needs`. Mark every case with a missing
+   requirement BLOCKED right away, naming the variable. Never try it, never
+   fall back to whatever the app has saved, and never ask the user to type a
+   credential into the app. If nothing in scope is left to run, stop here and
+   report.
 2. **Open the simulator panel first:** `control` → `attach`. If no simulator is
    booted, boot one (prefer `iPhone 17`) and retry.
 3. **Build** from the repo root, into a gitignored folder:
@@ -88,18 +95,12 @@ replace the saved provider and key.
    Demo uses these for that launch only, whatever provider or key is saved,
    and never stores them. Empty values are ignored. Then `control` → `attach`
    so the user can watch, and take screenshots and taps as usual.
-5. **Check the credentials.** Demo opens the **API Configuration** modal on
-   *every* launch; with a working configuration it has **Cancel** and
-   **Save**: tap **Cancel** (never Save, except in P-01) and carry on.
-   - If `OPENAI_API_KEY` was set, the configuration is OpenAI with that key
-     regardless of what is saved.
-   - If it was **not** set, the saved configuration is used. If it has no key
-     (the modal shows only **Continue**, or the screen says "Configure an API
-     provider") or the saved provider isn't OpenAI, stop and ask the user to
-     export `OPENAI_API_KEY` and rerun, or to fix the configuration themselves
-     in the panel. Resume when they confirm.
-   - `GITHUB_TOKEN` is optional: if neither it nor a saved token exists, mark
-     the `M-` cases that need it BLOCKED.
+5. **Dismiss the launch modal.** Demo opens the **API Configuration** modal on
+   *every* launch; tap **Cancel** (never Save, except in P-01) and carry on.
+   With `OPENAI_API_KEY` set, Demo is on OpenAI with that key whatever was
+   saved. If the modal has no **Cancel** (no usable configuration), only
+   `Needs: none` cases can run; the rest should already be BLOCKED from the
+   requirements check.
 6. **Run each case** in order. For every case:
    - Follow the steps, taking a screenshot after the action that matters.
    - Compare against **Expect**. Record PASS or FAIL.
@@ -116,7 +117,7 @@ replace the saved provider and key.
 |---|---|
 | PASS | Every Expect line held |
 | FAIL | The app behaved differently from Expect: a Demo or SDK defect |
-| BLOCKED | Couldn't judge it: bad/missing key, 401/429/quota, no network, a missing GitHub token |
+| BLOCKED | Couldn't judge it: a required credential isn't set in the shell (decided before running), or a 401/429/quota/network error while running |
 | SKIPPED | Tagged `manual only`, or out of scope for the argument |
 
 Tell FAIL from BLOCKED by the error text: authentication, rate-limit or quota
@@ -141,6 +142,8 @@ Failures
 - R-04 <title>: <what happened vs Expect>. Likely area: <file/view if obvious>.
 
 Manual follow-ups: <the `manual only` cases the user still needs to do>
+Blocked by missing credentials: <for example "OPENAI_API_KEY not set: C-01, C-04,
+  R-01, X-02. Export it in a file my shell reads and rerun.">
 Saved configuration: <if section P ran: "replaced with a placeholder Custom
   provider; the next launch with OPENAI_API_KEY set restores OpenAI. Without
   it, re-enter your key.">
