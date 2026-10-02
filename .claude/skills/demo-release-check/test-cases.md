@@ -7,44 +7,61 @@ truth for what gets checked before a release.
 
 ```
 ### <ID> <Title>  [tags]
-Needs: no-network | real API | GitHub token | manual only
+Needs: none | real API | GitHub token | manual only
 Steps: short, in on-screen labels, separated by →
 Expect: what must be true to PASS
 ```
 
 - **ID**: section letter + number. Letters are L = Launch, C = Chats,
-  R = Responses, I = Image, M = Github MCP, X = Misc.
+  R = Responses, I = Image, M = Github MCP, X = Misc, P = Other providers.
 - **Tags**: `[smoke]` = run on every pass, even a quick one. `[costly]` =
   noticeably more tokens (image generation); skip when only doing a fast check.
-- **Needs** drives the status: `manual only` is always SKIPPED and listed as a
-  follow-up for the human.
+- **Needs** says what a case depends on besides the app itself:
+  - `none`: nothing; the case makes no API calls and costs no tokens.
+  - `real API`: calls the API with the user's saved key and spends tokens.
+  - `GitHub token`: needs the token the user saved in the Github MCP tab.
+    Without one the case is BLOCKED.
+  - `manual only`: can't be driven reliably in the simulator (for example the
+    photo picker). Always SKIPPED and listed as a follow-up for the human.
 - Keep prompts short. The message input and send button are drawn by a
   chat UI package, so find them on screen rather than relying on a label.
 - When a screen changes (new feature, a stub becomes real), update its case in
   the same change.
 
-Assumes the API key is already saved in the simulator's Demo app (provider
-OpenAI). Provider-specific behavior (Gemini, Custom) isn't covered here yet.
+**Saved data.** A run may be the first one after installing Demo or any later
+one, so saved data (API key, GitHub token, enabled MCP tools) may or may not
+exist. Cases in sections L to X must work either way, assume the OpenAI
+provider, and leave saved settings as they found them. A case that needs a
+clean install can't be written yet; don't add one.
+
+Credentials come from the launch environment (`OPENAI_API_KEY`, optionally
+`GITHUB_TOKEN`; see `SKILL.md`), which overrides what is saved for that launch.
+
+The one exception to leaving saved data alone is section **P**: it replaces the
+saved provider and key, so it runs last. The next launch with `OPENAI_API_KEY`
+set is back on OpenAI; without it the user has to re-enter their key. Like any
+test run on a device, it overwrites data.
 
 ---
 
 ## L: Launch and configuration
 
 ### L-01 Launch with saved configuration  [smoke]
-Needs: no-network
-Steps: launch Demo → tap **Cancel** on the API Configuration modal
-Expect: no crash; the modal opens on launch (Provider OpenAI, Base URL, Chat
-model ID, API Key filled in) and **Cancel** dismisses it; Chats opens with a
-"Conversations" list; the tab bar shows Chats, Responses, Image, Github MCP and
-Misc (no More tab); nothing covers the tab bar.
+Needs: none
+Steps: launch Demo (step 4 of `SKILL.md`) → dismiss the API Configuration modal
+with **Cancel** (if it has no Cancel, follow step 5 of `SKILL.md`)
+Expect: no crash; the API Configuration modal opens on launch; once dismissed,
+Chats opens with a "Conversations" list; the tab bar shows Chats, Responses,
+Image, Github MCP and Misc (no More tab); nothing covers the tab bar.
 
 ### L-02 Reopen and cancel API Configuration
-Needs: no-network
+Needs: none
 Steps: Misc → **API Configuration** (first row, under "Configuration") → look
 at the form → tap **Cancel**
-Expect: a sheet titled "API Configuration" shows Provider, Base URL, Chat model
-ID and API Key; **Cancel** closes it; the app is still on the same tab and
-still works. (Do not edit or save the key, and don't repeat it in the report.)
+Expect: a sheet titled "API Configuration" shows Provider, Base URL and API Key
+(no model field; models are chosen per chat); **Cancel** closes it; the app is
+still on the same tab and still works. (Do not edit or save the key, and don't
+repeat it in the report.)
 
 ---
 
@@ -66,7 +83,7 @@ Expect: the header now reads "stream: false"; the full reply arrives and is
 shown once it completes, without an error.
 
 ### C-03 Model selection sheet
-Needs: no-network
+Needs: none
 Steps: in an open chat, tap the **cpu** toolbar icon
 Expect: a "Select model" dialog lists the streaming toggle, the available model
 names and **Cancel**; **Cancel** dismisses it with the header unchanged.
@@ -81,6 +98,12 @@ Chat Completions unless `reasoning_effort` is `none`; a message like "Function
 tools with reasoning_effort are not supported…" means the model's `ModelSpec`
 limitation is missing or ignored.
 
+### C-05 Model menu offers the OpenAI models
+Needs: none
+Steps: in an open chat, tap the **cpu** toolbar icon
+Expect: the list includes gpt-6-*, gpt-5.6-* and older models, with no
+"Custom model ID…" entry.
+
 ---
 
 ## R: Responses
@@ -94,7 +117,7 @@ Expect: the title shows "Streaming…" while the answer arrives and returns to
 Web Search is on by default, so R-05 starts with it already enabled.
 
 ### R-02 Settings screen toggles
-Needs: no-network
+Needs: none
 Steps: Responses tab → **gear** icon → flip each of Stream, Web Search,
 Function Calling, MCP Tools → go back
 Expect: the Settings screen has a Model row plus the four toggles; each flips
@@ -129,7 +152,7 @@ reply follows; no alert. Leave **Web Search** as you found it.
 ## I: Image
 
 ### I-01 Image menu
-Needs: no-network
+Needs: none
 Steps: open the Image tab
 Expect: list shows **Create Image**, **Create Image Edit** and **Create Image
 Variation**; Variation is greyed out and not tappable.
@@ -153,15 +176,16 @@ which can't be driven reliably in the simulator.
 ## M: Github MCP
 
 ### M-01 MCP tab, disconnected state
-Needs: no-network
+Needs: none
 Steps: open the Github MCP tab
-Expect: a **GitHub Token** field, a red ✗ status, a **Connect to GitHub MCP**
-button, and "No tools available".
+Expect: a **GitHub Token** field (filled or empty), a red ✗ status, a
+**Connect to GitHub MCP** button, and "No tools available".
 
 ### M-02 Connect, toggle tools, disconnect
 Needs: GitHub token
 Steps: with a token already saved in the field → **Connect to GitHub MCP** →
-wait → toggle **Enable All Tools** → **Disconnect**
+wait → toggle **Enable All Tools** → toggle it back to how it was →
+**Disconnect**
 Expect: status turns to a green ✓; the list under **Available Tools** fills in
 and the "N enabled" count matches the toggles; after **Disconnect** the status
 returns to ✗ and the tool list empties.
@@ -181,10 +205,11 @@ request ends cleanly.)
 Misc is the last tab.
 
 ### X-01 Misc menu
-Needs: no-network
+Needs: none
 Steps: open the Misc tab
-Expect: sections Configuration (API Configuration), Models (List Models, Retrieve Model), Assistants Beta
-(Assistants), Moderations (Moderation Chat), Audio (Create Speech, Transcribe).
+Expect: sections Configuration (API Configuration), Models (List Models,
+Retrieve Model), Assistants Beta (Assistants), Moderations (Moderation Chat),
+Audio (Create Speech, Transcribe).
 
 ### X-02 List models  [smoke]
 Needs: real API
@@ -193,7 +218,7 @@ Expect: a non-empty list of model ids loads; no error; exactly one back button
 at the top-left.
 
 ### X-03 Retrieve model placeholder
-Needs: no-network
+Needs: none
 Steps: Misc → **Retrieve Model**
 Expect: the screen reads "Retrieve Model: TBD". Update this case if it ships.
 
@@ -216,7 +241,40 @@ Expect: the request finishes without error and the list reflects the account
 (an empty list is fine). Do not create or modify assistants in this pass.
 
 ### X-07 Transcribe placeholder
-Needs: no-network
+Needs: none
 Steps: Misc → Audio → **Transcribe**
 Expect: the screen reads "Transcribe: TBD". Update this case if transcription
 ships.
+
+---
+
+## P: Other providers (overwrites the saved provider and key; run last)
+
+These cases switch the saved provider to Custom with a placeholder token and a
+local URL, so no real credentials or network are involved. Run them in order,
+after everything else. They are not `[smoke]`.
+
+### P-01 Switch to the Custom provider
+Needs: none
+Steps: Misc → **API Configuration** → Provider **Custom** → Base URL
+`http://localhost:8080` → API Key `test-token-not-real` → take a screenshot
+and confirm the provider reads "Custom" → **Save**
+Expect: the form accepts the values (Save becomes enabled) and the modal closes.
+Changing the provider clears the key field first, so type the token after
+choosing Custom.
+
+### P-02 Custom model ID in a chat
+Needs: none
+Steps: Chats → **+** → **Create Chat** → open it → read the header → **cpu**
+icon → **Custom model ID…** → enter `my-model-1` → **Use** → go back, create
+and open another chat
+Expect: before choosing, the header reads "Model: not set" and the menu has
+only the streaming toggle and "Custom model ID…"; afterwards the header shows
+"Model: my-model-1", and the new chat starts with the same ID. Do not send a
+message: no server runs at the URL.
+
+### P-03 Responses is OpenAI-only
+Needs: none
+Steps: open the Responses tab
+Expect: no chat UI; a screen titled "Responses is OpenAI-only" saying the
+current provider is Custom and pointing to Misc > API Configuration.

@@ -11,13 +11,27 @@ Drive the `Demo` app in the iOS Simulator through the cases in
 tokens, which is why this only runs when invoked explicitly.
 
 Arguments (optional): a section prefix (`R` = Responses, `C` = Chats, …) or
-`smoke` to run only cases tagged `[smoke]`. With no argument, run everything.
+`smoke` to run only cases tagged `[smoke]`. With no argument, run everything,
+with section `P` last. Before starting a run that includes `P`, say that it will
+replace the saved provider and key.
 
 ## Ground rules
 
-- **Never type credentials.** The OpenAI API key (and GitHub token for the MCP
-  tab) are entered by the user in the simulator panel. Do not enter, edit or
-  clear them, and do not use the API Configuration screen's Save/Continue.
+- **Credentials come from the shell, by name only.** The user exports
+  `OPENAI_API_KEY` (and optionally `GITHUB_TOKEN`) in their shell profile, and
+  step 4 passes them to the app's launch environment. Never type a real key or
+  token into the app, never print, echo or log them, and never run `env`,
+  `printenv`, `set -x` or anything else that would show their values. Test for
+  presence only: `[ -n "$OPENAI_API_KEY" ]`. The only text you type into the
+  API Key field is the placeholder token of section P.
+- **Saved data may or may not exist.** This may be the first run after
+  installing Demo or a later one, so the saved provider, key, GitHub token and
+  other settings may or may not be there, and may have been changed by the user
+  since the last run. Never uninstall or reset the app (installing over it keeps
+  its data). Cases in sections L to X leave saved settings as they found them.
+  Only section **P** replaces the saved provider and key; it runs last and uses
+  a placeholder token and a local URL. Credentials from the launch environment
+  are in memory only, so a relaunch undoes P.
 - **Don't change code or commit** during the run. If something fails, report
   it; fixing is a separate step.
 - **Navigate by what's on screen.** Demo has no accessibility identifiers and
@@ -37,8 +51,10 @@ Arguments (optional): a section prefix (`R` = Responses, `C` = Chats, …) or
 - **Tabs.** The tab bar is Chats, Responses, Image, Github MCP, Misc. The
   **API Configuration** screen is reachable from Misc's first row.
 - **Keep prompts tiny** (see the prompts in the cases) to limit token spend.
-- **Screenshots of the API Configuration modal show the key.** Dismiss it with
-  **Cancel** without taking a screenshot first.
+- **The keyboard moves the layout.** When it appears, the input field and send
+  button jump up; re-screenshot before tapping send.
+- **The API Key field is masked.** Screenshots of the API Configuration modal
+  show dots, not the key.
 
 ## Procedure
 
@@ -57,16 +73,33 @@ Arguments (optional): a section prefix (`R` = Responses, `C` = Chats, …) or
    `build/DemoDerivedData/Build/Products/Debug-iphonesimulator/Demo.app`
    (bundle id `openAI.MacPaw.Demo`). If the build fails, stop and report the
    errors; there is nothing to test.
-4. **Launch** it with `control` → `launch`. Do not uninstall or reset the
-   simulator: the saved API key lives in app storage and would be lost.
-5. **Check the key is configured.** Demo opens the **API Configuration**
-   modal on *every* launch. With a saved key it has **Cancel** and **Save**
-   buttons: tap **Cancel** (never Save) and carry on. The API Key field shows
-   the key in plain text, so never repeat it in chat or the report. If the
-   modal has only a **Continue** button and an empty key, or the screen only
-   says "Configure an API provider", stop and ask the user to enter their key
-   in the panel; resume when they confirm. The **Github MCP** tab needs a
-   GitHub token too: if it's empty, mark the `M-` cases that need it BLOCKED.
+4. **Install and launch with the credentials**, through Bash (the `control`
+   tool's `launch` can't pass environment variables). Installing over the
+   existing app keeps its saved data:
+
+   ```sh
+   [ -n "$OPENAI_API_KEY" ] && echo "key: set" || echo "key: NOT set"
+   xcrun simctl install booted build/DemoDerivedData/Build/Products/Debug-iphonesimulator/Demo.app
+   SIMCTL_CHILD_OPENAI_API_KEY="$OPENAI_API_KEY" \
+   SIMCTL_CHILD_GITHUB_TOKEN="$GITHUB_TOKEN" \
+   xcrun simctl launch --terminate-running-process booted openAI.MacPaw.Demo
+   ```
+
+   Demo uses these for that launch only, whatever provider or key is saved,
+   and never stores them. Empty values are ignored. Then `control` → `attach`
+   so the user can watch, and take screenshots and taps as usual.
+5. **Check the credentials.** Demo opens the **API Configuration** modal on
+   *every* launch; with a working configuration it has **Cancel** and
+   **Save**: tap **Cancel** (never Save, except in P-01) and carry on.
+   - If `OPENAI_API_KEY` was set, the configuration is OpenAI with that key
+     regardless of what is saved.
+   - If it was **not** set, the saved configuration is used. If it has no key
+     (the modal shows only **Continue**, or the screen says "Configure an API
+     provider") or the saved provider isn't OpenAI, stop and ask the user to
+     export `OPENAI_API_KEY` and rerun, or to fix the configuration themselves
+     in the panel. Resume when they confirm.
+   - `GITHUB_TOKEN` is optional: if neither it nor a saved token exists, mark
+     the `M-` cases that need it BLOCKED.
 6. **Run each case** in order. For every case:
    - Follow the steps, taking a screenshot after the action that matters.
    - Compare against **Expect**. Record PASS or FAIL.
@@ -108,6 +141,9 @@ Failures
 - R-04 <title>: <what happened vs Expect>. Likely area: <file/view if obvious>.
 
 Manual follow-ups: <the `manual only` cases the user still needs to do>
+Saved configuration: <if section P ran: "replaced with a placeholder Custom
+  provider; the next launch with OPENAI_API_KEY set restores OpenAI. Without
+  it, re-enter your key.">
 ```
 
 Finish by stating plainly whether any FAIL remains. Don't declare the release
