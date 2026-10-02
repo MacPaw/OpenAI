@@ -51,9 +51,10 @@ the failure only shows up on Linux. If you can't run the Linux job yourself,
 at least double-check new files against this pattern before considering the
 change done.
 
-## Wait for explicit instructions to commit and push
+## Commit when it's time, never push
 
-The user wants to review the diff before it becomes a commit, so don't run
-`git commit` or `git push` unless they explicitly ask for it at that point.
-Get the working tree ready (changes made, build/tests passing) and say so,
-but leave committing to them to request.
+Commit when you judge a coherent piece of work is done (changes made,
+build/tests passing), in logical commits with clear messages. When on `main`,
+create a branch first. Never run `git push` (or open a PR) unless the user
+explicitly asks for it at that point; the user decides what leaves their
+machine.
