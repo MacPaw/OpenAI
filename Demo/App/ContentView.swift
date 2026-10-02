@@ -19,6 +19,7 @@ struct ContentView: View {
     
     @State private var selectedTab = 0
     @Environment(\.idProviderValue) var idProvider
+    @Environment(\.apiProvider) private var apiProvider
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -31,9 +32,13 @@ struct ContentView: View {
             }
             .tag(0)
 
-            ResponsesChatDetailView(
-                store: responsesStore
-            ).tabItem {
+            Group {
+                if apiProvider == .openAI {
+                    ResponsesChatDetailView(store: responsesStore)
+                } else {
+                    OpenAIOnlyView(feature: "Responses", provider: apiProvider)
+                }
+            }.tabItem {
                 Label("Responses", systemImage: "message.circle")
             }.tag(1)
 

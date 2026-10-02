@@ -165,8 +165,7 @@ func configurationMapsEachProvider(provider: APIProvider) throws {
     let value = DemoAPIConfiguration(
         provider: provider,
         apiKey: " \ntest-token\t",
-        customBaseURL: "http://localhost:8080/custom/",
-        chatModel: " test-model "
+        customBaseURL: "http://localhost:8080/custom/"
     )
     let configuration = try #require(value.sdkConfiguration)
     let endpoint = try #require(APIEndpoint(baseURL: provider.defaultBaseURL ?? value.customBaseURL))
@@ -179,13 +178,12 @@ func configurationMapsEachProvider(provider: APIProvider) throws {
 }
 
 @Test(arguments: ["", " \n\t"])
-func configurationRejectsEmptyCredentialsAndModels(empty: String) {
+func configurationRejectsEmptyCredentials(empty: String) {
     #expect(DemoAPIConfiguration(apiKey: empty).sdkConfiguration == nil)
-    #expect(DemoAPIConfiguration(apiKey: "test-token", chatModel: empty).sdkConfiguration == nil)
 }
 
 @Test func invalidCustomConfigurationDoesNotFallBackToOpenAI() {
-    let value = DemoAPIConfiguration(provider: .custom, apiKey: "test-token", customBaseURL: "https:/bad", chatModel: "model")
+    let value = DemoAPIConfiguration(provider: .custom, apiKey: "test-token", customBaseURL: "https:/bad")
     #expect(value.sdkConfiguration == nil)
 }
 
@@ -193,16 +191,12 @@ func configurationRejectsEmptyCredentialsAndModels(empty: String) {
     var value = DemoAPIConfiguration(apiKey: "openai-token", customBaseURL: "http://localhost:8080")
     value.selectProvider(.gemini)
     #expect(value.apiKey.isEmpty)
-    #expect(value.chatModel.isEmpty)
     #expect(value.sdkConfiguration == nil)
     value.apiKey = "gemini-token"
-    value.chatModel = "gemini-model"
     value.selectProvider(.custom)
     #expect(value.apiKey.isEmpty)
-    #expect(value.chatModel.isEmpty)
     #expect(value.customBaseURL == "http://localhost:8080")
     value.selectProvider(.openAI)
-    #expect(value.chatModel == Model.gpt5_6_luna)
     #expect(value.apiKey.isEmpty)
 }
 
@@ -222,16 +216,20 @@ func configurationRejectsEmptyCredentialsAndModels(empty: String) {
 @Test func customLegacySettingsAreRetained() {
     let value = DemoAPIConfiguration.migrating(apiKey: "test-token", providerRawValue: "custom", baseURL: "http://localhost:8080/")
     #expect(value.customBaseURL == "http://localhost:8080/")
-    #expect(value.chatModel.isEmpty)
-    #expect(value.sdkConfiguration == nil)
+    #expect(value.sdkConfiguration?.host == "localhost")
+}
+
+@Test func configurationDecodesDataSavedWithAChatModel() throws {
+    let legacy = Data(#"{"provider":"gemini","apiKey":"token","customBaseURL":"","chatModel":"gemini-model"}"#.utf8)
+    let value = try JSONDecoder().decode(DemoAPIConfiguration.self, from: legacy)
+    #expect(value == DemoAPIConfiguration(provider: .gemini, apiKey: "token"))
 }
 
 @Test func configurationRoundTripsAsSingleValue() throws {
-    let value = DemoAPIConfiguration(provider: .custom, apiKey: " token ", customBaseURL: " http://localhost:8080/ ", chatModel: " model ").normalized
+    let value = DemoAPIConfiguration(provider: .custom, apiKey: " token ", customBaseURL: " http://localhost:8080/ ").normalized
     let decoded = try JSONDecoder().decode(DemoAPIConfiguration.self, from: JSONEncoder().encode(value))
     #expect(decoded == value)
     #expect(decoded.apiKey == "token")
-    #expect(decoded.chatModel == "model")
     #expect(decoded.customBaseURL == "http://localhost:8080/")
 }
 
@@ -245,4 +243,21 @@ func rootEndpointBuildsSingleSlashSDKPath(baseURL: String) throws {
 @Test func hostOnlyEndpointDisplaysEffectiveHTTPSURL() throws {
     let endpoint = try #require(APIEndpoint(baseURL: "localhost:8080/custom/"))
     #expect(endpoint.baseURL == "https://localhost:8080/custom")
+}
+
+@Test func launchEnvironmentProvidesAnOpenAIConfiguration() {
+    let value = DemoLaunchEnvironment.configuration(from: ["OPENAI_API_KEY": " sk-test \n", "GITHUB_TOKEN": "gh"])
+    #expect(value == DemoAPIConfiguration(provider: .openAI, apiKey: "sk-test"))
+    #expect(value?.sdkConfiguration?.host == "api.openai.com")
+}
+
+@Test(arguments: [[:], ["OPENAI_API_KEY": ""], ["OPENAI_API_KEY": " \n\t"], ["GITHUB_TOKEN": "gh"]])
+func launchEnvironmentIgnoresMissingOrBlankKeys(environment: [String: String]) {
+    #expect(DemoLaunchEnvironment.configuration(from: environment) == nil)
+}
+
+@Test func launchEnvironmentProvidesTheGitHubToken() {
+    #expect(DemoLaunchEnvironment.githubToken(from: ["GITHUB_TOKEN": " ghp_test "]) == "ghp_test")
+    #expect(DemoLaunchEnvironment.githubToken(from: ["GITHUB_TOKEN": ""]) == nil)
+    #expect(DemoLaunchEnvironment.githubToken(from: ["OPENAI_API_KEY": "sk-test"]) == nil)
 }

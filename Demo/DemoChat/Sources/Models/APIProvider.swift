@@ -45,23 +45,20 @@ public enum APIProvider: String, CaseIterable, Codable, Identifiable, Sendable {
     }
 }
 
-/// The demo saves provider, credentials and model as one configuration.
+/// The demo saves provider and credentials as one configuration. Models are chosen per chat.
 public struct DemoAPIConfiguration: Codable, Equatable, Sendable {
     public var provider: APIProvider
     public var apiKey: String
     public var customBaseURL: String
-    public var chatModel: String
 
     public init(
         provider: APIProvider = .openAI,
         apiKey: String = "",
-        customBaseURL: String = "",
-        chatModel: String? = nil
+        customBaseURL: String = ""
     ) {
         self.provider = provider
         self.apiKey = apiKey
         self.customBaseURL = customBaseURL
-        self.chatModel = chatModel ?? (provider == .openAI ? Model.gpt6_luna : "")
     }
 
     public var baseURL: String {
@@ -72,14 +69,13 @@ public struct DemoAPIConfiguration: Codable, Equatable, Sendable {
         Self(
             provider: provider,
             apiKey: apiKey.trimmingCharacters(in: .whitespacesAndNewlines),
-            customBaseURL: customBaseURL.trimmingCharacters(in: .whitespacesAndNewlines),
-            chatModel: chatModel.trimmingCharacters(in: .whitespacesAndNewlines)
+            customBaseURL: customBaseURL.trimmingCharacters(in: .whitespacesAndNewlines)
         )
     }
 
     public var sdkConfiguration: OpenAI.Configuration? {
         let value = normalized
-        guard !value.apiKey.isEmpty, !value.chatModel.isEmpty,
+        guard !value.apiKey.isEmpty,
               let endpoint = APIEndpoint(baseURL: value.baseURL) else {
             return nil
         }
@@ -89,9 +85,8 @@ public struct DemoAPIConfiguration: Codable, Equatable, Sendable {
     public mutating func selectProvider(_ newProvider: APIProvider) {
         guard provider != newProvider else { return }
         provider = newProvider
-        // Never carry credentials or an OpenAI model to a different provider.
+        // Never carry credentials to a different provider.
         apiKey = ""
-        chatModel = newProvider == .openAI ? Model.gpt6_luna : ""
     }
 
     public static func migrating(apiKey: String, providerRawValue: String, baseURL: String) -> Self {

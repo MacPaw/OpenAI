@@ -17,6 +17,9 @@ struct DemoApp: App {
     @AppStorage("apiConfiguration") var configurationData = Data()
     @AppStorage("githubToken") var githubToken: String = ""
     @State var isShowingAPIConfigModal: Bool = true
+    /// Credentials from the launch environment, used until the user saves a configuration in this session. Never stored.
+    @State private var launchConfiguration = DemoLaunchEnvironment.configuration(from: ProcessInfo.processInfo.environment)
+    @State private var launchGitHubToken = DemoLaunchEnvironment.githubToken(from: ProcessInfo.processInfo.environment)
 
     let idProvider: () -> String
     let dateProvider: () -> Date
@@ -35,7 +38,7 @@ struct DemoApp: App {
                     APIProvidedView(
                         configuration: configuration,
                         sdkConfiguration: sdkConfiguration,
-                        githubToken: $githubToken,
+                        githubToken: githubTokenBinding,
                         idProvider: idProvider
                     )
                 } else {
@@ -64,6 +67,9 @@ struct DemoApp: App {
     private var configuration: Binding<DemoAPIConfiguration> {
         Binding(
             get: {
+                if let launchConfiguration {
+                    return launchConfiguration
+                }
                 if configurationData.isEmpty {
                     return .migrating(apiKey: apiKey, providerRawValue: providerRawValue, baseURL: baseURL)
                 }
@@ -72,9 +78,20 @@ struct DemoApp: App {
                     ?? DemoAPIConfiguration(provider: .custom)
             },
             set: { value in
+                launchConfiguration = nil
                 if let data = try? JSONEncoder().encode(value.normalized) {
                     configurationData = data
                 }
+            }
+        )
+    }
+
+    private var githubTokenBinding: Binding<String> {
+        Binding(
+            get: { launchGitHubToken ?? githubToken },
+            set: { value in
+                launchGitHubToken = nil
+                githubToken = value
             }
         )
     }
