@@ -61,7 +61,7 @@ public struct DemoAPIConfiguration: Codable, Equatable, Sendable {
         self.provider = provider
         self.apiKey = apiKey
         self.customBaseURL = customBaseURL
-        self.chatModel = chatModel ?? (provider == .openAI ? Model.gpt5_6_luna : "")
+        self.chatModel = chatModel ?? (provider == .openAI ? Model.gpt6_luna : "")
     }
 
     public var baseURL: String {
@@ -91,7 +91,7 @@ public struct DemoAPIConfiguration: Codable, Equatable, Sendable {
         provider = newProvider
         // Never carry credentials or an OpenAI model to a different provider.
         apiKey = ""
-        chatModel = newProvider == .openAI ? Model.gpt5_6_luna : ""
+        chatModel = newProvider == .openAI ? Model.gpt6_luna : ""
     }
 
     public static func migrating(apiKey: String, providerRawValue: String, baseURL: String) -> Self {

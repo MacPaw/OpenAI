@@ -37,26 +37,19 @@ struct ContentView: View {
                 Label("Responses", systemImage: "message.circle")
             }.tag(1)
 
-            TranscribeView(
-            )
-            .tabItem {
-                Label("Transcribe", systemImage: "mic")
-            }
-            .tag(2)
-
             ImageView(
                 store: imageStore
             )
             .tabItem {
                 Label("Image", systemImage: "photo")
             }
-            .tag(3)
+            .tag(2)
 
             MCPToolsView(mcpStore: mcpToolsStore)
             .tabItem {
                 Label("Github MCP", systemImage: "wrench.and.screwdriver")
             }
-            .tag(4)
+            .tag(3)
 
             MiscView(
                 store: miscStore,
@@ -66,14 +59,7 @@ struct ContentView: View {
             .tabItem {
                 Label("Misc", systemImage: "ellipsis")
             }
-            .tag(5)
+            .tag(4)
         }
-    }
-}
-
-struct TranscribeView: View {
-    var body: some View {
-        Text("Transcribe: TBD")
-            .font(.largeTitle)
     }
 }

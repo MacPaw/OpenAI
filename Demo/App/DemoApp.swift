@@ -38,14 +38,11 @@ struct DemoApp: App {
                         githubToken: $githubToken,
                         idProvider: idProvider
                     )
-                    .safeAreaInset(edge: .bottom) {
-                        Button("API Configuration") { isShowingAPIConfigModal = true }
-                            .buttonStyle(.bordered)
-                    }
                 } else {
                     Button("Configure an API provider") { isShowingAPIConfigModal = true }
                 }
             }
+            .environment(\.showAPIConfiguration, { isShowingAPIConfigModal = true })
             #if os(iOS)
             .fullScreenCover(isPresented: $isShowingAPIConfigModal) {
                 APIKeyModalView(
