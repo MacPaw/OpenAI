@@ -52,7 +52,9 @@ replace the saved provider and key.
   **API Configuration** screen is reachable from Misc's first row.
 - **Keep prompts tiny** (see the prompts in the cases) to limit token spend.
 - **The keyboard moves the layout.** When it appears, the input field and send
-  button jump up; re-screenshot before tapping send.
+  button jump up, the model menu shrinks (scroll it to reach gpt-5.6-*), and
+  the tab bar is covered; re-screenshot before tapping send. Swipe down on the
+  message list to dismiss the keyboard before switching tabs.
 - **The API Key field is masked.** Screenshots of the API Configuration modal
   show dots, not the key.
 
