@@ -294,7 +294,7 @@ public extension Model {
             // reasoning
             .o4_mini, o3, o3_mini, .o1,
             // flagship
-            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o, .gpt_4o_audio_preview, chatgpt_4o_latest,
+            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt4_1, .gpt4_o, .gpt_4o_audio_preview, chatgpt_4o_latest,
             // cost-optimized
             .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini, .gpt_4o_mini_audio_preview,
             // tool-specific
@@ -307,7 +307,7 @@ public extension Model {
             // reasoning
             .o4_mini, .o3, .o3_mini, .o1, .o1_pro,
             // flagship
-            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o, .chatgpt_4o_latest,
+            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt4_1, .gpt4_o, .chatgpt_4o_latest,
             // cost-optimized
             .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini,
             .gpt4_turbo, .gpt4, .gpt3_5Turbo,
@@ -319,7 +319,7 @@ public extension Model {
             // reasoning
             .o4_mini, .o3, .o3_mini, .o1, .o1_pro,
             // flagship
-            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt5_6_sol, .gpt5_6_terra, .gpt5_6_luna, .gpt4_1, .gpt4_o,
+            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt4_1, .gpt4_o,
             // cost-optimized
             .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini
         ]
