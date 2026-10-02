@@ -61,11 +61,13 @@ replace the saved provider and key.
 1. **Read `test-cases.md`** and pick the cases in scope for the argument.
    Then **check requirements before touching the simulator**: test which of
    `OPENAI_API_KEY` and `GITHUB_TOKEN` are set (presence only, as above) and
-   compare with each case's `Needs`. Mark every case with a missing
-   requirement BLOCKED right away, naming the variable. Never try it, never
-   fall back to whatever the app has saved, and never ask the user to type a
-   credential into the app. If nothing in scope is left to run, stop here and
-   report.
+   compare with the `Needs` of every case in scope. **If any requirement is
+   missing, abort the whole run**: don't build, launch or run anything, not
+   even the cases that could run. Report which variables are missing and which
+   cases need them, and stop. Never fall back to whatever the app has saved,
+   and never ask the user to type a credential into the app. To run a subset
+   that doesn't need the missing credential, the user can pass a narrower
+   argument.
 2. **Open the simulator panel first:** `control` → `attach`. If no simulator is
    booted, boot one (prefer `iPhone 17`) and retry.
 3. **Build** from the repo root, into a gitignored folder:
@@ -98,9 +100,7 @@ replace the saved provider and key.
 5. **Dismiss the launch modal.** Demo opens the **API Configuration** modal on
    *every* launch; tap **Cancel** (never Save, except in P-01) and carry on.
    With `OPENAI_API_KEY` set, Demo is on OpenAI with that key whatever was
-   saved. If the modal has no **Cancel** (no usable configuration), only
-   `Needs: none` cases can run; the rest should already be BLOCKED from the
-   requirements check.
+   saved.
 6. **Run each case** in order. For every case:
    - Follow the steps, taking a screenshot after the action that matters.
    - Compare against **Expect**. Record PASS or FAIL.
@@ -117,7 +117,7 @@ replace the saved provider and key.
 |---|---|
 | PASS | Every Expect line held |
 | FAIL | The app behaved differently from Expect: a Demo or SDK defect |
-| BLOCKED | Couldn't judge it: a required credential isn't set in the shell (decided before running), or a 401/429/quota/network error while running |
+| BLOCKED | Couldn't judge it while running: a 401/429/quota or network error. (A credential missing from the shell aborts the run before it starts; see step 1.) |
 | SKIPPED | Tagged `manual only`, or out of scope for the argument |
 
 Tell FAIL from BLOCKED by the error text: authentication, rate-limit or quota
@@ -126,7 +126,10 @@ or garbled UI element, or an empty response with no error is FAIL.
 
 ## Report
 
-Print this in chat when the run finishes:
+Print this in chat when the run finishes. An aborted run (step 1) has no table:
+just say it was aborted, which variables are missing, and which cases need them
+(for example "OPENAI_API_KEY not set; needed by C-01, C-04, R-01, X-02. Export
+it in a file my shell reads and rerun.").
 
 ```
 Demo release check: <date>, iPhone 17 / iOS <version>, git <short SHA> (<clean|dirty>)
@@ -142,8 +145,6 @@ Failures
 - R-04 <title>: <what happened vs Expect>. Likely area: <file/view if obvious>.
 
 Manual follow-ups: <the `manual only` cases the user still needs to do>
-Blocked by missing credentials: <for example "OPENAI_API_KEY not set: C-01, C-04,
-  R-01, X-02. Export it in a file my shell reads and rerun.">
 Saved configuration: <if section P ran: "replaced with a placeholder Custom
   provider; the next launch with OPENAI_API_KEY set restores OpenAI. Without
   it, re-enter your key.">

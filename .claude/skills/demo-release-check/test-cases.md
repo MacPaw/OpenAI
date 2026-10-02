@@ -17,8 +17,8 @@ Expect: what must be true to PASS
 - **Tags**: `[smoke]` = run on every pass, even a quick one. `[costly]` =
   noticeably more tokens (image generation); skip when only doing a fast check.
 - **Needs** lists the requirements a case depends on. A requirement is met
-  by a credential in the user's shell; if it isn't set, the case is BLOCKED
-  without being tried (see `SKILL.md`), whatever the app has saved.
+  by a credential in the user's shell; if one isn't set, the whole run is
+  aborted before it starts (see `SKILL.md`), whatever the app has saved.
 
   | Needs | Met by | Notes |
   |---|---|---|
