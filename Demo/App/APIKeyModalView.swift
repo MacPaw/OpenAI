@@ -37,14 +37,6 @@ struct APIKeyModalView: View {
         Binding(get: { draft.baseURL }, set: { draft.customBaseURL = $0 })
     }
 
-    private var strokeColor: Color {
-        #if os(iOS)
-            return Color(uiColor: UIColor.systemGray5)
-        #elseif os(macOS)
-            return Color(nsColor: NSColor.lightGray)
-        #endif
-    }
-
     var body: some View {
         NavigationView {
             ScrollView {
@@ -60,7 +52,7 @@ struct APIKeyModalView: View {
                         }
                         .pickerStyle(.menu)
                         Text(
-                            "Changing provider clears the API key and model. Enter credentials for the selected provider."
+                            "Changing provider clears the API key. Enter credentials for the selected provider."
                         )
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -90,17 +82,6 @@ struct APIKeyModalView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Chat model ID")
-                            .font(.caption)
-                        TextField("Enter a model supported by this provider", text: $draft.chatModel)
-                            .textFieldStyle(.roundedBorder)
-                            .autocorrectionDisabled(true)
-                            #if os(iOS)
-                                .textInputAutocapitalization(.never)
-                            #endif
-                    }
-
-                    VStack(alignment: .leading, spacing: 8) {
                         Text("API Key")
                             .font(.caption)
 
@@ -116,24 +97,12 @@ struct APIKeyModalView: View {
                         }
                     }
 
-                    TextEditor(
-                        text: $draft.apiKey
-                    )
-                    .frame(height: 120)
-                    .font(.caption)
-                    .padding(8)
-                    .background(
-                        RoundedRectangle(
-                            cornerRadius: 8
-                        )
-                        .stroke(
-                            strokeColor,
-                            lineWidth: 1
-                        )
-                    )
-                    .padding(4)
-                    .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    SecureField("API Key", text: $draft.apiKey)
+                        .textFieldStyle(.roundedBorder)
+                        .autocorrectionDisabled(true)
+                        #if os(iOS)
+                            .textInputAutocapitalization(.never)
+                        #endif
 
                     if isMandatory {
                         HStack {

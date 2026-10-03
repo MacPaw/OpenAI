@@ -26,7 +26,7 @@ class ModelSpecTests: XCTestCase {
 
     func testAllModelsStillIncludesModelsWithoutSpec() {
         let responses = Model.allModels(satisfying: .init(supportedEndpoints: [.responses]))
-        XCTAssertTrue(responses.contains(.gpt5_6_luna))
+        XCTAssertTrue(responses.contains(.gpt5))
         XCTAssertFalse(responses.contains(.gpt_4o_search_preview))
     }
 
@@ -55,10 +55,14 @@ class ModelSpecTests: XCTestCase {
         XCTAssertEqual(ModelSpec.gpt6_astra.limitations, [.chatCompletionsFunctionCallingUnsupported])
         XCTAssertEqual(ModelSpec.gpt6_sol.limitations, [.chatCompletionsFunctionCallingRequiresReasoningEffortNone])
         XCTAssertEqual(ModelSpec.gpt6_luna.limitations, [.chatCompletionsFunctionCallingRequiresReasoningEffortNone])
+        XCTAssertEqual(ModelSpec.gpt5_6_sol.limitations, [.chatCompletionsFunctionCallingRequiresReasoningEffortNone])
+        XCTAssertEqual(ModelSpec.gpt5_6_terra.limitations, [.chatCompletionsFunctionCallingRequiresReasoningEffortNone])
+        XCTAssertEqual(ModelSpec.gpt5_6_luna.limitations, [.chatCompletionsFunctionCallingRequiresReasoningEffortNone])
     }
 
     func testReasoningEfforts() {
         XCTAssertFalse(ModelSpec.gpt6_astra.reasoningEfforts.contains(.none))
         XCTAssertTrue(ModelSpec.gpt6_luna.reasoningEfforts.contains(.none))
+        XCTAssertEqual(ModelSpec.gpt5_6_luna.reasoningEfforts, [.none, .low, .medium, .high, .xhigh, .max])
     }
 }
