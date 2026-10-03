@@ -17,7 +17,7 @@ struct DemoApp: App {
     @AppStorage("apiConfiguration") var configurationData = Data()
     @AppStorage("githubToken") var githubToken: String = ""
     @State var isShowingAPIConfigModal: Bool = true
-    /// Credentials from the launch environment, used until the user saves a configuration in this session. Never stored.
+    /// Credentials from the launch environment, used as the configuration until one is saved in this session. Nothing here writes them to storage; Save stores whatever the form contains.
     @State private var launchConfiguration = DemoLaunchEnvironment.configuration(from: ProcessInfo.processInfo.environment)
     @State private var launchGitHubToken = DemoLaunchEnvironment.githubToken(from: ProcessInfo.processInfo.environment)
 

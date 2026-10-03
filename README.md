@@ -1547,7 +1547,7 @@ Responses tab works with OpenAI only.
 To skip typing credentials, launch the app with `OPENAI_API_KEY` (and optionally
 `GITHUB_TOKEN` for the GitHub MCP tab) in its environment: set them in the Xcode scheme, or run
 `SIMCTL_CHILD_OPENAI_API_KEY="$OPENAI_API_KEY" xcrun simctl launch booted openAI.MacPaw.Demo`.
-They apply to that launch only and are never saved.
+They are used as the configuration for that launch. The app doesn't store them itself, but **Save** in API Configuration stores whatever the form contains, including them.
 
 ![mockuuups-iphone-13-pro-mockup-perspective-right](https://user-images.githubusercontent.com/1411778/231449395-2ad6bab6-c21f-43dc-8977-f45f505b609d.png)
 

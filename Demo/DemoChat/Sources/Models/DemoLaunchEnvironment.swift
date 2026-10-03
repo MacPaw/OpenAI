@@ -7,7 +7,7 @@ import Foundation
 
 /// Credentials the demo can take from its launch environment instead of asking for them.
 ///
-/// They are used for the current launch only and are not saved. Set them in the Xcode scheme, or pass them to
+/// They are used as the configuration for the current launch; the app does not write them to storage itself. Set them in the Xcode scheme, or pass them to
 /// `xcrun simctl launch` as `SIMCTL_CHILD_OPENAI_API_KEY` / `SIMCTL_CHILD_GITHUB_TOKEN`.
 public enum DemoLaunchEnvironment {
     public static let apiKeyVariable = "OPENAI_API_KEY"

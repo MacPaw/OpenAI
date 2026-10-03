@@ -31,7 +31,8 @@ replace the saved provider and key.
   its data). Cases in sections L to X leave saved settings as they found them.
   Only section **P** replaces the saved provider and key; it runs last and uses
   a placeholder token and a local URL. Credentials from the launch environment
-  are in memory only, so a relaunch undoes P.
+  take precedence on each launch, so relaunching with them set puts the app
+  back on OpenAI.
 - **Don't change code or commit** during the run. If something fails, report
   it; fixing is a separate step.
 - **Navigate by what's on screen.** Demo has no accessibility identifiers and
@@ -96,8 +97,8 @@ replace the saved provider and key.
    xcrun simctl launch --terminate-running-process booted openAI.MacPaw.Demo
    ```
 
-   Demo uses these for that launch only, whatever provider or key is saved,
-   and never stores them. Empty values are ignored. Then `control` → `attach`
+   Demo uses these as the configuration for that launch, whatever provider or
+   key is saved. Empty values are ignored. Then `control` → `attach`
    so the user can watch, and take screenshots and taps as usual.
 5. **Dismiss the launch modal.** Demo opens the **API Configuration** modal on
    *every* launch; tap **Cancel** (never Save, except in P-01) and carry on.
