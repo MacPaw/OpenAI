@@ -1548,7 +1548,8 @@ To skip typing a configuration, launch the app with `DEMO_API_PROVIDER` (`openAI
 `custom`; defaults to `openAI`) and `DEMO_API_KEY` in its environment, plus `DEMO_API_BASE_URL` for `custom`,
 and optionally `GITHUB_TOKEN` for the GitHub MCP tab. Set them in the Xcode scheme, or run
 `SIMCTL_CHILD_DEMO_API_KEY="$OPENAI_API_KEY" xcrun simctl launch booted openAI.MacPaw.Demo`.
-They are used as the configuration for that launch. The app doesn't store them itself, but **Save** in
+They are used as the configuration for that launch, and the API Configuration screen that normally opens at
+launch is skipped when they give a usable configuration. The app doesn't store them itself, but **Save** in
 API Configuration stores whatever the form contains, including them.
 
 ![mockuuups-iphone-13-pro-mockup-perspective-right](https://user-images.githubusercontent.com/1411778/231449395-2ad6bab6-c21f-43dc-8977-f45f505b609d.png)

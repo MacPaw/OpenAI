@@ -16,7 +16,8 @@ struct DemoApp: App {
     @AppStorage("apiBaseURL") var baseURL = APIProvider.openAI.defaultBaseURL ?? ""
     @AppStorage("apiConfiguration") var configurationData = Data()
     @AppStorage("githubToken") var githubToken: String = ""
-    @State var isShowingAPIConfigModal: Bool = true
+    /// The API Configuration screen opens at launch, except when the launch environment supplies a usable configuration (that skips it so automated runs don't have to dismiss it).
+    @State var isShowingAPIConfigModal: Bool = DemoLaunchEnvironment.configuration(from: ProcessInfo.processInfo.environment)?.sdkConfiguration == nil
     /// Credentials from the launch environment, used as the configuration until one is saved in this session. Nothing here writes them to storage; Save stores whatever the form contains.
     @State private var launchConfiguration = DemoLaunchEnvironment.configuration(from: ProcessInfo.processInfo.environment)
     @State private var launchGitHubToken = DemoLaunchEnvironment.githubToken(from: ProcessInfo.processInfo.environment)

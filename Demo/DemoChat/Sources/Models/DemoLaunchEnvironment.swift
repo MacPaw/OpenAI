@@ -7,8 +7,9 @@ import Foundation
 
 /// Configuration the demo can take from its launch environment instead of asking for it.
 ///
-/// It is used as the configuration for the current launch; the app does not write it to storage itself. Set the
-/// variables in the Xcode scheme, or pass them to `xcrun simctl launch` with a `SIMCTL_CHILD_` prefix.
+/// It is used as the configuration for the current launch; the app does not write it to storage itself. When it is
+/// usable, the app also skips the API Configuration screen it otherwise opens at launch. Set the variables in the
+/// Xcode scheme, or pass them to `xcrun simctl launch` with a `SIMCTL_CHILD_` prefix.
 public enum DemoLaunchEnvironment {
     /// An ``APIProvider`` raw value (`openAI`, `gemini` or `custom`), compared ignoring case. Defaults to OpenAI.
     public static let providerVariable = "DEMO_API_PROVIDER"
