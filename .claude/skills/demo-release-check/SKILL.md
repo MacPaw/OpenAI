@@ -113,11 +113,13 @@ Arguments (optional): a section prefix (`R` = Responses, `C` = Chats, …) or
    ```
 
    Demo uses these as its configuration for that launch, whatever is saved.
-   Wait a few seconds, then **dismiss the launch modal**: Demo opens the
-   **API Configuration** modal on *every* launch, so tap **Cancel**. With the
-   configuration delivered, the modal has a **Cancel**. If it has none (only
-   **Continue**), the configuration didn't reach the app: abort the run and
-   report that, instead of trying to get past the modal.
+   Because the configuration is usable, Demo **skips** the API Configuration
+   screen it otherwise opens at launch, so the case starts directly on the
+   Chats tab; there is no modal to dismiss. Wait a few seconds after launching.
+   If the modal shows anyway, the configuration didn't reach the app or isn't
+   usable (for example `custom` without a base URL: the modal then has only
+   **Continue**): abort the run and report that, instead of trying to get past
+   the modal.
 6. **For every case**, after launching it as above:
    - Follow the steps, taking a screenshot after the action that matters.
    - Compare against **Expect**. Record PASS or FAIL.

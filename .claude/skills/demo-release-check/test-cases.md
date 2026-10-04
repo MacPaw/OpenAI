@@ -36,11 +36,12 @@ Expect: what must be true to PASS
   the same change.
 
 **Every case starts from a fresh launch**, with the configuration its `Needs`
-calls for supplied through the launch environment and the launch modal already
-dismissed, on the Chats tab. So a case must not assume anything an earlier case
-did (an open chat, a toggled setting), and it may freely change what the app
-saves: the next case relaunches from scratch. "Open a chat" below means
-Chats → **+** → **Create Chat** → select the new conversation.
+calls for supplied through the launch environment. Demo skips its API
+Configuration screen when the environment gives it a usable configuration, so
+each case starts on the Chats tab with no modal. A case must not assume anything
+an earlier case did (an open chat, a toggled setting), and it may freely change
+what the app saves: the next case relaunches from scratch. "Open a chat" below
+means Chats → **+** → **Create Chat** → select the new conversation.
 
 ---
 
@@ -48,11 +49,11 @@ Chats → **+** → **Create Chat** → select the new conversation.
 
 ### L-01 Launch  [smoke]
 Needs: none
-Steps: launch Demo (step 5 of `SKILL.md`), before dismissing the modal
-Expect: no crash; the API Configuration modal opens on launch with **Cancel**
-and **Save**; once dismissed, Chats opens with a "Conversations" list; the tab
-bar shows Chats, Responses, Image, Github MCP and Misc (no More tab); nothing
-covers the tab bar.
+Steps: launch Demo (step 5 of `SKILL.md`), wait a few seconds
+Expect: no crash; no API Configuration modal (the environment supplied a usable
+configuration); Chats opens with a "Conversations" list; the tab bar shows
+Chats, Responses, Image, Github MCP and Misc (no More tab); nothing covers the
+tab bar.
 
 ### L-02 Reopen and cancel API Configuration
 Needs: none
