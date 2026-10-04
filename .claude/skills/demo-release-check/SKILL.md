@@ -19,7 +19,9 @@ replace the saved provider and key.
 
 - **Credentials come from the shell, by name only.** The user exports the keys
   the cases need (`OPENAI_API_KEY`, and `GITHUB_TOKEN` for the MCP cases) in
-  their shell profile; step 4 passes them to the app's launch environment. Never
+  their shell profile. These are the *shell's* variable names; Demo itself reads
+  `DEMO_API_PROVIDER` and `DEMO_API_KEY` (and `GITHUB_TOKEN`), and step 4 maps
+  one onto the other, for example `DEMO_API_KEY="$OPENAI_API_KEY"`. Never
   type a real key or token into the app, never print, echo or log them, and
   never run `env`, `printenv`, `set -x` or anything else that would show their
   values. Test for presence only: `[ -n "$OPENAI_API_KEY" ]`. The only text you
