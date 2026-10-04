@@ -5,17 +5,38 @@
 
 import Foundation
 
-/// Credentials the demo can take from its launch environment instead of asking for them.
+/// Configuration the demo can take from its launch environment instead of asking for it.
 ///
-/// They are used as the configuration for the current launch; the app does not write them to storage itself. Set them in the Xcode scheme, or pass them to
-/// `xcrun simctl launch` as `SIMCTL_CHILD_OPENAI_API_KEY` / `SIMCTL_CHILD_GITHUB_TOKEN`.
+/// It is used as the configuration for the current launch; the app does not write it to storage itself. Set the
+/// variables in the Xcode scheme, or pass them to `xcrun simctl launch` with a `SIMCTL_CHILD_` prefix.
 public enum DemoLaunchEnvironment {
-    public static let apiKeyVariable = "OPENAI_API_KEY"
+    /// An ``APIProvider`` raw value (`openAI`, `gemini` or `custom`), compared ignoring case. Defaults to OpenAI.
+    public static let providerVariable = "DEMO_API_PROVIDER"
+    /// The provider's API key. Without it, no configuration is taken from the environment.
+    public static let apiKeyVariable = "DEMO_API_KEY"
+    /// The base URL, used only with the `custom` provider.
+    public static let baseURLVariable = "DEMO_API_BASE_URL"
     public static let githubTokenVariable = "GITHUB_TOKEN"
 
-    /// An OpenAI configuration using the API key from `environment`, or `nil` if none is set.
+    /// The configuration described by `environment`, or `nil` if there is no API key or the provider isn't recognized.
     public static func configuration(from environment: [String: String]) -> DemoAPIConfiguration? {
-        value(of: apiKeyVariable, in: environment).map { DemoAPIConfiguration(provider: .openAI, apiKey: $0) }
+        guard let apiKey = value(of: apiKeyVariable, in: environment) else {
+            return nil
+        }
+        let provider: APIProvider
+        if let name = value(of: providerVariable, in: environment) {
+            guard let match = APIProvider.allCases.first(where: { $0.rawValue.lowercased() == name.lowercased() }) else {
+                return nil
+            }
+            provider = match
+        } else {
+            provider = .openAI
+        }
+        return DemoAPIConfiguration(
+            provider: provider,
+            apiKey: apiKey,
+            customBaseURL: provider == .custom ? value(of: baseURLVariable, in: environment) ?? "" : ""
+        )
     }
 
     public static func githubToken(from environment: [String: String]) -> String? {

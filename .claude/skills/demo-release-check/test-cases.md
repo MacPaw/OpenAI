@@ -16,39 +16,41 @@ Expect: what must be true to PASS
   R = Responses, I = Image, M = Github MCP, X = Misc, P = Other providers.
 - **Tags**: `[smoke]` = run on every pass, even a quick one. `[costly]` =
   noticeably more tokens (image generation); skip when only doing a fast check.
-- **Needs** lists what a case depends on beyond the app itself. The shell
-  variable that meets it must be set, or the whole run is aborted before it
-  starts (see `SKILL.md`).
+- **Needs** lists what a case depends on beyond the app itself, and decides what
+  the app is launched with. The shell variable that meets it must be set, or the
+  whole run is aborted before it starts (see `SKILL.md`).
 
-  | Needs | Met by | Notes |
+  | Needs | Launch configuration | Shell variable |
   |---|---|---|
-  | `none` | nothing | Makes no API calls and costs no tokens. |
-  | `OpenAI key` | `OPENAI_API_KEY` | Calls the OpenAI API, so it spends tokens when it sends. |
-  | `GitHub token` | `GITHUB_TOKEN` | For the Github MCP tab. |
-  | `manual only` | nothing | Can't be driven reliably in the simulator (for example the photo picker). Always SKIPPED and listed as a follow-up for the human. |
+  | `none` | Provider `openAI`, placeholder key `test-token-not-real`. Makes no API calls and costs no tokens. | none |
+  | `OpenAI key` | Provider `openAI`, the real key. Calls the API, so it spends tokens when it sends. | `OPENAI_API_KEY` |
+  | `GitHub token` | Adds the token for the Github MCP tab. | `GITHUB_TOKEN` |
+  | `manual only` | Can't be driven reliably in the simulator (for example the photo picker). Always SKIPPED and listed as a follow-up for the human. | none |
 
-  **Every run also needs `OPENAI_API_KEY`**, whatever the cases' `Needs`: it
-  is Demo's only configuration (see below), so it isn't a per-case tag.
+  The app is launched once per run. If any case in scope needs `OpenAI key`,
+  the whole run uses the real key (the `none` cases just don't use it);
+  otherwise it uses the placeholder, so a run that makes no API calls never
+  gets a real key.
 
-  To require another provider's key (say Gemini), Demo first needs to read
-  it from the launch environment, then add a row here. No case needs one yet.
+  To cover another provider (say Gemini), add a row with `DEMO_API_PROVIDER=gemini`
+  and the shell variable holding its key. No case needs one yet.
 - Keep prompts short. The message input and send button are drawn by a
   chat UI package, so find them on screen rather than relying on a label.
 - When a screen changes (new feature, a stub becomes real), update its case in
   the same change.
 
-**Never rely on saved data.** Runs must be deterministic, so Demo's
-configuration (OpenAI, with the key from `OPENAI_API_KEY`; optionally
-`GITHUB_TOKEN`) is always supplied through the launch environment, which
-overrides whatever is saved. Cases must not depend on what an earlier run or the
-user saved, and whether this is the first run after an install or a later one
-must make no difference. A case that needs a clean install can't be written yet;
-don't add one.
+**Never rely on saved data.** Runs must be deterministic, so Demo's provider
+and key are always supplied through the launch environment
+(`DEMO_API_PROVIDER` and `DEMO_API_KEY`, set by the skill from the table above),
+which overrides whatever is saved. Cases must not depend on what an earlier run
+or the user saved, and whether this is the first run after an install or a later
+one must make no difference. A case that needs a clean install can't be written
+yet; don't add one.
 
 Section **P** is the one place that changes saved data: it replaces the saved
-provider and key with a placeholder, so it runs last. The next launch with
-`OPENAI_API_KEY` set is back on OpenAI. Like any test run on a device, it
-overwrites data.
+provider and key with a placeholder, so it runs last. The next launch's
+environment overrides it again. Like any test run on a device, it overwrites
+data.
 
 ---
 

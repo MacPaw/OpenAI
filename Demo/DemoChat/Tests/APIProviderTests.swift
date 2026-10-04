@@ -245,19 +245,44 @@ func rootEndpointBuildsSingleSlashSDKPath(baseURL: String) throws {
     #expect(endpoint.baseURL == "https://localhost:8080/custom")
 }
 
-@Test func launchEnvironmentProvidesAnOpenAIConfiguration() {
-    let value = DemoLaunchEnvironment.configuration(from: ["OPENAI_API_KEY": " sk-test \n", "GITHUB_TOKEN": "gh"])
+@Test func launchEnvironmentDefaultsToOpenAI() {
+    let value = DemoLaunchEnvironment.configuration(from: ["DEMO_API_KEY": " sk-test \n", "GITHUB_TOKEN": "gh"])
     #expect(value == DemoAPIConfiguration(provider: .openAI, apiKey: "sk-test"))
     #expect(value?.sdkConfiguration?.host == "api.openai.com")
 }
 
-@Test(arguments: [[:], ["OPENAI_API_KEY": ""], ["OPENAI_API_KEY": " \n\t"], ["GITHUB_TOKEN": "gh"]])
-func launchEnvironmentIgnoresMissingOrBlankKeys(environment: [String: String]) {
+@Test(arguments: [("openAI", APIProvider.openAI), ("OPENAI", .openAI), ("gemini", .gemini), (" Gemini ", .gemini), ("custom", .custom)])
+func launchEnvironmentSelectsTheProvider(name: String, expected: APIProvider) throws {
+    let value = try #require(DemoLaunchEnvironment.configuration(from: [
+        "DEMO_API_PROVIDER": name,
+        "DEMO_API_KEY": "key",
+        "DEMO_API_BASE_URL": "http://localhost:8080"
+    ]))
+    #expect(value.provider == expected)
+    #expect(value.apiKey == "key")
+    // The base URL only applies to the custom provider
+    #expect(value.customBaseURL == (expected == .custom ? "http://localhost:8080" : ""))
+}
+
+@Test func launchEnvironmentCustomProviderWithoutAURLIsNotUsable() throws {
+    let value = try #require(DemoLaunchEnvironment.configuration(from: ["DEMO_API_PROVIDER": "custom", "DEMO_API_KEY": "key"]))
+    #expect(value.sdkConfiguration == nil)
+}
+
+@Test(arguments: [
+    [:],
+    ["DEMO_API_KEY": ""],
+    ["DEMO_API_KEY": " \n\t"],
+    ["DEMO_API_PROVIDER": "gemini"],
+    ["DEMO_API_PROVIDER": "claude", "DEMO_API_KEY": "key"],
+    ["OPENAI_API_KEY": "sk-test", "GITHUB_TOKEN": "gh"]
+])
+func launchEnvironmentIgnoresIncompleteOrUnknownConfigurations(environment: [String: String]) {
     #expect(DemoLaunchEnvironment.configuration(from: environment) == nil)
 }
 
 @Test func launchEnvironmentProvidesTheGitHubToken() {
     #expect(DemoLaunchEnvironment.githubToken(from: ["GITHUB_TOKEN": " ghp_test "]) == "ghp_test")
     #expect(DemoLaunchEnvironment.githubToken(from: ["GITHUB_TOKEN": ""]) == nil)
-    #expect(DemoLaunchEnvironment.githubToken(from: ["OPENAI_API_KEY": "sk-test"]) == nil)
+    #expect(DemoLaunchEnvironment.githubToken(from: ["DEMO_API_KEY": "key"]) == nil)
 }
