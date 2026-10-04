@@ -7,30 +7,26 @@ truth for what gets checked before a release.
 
 ```
 ### <ID> <Title>  [tags]
-Needs: none | OpenAI key | GitHub token | manual only   (comma-separate several)
+Needs: none | OpenAI key | Custom provider | GitHub token | manual only   (comma-separate several)
 Steps: short, in on-screen labels, separated by →
 Expect: what must be true to PASS
 ```
 
 - **ID**: section letter + number. Letters are L = Launch, C = Chats,
-  R = Responses, I = Image, M = Github MCP, X = Misc, P = Other providers.
+  R = Responses, I = Image, M = Github MCP, X = Misc.
 - **Tags**: `[smoke]` = run on every pass, even a quick one. `[costly]` =
   noticeably more tokens (image generation); skip when only doing a fast check.
-- **Needs** lists what a case depends on beyond the app itself, and decides what
-  the app is launched with. The shell variable that meets it must be set, or the
-  whole run is aborted before it starts (see `SKILL.md`).
+- **Needs** lists what a case depends on beyond the app itself, and decides how
+  the app is launched for that case. A shell variable that a requirement names
+  must be set, or the whole run is aborted before it starts (see `SKILL.md`).
 
   | Needs | Launch configuration | Shell variable |
   |---|---|---|
   | `none` | Provider `openAI`, placeholder key `test-token-not-real`. Makes no API calls and costs no tokens. | none |
   | `OpenAI key` | Provider `openAI`, the real key. Calls the API, so it spends tokens when it sends. | `OPENAI_API_KEY` |
+  | `Custom provider` | Provider `custom`, base URL `http://localhost:8080`, placeholder key. Nothing listens there, so never send; it is for provider-specific screens. | none |
   | `GitHub token` | Adds the token for the Github MCP tab. | `GITHUB_TOKEN` |
   | `manual only` | Can't be driven reliably in the simulator (for example the photo picker). Always SKIPPED and listed as a follow-up for the human. | none |
-
-  The app is launched once per run. If any case in scope needs `OpenAI key`,
-  the whole run uses the real key (the `none` cases just don't use it);
-  otherwise it uses the placeholder, so a run that makes no API calls never
-  gets a real key.
 
   To cover another provider (say Gemini), add a row with `DEMO_API_PROVIDER=gemini`
   and the shell variable holding its key. No case needs one yet.
@@ -39,18 +35,12 @@ Expect: what must be true to PASS
 - When a screen changes (new feature, a stub becomes real), update its case in
   the same change.
 
-**Never rely on saved data.** Runs must be deterministic, so Demo's provider
-and key are always supplied through the launch environment
-(`DEMO_API_PROVIDER` and `DEMO_API_KEY`, set by the skill from the table above),
-which overrides whatever is saved. Cases must not depend on what an earlier run
-or the user saved, and whether this is the first run after an install or a later
-one must make no difference. A case that needs a clean install can't be written
-yet; don't add one.
-
-Section **P** is the one place that changes saved data: it replaces the saved
-provider and key with a placeholder, so it runs last. The next launch's
-environment overrides it again. Like any test run on a device, it overwrites
-data.
+**Every case starts from a fresh launch**, with the configuration its `Needs`
+calls for supplied through the launch environment and the launch modal already
+dismissed, on the Chats tab. So a case must not assume anything an earlier case
+did (an open chat, a toggled setting), and it may freely change what the app
+saves: the next case relaunches from scratch. "Open a chat" below means
+Chats → **+** → **Create Chat** → select the new conversation.
 
 ---
 
@@ -58,20 +48,19 @@ data.
 
 ### L-01 Launch  [smoke]
 Needs: none
-Steps: launch Demo (step 4 of `SKILL.md`) → dismiss the API Configuration modal
-with **Cancel** (if it has no Cancel, follow step 5 of `SKILL.md`)
-Expect: no crash; the API Configuration modal opens on launch; once dismissed,
-Chats opens with a "Conversations" list; the tab bar shows Chats, Responses,
-Image, Github MCP and Misc (no More tab); nothing covers the tab bar.
+Steps: launch Demo (step 5 of `SKILL.md`), before dismissing the modal
+Expect: no crash; the API Configuration modal opens on launch with **Cancel**
+and **Save**; once dismissed, Chats opens with a "Conversations" list; the tab
+bar shows Chats, Responses, Image, Github MCP and Misc (no More tab); nothing
+covers the tab bar.
 
 ### L-02 Reopen and cancel API Configuration
 Needs: none
 Steps: Misc → **API Configuration** (first row, under "Configuration") → look
 at the form → tap **Cancel**
 Expect: a sheet titled "API Configuration" shows Provider, Base URL and API Key
-(no model field; models are chosen per chat); **Cancel** closes it; the app is
-still on the same tab and still works. (Do not edit or save the key, and don't
-repeat it in the report.)
+(no model field; models are chosen per chat; the key is masked); **Cancel**
+closes it; the app is still on the same tab and still works.
 
 ---
 
@@ -79,29 +68,28 @@ repeat it in the report.)
 
 ### C-01 Create a chat and get a reply  [smoke]
 Needs: OpenAI key
-Steps: Chats tab → **+** menu → **Create Chat** → select the new conversation →
-type `Reply with only the word: pong` → send
+Steps: open a chat → type `Reply with only the word: pong` → send
 Expect: the user message appears; an assistant reply containing "pong" appears;
 no error banner; the header reads "Model: gpt-6-luna, stream: true" (the
 default model).
 
 ### C-02 Disable streaming and send
 Needs: OpenAI key
-Steps: in an open chat, tap the **cpu** toolbar icon → **Disable streaming** →
+Steps: open a chat → tap the **cpu** toolbar icon → **Disable streaming** →
 send `Reply with only the word: pong`
 Expect: the header now reads "stream: false"; the full reply arrives and is
 shown once it completes, without an error.
 
 ### C-03 Model selection sheet
 Needs: none
-Steps: in an open chat, tap the **cpu** toolbar icon
+Steps: open a chat → tap the **cpu** toolbar icon
 Expect: a "Select model" dialog lists the streaming toggle, the available model
 names and **Cancel**; **Cancel** dismisses it with the header unchanged.
 
 ### C-04 GPT-5.6 model with function tools  [smoke]
 Needs: OpenAI key
-Steps: in an open chat, tap the **cpu** toolbar icon → **gpt-5.6-terra** →
-send `Reply with only the word: pong`
+Steps: open a chat → tap the **cpu** toolbar icon → **gpt-5.6-terra** (scroll the
+list) → send `Reply with only the word: pong`
 Expect: a reply containing "pong" arrives and no error banner appears. Chats
 always attaches a function tool, and GPT-5.6 models reject function tools on
 Chat Completions unless `reasoning_effort` is `none`; a message like "Function
@@ -110,9 +98,20 @@ limitation is missing or ignored.
 
 ### C-05 Model menu offers the OpenAI models
 Needs: none
-Steps: in an open chat, tap the **cpu** toolbar icon
+Steps: open a chat → tap the **cpu** toolbar icon
 Expect: the list includes gpt-6-*, gpt-5.6-* and older models, with no
 "Custom model ID…" entry.
+
+### C-06 Custom model ID on another provider
+Needs: Custom provider
+Steps: open a chat → tap the **cpu** toolbar icon → read the menu →
+**Custom model ID…** → enter `my-model-1` → **Use** → go back and open another
+chat
+Expect: the menu has only the streaming toggle and "Custom model ID…" (no
+OpenAI models); after **Use** the header shows "Model: my-model-1", and the
+second chat starts with the same ID. Do not send: nothing listens at the URL.
+(The ID is remembered across launches, so the header may already show it before
+you choose one.)
 
 ---
 
@@ -124,7 +123,6 @@ Steps: Responses tab → check the subtitle reads `Model: gpt-6-luna, stream:
 true, tools: Web Search` (the defaults) → send `Reply with only the word: pong`
 Expect: the title shows "Streaming…" while the answer arrives and returns to
 "Responses API" afterwards; a reply containing "pong" is shown; no alert.
-Web Search is on by default, so R-05 starts with it already enabled.
 
 ### R-02 Settings screen toggles
 Needs: none
@@ -138,8 +136,7 @@ the enabled options.
 Needs: OpenAI key
 Steps: Responses → gear → turn **Stream** off → back → send
 `Reply with only the word: pong`
-Expect: a complete reply appears with no error. Restore **Stream** to on
-afterwards.
+Expect: a complete reply appears with no error.
 
 ### R-04 Function calling with stubbed result
 Needs: OpenAI key
@@ -147,15 +144,20 @@ Steps: Responses → gear → turn **Function Calling** on → back → send
 `What is the weather in Paris?` → when the **Stub Function Result** sheet
 appears, enter `21°C` → **Submit**
 Expect: the sheet shows the function name and "Location: …, Unit: …"; after
-**Submit** the final reply mentions 21; no alert. Turn **Function Calling** off
-afterwards.
+**Submit** the final reply mentions 21; no alert.
 
 ### R-05 Web search
 Needs: OpenAI key
 Steps: Responses → gear → make sure **Web Search** is on (it is by default) →
 back → send `Name one city in France. One word.`
 Expect: the title may show "Searching Web…" while the tool runs; a one-word
-reply follows; no alert. Leave **Web Search** as you found it.
+reply follows; no alert.
+
+### R-06 Responses is OpenAI-only on other providers
+Needs: Custom provider
+Steps: open the Responses tab
+Expect: no chat UI; a screen titled "Responses is OpenAI-only" saying the
+current provider is Custom and pointing to Misc > API Configuration.
 
 ---
 
@@ -193,20 +195,19 @@ Expect: a **GitHub Token** field (filled or empty), a red ✗ status, a
 
 ### M-02 Connect, toggle tools, disconnect
 Needs: GitHub token
-Steps: with `GITHUB_TOKEN` supplied at launch → **Connect to GitHub MCP** →
-wait → toggle **Enable All Tools** → toggle it back to how it was →
-**Disconnect**
+Steps: Github MCP tab → **Connect to GitHub MCP** → wait → toggle **Enable All
+Tools** → **Disconnect**
 Expect: status turns to a green ✓; the list under **Available Tools** fills in
 and the "N enabled" count matches the toggles; after **Disconnect** the status
-returns to ✗ and the tool list empties.
+returns to ✗ and the tool list empties. (Disconnect also clears the saved
+GitHub token and enabled tools; the next case relaunches with the token again.)
 
 ### M-03 Responses with MCP tools and approval dialog
 Needs: OpenAI key, GitHub token
 Steps: Github MCP → connect → Responses → gear → turn **MCP Tools** on → back →
 send a prompt that uses GitHub (`List the open issues in apple/swift, max 1`)
 Expect: an MCP approval dialog appears for the tool call; **Approve** lets the
-request finish with a reply; no alert. (Also try **Deny** once and confirm the
-request ends cleanly.)
+request finish with a reply; no alert.
 
 ---
 
@@ -255,36 +256,3 @@ Needs: none
 Steps: Misc → Audio → **Transcribe**
 Expect: the screen reads "Transcribe: TBD". Update this case if transcription
 ships.
-
----
-
-## P: Other providers (overwrites the saved provider and key; run last)
-
-These cases switch the saved provider to Custom with a placeholder token and a
-local URL, so no real credentials or network are involved. Run them in order,
-after everything else. They are not `[smoke]`.
-
-### P-01 Switch to the Custom provider
-Needs: none
-Steps: Misc → **API Configuration** → Provider **Custom** → Base URL
-`http://localhost:8080` → API Key `test-token-not-real` → take a screenshot
-and confirm the provider reads "Custom" → **Save**
-Expect: the form accepts the values (Save becomes enabled) and the modal closes.
-Changing the provider clears the key field first, so type the token after
-choosing Custom.
-
-### P-02 Custom model ID in a chat
-Needs: none
-Steps: Chats → **+** → **Create Chat** → open it → read the header → **cpu**
-icon → **Custom model ID…** → enter `my-model-1` → **Use** → go back, create
-and open another chat
-Expect: before choosing, the header reads "Model: not set" and the menu has
-only the streaming toggle and "Custom model ID…"; afterwards the header shows
-"Model: my-model-1", and the new chat starts with the same ID. Do not send a
-message: no server runs at the URL.
-
-### P-03 Responses is OpenAI-only
-Needs: none
-Steps: open the Responses tab
-Expect: no chat UI; a screen titled "Responses is OpenAI-only" saying the
-current provider is Custom and pointing to Misc > API Configuration.

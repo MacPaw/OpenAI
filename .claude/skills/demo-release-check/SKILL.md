@@ -11,32 +11,30 @@ Drive the `Demo` app in the iOS Simulator through the cases in
 tokens, which is why this only runs when invoked explicitly.
 
 Arguments (optional): a section prefix (`R` = Responses, `C` = Chats, …) or
-`smoke` to run only cases tagged `[smoke]`. With no argument, run everything,
-with section `P` last. Before starting a run that includes `P`, say that it will
-replace the saved provider and key.
+`smoke` to run only cases tagged `[smoke]`. With no argument, run everything.
 
 ## Ground rules
 
 - **Credentials come from the shell, by name only.** The user exports the keys
   the cases need (`OPENAI_API_KEY`, and `GITHUB_TOKEN` for the MCP cases) in
   their shell profile. These are the *shell's* variable names; Demo itself reads
-  `DEMO_API_PROVIDER` and `DEMO_API_KEY` (and `GITHUB_TOKEN`), and step 4 maps
-  one onto the other, for example `DEMO_API_KEY="$OPENAI_API_KEY"`. Never
-  type a real key or token into the app, never print, echo or log them, and
-  never run `env`, `printenv`, `set -x` or anything else that would show their
-  values. Test for presence only: `[ -n "$OPENAI_API_KEY" ]`. The only text you
-  type into the API Key field is the placeholder token of section P.
-- **Never rely on saved data.** Test runs must be as deterministic as
-  possible, so the app's configuration always comes from the launch
-  environment (provider and key), never from whatever an earlier run or the
-  user saved. Whether this is the first run after installing Demo or a later one
-  must make no difference. Never uninstall or reset the app (installing over it
-  keeps its data, which is simply ignored). Cases in sections L to X don't
-  change saved settings. Only section **P** does: it replaces the saved
-  provider and key with a placeholder and runs last; the next launch's
-  environment overrides it again.
-- **Supply a real key only when a case needs one.** A run in which no case
-  needs an API key launches with a placeholder, so nothing can spend tokens.
+  `DEMO_API_PROVIDER`, `DEMO_API_KEY`, `DEMO_API_BASE_URL` and `GITHUB_TOKEN`,
+  and the launch command maps one onto the other, for example
+  `DEMO_API_KEY="$OPENAI_API_KEY"`. Never type a real key or token into the app
+  (you never need to: the configuration arrives through the launch
+  environment), never print, echo or log them, and never run `env`, `printenv`,
+  `set -x` or anything else that would show their values. Test for presence
+  only: `[ -n "$OPENAI_API_KEY" ]`.
+- **Every case starts from a fresh launch.** Test runs must be as deterministic
+  as possible, so before each case the app is relaunched with the
+  configuration that case needs, provided from scratch through the launch
+  environment. Cases never rely on saved data or on what an earlier case left
+  behind, and may freely change whatever the app saves (the provider, key,
+  GitHub token, remembered models, enabled tools). After a run, the app's saved
+  state on the device may differ from before; that is expected. Never uninstall
+  or reset the app: installing over it is enough.
+- **Supply a real key only to cases that need one.** A case that makes no API
+  calls is launched with a placeholder, so it can't spend tokens.
 - **Don't change code or commit** during the run. If something fails, report
   it; fixing is a separate step.
 - **Navigate by what's on screen.** Demo has no accessibility identifiers and
@@ -67,17 +65,13 @@ replace the saved provider and key.
 
 1. **Read `test-cases.md`** and pick the cases in scope for the argument.
    Then **check requirements before touching the simulator**, by presence
-   only, as above: each `Needs` value of a case in scope names the shell
-   variable that must be set (`OpenAI key` is `OPENAI_API_KEY`, `GitHub token`
-   is `GITHUB_TOKEN`). **If any is missing, abort the whole run**: don't build,
-   launch or run anything. Report which variables are missing and which cases
-   need them, and stop. Never fall back to whatever the app has saved, and
-   never ask the user to type a credential into the app. The user can pass a
-   narrower argument to leave those cases out.
-   Then **pick the launch configuration** for the whole run: if any case in
-   scope needs `OpenAI key`, the real key; otherwise (every case is `none` or
-   `manual only`) the placeholder `test-token-not-real`, so no real key is
-   supplied and no tokens can be spent.
+   only, as above: each `Needs` value of a case in scope that names a shell
+   variable (`OpenAI key` is `OPENAI_API_KEY`, `GitHub token` is
+   `GITHUB_TOKEN`) requires it to be set. **If any is missing, abort the whole
+   run**: don't build, launch or run anything. Report which variables are
+   missing and which cases need them, and stop. Never fall back to whatever the
+   app has saved, and never ask the user to type a credential into the app. The
+   user can pass a narrower argument to leave those cases out.
 2. **Open the simulator panel first:** `control` → `attach`. If no simulator is
    booted, boot one (prefer `iPhone 17`) and retry.
 3. **Build** from the repo root, into a gitignored folder:
@@ -92,37 +86,46 @@ replace the saved provider and key.
    `build/DemoDerivedData/Build/Products/Debug-iphonesimulator/Demo.app`
    (bundle id `openAI.MacPaw.Demo`). If the build fails, stop and report the
    errors; there is nothing to test.
-4. **Install and launch with the configuration**, through Bash (the `control`
-   tool's `launch` can't pass environment variables). Installing over the
-   existing app keeps its saved data, which is ignored:
+4. **Install the app once**, through Bash, over any existing copy:
 
    ```sh
    xcrun simctl install booted build/DemoDerivedData/Build/Products/Debug-iphonesimulator/Demo.app
-   # Real key (some case needs OpenAI key); add the GITHUB_TOKEN line only if a case needs it:
-   SIMCTL_CHILD_DEMO_API_PROVIDER=openAI \
-   SIMCTL_CHILD_DEMO_API_KEY="$OPENAI_API_KEY" \
-   SIMCTL_CHILD_GITHUB_TOKEN="$GITHUB_TOKEN" \
-   xcrun simctl launch --terminate-running-process booted openAI.MacPaw.Demo
-   # Placeholder (no case needs a key): same command with
-   #   SIMCTL_CHILD_DEMO_API_KEY=test-token-not-real
    ```
 
-   Demo uses the provider and key as the configuration for that launch,
-   whatever is saved. Empty values are ignored. Then `control` → `attach` so
-   the user can watch, and take screenshots and taps as usual.
-5. **Dismiss the launch modal.** Demo opens the **API Configuration** modal on
-   *every* launch; tap **Cancel** (never Save, except in P-01) and carry on.
-   With the configuration delivered, the modal has a **Cancel**. If it has
-   none (only **Continue**), the configuration didn't reach the app: abort the
-   run and report that, instead of trying to get past the modal.
-6. **Run each case** in order. For every case:
+   Then `control` → `attach` so the user can watch.
+5. **Launch each case fresh.** Launch through Bash (the `control` tool's
+   `launch` can't pass environment variables), with the configuration the
+   case's `Needs` calls for:
+
+   | `Needs` | `DEMO_API_PROVIDER` | `DEMO_API_KEY` | `DEMO_API_BASE_URL` |
+   |---|---|---|---|
+   | `none` | `openAI` | `test-token-not-real` | not set |
+   | `OpenAI key` | `openAI` | `"$OPENAI_API_KEY"` | not set |
+   | `Custom provider` | `custom` | `test-token-not-real` | `http://localhost:8080` |
+
+   Add `SIMCTL_CHILD_GITHUB_TOKEN="$GITHUB_TOKEN"` when the case needs
+   `GitHub token`.
+
+   ```sh
+   SIMCTL_CHILD_DEMO_API_PROVIDER=openAI \
+   SIMCTL_CHILD_DEMO_API_KEY="$OPENAI_API_KEY" \
+   xcrun simctl launch --terminate-running-process booted openAI.MacPaw.Demo
+   ```
+
+   Demo uses these as its configuration for that launch, whatever is saved.
+   Wait a few seconds, then **dismiss the launch modal**: Demo opens the
+   **API Configuration** modal on *every* launch, so tap **Cancel**. With the
+   configuration delivered, the modal has a **Cancel**. If it has none (only
+   **Continue**), the configuration didn't reach the app: abort the run and
+   report that, instead of trying to get past the modal.
+6. **For every case**, after launching it as above:
    - Follow the steps, taking a screenshot after the action that matters.
    - Compare against **Expect**. Record PASS or FAIL.
    - Wait for streaming or network responses to finish (up to ~30 s) before
      judging. Retry a real-API case once if it fails on a network error.
-   - On FAIL, keep the screenshot and a one-line diagnosis, then return to a
-     known state (go back, close sheets, dismiss alerts) and continue with
-     the next case. A failure never stops the run.
+   - On FAIL, keep the screenshot and a one-line diagnosis, then continue with
+     the next case (which starts from a fresh launch). A failure never stops
+     the run.
 7. **Report** (below).
 
 ## Result statuses
@@ -159,9 +162,6 @@ Failures
 - R-04 <title>: <what happened vs Expect>. Likely area: <file/view if obvious>.
 
 Manual follow-ups: <the `manual only` cases the user still needs to do>
-Saved configuration: <if section P ran: "replaced with a placeholder Custom
-  provider; every test launch overrides it, but the app will show it if you
-  launch it yourself.">
 ```
 
 Finish by stating plainly whether any FAIL remains. Don't declare the release
