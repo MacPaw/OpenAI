@@ -16,16 +16,19 @@ Expect: what must be true to PASS
   R = Responses, I = Image, M = Github MCP, X = Misc, P = Other providers.
 - **Tags**: `[smoke]` = run on every pass, even a quick one. `[costly]` =
   noticeably more tokens (image generation); skip when only doing a fast check.
-- **Needs** lists the requirements a case depends on. A requirement is met
-  by a credential in the user's shell; if one isn't set, the whole run is
-  aborted before it starts (see `SKILL.md`), whatever the app has saved.
+- **Needs** lists what a case depends on beyond the app itself. The shell
+  variable that meets it must be set, or the whole run is aborted before it
+  starts (see `SKILL.md`).
 
   | Needs | Met by | Notes |
   |---|---|---|
-  | `none` | nothing | Works with any saved configuration; no API calls. |
-  | `OpenAI key` | `OPENAI_API_KEY` | Puts Demo on OpenAI with this key for the launch. Also required by cases that only need the OpenAI provider (for example, to see the OpenAI model list), not just API calls. These spend tokens when they send. |
+  | `none` | nothing | Makes no API calls and costs no tokens. |
+  | `OpenAI key` | `OPENAI_API_KEY` | Calls the OpenAI API, so it spends tokens when it sends. |
   | `GitHub token` | `GITHUB_TOKEN` | For the Github MCP tab. |
   | `manual only` | nothing | Can't be driven reliably in the simulator (for example the photo picker). Always SKIPPED and listed as a follow-up for the human. |
+
+  **Every run also needs `OPENAI_API_KEY`**, whatever the cases' `Needs`: it
+  is Demo's only configuration (see below), so it isn't a per-case tag.
 
   To require another provider's key (say Gemini), Demo first needs to read
   it from the launch environment, then add a row here. No case needs one yet.
@@ -34,25 +37,24 @@ Expect: what must be true to PASS
 - When a screen changes (new feature, a stub becomes real), update its case in
   the same change.
 
-**Saved data.** A run may be the first one after installing Demo or any later
-one, so saved data (API key, GitHub token, enabled MCP tools) may or may not
-exist. Cases in sections L to X must work either way, assume the OpenAI
-provider, and leave saved settings as they found them. A case that needs a
-clean install can't be written yet; don't add one.
+**Never rely on saved data.** Runs must be deterministic, so Demo's
+configuration (OpenAI, with the key from `OPENAI_API_KEY`; optionally
+`GITHUB_TOKEN`) is always supplied through the launch environment, which
+overrides whatever is saved. Cases must not depend on what an earlier run or the
+user saved, and whether this is the first run after an install or a later one
+must make no difference. A case that needs a clean install can't be written yet;
+don't add one.
 
-Credentials come from the launch environment (`OPENAI_API_KEY`, optionally
-`GITHUB_TOKEN`; see `SKILL.md`), which overrides what is saved for that launch.
-
-The one exception to leaving saved data alone is section **P**: it replaces the
-saved provider and key, so it runs last. The next launch with `OPENAI_API_KEY`
-set is back on OpenAI; without it the user has to re-enter their key. Like any
-test run on a device, it overwrites data.
+Section **P** is the one place that changes saved data: it replaces the saved
+provider and key with a placeholder, so it runs last. The next launch with
+`OPENAI_API_KEY` set is back on OpenAI. Like any test run on a device, it
+overwrites data.
 
 ---
 
 ## L: Launch and configuration
 
-### L-01 Launch with saved configuration  [smoke]
+### L-01 Launch  [smoke]
 Needs: none
 Steps: launch Demo (step 4 of `SKILL.md`) → dismiss the API Configuration modal
 with **Cancel** (if it has no Cancel, follow step 5 of `SKILL.md`)
@@ -89,7 +91,7 @@ Expect: the header now reads "stream: false"; the full reply arrives and is
 shown once it completes, without an error.
 
 ### C-03 Model selection sheet
-Needs: OpenAI key
+Needs: none
 Steps: in an open chat, tap the **cpu** toolbar icon
 Expect: a "Select model" dialog lists the streaming toggle, the available model
 names and **Cancel**; **Cancel** dismisses it with the header unchanged.
@@ -105,7 +107,7 @@ tools with reasoning_effort are not supported…" means the model's `ModelSpec`
 limitation is missing or ignored.
 
 ### C-05 Model menu offers the OpenAI models
-Needs: OpenAI key
+Needs: none
 Steps: in an open chat, tap the **cpu** toolbar icon
 Expect: the list includes gpt-6-*, gpt-5.6-* and older models, with no
 "Custom model ID…" entry.
@@ -123,7 +125,7 @@ Expect: the title shows "Streaming…" while the answer arrives and returns to
 Web Search is on by default, so R-05 starts with it already enabled.
 
 ### R-02 Settings screen toggles
-Needs: OpenAI key
+Needs: none
 Steps: Responses tab → **gear** icon → flip each of Stream, Web Search,
 Function Calling, MCP Tools → go back
 Expect: the Settings screen has a Model row plus the four toggles; each flips
@@ -189,7 +191,7 @@ Expect: a **GitHub Token** field (filled or empty), a red ✗ status, a
 
 ### M-02 Connect, toggle tools, disconnect
 Needs: GitHub token
-Steps: with a token already saved in the field → **Connect to GitHub MCP** →
+Steps: with `GITHUB_TOKEN` supplied at launch → **Connect to GitHub MCP** →
 wait → toggle **Enable All Tools** → toggle it back to how it was →
 **Disconnect**
 Expect: status turns to a green ✓; the list under **Available Tools** fills in

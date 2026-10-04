@@ -24,15 +24,15 @@ replace the saved provider and key.
   `printenv`, `set -x` or anything else that would show their values. Test for
   presence only: `[ -n "$OPENAI_API_KEY" ]`. The only text you type into the
   API Key field is the placeholder token of section P.
-- **Saved data may or may not exist.** This may be the first run after
-  installing Demo or a later one, so the saved provider, key, GitHub token and
-  other settings may or may not be there, and may have been changed by the user
-  since the last run. Never uninstall or reset the app (installing over it keeps
-  its data). Cases in sections L to X leave saved settings as they found them.
-  Only section **P** replaces the saved provider and key; it runs last and uses
-  a placeholder token and a local URL. Credentials from the launch environment
-  take precedence on each launch, so relaunching with them set puts the app
-  back on OpenAI.
+- **Never rely on saved data.** Test runs must be as deterministic as
+  possible, so the app's configuration always comes from the launch
+  environment (`OPENAI_API_KEY`), never from whatever was saved by an earlier
+  run or by the user. Whether this is the first run after installing Demo or a
+  later one must make no difference. Never uninstall or reset the app (installing
+  over it keeps its data, which is simply ignored). Cases in sections L to X
+  don't change saved settings. Only section **P** does: it replaces the saved
+  provider and key with a placeholder, runs last, and relaunching with the
+  environment key puts the app back on OpenAI.
 - **Don't change code or commit** during the run. If something fails, report
   it; fixing is a separate step.
 - **Navigate by what's on screen.** Demo has no accessibility identifiers and
@@ -62,15 +62,17 @@ replace the saved provider and key.
 ## Procedure
 
 1. **Read `test-cases.md`** and pick the cases in scope for the argument.
-   Then **check requirements before touching the simulator**: test which of
-   `OPENAI_API_KEY` and `GITHUB_TOKEN` are set (presence only, as above) and
-   compare with the `Needs` of every case in scope. **If any requirement is
-   missing, abort the whole run**: don't build, launch or run anything, not
-   even the cases that could run. Report which variables are missing and which
-   cases need them, and stop. Never fall back to whatever the app has saved,
-   and never ask the user to type a credential into the app. To run a subset
-   that doesn't need the missing credential, the user can pass a narrower
-   argument.
+   Then **check requirements before touching the simulator**, by presence
+   only, as above. `OPENAI_API_KEY` is **always** required, even if every
+   case in scope is `Needs: none`: Demo can't get past its API Configuration
+   screen without a configuration, and a configuration is never taken from
+   saved data. `GITHUB_TOKEN` is required only if a case in scope needs it.
+   **If any requirement is missing, abort the whole run**: don't build, launch
+   or run anything. Report which variables are missing and, for
+   `GITHUB_TOKEN`, which cases need it, and stop. Never fall back to whatever
+   the app has saved, and never ask the user to type a credential into the
+   app. To run without `GITHUB_TOKEN`, the user can pass an argument that
+   leaves out the cases that need it.
 2. **Open the simulator panel first:** `control` → `attach`. If no simulator is
    booted, boot one (prefer `iPhone 17`) and retry.
 3. **Build** from the repo root, into a gitignored folder:
@@ -97,13 +99,15 @@ replace the saved provider and key.
    xcrun simctl launch --terminate-running-process booted openAI.MacPaw.Demo
    ```
 
-   Demo uses these as the configuration for that launch, whatever provider or
-   key is saved. Empty values are ignored. Then `control` → `attach`
+   Demo uses these as the configuration for that launch, whatever is saved.
+   Empty values are ignored. Then `control` → `attach`
    so the user can watch, and take screenshots and taps as usual.
 5. **Dismiss the launch modal.** Demo opens the **API Configuration** modal on
    *every* launch; tap **Cancel** (never Save, except in P-01) and carry on.
-   With `OPENAI_API_KEY` set, Demo is on OpenAI with that key whatever was
-   saved.
+   With the environment key delivered, Demo is on OpenAI and the modal has a
+   **Cancel**. If it has none (only **Continue**), the key didn't reach the
+   app: abort the run and report that, instead of trying to get past the
+   modal.
 6. **Run each case** in order. For every case:
    - Follow the steps, taking a screenshot after the action that matters.
    - Compare against **Expect**. Record PASS or FAIL.
@@ -149,8 +153,8 @@ Failures
 
 Manual follow-ups: <the `manual only` cases the user still needs to do>
 Saved configuration: <if section P ran: "replaced with a placeholder Custom
-  provider; the next launch with OPENAI_API_KEY set restores OpenAI. Without
-  it, re-enter your key.">
+  provider; every test launch overrides it with OPENAI_API_KEY, but the app
+  will show it if you launch it yourself.">
 ```
 
 Finish by stating plainly whether any FAIL remains. Don't declare the release
