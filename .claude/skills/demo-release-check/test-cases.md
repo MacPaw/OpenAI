@@ -120,9 +120,13 @@ you choose one.)
 ### R-01 Responses reply, streaming on  [smoke]
 Needs: OpenAI key
 Steps: Responses tab → check the subtitle reads `Model: gpt-6-luna, stream:
-true, tools: Web Search` (the defaults) → send `Reply with only the word: pong`
-Expect: the title shows "Streaming…" while the answer arrives and returns to
-"Responses API" afterwards; a reply containing "pong" is shown; no alert.
+true, tools: Web Search` (the defaults) → send `Count from 1 to 150, separated
+by spaces, and nothing else` → screenshot right after sending, then again once
+the reply is done
+Expect: the title shows "Streaming…" while the numbers arrive and returns to
+"Responses API" afterwards; the reply counts from 1 to 150 in order; no alert.
+(Shorter replies finish before a screenshot can catch the title: a one-word
+reply and a count to 30 both did.)
 
 ### R-02 Settings screen toggles
 Needs: none
