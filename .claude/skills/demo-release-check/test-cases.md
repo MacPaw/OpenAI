@@ -36,9 +36,12 @@ Expect: what must be true to PASS
   the same change.
 
 **Every case starts from a fresh launch**, with the configuration its `Needs`
-calls for supplied through the launch environment. Demo skips its API
-Configuration screen when the environment gives it a usable configuration, so
-each case starts on the Chats tab with no modal. A case must not assume anything
+calls for supplied through the launch environment. When the environment
+supplies any part of the configuration, Demo ignores everything it saved
+earlier (configuration, GitHub token, enabled MCP tools, remembered model IDs),
+so a case sees exactly what the launch gave it: no GitHub token unless the case
+needs one. And Demo skips its API Configuration screen when the configuration is
+usable, so each case starts on the Chats tab with no modal. A case must not assume anything
 an earlier case did (an open chat, a toggled setting), and it may freely change
 what the app saves: the next case relaunches from scratch. "Open a chat" below
 means Chats → **+** → **Create Chat** → select the new conversation.
@@ -195,22 +198,28 @@ which can't be driven reliably in the simulator.
 ### M-01 MCP tab, disconnected state
 Needs: none
 Steps: open the Github MCP tab
-Expect: a **GitHub Token** field (filled or empty), a red ✗ status, a
-**Connect to GitHub MCP** button, and "No tools available".
+Expect: a **GitHub Token** field that is empty (the launch supplies no token,
+and saved data is ignored), a red ✗ "Not Connected" status, a **Connect to
+GitHub MCP** button, and no tools listed.
 
 ### M-02 Connect, toggle tools, disconnect
 Needs: GitHub token
-Steps: Github MCP tab → **Connect to GitHub MCP** → wait → toggle **Enable All
-Tools** → **Disconnect**
-Expect: status turns to a green ✓; the list under **Available Tools** fills in
-and the "N enabled" count matches the toggles; after **Disconnect** the status
-returns to ✗ and the tool list empties. (Disconnect also clears the saved
-GitHub token and enabled tools; the next case relaunches with the token again.)
+Steps: open the Github MCP tab → wait for the automatic connection (the token
+supplied at launch starts it; "Connecting…" shows first, allow up to ~15 s) →
+toggle **Enable All Tools** → **Disconnect**
+Expect: status turns to a green ✓ with a **Disconnect** button on its own; the
+list under **Available Tools** fills in and the "N enabled" count matches the
+toggles; after **Disconnect** the status returns to ✗ and the tool list empties.
+If the connection ends in an error instead, **Connect to GitHub MCP** is shown
+again: tap it once, and report the error text if it fails again.
+(Disconnect also clears the saved GitHub token and enabled tools; the next case
+relaunches from scratch anyway.)
 
 ### M-03 Responses with MCP tools and approval dialog
 Needs: OpenAI key, GitHub token
-Steps: Github MCP → connect → Responses → gear → turn **MCP Tools** on → back →
-send a prompt that uses GitHub (`List the open issues in apple/swift, max 1`)
+Steps: Github MCP tab → wait for the automatic connection (as in M-02) →
+Responses → gear → turn **MCP Tools** on → back → send a prompt that uses GitHub
+(`List the open issues in apple/swift, max 1`)
 Expect: an MCP approval dialog appears for the tool call; **Approve** lets the
 request finish with a reply; no alert.
 

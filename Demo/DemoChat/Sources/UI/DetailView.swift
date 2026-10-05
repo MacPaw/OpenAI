@@ -24,6 +24,7 @@ struct DetailView: View {
     @State private var customModelDraft = ""
     @State private var streamEnabled = true
     @Environment(\.apiProvider) private var apiProvider
+    @Environment(\.ignoresSavedData) private var ignoresSavedData
     var availableAssistants: [Assistant]
     /// Whether a message can only be sent once a chat model is chosen. Moderation sends with its own fixed model, so it opts out.
     var requiresChatModel = true
@@ -39,7 +40,7 @@ struct DetailView: View {
 
     /// Non-OpenAI model IDs are remembered per provider so they aren't re-entered for every chat.
     private func loadStoredModel() {
-        selectedModel = apiProvider == .openAI ? nil : UserDefaults.standard.string(forKey: storedModelKey)
+        selectedModel = apiProvider == .openAI || ignoresSavedData ? nil : UserDefaults.standard.string(forKey: storedModelKey)
     }
 
     private func useCustomModel(_ id: String) {

@@ -112,7 +112,10 @@ Arguments (optional): a section prefix (`R` = Responses, `C` = Chats, …) or
    xcrun simctl launch --terminate-running-process booted openAI.MacPaw.Demo
    ```
 
-   Demo uses these as its configuration for that launch, whatever is saved.
+   Demo uses these as its configuration for that launch and, because the
+   environment supplies it, ignores everything it saved earlier (configuration,
+   GitHub token, enabled MCP tools, remembered model IDs), so a case only has
+   a GitHub token if you pass one.
    Because the configuration is usable, Demo **skips** the API Configuration
    screen it otherwise opens at launch, so the case starts directly on the
    Chats tab; there is no modal to dismiss. Wait a few seconds after launching.

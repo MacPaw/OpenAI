@@ -286,3 +286,24 @@ func launchEnvironmentIgnoresIncompleteOrUnknownConfigurations(environment: [Str
     #expect(DemoLaunchEnvironment.githubToken(from: ["GITHUB_TOKEN": ""]) == nil)
     #expect(DemoLaunchEnvironment.githubToken(from: ["DEMO_API_KEY": "key"]) == nil)
 }
+
+@Test(arguments: [
+    ["DEMO_API_KEY": "key"],
+    ["DEMO_API_PROVIDER": "claude"],
+    ["DEMO_API_BASE_URL": "http://localhost:8080"],
+    ["GITHUB_TOKEN": "ghp_test"],
+    ["DEMO_API_KEY": "key", "GITHUB_TOKEN": "ghp_test"]
+])
+func launchEnvironmentProvidesSomething(environment: [String: String]) {
+    #expect(DemoLaunchEnvironment.isProvided(in: environment))
+}
+
+@Test(arguments: [
+    [:],
+    ["DEMO_API_KEY": "", "GITHUB_TOKEN": " \n"],
+    ["OPENAI_API_KEY": "sk-test", "HOME": "/tmp"]
+])
+func launchEnvironmentWithNothingKeepsSavedData(environment: [String: String]) {
+    #expect(!DemoLaunchEnvironment.isProvided(in: environment))
+}
+

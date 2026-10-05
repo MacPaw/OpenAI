@@ -16,11 +16,18 @@ struct DemoApp: App {
     @AppStorage("apiBaseURL") var baseURL = APIProvider.openAI.defaultBaseURL ?? ""
     @AppStorage("apiConfiguration") var configurationData = Data()
     @AppStorage("githubToken") var githubToken: String = ""
+    private static let environment = ProcessInfo.processInfo.environment
+    /// The launch environment supplied (part of) the configuration, so everything saved earlier is ignored for this launch.
+    private let ignoresSavedData = DemoLaunchEnvironment.isProvided(in: DemoApp.environment)
     /// The API Configuration screen opens at launch, except when the launch environment supplies a usable configuration (that skips it so automated runs don't have to dismiss it).
-    @State var isShowingAPIConfigModal: Bool = DemoLaunchEnvironment.configuration(from: ProcessInfo.processInfo.environment)?.sdkConfiguration == nil
-    /// Credentials from the launch environment, used as the configuration until one is saved in this session. Nothing here writes them to storage; Save stores whatever the form contains.
-    @State private var launchConfiguration = DemoLaunchEnvironment.configuration(from: ProcessInfo.processInfo.environment)
-    @State private var launchGitHubToken = DemoLaunchEnvironment.githubToken(from: ProcessInfo.processInfo.environment)
+    @State var isShowingAPIConfigModal: Bool = DemoLaunchEnvironment.configuration(from: DemoApp.environment)?.sdkConfiguration == nil
+    /// Set when saved data is ignored: the configuration from the environment (or an empty one if it doesn't give a usable one), replaced when the user saves in this session. Nothing here writes it to storage; Save stores whatever the form contains.
+    @State private var sessionConfiguration: DemoAPIConfiguration? = DemoLaunchEnvironment.isProvided(in: DemoApp.environment)
+        ? DemoLaunchEnvironment.configuration(from: DemoApp.environment) ?? DemoAPIConfiguration()
+        : nil
+    @State private var sessionGitHubToken: String? = DemoLaunchEnvironment.isProvided(in: DemoApp.environment)
+        ? DemoLaunchEnvironment.githubToken(from: DemoApp.environment) ?? ""
+        : nil
 
     let idProvider: () -> String
     let dateProvider: () -> Date
@@ -40,6 +47,7 @@ struct DemoApp: App {
                         configuration: configuration,
                         sdkConfiguration: sdkConfiguration,
                         githubToken: githubTokenBinding,
+                        ignoresSavedData: ignoresSavedData,
                         idProvider: idProvider
                     )
                 } else {
@@ -47,6 +55,7 @@ struct DemoApp: App {
                 }
             }
             .environment(\.showAPIConfiguration, { isShowingAPIConfigModal = true })
+            .environment(\.ignoresSavedData, ignoresSavedData)
             #if os(iOS)
             .fullScreenCover(isPresented: $isShowingAPIConfigModal) {
                 APIKeyModalView(
@@ -68,8 +77,8 @@ struct DemoApp: App {
     private var configuration: Binding<DemoAPIConfiguration> {
         Binding(
             get: {
-                if let launchConfiguration {
-                    return launchConfiguration
+                if let sessionConfiguration {
+                    return sessionConfiguration
                 }
                 if configurationData.isEmpty {
                     return .migrating(apiKey: apiKey, providerRawValue: providerRawValue, baseURL: baseURL)
@@ -79,7 +88,9 @@ struct DemoApp: App {
                     ?? DemoAPIConfiguration(provider: .custom)
             },
             set: { value in
-                launchConfiguration = nil
+                if sessionConfiguration != nil {
+                    sessionConfiguration = value.normalized
+                }
                 if let data = try? JSONEncoder().encode(value.normalized) {
                     configurationData = data
                 }
@@ -89,9 +100,11 @@ struct DemoApp: App {
 
     private var githubTokenBinding: Binding<String> {
         Binding(
-            get: { launchGitHubToken ?? githubToken },
+            get: { sessionGitHubToken ?? githubToken },
             set: { value in
-                launchGitHubToken = nil
+                if sessionGitHubToken != nil {
+                    sessionGitHubToken = value
+                }
                 githubToken = value
             }
         )

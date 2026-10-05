@@ -7,9 +7,10 @@ import Foundation
 
 /// Configuration the demo can take from its launch environment instead of asking for it.
 ///
-/// It is used as the configuration for the current launch; the app does not write it to storage itself. When it is
-/// usable, the app also skips the API Configuration screen it otherwise opens at launch. Set the variables in the
-/// Xcode scheme, or pass them to `xcrun simctl launch` with a `SIMCTL_CHILD_` prefix.
+/// It is used as the configuration for the current launch; the app does not write it to storage itself. If any of
+/// the variables is set, the app ignores all saved data for that launch (see ``isProvided(in:)``), and when the
+/// configuration is usable it also skips the API Configuration screen it otherwise opens at launch. Set the
+/// variables in the Xcode scheme, or pass them to `xcrun simctl launch` with a `SIMCTL_CHILD_` prefix.
 public enum DemoLaunchEnvironment {
     /// An ``APIProvider`` raw value (`openAI`, `gemini` or `custom`), compared ignoring case. Defaults to OpenAI.
     public static let providerVariable = "DEMO_API_PROVIDER"
@@ -18,6 +19,15 @@ public enum DemoLaunchEnvironment {
     /// The base URL, used only with the `custom` provider.
     public static let baseURLVariable = "DEMO_API_BASE_URL"
     public static let githubTokenVariable = "GITHUB_TOKEN"
+
+    /// Whether `environment` supplies any part of the configuration, even an unusable one. The app then starts from
+    /// exactly what the environment gives it and ignores everything it saved earlier (the configuration, the GitHub
+    /// token, the enabled MCP tools, remembered model IDs), so a test run doesn't depend on previous state. Saving
+    /// during the session still stores and uses the new values.
+    public static func isProvided(in environment: [String: String]) -> Bool {
+        [providerVariable, apiKeyVariable, baseURLVariable, githubTokenVariable]
+            .contains { value(of: $0, in: environment) != nil }
+    }
 
     /// The configuration described by `environment`, or `nil` if there is no API key or the provider isn't recognized.
     public static func configuration(from environment: [String: String]) -> DemoAPIConfiguration? {

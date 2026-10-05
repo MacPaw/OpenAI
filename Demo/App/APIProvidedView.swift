@@ -26,6 +26,7 @@ struct APIProvidedView: View {
         configuration: Binding<DemoAPIConfiguration>,
         sdkConfiguration: OpenAI.Configuration,
         githubToken: Binding<String>,
+        ignoresSavedData: Bool,
         idProvider: @escaping () -> String
     ) {
         self._configuration = configuration
@@ -62,7 +63,7 @@ struct APIProvidedView: View {
             )
         )
         self._mcpToolsStore = StateObject(
-            wrappedValue: MCPToolsStore(githubToken: githubToken)
+            wrappedValue: MCPToolsStore(githubToken: githubToken, loadsSavedTools: !ignoresSavedData)
         )
     }
 

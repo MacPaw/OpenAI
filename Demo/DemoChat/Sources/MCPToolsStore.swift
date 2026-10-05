@@ -40,9 +40,12 @@ public final class MCPToolsStore: ObservableObject {
         }
     }
     
-    public init(githubToken: Binding<String>) {
+    /// - Parameter loadsSavedTools: Whether to start with the enabled tools saved earlier instead of none.
+    public init(githubToken: Binding<String>, loadsSavedTools: Bool = true) {
         self.githubToken = githubToken
-        loadEnabledTools()
+        if loadsSavedTools {
+            loadEnabledTools()
+        }
 
         // Auto-connect if token is available
         if !githubToken.wrappedValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
