@@ -22,6 +22,8 @@ struct DetailView: View {
     @State private var selectedModel: Model?
     @State private var showsCustomModelAlert = false
     @State private var customModelDraft = ""
+    /// A message sent before any model was chosen. The chat view has already cleared its draft, so it's held here and sent once a model is entered.
+    @State private var pendingMessage: (text: String, image: Message.Image?)?
     @State private var streamEnabled = true
     @Environment(\.apiProvider) private var apiProvider
     var availableAssistants: [Assistant]
@@ -33,15 +35,6 @@ struct DetailView: View {
     /// OpenAI chats start on a default model. Other providers have no known models, so the user enters one.
     private var selectedChatModel: Model? {
         selectedModel ?? (apiProvider == .openAI ? Model.gpt6_luna : nil)
-    }
-
-    /// ExyteChat doesn't expose its input field, so the user starting to type is detected via the platform's editing notification.
-    private static var beganTypingNotification: Notification.Name {
-        #if os(iOS)
-        UIResponder.keyboardWillShowNotification
-        #elseif os(macOS)
-        NSText.didBeginEditingNotification
-        #endif
     }
 
     private var storedModelKey: String { "chatModelID.\(apiProvider.rawValue)" }
@@ -165,20 +158,21 @@ struct DetailView: View {
                         .textInputAutocapitalization(.never)
                         #endif
                         .autocorrectionDisabled()
-                    Button("Use") { useCustomModel(customModelDraft) }
-                    Button("Cancel", role: .cancel) {}
+                    Button("Use") {
+                        useCustomModel(customModelDraft)
+                        if let pendingMessage, let model = selectedChatModel {
+                            sendMessage(pendingMessage.text, pendingMessage.image, model, streamEnabled)
+                        }
+                        pendingMessage = nil
+                    }
+                    .disabled(customModelDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    Button("Cancel", role: .cancel) { pendingMessage = nil }
                 } message: {
                     Text("Enter a model ID supported by this provider.")
                 }
         }
         .onAppear(perform: loadStoredModel)
         .onChange(of: apiProvider) { _ in loadStoredModel() }
-        .onReceive(NotificationCenter.default.publisher(for: Self.beganTypingNotification)) { _ in
-            // The alert's own text field also posts this, so ignore it while the alert is up
-            if requiresChatModel, selectedChatModel == nil, !showsCustomModelAlert {
-                showsCustomModelAlert = true
-            }
-        }
     }
     
     @ViewBuilder
@@ -205,7 +199,8 @@ struct DetailView: View {
                     }
                     
                     guard let model = selectedChatModel ?? (requiresChatModel ? nil : "") else {
-                        // Normally the alert already appeared when typing began; this covers sending without typing (e.g. an image only)
+                        pendingMessage = (draftMessage.text, image)
+                        customModelDraft = ""
                         showsCustomModelAlert = true
                         return
                     }
