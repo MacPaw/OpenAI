@@ -16,7 +16,6 @@ public struct ChatView: View {
     @Environment(\.idProviderValue) var idProvider
     
     @State private var sendMessageTask: Task<Void, Never>?
-    @State private var sessionModelIDs: [String: String] = [:]
 
     public init(store: ChatStore, assistantStore: AssistantStore) {
         self.store = store
@@ -53,7 +52,6 @@ public struct ChatView: View {
                 if let conversation = store.selectedConversation {
                     DetailView(
                         availableAssistants: assistantStore.availableAssistants,
-                        sessionModelIDs: $sessionModelIDs,
                         conversation: conversation,
                         error: store.conversationErrors[conversation.id],
                         sendMessage: { message, image, selectedModel, streamEnabled in

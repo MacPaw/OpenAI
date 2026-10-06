@@ -24,12 +24,9 @@ struct DetailView: View {
     @State private var customModelDraft = ""
     @State private var streamEnabled = true
     @Environment(\.apiProvider) private var apiProvider
-    @Environment(\.ignoresSavedData) private var ignoresSavedData
     var availableAssistants: [Assistant]
     /// Whether a message can only be sent once a chat model is chosen. Moderation sends with its own fixed model, so it opts out.
     var requiresChatModel = true
-    /// Model IDs entered during this session, by provider. Chats are separate views, so the owner keeps this to carry an entered ID to the next chat even when saved IDs are ignored.
-    var sessionModelIDs: Binding<[String: String]> = .constant([:])
 
     private static let availableChatModels: [Model] = Array(Model.allModels(satisfying: .init(supportedEndpoints: [.chatCompletions]))).sorted(by: >)
 
@@ -40,21 +37,15 @@ struct DetailView: View {
 
     private var storedModelKey: String { "chatModelID.\(apiProvider.rawValue)" }
 
-    /// Non-OpenAI model IDs are remembered per provider so they aren't re-entered for every chat: the one entered in this session, else (unless saved data is ignored) the one saved earlier.
+    /// Non-OpenAI model IDs are remembered per provider so they aren't re-entered for every chat.
     private func loadStoredModel() {
-        guard apiProvider != .openAI else {
-            selectedModel = nil
-            return
-        }
-        selectedModel = sessionModelIDs.wrappedValue[apiProvider.rawValue]
-            ?? (ignoresSavedData ? nil : UserDefaults.standard.string(forKey: storedModelKey))
+        selectedModel = apiProvider == .openAI ? nil : UserDefaults.standard.string(forKey: storedModelKey)
     }
 
     private func useCustomModel(_ id: String) {
         let id = id.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !id.isEmpty else { return }
         selectedModel = id
-        sessionModelIDs.wrappedValue[apiProvider.rawValue] = id
         UserDefaults.standard.set(id, forKey: storedModelKey)
     }
 

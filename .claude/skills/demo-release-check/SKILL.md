@@ -26,13 +26,14 @@ Arguments (optional): a section prefix (`R` = Responses, `C` = Chats, …) or
   `set -x` or anything else that would show their values. Test for presence
   only: `[ -n "$OPENAI_API_KEY" ]`.
 - **Every case starts from a fresh launch.** Test runs must be as deterministic
-  as possible, so before each case the app is relaunched with the
-  configuration that case needs, provided from scratch through the launch
-  environment. Cases never rely on saved data or on what an earlier case left
-  behind, and may freely change whatever the app saves (the provider, key,
-  GitHub token, remembered models, enabled tools). After a run, the app's saved
-  state on the device may differ from before; that is expected. Never uninstall
-  or reset the app: installing over it is enough.
+  as possible, so before each case the app is relaunched with
+  `DEMO_RESET_SAVED_DATA=1`, which erases everything it saved (the
+  configuration, GitHub token, remembered model IDs, enabled tools) before it
+  reads any of it, and with the configuration that case needs provided through
+  the launch environment. Cases never rely on saved data or on what an earlier
+  case left behind, and may freely change whatever the app saves. After a run,
+  the app's saved state on the device is whatever the last case left; that is
+  expected. Never uninstall the app: installing over it is enough.
 - **Don't change code or commit** during the run. If something fails, report
   it; fixing is a separate step.
 - **Navigate by what's on screen.** Demo has no accessibility identifiers and
@@ -112,15 +113,15 @@ Arguments (optional): a section prefix (`R` = Responses, `C` = Chats, …) or
    `GitHub token`.
 
    ```sh
+   SIMCTL_CHILD_DEMO_RESET_SAVED_DATA=1 \
    SIMCTL_CHILD_DEMO_API_PROVIDER=openAI \
    SIMCTL_CHILD_DEMO_API_KEY="$OPENAI_API_KEY" \
    xcrun simctl launch --terminate-running-process booted openAI.MacPaw.Demo
    ```
 
-   Demo uses these as its configuration for that launch and, because the
-   environment supplies it, ignores everything it saved earlier (configuration,
-   GitHub token, enabled MCP tools, remembered model IDs), so a case only has
-   a GitHub token if you pass one.
+   `DEMO_RESET_SAVED_DATA=1` erases what the app saved, so each case starts
+   clean (for example with no GitHub token unless you pass one). Demo uses the
+   other variables as its configuration for that launch.
    Because the configuration is usable, Demo **skips** the API Configuration
    screen it otherwise opens at launch, so the case starts directly on the
    Chats tab; there is no modal to dismiss. Wait a few seconds after launching.

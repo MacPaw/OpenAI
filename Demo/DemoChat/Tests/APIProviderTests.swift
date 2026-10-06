@@ -287,23 +287,27 @@ func launchEnvironmentIgnoresIncompleteOrUnknownConfigurations(environment: [Str
     #expect(DemoLaunchEnvironment.githubToken(from: ["DEMO_API_KEY": "key"]) == nil)
 }
 
-@Test(arguments: [
-    ["DEMO_API_KEY": "key"],
-    ["DEMO_API_PROVIDER": "claude"],
-    ["DEMO_API_BASE_URL": "http://localhost:8080"],
-    ["GITHUB_TOKEN": "ghp_test"],
-    ["DEMO_API_KEY": "key", "GITHUB_TOKEN": "ghp_test"]
-])
-func launchEnvironmentProvidesSomething(environment: [String: String]) {
-    #expect(DemoLaunchEnvironment.isProvided(in: environment))
+@Test(arguments: ["1", "true", "TRUE", "yes", " 1 "])
+func launchEnvironmentResetsSavedDataWhenAsked(value: String) {
+    #expect(DemoLaunchEnvironment.shouldResetSavedData(in: ["DEMO_RESET_SAVED_DATA": value]))
 }
 
 @Test(arguments: [
     [:],
-    ["DEMO_API_KEY": "", "GITHUB_TOKEN": " \n"],
-    ["OPENAI_API_KEY": "sk-test", "HOME": "/tmp"]
+    ["DEMO_RESET_SAVED_DATA": ""],
+    ["DEMO_RESET_SAVED_DATA": "0"],
+    ["DEMO_RESET_SAVED_DATA": "false"],
+    ["DEMO_API_KEY": "key", "GITHUB_TOKEN": "ghp_test"]
 ])
-func launchEnvironmentWithNothingKeepsSavedData(environment: [String: String]) {
-    #expect(!DemoLaunchEnvironment.isProvided(in: environment))
+func launchEnvironmentKeepsSavedDataByDefault(environment: [String: String]) {
+    #expect(!DemoLaunchEnvironment.shouldResetSavedData(in: environment))
 }
 
+@Test func resetSavedDataErasesTheDomain() throws {
+    let domain = "demochat.tests.reset.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: domain))
+    defaults.set("value", forKey: "key")
+    #expect(defaults.string(forKey: "key") == "value")
+    DemoLaunchEnvironment.resetSavedData(domain: domain)
+    #expect(defaults.string(forKey: "key") == nil)
+}

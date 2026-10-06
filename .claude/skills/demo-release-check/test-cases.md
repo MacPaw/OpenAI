@@ -35,16 +35,16 @@ Expect: what must be true to PASS
 - When a screen changes (new feature, a stub becomes real), update its case in
   the same change.
 
-**Every case starts from a fresh launch**, with the configuration its `Needs`
-calls for supplied through the launch environment. When the environment
-supplies any part of the configuration, Demo ignores everything it saved
-earlier (configuration, GitHub token, enabled MCP tools, remembered model IDs),
-so a case sees exactly what the launch gave it: no GitHub token unless the case
-needs one. And Demo skips its API Configuration screen when the configuration is
-usable, so each case starts on the Chats tab with no modal. A case must not assume anything
-an earlier case did (an open chat, a toggled setting), and it may freely change
-what the app saves: the next case relaunches from scratch. "Open a chat" below
-means Chats → **+** → **Create Chat** → select the new conversation.
+**Every case starts from a fresh launch**, with the app's saved data erased
+(`DEMO_RESET_SAVED_DATA=1`) and the configuration its `Needs` calls for supplied
+through the launch environment. A case therefore sees exactly what the launch
+gave it: no GitHub token unless the case needs one, no remembered model IDs, no
+enabled MCP tools. Demo also skips its API Configuration screen when the
+configuration is usable, so each case starts on the Chats tab with no modal. A
+case must not assume anything an earlier case did (an open chat, a toggled
+setting), and it may freely change what the app saves: the next case relaunches
+from scratch. "Open a chat" below means Chats → **+** → **Create Chat** → select
+the new conversation.
 
 ---
 
@@ -111,8 +111,7 @@ Needs: Custom provider
 Steps: open a chat → tap the **cpu** toolbar icon → read the menu →
 **Custom model ID…** → enter `my-model-1` → **Use** → go back and open another
 chat
-Expect: before choosing, the header reads "Model: not set" (a model ID saved by
-an earlier run is ignored) and the menu has only the streaming toggle and
+Expect: before choosing, the header reads "Model: not set" and the menu has only the streaming toggle and
 "Custom model ID…" (no OpenAI models); after **Use** the header shows "Model:
 my-model-1", and the second chat starts with the same ID. Do not send: nothing
 listens at the URL.
@@ -199,7 +198,7 @@ which can't be driven reliably in the simulator.
 Needs: none
 Steps: open the Github MCP tab
 Expect: a **GitHub Token** field that is empty (the launch supplies no token,
-and saved data is ignored), a red ✗ "Not Connected" status, a **Connect to
+and saved data was erased), a red ✗ "Not Connected" status, a **Connect to
 GitHub MCP** button, and no tools listed.
 
 ### M-02 Connect, toggle tools, disconnect

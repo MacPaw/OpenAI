@@ -5,12 +5,13 @@
 
 import Foundation
 
-/// Configuration the demo can take from its launch environment instead of asking for it.
+/// Configuration the demo can take from its launch environment instead of asking for it, and a switch to start from
+/// a clean slate.
 ///
-/// It is used as the configuration for the current launch; the app does not write it to storage itself. If any of
-/// the variables is set, the app ignores all saved data for that launch (see ``isProvided(in:)``), and when the
-/// configuration is usable it also skips the API Configuration screen it otherwise opens at launch. Set the
-/// variables in the Xcode scheme, or pass them to `xcrun simctl launch` with a `SIMCTL_CHILD_` prefix.
+/// The configuration is used for the current launch; the app does not write it to storage itself. When it is usable,
+/// the app also skips the API Configuration screen it otherwise opens at launch. ``resetVariable`` clears everything
+/// the app saved before it reads any of it. Set the variables in the Xcode scheme, or pass them to
+/// `xcrun simctl launch` with a `SIMCTL_CHILD_` prefix.
 public enum DemoLaunchEnvironment {
     /// An ``APIProvider`` raw value (`openAI`, `gemini` or `custom`), compared ignoring case. Defaults to OpenAI.
     public static let providerVariable = "DEMO_API_PROVIDER"
@@ -20,13 +21,19 @@ public enum DemoLaunchEnvironment {
     public static let baseURLVariable = "DEMO_API_BASE_URL"
     public static let githubTokenVariable = "GITHUB_TOKEN"
 
-    /// Whether `environment` supplies any part of the configuration, even an unusable one. The app then starts from
-    /// exactly what the environment gives it and ignores everything it saved earlier (the configuration, the GitHub
-    /// token, the enabled MCP tools, remembered model IDs), so a test run doesn't depend on previous state. Saving
-    /// during the session still stores and uses the new values.
-    public static func isProvided(in environment: [String: String]) -> Bool {
-        [providerVariable, apiKeyVariable, baseURLVariable, githubTokenVariable]
-            .contains { value(of: $0, in: environment) != nil }
+    /// When true (`1`, `true` or `yes`), the app erases everything it saved before reading any of it, so a run
+    /// doesn't depend on previous state.
+    public static let resetVariable = "DEMO_RESET_SAVED_DATA"
+
+    /// Whether `environment` asks to erase the saved data.
+    public static func shouldResetSavedData(in environment: [String: String]) -> Bool {
+        guard let value = value(of: resetVariable, in: environment)?.lowercased() else { return false }
+        return ["1", "true", "yes"].contains(value)
+    }
+
+    /// Erases everything saved in the defaults domain `domain` (the app's bundle identifier).
+    public static func resetSavedData(domain: String) {
+        UserDefaults.standard.removePersistentDomain(forName: domain)
     }
 
     /// The configuration described by `environment`, or `nil` if there is no API key or the provider isn't recognized.

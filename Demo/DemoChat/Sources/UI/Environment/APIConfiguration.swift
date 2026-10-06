@@ -9,8 +9,6 @@ import SwiftUI
 
 extension EnvironmentValues {
     @Entry public var apiProvider: APIProvider = .openAI
-    /// Whether the app ignores what it saved earlier, because the launch environment supplied its configuration.
-    @Entry public var ignoresSavedData: Bool = false
     /// Presents the app's API configuration screen.
     @Entry public var showAPIConfiguration: () -> Void = {}
 }
