@@ -111,11 +111,11 @@ Needs: Custom provider
 Steps: open a chat → tap the **cpu** toolbar icon → read the menu →
 **Custom model ID…** → enter `my-model-1` → **Use** → go back and open another
 chat
-Expect: the menu has only the streaming toggle and "Custom model ID…" (no
-OpenAI models); after **Use** the header shows "Model: my-model-1", and the
-second chat starts with the same ID. Do not send: nothing listens at the URL.
-(The ID is remembered across launches, so the header may already show it before
-you choose one.)
+Expect: before choosing, the header reads "Model: not set" (a model ID saved by
+an earlier run is ignored) and the menu has only the streaming toggle and
+"Custom model ID…" (no OpenAI models); after **Use** the header shows "Model:
+my-model-1", and the second chat starts with the same ID. Do not send: nothing
+listens at the URL.
 
 ---
 

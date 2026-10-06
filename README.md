@@ -1541,7 +1541,7 @@ are supported; include `/v1` or another API prefix only when required by the ser
 applies the settings together, while Cancel discards edits.
 
 Models are chosen per chat. With OpenAI, the chat's model menu lists the known models; with
-other providers, use **Custom model ID…** there (the ID is remembered per provider). The
+other providers, use **Custom model ID…** there (the ID is remembered per provider; when the launch environment configures the app, only IDs entered during that session are remembered). The
 Responses tab works with OpenAI only.
 
 To skip typing a configuration, launch the app with `DEMO_API_PROVIDER` (`openAI`, `gemini` or
