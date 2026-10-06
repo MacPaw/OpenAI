@@ -33,8 +33,6 @@ Arguments (optional): a section prefix (`R` = Responses, `C` = Chats, …) or
   GitHub token, remembered models, enabled tools). After a run, the app's saved
   state on the device may differ from before; that is expected. Never uninstall
   or reset the app: installing over it is enough.
-- **Supply a real key only to cases that need one.** A case that makes no API
-  calls is launched with a placeholder, so it can't spend tokens.
 - **Don't change code or commit** during the run. If something fails, report
   it; fixing is a separate step.
 - **Navigate by what's on screen.** Demo has no accessibility identifiers and
@@ -99,7 +97,6 @@ Arguments (optional): a section prefix (`R` = Responses, `C` = Chats, …) or
 
    | `Needs` | `DEMO_API_PROVIDER` | `DEMO_API_KEY` | `DEMO_API_BASE_URL` |
    |---|---|---|---|
-   | `none` | `openAI` | `test-token-not-real` | not set |
    | `OpenAI key` | `openAI` | `"$OPENAI_API_KEY"` | not set |
    | `Custom provider` | `custom` | `test-token-not-real` | `http://localhost:8080` |
 
