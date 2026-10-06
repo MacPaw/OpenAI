@@ -35,6 +35,15 @@ struct DetailView: View {
         selectedModel ?? (apiProvider == .openAI ? Model.gpt6_luna : nil)
     }
 
+    /// ExyteChat doesn't expose its input field, so the user starting to type is detected via the platform's editing notification.
+    private static var beganTypingNotification: Notification.Name {
+        #if os(iOS)
+        UIResponder.keyboardWillShowNotification
+        #elseif os(macOS)
+        NSText.didBeginEditingNotification
+        #endif
+    }
+
     private var storedModelKey: String { "chatModelID.\(apiProvider.rawValue)" }
 
     /// Non-OpenAI model IDs are remembered per provider so they aren't re-entered for every chat.
@@ -164,6 +173,12 @@ struct DetailView: View {
         }
         .onAppear(perform: loadStoredModel)
         .onChange(of: apiProvider) { _ in loadStoredModel() }
+        .onReceive(NotificationCenter.default.publisher(for: Self.beganTypingNotification)) { _ in
+            // The alert's own text field also posts this, so ignore it while the alert is up
+            if requiresChatModel, selectedChatModel == nil, !showsCustomModelAlert {
+                showsCustomModelAlert = true
+            }
+        }
     }
     
     @ViewBuilder
@@ -190,7 +205,7 @@ struct DetailView: View {
                     }
                     
                     guard let model = selectedChatModel ?? (requiresChatModel ? nil : "") else {
-                        // The draft is already cleared by the chat view, so ask for the model rather than dropping silently
+                        // Normally the alert already appeared when typing began; this covers sending without typing (e.g. an image only)
                         showsCustomModelAlert = true
                         return
                     }
