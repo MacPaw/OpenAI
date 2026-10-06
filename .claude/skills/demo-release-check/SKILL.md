@@ -51,10 +51,13 @@ Arguments (optional): a section prefix (`R` = Responses, `C` = Chats, …) or
   the wrong control; re-screenshot after any navigation you didn't just watch.
 - **Tabs.** The tab bar is Chats, Responses, Image, Github MCP, Misc. The
   **API Configuration** screen is reachable from Misc's first row.
-- **A working key is only required by cases that call the API.** Cases tagged
-  `Needs: none` make no API call, so they are launched with a placeholder key
-  and don't need `OPENAI_API_KEY`. A run that contains none of the other kinds
-  doesn't require it to be set.
+- **Every case gets a configuration, but only API-calling cases need a working
+  key.** The app can't start without a configuration, so each launch supplies
+  one. A case tagged `Needs: none` makes no API call, so its launch uses a
+  placeholder key (`test-token-not-real`) instead of the real one. That means
+  `OPENAI_API_KEY` doesn't have to be set for it: the shell variable is only
+  where the real key comes from, and the preflight checks it only when a case in
+  scope has `Needs: OpenAI key`.
 - **Keep prompts tiny** (see the prompts in the cases) to limit token spend.
 - **The keyboard moves the layout.** When it appears, the input field and send
   button jump up, the model menu shrinks (scroll it to reach gpt-5.6-*), and
