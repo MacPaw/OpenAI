@@ -7,7 +7,7 @@ truth for what gets checked before a release.
 
 ```
 ### <ID> <Title>  [tags]
-Needs: OpenAI key | Custom provider | GitHub token | manual only   (comma-separate several)
+Needs: none | OpenAI key | Custom provider | GitHub token | manual only   (comma-separate several)
 Steps: short, in on-screen labels, separated by →
 Expect: what must be true to PASS
 ```
@@ -22,7 +22,8 @@ Expect: what must be true to PASS
 
   | Needs | Launch configuration | Shell variable |
   |---|---|---|
-  | `OpenAI key` | Provider `openAI`, the real key. Every case that runs on OpenAI has it, whether or not it makes an API call. | `OPENAI_API_KEY` |
+  | `none` | Provider `openAI` with a placeholder key (`test-token-not-real`). The case makes no API call, so it doesn't need a working key, and a run made only of such cases doesn't need `OPENAI_API_KEY` set. | none |
+  | `OpenAI key` | Provider `openAI`, the real key, for cases that call the API. | `OPENAI_API_KEY` |
   | `Custom provider` | Provider `custom`, base URL `http://localhost:8080`, a throwaway key (`test-token-not-real`). Nothing listens there, so never send; it is for provider-specific screens. | none |
   | `GitHub token` | Adds the token for the Github MCP tab. | `GITHUB_TOKEN` |
   | `manual only` | Can't be driven reliably in the simulator (for example the photo picker). Always SKIPPED and listed as a follow-up for the human. | none |
@@ -50,7 +51,7 @@ means Chats → **+** → **Create Chat** → select the new conversation.
 ## L: Launch and configuration
 
 ### L-01 Launch  [smoke]
-Needs: OpenAI key
+Needs: none
 Steps: launch Demo (step 5 of `SKILL.md`), wait a few seconds
 Expect: no crash; no API Configuration modal (the environment supplied a usable
 configuration); Chats opens with a "Conversations" list; the tab bar shows
@@ -58,7 +59,7 @@ Chats, Responses, Image, Github MCP and Misc (no More tab); nothing covers the
 tab bar.
 
 ### L-02 Reopen and cancel API Configuration
-Needs: OpenAI key
+Needs: none
 Steps: Misc → **API Configuration** (first row, under "Configuration") → look
 at the form → tap **Cancel**
 Expect: a sheet titled "API Configuration" shows Provider, Base URL and API Key
@@ -84,7 +85,7 @@ Expect: the header now reads "stream: false"; the full reply arrives and is
 shown once it completes, without an error.
 
 ### C-03 Model selection sheet
-Needs: OpenAI key
+Needs: none
 Steps: open a chat → tap the **cpu** toolbar icon
 Expect: a "Select model" dialog lists the streaming toggle, the available model
 names and **Cancel**; **Cancel** dismisses it with the header unchanged.
@@ -100,7 +101,7 @@ tools with reasoning_effort are not supported…" means the model's `ModelSpec`
 limitation is missing or ignored.
 
 ### C-05 Model menu offers the OpenAI models
-Needs: OpenAI key
+Needs: none
 Steps: open a chat → tap the **cpu** toolbar icon
 Expect: the list includes gpt-6-*, gpt-5.6-* and older models, with no
 "Custom model ID…" entry.
@@ -132,7 +133,7 @@ Expect: the title shows "Streaming…" while the numbers arrive and returns to
 reply and a count to 30 both did.)
 
 ### R-02 Settings screen toggles
-Needs: OpenAI key
+Needs: none
 Steps: Responses tab → **gear** icon → flip each of Stream, Web Search,
 Function Calling, MCP Tools → go back
 Expect: the Settings screen has a Model row plus the four toggles; each flips
@@ -171,7 +172,7 @@ current provider is Custom and pointing to Misc > API Configuration.
 ## I: Image
 
 ### I-01 Image menu
-Needs: OpenAI key
+Needs: none
 Steps: open the Image tab
 Expect: list shows **Create Image**, **Create Image Edit** and **Create Image
 Variation**; Variation is greyed out and not tappable.
@@ -195,7 +196,7 @@ which can't be driven reliably in the simulator.
 ## M: Github MCP
 
 ### M-01 MCP tab, disconnected state
-Needs: OpenAI key
+Needs: none
 Steps: open the Github MCP tab
 Expect: a **GitHub Token** field that is empty (the launch supplies no token,
 and saved data is ignored), a red ✗ "Not Connected" status, a **Connect to
@@ -229,7 +230,7 @@ request finish with a reply; no alert.
 Misc is the last tab.
 
 ### X-01 Misc menu
-Needs: OpenAI key
+Needs: none
 Steps: open the Misc tab
 Expect: sections Configuration (API Configuration), Models (List Models,
 Retrieve Model), Assistants Beta (Assistants), Moderations (Moderation Chat),
@@ -242,7 +243,7 @@ Expect: a non-empty list of model ids loads; no error; exactly one back button
 at the top-left.
 
 ### X-03 Retrieve model placeholder
-Needs: OpenAI key
+Needs: none
 Steps: Misc → **Retrieve Model**
 Expect: the screen reads "Retrieve Model: TBD". Update this case if it ships.
 
@@ -265,7 +266,7 @@ Expect: the request finishes without error and the list reflects the account
 (an empty list is fine). Do not create or modify assistants in this pass.
 
 ### X-07 Transcribe placeholder
-Needs: OpenAI key
+Needs: none
 Steps: Misc → Audio → **Transcribe**
 Expect: the screen reads "Transcribe: TBD". Update this case if transcription
 ships.
