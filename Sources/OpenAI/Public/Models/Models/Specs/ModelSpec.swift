@@ -5,7 +5,7 @@
 
 /// Capabilities of a model, as listed on its OpenAI docs page (e.g. https://developers.openai.com/api/docs/models/gpt-6-luna).
 ///
-/// Models are defined in one `ModelSpec+<family>.swift` file per model family (e.g. `ModelSpec+GPT6.swift`) and listed in ``all``.
+/// Models are defined in one `ModelSpec+<family>.swift` file per model family (e.g. `ModelSpec+GPT6.swift`, `ModelSpec+GPT56.swift`) and listed in ``all``.
 public struct ModelSpec: Hashable, Sendable {
     /// Model ID to send in requests.
     public let id: Model
@@ -40,7 +40,10 @@ public extension ModelSpec {
     static let all: [ModelSpec] = [
         .gpt6_astra,
         .gpt6_sol,
-        .gpt6_luna
+        .gpt6_luna,
+        .gpt5_6_sol,
+        .gpt5_6_terra,
+        .gpt5_6_luna
     ]
 
     enum Endpoint: Hashable, Sendable {

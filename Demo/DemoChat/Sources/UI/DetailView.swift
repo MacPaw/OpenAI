@@ -19,16 +19,36 @@ struct DetailView: View {
     @State var inputText: String = ""
     @FocusState private var isFocused: Bool
     @State private var showsModelSelectionSheet = false
-    @State private var selectedOpenAIModel: Model?
+    @State private var selectedModel: Model?
+    @State private var showsCustomModelAlert = false
+    @State private var customModelDraft = ""
+    /// A message sent before any model was chosen. The chat view has already cleared its draft, so it's held here and sent once a model is entered.
+    @State private var pendingMessage: (text: String, image: Message.Image?)?
     @State private var streamEnabled = true
     @Environment(\.apiProvider) private var apiProvider
-    @Environment(\.configuredChatModel) private var configuredChatModel
     var availableAssistants: [Assistant]
+    /// Whether a message can only be sent once a chat model is chosen. Moderation sends with its own fixed model, so it opts out.
+    var requiresChatModel = true
 
     private static let availableChatModels: [Model] = Array(Model.allModels(satisfying: .init(supportedEndpoints: [.chatCompletions]))).sorted(by: >)
 
-    private var selectedChatModel: Model {
-        apiProvider == .openAI ? selectedOpenAIModel ?? configuredChatModel : configuredChatModel
+    /// OpenAI chats start on a default model. Other providers have no known models, so the user enters one.
+    private var selectedChatModel: Model? {
+        selectedModel ?? (apiProvider == .openAI ? Model.gpt6_luna : nil)
+    }
+
+    private var storedModelKey: String { "chatModelID.\(apiProvider.rawValue)" }
+
+    /// Non-OpenAI model IDs are remembered per provider so they aren't re-entered for every chat.
+    private func loadStoredModel() {
+        selectedModel = apiProvider == .openAI ? nil : UserDefaults.standard.string(forKey: storedModelKey)
+    }
+
+    private func useCustomModel(_ id: String) {
+        let id = id.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !id.isEmpty else { return }
+        selectedModel = id
+        UserDefaults.standard.set(id, forKey: storedModelKey)
     }
 
     let conversation: Conversation
@@ -60,7 +80,7 @@ struct DetailView: View {
                 .safeAreaInset(edge: .top) {
                     HStack {
                         Text(
-                            "Model: \(conversation.type == .assistant ? Model.gpt4_o_mini : selectedChatModel), stream: \(streamEnabled)"
+                            "Model: \(conversation.type == .assistant ? Model.gpt4_o_mini : selectedChatModel ?? "not set"), stream: \(streamEnabled)"
                         )
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -109,10 +129,15 @@ struct DetailView: View {
                         if apiProvider == .openAI {
                             ForEach(DetailView.availableChatModels, id: \.self) { model in
                                 Button {
-                                    selectedOpenAIModel = model
+                                    selectedModel = model
                                 } label: {
                                     Text(model)
                                 }
+                            }
+                        } else {
+                            Button("Custom model ID…") {
+                                customModelDraft = selectedModel ?? ""
+                                showsCustomModelAlert = true
                             }
                         }
 
@@ -123,13 +148,31 @@ struct DetailView: View {
                     message: {
                         Text(apiProvider == .openAI
                             ? "View https://platform.openai.com/docs/models/overview for details"
-                            : "Set this provider's model ID in API Configuration.")
+                            : "Enter a model ID supported by this provider.")
                         .font(.caption)
                     }
                 )
+                .alert("Model ID", isPresented: $showsCustomModelAlert) {
+                    TextField("Model ID", text: $customModelDraft)
+                        #if os(iOS)
+                        .textInputAutocapitalization(.never)
+                        #endif
+                        .autocorrectionDisabled()
+                    Button("Use") {
+                        useCustomModel(customModelDraft)
+                        if let pendingMessage, let model = selectedChatModel {
+                            sendMessage(pendingMessage.text, pendingMessage.image, model, streamEnabled)
+                        }
+                        pendingMessage = nil
+                    }
+                    .disabled(customModelDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    Button("Cancel", role: .cancel) { pendingMessage = nil }
+                } message: {
+                    Text("Enter a model ID supported by this provider.")
+                }
         }
-        .onChange(of: configuredChatModel) { _ in selectedOpenAIModel = nil }
-        .onChange(of: apiProvider) { _ in selectedOpenAIModel = nil }
+        .onAppear(perform: loadStoredModel)
+        .onChange(of: apiProvider) { _ in loadStoredModel() }
     }
     
     @ViewBuilder
@@ -155,10 +198,16 @@ struct DetailView: View {
                         image = nil
                     }
                     
+                    guard let model = selectedChatModel ?? (requiresChatModel ? nil : "") else {
+                        pendingMessage = (draftMessage.text, image)
+                        customModelDraft = ""
+                        showsCustomModelAlert = true
+                        return
+                    }
                     sendMessage(
                         draftMessage.text,
                         image,
-                        selectedChatModel,
+                        model,
                         streamEnabled
                     )
                 }

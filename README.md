@@ -1533,13 +1533,26 @@ Currently we handle such cases by simply adding additional fields to main model 
 
 You can find example iOS application in [Demo](/Demo) folder. 
 
-Use **API Configuration** to choose OpenAI, Gemini, or a custom OpenAI-compatible
-base URL, enter that provider's API key, and set a supported chat model ID. Provider
-changes clear the key and model; custom URLs are retained separately from the
-presets. Host-only URLs use HTTPS, and the form shows the effective URL. For local
-HTTP servers, include `http://` explicitly. Root-mounted endpoints are supported;
-include `/v1` or another API prefix only when required by the server. Save applies
-the settings together, while Cancel discards edits.
+Use **API Configuration** (Misc tab) to choose OpenAI, Gemini, or a custom OpenAI-compatible
+base URL and enter that provider's API key. Provider changes clear the key; custom URLs
+are retained separately from the presets. Host-only URLs use HTTPS, and the form shows the
+effective URL. For local HTTP servers, include `http://` explicitly. Root-mounted endpoints
+are supported; include `/v1` or another API prefix only when required by the server. Save
+applies the settings together, while Cancel discards edits.
+
+Models are chosen per chat. With OpenAI, the chat's model menu lists the known models; with
+other providers, use **Custom model ID…** there (the ID is remembered per provider). The
+Responses tab works with OpenAI only.
+
+To skip typing a configuration, launch the app with `DEMO_API_PROVIDER` (`openAI`, `gemini` or
+`custom`; defaults to `openAI`) and `DEMO_API_KEY` in its environment, plus `DEMO_API_BASE_URL` for `custom`,
+and optionally `GITHUB_TOKEN` for the GitHub MCP tab. Set them in the Xcode scheme, or run
+`SIMCTL_CHILD_DEMO_API_KEY="$OPENAI_API_KEY" xcrun simctl launch booted openAI.MacPaw.Demo`.
+They are used as the configuration for that launch, and the API Configuration screen that normally opens
+at launch is skipped when they give a usable configuration. The app doesn't store them itself, but **Save**
+in API Configuration stores whatever the form contains, including them. Set `DEMO_RESET_SAVED_DATA=1`
+(`SIMCTL_CHILD_DEMO_RESET_SAVED_DATA=1` with `simctl`) to erase everything the app saved before it reads
+any of it, for a launch that doesn't depend on previous state.
 
 ![mockuuups-iphone-13-pro-mockup-perspective-right](https://user-images.githubusercontent.com/1411778/231449395-2ad6bab6-c21f-43dc-8977-f45f505b609d.png)
 
