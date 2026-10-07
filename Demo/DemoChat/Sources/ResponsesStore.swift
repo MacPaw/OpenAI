@@ -11,7 +11,7 @@ import OpenAI
 
 @MainActor
 public final class ResponsesStore: ObservableObject {
-    struct ConversationTurn: Identifiable, Hashable, Sendable {
+    struct ConversationTurn: Identifiable, Sendable {
         public enum TurnType: Sendable {
             case userInput
             case response
@@ -269,8 +269,10 @@ public final class ResponsesStore: ObservableObject {
         pendingMCPApprovalRequest = approvalRequest
         showMCPApprovalDialog = true
 
-        // Store the current response ID for the approval response
-        mcpApprovalRequestResponseId = responseBeingStreamed?.id
+        // Store the current response ID for the approval response. `responseBeingStreamed` is only
+        // set while streaming a response; fall back to `lastOpenAIResponseId` (kept in sync for both
+        // paths) so a non-streaming response's approval request still gets a response ID to continue from.
+        mcpApprovalRequestResponseId = responseBeingStreamed?.id ?? lastOpenAIResponseId
     }
 
     func respondToMCPApprovalRequest(approve: Bool, model: Model, stream: Bool, webSearchEnabled: Bool, functionCallingEnabled: Bool, mcpEnabled: Bool = true) async throws {
@@ -337,13 +339,10 @@ public final class ResponsesStore: ObservableObject {
 
         if mcpEnabled {
             // Check if model supports MCP tools
-            let mcpCompatibleModels: Set<String> = [
-                Model.gpt4_o, Model.gpt4_1, Model.chatgpt_4o_latest,
-                Model.gpt4_o_mini, Model.gpt4_1_mini, Model.gpt4_1_nano
-            ]
+            let mcpCompatibleModels = Model.allModels(satisfying: .init(supportedEndpoints: [.responses], requiredTools: [.mcp]))
 
             if !mcpCompatibleModels.contains(model) {
-                print("Warning: Model '\(model)' may not support MCP tools. Recommended models: \(mcpCompatibleModels.joined(separator: ", "))")
+                print("Warning: Model '\(model)' may not support MCP tools. Recommended models: \(mcpCompatibleModels.sorted().joined(separator: ", "))")
             }
             
             // make it flexiable
@@ -494,6 +493,17 @@ public final class ResponsesStore: ObservableObject {
                 // The non-streaming response includes the completed web-search call
                 // alongside the assistant message. There is no incremental state to update.
                 webSearchInProgress = false
+            case .reasoning(let reasoningItem):
+                print("reasoning output item, summary: \(reasoningItem.summary)")
+            case .mcpApprovalRequest(let approvalRequest):
+                handleMCPApprovalRequest(approvalRequest)
+            case .mcpListTools(let mcpListTools):
+                print("MCP tools listed: \(mcpListTools.tools.map(\.name))")
+            case .mcpToolCall(let mcpCall):
+                print("MCP tool call completed: \(mcpCall.name)")
+                if let output = mcpCall.output {
+                    print("Result: \(output)")
+                }
             default:
                 throw StoreError.unhandledOutputItem(output)
             }
@@ -585,7 +595,7 @@ public final class ResponsesStore: ObservableObject {
                 // TODO: Implement proper annotation handling when type conversion is resolved
                 print("Text annotation added: itemId=\(event.itemId), annotationIndex=\(event.annotationIndex)")
             }
-        case .reasoning(let reasoningEvent):
+        case .reasoningText(let reasoningEvent):
             // Handle reasoning events - could show reasoning in UI
             switch reasoningEvent {
             case .delta(let event):
@@ -620,6 +630,14 @@ public final class ResponsesStore: ObservableObject {
         case .reasoningSummaryText(_ /* let reasoningSummaryTextEvent */):
             // Reasoning summary text events - not implemented yet
             print("Reasoning summary text event received (not implemented)")
+            break
+        case .shellCall(_ /* let shellCallEvent */):
+            // Shell call events - not implemented yet
+            print("Shell call event received (not implemented)")
+            break
+        case .customToolCallInput(_ /* let customToolCallInputEvent */):
+            // Custom tool call input events - not implemented yet
+            print("Custom tool call input event received (not implemented)")
             break
         }
     }

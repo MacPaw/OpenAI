@@ -3,8 +3,10 @@ name: "CodeQL"
 on:
   push:
     branches: [ "main" ]
+    paths-ignore: [ "**.md", "LICENSE" ]
   pull_request:
     branches: [ "main" ]
+    paths-ignore: [ "**.md", "LICENSE" ]
 
 env:
   CODEQL_ENABLE_EXPERIMENTAL_FEATURES_SWIFT: true

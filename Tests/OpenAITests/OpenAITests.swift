@@ -461,7 +461,19 @@ class OpenAITests: XCTestCase {
         let urlRequest = try jsonRequest.build(configuration: configuration)
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "OpenAI-Beta"), "assistants=v2")
     }
-    
+
+    func testAssistantsRequestAddsAfterQueryItem() throws {
+        let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
+        let openAI = OpenAI(configuration: configuration)
+
+        let urlRequest = try openAI.makeAssistantsRequest("asst_123").build(configuration: configuration)
+        XCTAssertEqual(urlRequest.url?.path, "/v1/assistants")
+        XCTAssertEqual(urlRequest.url?.query, "after=asst_123")
+
+        let firstPageRequest = try openAI.makeAssistantsRequest(nil).build(configuration: configuration)
+        XCTAssertNil(firstPageRequest.url?.query)
+    }
+
     func testCustomHeadersOverrideDefault() throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14, customHeaders: ["Authorization": "auth", "Content-Type": "ctype", "OpenAI-Organization": "org"])
         let completionQuery = ChatQuery(messages: [.user(.init(content: .string("how are you?")))], model: .gpt3_5Turbo_16k)

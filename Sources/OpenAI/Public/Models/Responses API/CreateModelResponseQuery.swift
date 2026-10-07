@@ -40,6 +40,9 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     /// Whether to run the model response in the background. [Learn more](https://platform.openai.com/docs/guides/background).
     public let background: Bool?
     
+    /// Context management configuration for this request.
+    public let contextManagement: [Schemas.ContextManagementParam]?
+    
     /// Inserts a system (or developer) message as the first item in the model's context.
     ///
     /// When using along with `previousResponseId`, the instructions from a previous response will not be carried over to the next response.
@@ -137,6 +140,7 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
         model: String? = nil,
         include: [Schemas.IncludeEnum]? = nil,
         background: Bool? = nil,
+        contextManagement: [Schemas.ContextManagementParam]? = nil,
         instructions: String? = nil,
         maxOutputTokens: Int? = nil,
         metadata: Schemas.Metadata? = nil,
@@ -160,6 +164,7 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
         self.model = model
         self.include = include
         self.background = background
+        self.contextManagement = contextManagement
         self.instructions = instructions
         self.maxOutputTokens = maxOutputTokens
         self.metadata = metadata
@@ -185,6 +190,7 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
         case model
         case include
         case background
+        case contextManagement = "context_management"
         case instructions
         case maxOutputTokens = "max_output_tokens"
         case metadata

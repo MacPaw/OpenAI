@@ -182,7 +182,13 @@ public final class ChatStore: ObservableObject {
                 )
             ))
 
-            let functions = [weatherFunction]
+            // Some models restrict function calling on Chat Completions
+            let limitations = ModelSpec.all.first { $0.id == model }?.limitations ?? []
+            let functions = limitations.contains(.chatCompletionsFunctionCallingUnsupported) ? nil : [weatherFunction]
+            let reasoningEffort: ChatQuery.ReasoningEffort? = functions != nil
+                && limitations.contains(.chatCompletionsFunctionCallingRequiresReasoningEffortNone)
+                ? ChatQuery.ReasoningEffort.none
+                : nil
             
             let chatQuery = ChatQuery(
                 messages: conversation.messages.map { message in
@@ -219,6 +225,7 @@ public final class ChatStore: ObservableObject {
                     }
                 },
                 model: model,
+                reasoningEffort: reasoningEffort,
                 tools: functions
             )
             

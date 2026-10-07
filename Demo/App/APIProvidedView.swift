@@ -10,7 +10,7 @@ import OpenAI
 import SwiftUI
 
 struct APIProvidedView: View {
-    @Binding var apiKey: String
+    @Binding var configuration: DemoAPIConfiguration
     @Binding var githubToken: String
     @StateObject var chatStore: ChatStore
     @StateObject var imageStore: ImageStore
@@ -19,20 +19,21 @@ struct APIProvidedView: View {
     @StateObject var responsesStore: ResponsesStore
     @StateObject var mcpToolsStore: MCPToolsStore
 
-    @State var isShowingAPIConfigModal: Bool = true
-
     @Environment(\.idProviderValue) var idProvider
     @Environment(\.dateProviderValue) var dateProvider
 
     init(
-        apiKey: Binding<String>,
+        configuration: Binding<DemoAPIConfiguration>,
+        sdkConfiguration: OpenAI.Configuration,
         githubToken: Binding<String>,
         idProvider: @escaping () -> String
     ) {
-        self._apiKey = apiKey
+        self._configuration = configuration
         self._githubToken = githubToken
-        
-        let client = APIProvidedView.makeClient(apiKey: apiKey.wrappedValue)
+
+        let client = APIProvidedView.makeClient(
+            configuration: sdkConfiguration
+        )
         self._chatStore = StateObject(
             wrappedValue: ChatStore(
                 openAIClient: client,
@@ -57,10 +58,7 @@ struct APIProvidedView: View {
         )
         self._responsesStore = StateObject(
             wrappedValue: ResponsesStore(
-                client: OpenAI(
-                    configuration: .init(token: apiKey.wrappedValue),
-                    middlewares: [LoggingMiddleware()]
-                ).responses
+                client: client.responses
             )
         )
         self._mcpToolsStore = StateObject(
@@ -77,21 +75,30 @@ struct APIProvidedView: View {
             responsesStore: responsesStore,
             mcpToolsStore: mcpToolsStore
         )
+        .environment(\.apiProvider, configuration.provider)
         .onAppear {
             // Connect MCP tools store to responses store
             responsesStore.mcpToolsStore = mcpToolsStore
         }
-        .onChange(of: apiKey) { _, newApiKey in
-            let client = APIProvidedView.makeClient(apiKey: newApiKey)
-            chatStore.openAIClient = client
-            imageStore.openAIClient = client
-            assistantStore.openAIClient = client
-            miscStore.openAIClient = client
-            responsesStore.client = client.responses
-        }
+        .onChange(of: configuration) { _, _ in rewireClient() }
     }
-    
-    private static func makeClient(apiKey: String) -> OpenAIProtocol {
-        OpenAI(apiToken: apiKey)
+
+    private func rewireClient() {
+        guard let sdkConfiguration = configuration.sdkConfiguration else { return }
+        let client = APIProvidedView.makeClient(configuration: sdkConfiguration)
+        chatStore.openAIClient = client
+        imageStore.openAIClient = client
+        assistantStore.openAIClient = client
+        miscStore.openAIClient = client
+        responsesStore.client = client.responses
+    }
+
+    private static func makeClient(
+        configuration: OpenAI.Configuration
+    ) -> OpenAI {
+        OpenAI(
+            configuration: configuration,
+            middlewares: [LoggingMiddleware()]
+        )
     }
 }

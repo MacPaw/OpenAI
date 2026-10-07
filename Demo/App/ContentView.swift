@@ -19,6 +19,7 @@ struct ContentView: View {
     
     @State private var selectedTab = 0
     @Environment(\.idProviderValue) var idProvider
+    @Environment(\.apiProvider) private var apiProvider
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -31,18 +32,15 @@ struct ContentView: View {
             }
             .tag(0)
 
-            ResponsesChatDetailView(
-                store: responsesStore
-            ).tabItem {
+            Group {
+                if apiProvider == .openAI {
+                    ResponsesChatDetailView(store: responsesStore)
+                } else {
+                    OpenAIOnlyView(feature: "Responses", provider: apiProvider)
+                }
+            }.tabItem {
                 Label("Responses", systemImage: "message.circle")
             }.tag(1)
-
-            TranscribeView(
-            )
-            .tabItem {
-                Label("Transcribe", systemImage: "mic")
-            }
-            .tag(2)
 
             ImageView(
                 store: imageStore
@@ -50,13 +48,13 @@ struct ContentView: View {
             .tabItem {
                 Label("Image", systemImage: "photo")
             }
-            .tag(3)
+            .tag(2)
 
             MCPToolsView(mcpStore: mcpToolsStore)
             .tabItem {
                 Label("Github MCP", systemImage: "wrench.and.screwdriver")
             }
-            .tag(4)
+            .tag(3)
 
             MiscView(
                 store: miscStore,
@@ -66,14 +64,7 @@ struct ContentView: View {
             .tabItem {
                 Label("Misc", systemImage: "ellipsis")
             }
-            .tag(5)
+            .tag(4)
         }
-    }
-}
-
-struct TranscribeView: View {
-    var body: some View {
-        Text("Transcribe: TBD")
-            .font(.largeTitle)
     }
 }
