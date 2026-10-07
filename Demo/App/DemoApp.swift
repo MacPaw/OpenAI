@@ -16,12 +16,21 @@ struct DemoApp: App {
     @AppStorage("apiBaseURL") var baseURL = APIProvider.openAI.defaultBaseURL ?? ""
     @AppStorage("apiConfiguration") var configurationData = Data()
     @AppStorage("githubToken") var githubToken: String = ""
-    @State var isShowingAPIConfigModal: Bool = true
+    private static let environment = ProcessInfo.processInfo.environment
+    /// The API Configuration screen opens at launch, except when the launch environment supplies a usable configuration (that skips it so automated runs don't have to dismiss it).
+    @State var isShowingAPIConfigModal: Bool = DemoLaunchEnvironment.configuration(from: DemoApp.environment)?.sdkConfiguration == nil
+    /// Credentials from the launch environment, used as the configuration until one is saved in this session. Nothing here writes them to storage; Save stores whatever the form contains.
+    @State private var launchConfiguration = DemoLaunchEnvironment.configuration(from: DemoApp.environment)
+    @State private var launchGitHubToken = DemoLaunchEnvironment.githubToken(from: DemoApp.environment)
 
     let idProvider: () -> String
     let dateProvider: () -> Date
 
     init() {
+        // Before anything reads saved data
+        if DemoLaunchEnvironment.shouldResetSavedData(in: DemoApp.environment), let domain = Bundle.main.bundleIdentifier {
+            DemoLaunchEnvironment.resetSavedData(domain: domain)
+        }
         self.idProvider = {
             UUID().uuidString
         }
@@ -35,17 +44,14 @@ struct DemoApp: App {
                     APIProvidedView(
                         configuration: configuration,
                         sdkConfiguration: sdkConfiguration,
-                        githubToken: $githubToken,
+                        githubToken: githubTokenBinding,
                         idProvider: idProvider
                     )
-                    .safeAreaInset(edge: .bottom) {
-                        Button("API Configuration") { isShowingAPIConfigModal = true }
-                            .buttonStyle(.bordered)
-                    }
                 } else {
                     Button("Configure an API provider") { isShowingAPIConfigModal = true }
                 }
             }
+            .environment(\.showAPIConfiguration, { isShowingAPIConfigModal = true })
             #if os(iOS)
             .fullScreenCover(isPresented: $isShowingAPIConfigModal) {
                 APIKeyModalView(
@@ -67,6 +73,9 @@ struct DemoApp: App {
     private var configuration: Binding<DemoAPIConfiguration> {
         Binding(
             get: {
+                if let launchConfiguration {
+                    return launchConfiguration
+                }
                 if configurationData.isEmpty {
                     return .migrating(apiKey: apiKey, providerRawValue: providerRawValue, baseURL: baseURL)
                 }
@@ -75,9 +84,20 @@ struct DemoApp: App {
                     ?? DemoAPIConfiguration(provider: .custom)
             },
             set: { value in
+                launchConfiguration = nil
                 if let data = try? JSONEncoder().encode(value.normalized) {
                     configurationData = data
                 }
+            }
+        )
+    }
+
+    private var githubTokenBinding: Binding<String> {
+        Binding(
+            get: { launchGitHubToken ?? githubToken },
+            set: { value in
+                launchGitHubToken = nil
+                githubToken = value
             }
         )
     }

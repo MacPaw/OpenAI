@@ -76,7 +76,6 @@ struct APIProvidedView: View {
             mcpToolsStore: mcpToolsStore
         )
         .environment(\.apiProvider, configuration.provider)
-        .environment(\.configuredChatModel, configuration.normalized.chatModel)
         .onAppear {
             // Connect MCP tools store to responses store
             responsesStore.mcpToolsStore = mcpToolsStore

@@ -19,7 +19,7 @@ public struct ModerationChatView: View {
     
     public var body: some View {
         DetailView(
-            availableAssistants: [], conversation: store.moderationConversation, 
+            availableAssistants: [], requiresChatModel: false, conversation: store.moderationConversation, 
             error: store.moderationConversationError,
             sendMessage: { message, _, _, _ in
                 Task {
