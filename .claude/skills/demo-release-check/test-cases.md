@@ -264,8 +264,24 @@ Steps: Misc → **Assistants** → **Get Assistants** (the refresh button)
 Expect: the request finishes without error and the list reflects the account
 (an empty list is fine). Do not create or modify assistants in this pass.
 
-### X-07 Transcribe placeholder
+### X-07 Transcribe file selection
 Needs: none
+Steps: Misc → Audio → **Transcribe** → **Choose Audio File** → cancel the picker
+Expect: the screen shows Audio File and Options; Transcribe is disabled without
+a file; the picker dismisses without uploading anything. The default model is
+whisper-1, with optional language and prompt fields.
+
+### X-08 Transcribe a recording
+Needs: OpenAI key, manual only
+Steps: Misc → Audio → **Transcribe** → **Choose Audio File** → select a small
+supported recording → **Transcribe** → **Copy Transcript**
+Expect: the filename and size appear before upload; progress and Cancel appear
+while transcribing; a selectable transcript appears after success, and Copy
+Transcript copies it. A failed request shows an error and permits retry.
+
+### X-09 Custom transcription provider
+Needs: Custom provider
 Steps: Misc → Audio → **Transcribe**
-Expect: the screen reads "Transcribe: TBD". Update this case if transcription
-ships.
+Expect: the model ID is initially empty rather than an OpenAI model; a notice
+explains that the configured endpoint must support audio/transcriptions. Do not
+send: nothing listens at the configured URL.
