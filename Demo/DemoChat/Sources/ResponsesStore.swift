@@ -235,7 +235,6 @@ public final class ResponsesStore: ObservableObject {
         
         try await createResponse(
             input: .inputItemList([
-                .item(.functionToolCall(toolCall)),
                 .item(.functionCallOutputItemParam(.init(
                     callId: toolCall.callId,
                     _type: .functionCallOutput,
