@@ -40,7 +40,7 @@ public struct MiscView: View {
                 }
                 Section(header: Text("Audio")) {
                     NavigationLink("Create Speech", destination: TextToSpeechView(store: SpeechStore(openAIClient: store.openAIClient)))
-                    NavigationLink("Transcribe", destination: TranscribeView())
+                    NavigationLink("Transcribe", destination: TranscribeView(miscStore: store))
                 }
             }
             .listStyle(.insetGrouped)
