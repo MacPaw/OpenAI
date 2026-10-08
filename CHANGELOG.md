@@ -6,6 +6,21 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-10-08
+
+### Added
+- `Model.gpt_audio_1_5`, `Model.gpt_audio` and `Model.gpt_audio_mini`, the audio-in, audio-out models for Chat Completions, also returned by `Model.allModels(satisfying:)`. The README gained an *Audio input and output with Chat Completions* section covering `modalities`, `audioOptions`, audio input parts and streaming ([#397](https://github.com/MacPaw/OpenAI/pull/397)).
+
+### Changed
+- `Model.gpt_4o_audio_preview` is deprecated, since OpenAI shut the model down on May 7th, 2026; use `Model.gpt_audio_1_5`. It is no longer returned by `Model.allModels(satisfying:)` ([#397](https://github.com/MacPaw/OpenAI/pull/397)).
+- swift-openapi-runtime 1.12.0 → 1.12.2, which also moves swift-http-types from 1.3.1 to 1.8.0 ([#439](https://github.com/MacPaw/OpenAI/pull/439), [#459](https://github.com/MacPaw/OpenAI/pull/459)).
+- CI: the *API Breakage* allowlist is emptied, because the 0.5.2 release is now the comparison baseline for the breaks it listed.
+
+### Fixed
+- `Demo`: `ResponsesStore.replyFunctionCall` included the completed `.functionToolCall` in the next request along with its `.functionCallOutputItemParam` while `previous_response_id` was already set, so the Responses API rejected the follow-up with `Duplicate item found with id fc_...`. The follow-up now sends only the function-call output, and the pending call stays available if that request fails ([#457](https://github.com/MacPaw/OpenAI/pull/457)).
+
+## [0.5.2] - 2026-10-07
+
 ### Added
 - `ModelSpec`, describing a model's capabilities as its OpenAI docs page lists them: endpoints, features, Responses API tools, supported reasoning efforts, and limitations the docs note, such as Chat Completions function calling being unsupported or requiring `reasoning_effort: none` (`ModelSpec.Endpoint`, `.Feature`, `.Tool`, `.ReasoningEffort` and `.Limitation`). `ModelSpec.all` currently covers the GPT-6 models; `Model.allModels(satisfying:)` filters them by their spec. `Model.Filter.Endpoint`, `.Feature` and `.Tool` are now typealiases for the `ModelSpec` types. `ModelSpec.ReasoningEffort` converts to `Components.Schemas.ReasoningEffort` and `ChatQuery.ReasoningEffort` (`xhigh` and `max` become `.customValue`, as `ChatQuery.ReasoningEffort` has no cases for them).
 - `Model.gpt6_astra`, `Model.gpt6_sol` and `Model.gpt6_luna`, also returned by `Model.allModels(satisfying:)` for the Chat Completions and Responses endpoints and the MCP tool.
@@ -37,7 +52,6 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
   - `OutputItem.webSearchToolCall`'s payload changed from `Components.Schemas.WebSearchToolCall` to a new hand-written `WebSearchToolCall` type whose `action` is optional. The spec marks `action` required, but the live API can emit a `web_search_call` output item without one (e.g. a `response.output_item.added` event while `status` is still `in_progress`), and decoding threw a `keyNotFound` error for `action` whenever that happened. This is an acknowledged upstream spec bug ([openai/openai-openapi#572](https://github.com/openai/openai-openapi/issues/572)), not something specific to any one status. Callers that read `.webSearchToolCall(let call)` need to unwrap `call.action` instead of accessing it directly.
 
 ### Fixed
-- `Demo`: `ResponsesStore.replyFunctionCall` included the completed `.functionToolCall` in the next request along with its `.functionCallOutputItemParam` while `previous_response_id` was already set, so the Responses API rejected the follow-up with `Duplicate item found with id fc_...`. The follow-up now sends only the function-call output, and the pending call stays available if that request fails.
 - `Demo`: a non-streaming Responses request to a reasoning model (e.g. `gpt-5`) always includes a `.reasoning` output item, and `ResponsesStore.createResponse(query:)` didn't handle it (or the MCP output item cases), so it threw `unhandledOutputItem` instead of completing.
 - `Components.Schemas.InputItem` and the `InputItem` facade failed to decode a valid `{ "type": "item_reference", "id": "..." }` payload with `unknownOneOfDiscriminator`. The generator only matched discriminator values declared as a plain string enum, but `ItemReferenceParam.type` is declared as a nullable `anyOf: [<string enum>, {type: null}]`, which it didn't unwrap; the `InputItem` facade also fixed the same bug independently, plus a stale `"ItemReference"` discriminator string (missing the `Param` suffix) and a missing `"message"` match for `EasyInputMessage`.
 - `ResponseStreamEvent` and `OutputItem` didn't round-trip through `JSONEncoder`/`JSONDecoder`: both have a hand-written `init(from:)` that decodes the API's `type` discriminator, but no `encode(to:)`, so the compiler-synthesized one wrapped values by enum case name instead of matching the API's shape; the hand-written `ResponseOutputItemAddedEvent`/`ResponseOutputItemDoneEvent` also gained a `sequenceNumber` field they were missing, since re-encoding through them dropped `sequence_number`.
@@ -84,7 +98,9 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 Older releases are documented on the [GitHub Releases](https://github.com/MacPaw/OpenAI/releases) page.
 
-[Unreleased]: https://github.com/MacPaw/OpenAI/compare/0.5.1...HEAD
+[Unreleased]: https://github.com/MacPaw/OpenAI/compare/0.5.3...HEAD
+[0.5.3]: https://github.com/MacPaw/OpenAI/compare/0.5.2...0.5.3
+[0.5.2]: https://github.com/MacPaw/OpenAI/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/MacPaw/OpenAI/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/MacPaw/OpenAI/compare/0.4.9...0.5.0
 [0.4.9]: https://github.com/MacPaw/OpenAI/compare/0.4.8...0.4.9
