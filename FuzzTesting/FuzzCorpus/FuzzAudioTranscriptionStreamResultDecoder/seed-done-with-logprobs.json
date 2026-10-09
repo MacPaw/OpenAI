@@ -1,0 +1,1 @@
+{"type":"transcript.text.done","text":"Hello world","logprobs":[{"token":"Hello","bytes":[72,101,108,108,111],"logprob":-0.5},{"token":" world","bytes":[32,119,111,114,108,100],"logprob":-0.7}]}
