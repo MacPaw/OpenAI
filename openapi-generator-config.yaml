@@ -11,5 +11,7 @@ filter:
     - /responses/{response_id}
     - /responses/{response_id}/input_items
   schemas:
+    - FileExpirationAfter
+    - ListFilesResponse
     - WebSearchLocation
     - WebSearchContextSize

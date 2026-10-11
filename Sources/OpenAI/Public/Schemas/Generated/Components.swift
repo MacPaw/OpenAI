@@ -2333,6 +2333,41 @@ public enum Components {
                 case error
             }
         }
+        /// The expiration policy for a file. By default, files with `purpose=batch` expire after 30 days and all other files are persisted until they are manually deleted.
+        ///
+        /// - Remark: Generated from `#/components/schemas/FileExpirationAfter`.
+        public struct FileExpirationAfter: Codable, Hashable, Sendable {
+            /// Anchor timestamp after which the expiration policy applies. Supported anchors: `created_at`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/FileExpirationAfter/anchor`.
+            @frozen public enum AnchorPayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case createdAt = "created_at"
+            }
+            /// Anchor timestamp after which the expiration policy applies. Supported anchors: `created_at`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/FileExpirationAfter/anchor`.
+            public var anchor: Components.Schemas.FileExpirationAfter.AnchorPayload
+            /// The number of seconds after the anchor time that the file will expire. Must be between 3600 (1 hour) and 2592000 (30 days).
+            ///
+            /// - Remark: Generated from `#/components/schemas/FileExpirationAfter/seconds`.
+            public var seconds: Swift.Int64
+            /// Creates a new `FileExpirationAfter`.
+            ///
+            /// - Parameters:
+            ///   - anchor: Anchor timestamp after which the expiration policy applies. Supported anchors: `created_at`.
+            ///   - seconds: The number of seconds after the anchor time that the file will expire. Must be between 3600 (1 hour) and 2592000 (30 days).
+            public init(
+                anchor: Components.Schemas.FileExpirationAfter.AnchorPayload,
+                seconds: Swift.Int64
+            ) {
+                self.anchor = anchor
+                self.seconds = seconds
+            }
+            public enum CodingKeys: String, CodingKey {
+                case anchor
+                case seconds
+            }
+        }
         /// A path to a file.
         ///
         ///
@@ -4021,6 +4056,47 @@ public enum Components {
                 case let .customToolCallOutputResource(value):
                     try value.encode(to: encoder)
                 }
+            }
+        }
+        /// - Remark: Generated from `#/components/schemas/ListFilesResponse`.
+        public struct ListFilesResponse: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/ListFilesResponse/object`.
+            public var object: Swift.String
+            /// - Remark: Generated from `#/components/schemas/ListFilesResponse/data`.
+            public var data: [Components.Schemas.OpenAIFile]
+            /// - Remark: Generated from `#/components/schemas/ListFilesResponse/first_id`.
+            public var firstId: Swift.String
+            /// - Remark: Generated from `#/components/schemas/ListFilesResponse/last_id`.
+            public var lastId: Swift.String
+            /// - Remark: Generated from `#/components/schemas/ListFilesResponse/has_more`.
+            public var hasMore: Swift.Bool
+            /// Creates a new `ListFilesResponse`.
+            ///
+            /// - Parameters:
+            ///   - object:
+            ///   - data:
+            ///   - firstId:
+            ///   - lastId:
+            ///   - hasMore:
+            public init(
+                object: Swift.String,
+                data: [Components.Schemas.OpenAIFile],
+                firstId: Swift.String,
+                lastId: Swift.String,
+                hasMore: Swift.Bool
+            ) {
+                self.object = object
+                self.data = data
+                self.firstId = firstId
+                self.lastId = lastId
+                self.hasMore = hasMore
+            }
+            public enum CodingKeys: String, CodingKey {
+                case object
+                case data
+                case firstId = "first_id"
+                case lastId = "last_id"
+                case hasMore = "has_more"
             }
         }
         /// A tool call to run a command on the local shell.
