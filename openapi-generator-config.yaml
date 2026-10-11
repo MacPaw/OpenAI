@@ -5,6 +5,11 @@ accessModifier: public
 filter:
   paths:
     - /audio/transcriptions
+    - /batches
+    - /batches/{batch_id}
+    - /batches/{batch_id}/cancel
+    - /files/{file_id}
+    - /files/{file_id}/content
     - /responses
     - /responses/{response_id}
     - /responses/{response_id}/input_items
