@@ -44,20 +44,19 @@ final class Client: Sendable {
     }
     
     func performSpeechRequest(request: any URLRequestBuildable, completion: @escaping @Sendable (Result<AudioSpeechResult, Error>) -> Void) -> CancellableRequest {
+        performRawDataRequest(request: request) { result in
+            completion(result.map { .init(audio: $0) })
+        }
+    }
+
+    func performRawDataRequest(request: any URLRequestBuildable, completion: @escaping @Sendable (Result<Data, Error>) -> Void) -> CancellableRequest {
         do {
             let urlRequest = try request.build(configuration: configuration)
             let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
                 middleware.intercept(request: current)
             }
 
-            let task = dataTaskFactory.makeRawResponseDataTask(forRequest: interceptedRequest) { result in
-                switch result {
-                case .success(let success):
-                    completion(.success(.init(audio: success)))
-                case .failure(let failure):
-                    completion(.failure(failure))
-                }
-            }
+            let task = dataTaskFactory.makeRawResponseDataTask(forRequest: interceptedRequest, completion: completion)
             task.resume()
             return cancellablesFactory.makeTaskCanceller(task: task)
         } catch {

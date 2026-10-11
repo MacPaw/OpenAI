@@ -10,9 +10,9 @@ import Foundation
 /// Errors that can occur during batch processing.
 public enum BatchError: LocalizedError, Sendable {
     /// Batch polling timed out before completion.
-    case timeout(batchId: String, lastStatus: BatchStatus)
+    case timeout(batchId: String, lastStatus: Components.Schemas.Batch.StatusPayload)
     /// Batch ended in a non-completed state.
-    case batchFailed(batchId: String, status: BatchStatus)
+    case batchFailed(batchId: String, status: Components.Schemas.Batch.StatusPayload)
     /// Batch completed but no output file was returned.
     case noOutputFile(batchId: String)
     /// Output file data could not be decoded.

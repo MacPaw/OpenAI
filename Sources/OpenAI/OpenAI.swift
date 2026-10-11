@@ -67,6 +67,8 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
     
     public let configuration: Configuration
     public let responses: ResponsesEndpointProtocol
+    public let batches: BatchesEndpointProtocol
+    public let files: FilesEndpointProtocol
 
     public convenience init(apiToken: String) {
         self.init(
@@ -155,6 +157,20 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         self.responses = ResponsesEndpoint(
             client: client,
             streamingClient: streamingClient,
+            asyncClient: asyncClient,
+            combineClient: combineClient,
+            configuration: configuration
+        )
+        
+        self.batches = BatchesEndpoint(
+            client: client,
+            asyncClient: asyncClient,
+            combineClient: combineClient,
+            configuration: configuration
+        )
+        
+        self.files = FilesEndpoint(
+            client: client,
             asyncClient: asyncClient,
             combineClient: combineClient,
             configuration: configuration
@@ -259,36 +275,6 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
     public func files(query: FilesQuery, completion: @escaping @Sendable (Result<FilesResult, Error>) -> Void) -> CancellableRequest {
         performRequest(
             request: makeFilesRequest(query: query),
-            completion: completion
-        )
-    }
-
-    // MARK: - Batch API
-
-    public func createBatch(query: BatchQuery, completion: @escaping @Sendable (Result<BatchResult, Error>) -> Void) -> CancellableRequest {
-        performRequest(
-            request: makeBatchCreateRequest(query: query),
-            completion: completion
-        )
-    }
-
-    public func retrieveBatch(id: String, completion: @escaping @Sendable (Result<BatchResult, Error>) -> Void) -> CancellableRequest {
-        performRequest(
-            request: makeBatchRetrieveRequest(id: id),
-            completion: completion
-        )
-    }
-
-    public func listBatches(after: String? = nil, limit: Int = 20, completion: @escaping @Sendable (Result<BatchListResult, Error>) -> Void) -> CancellableRequest {
-        performRequest(
-            request: makeBatchListRequest(after: after, limit: limit),
-            completion: completion
-        )
-    }
-
-    public func cancelBatch(id: String, completion: @escaping @Sendable (Result<BatchResult, Error>) -> Void) -> CancellableRequest {
-        performRequest(
-            request: makeBatchCancelRequest(id: id),
             completion: completion
         )
     }

@@ -108,15 +108,15 @@ class BatchAPIIntegrationTests: XCTestCase {
         print("   File ID: \(fileResult.id)")
 
         // Step 3: Create batch
-        let batchQuery = BatchQuery(
+        let batchQuery = Components.Schemas.CreateBatchRequest(
             inputFileId: fileResult.id,
-            endpoint: .chatCompletions,
-            completionWindow: .twentyFourHours,
-            metadata: ["test": "batch-api-integration"]
+            endpoint: ._sol_v1ChatCompletions,
+            completionWindow: ._24h,
+            metadata: .init(additionalProperties: ["test": "batch-api-integration"])
         )
 
         print("🚀 Creating batch...")
-        let batch = try await openAI.createBatch(query: batchQuery)
+        let batch = try await openAI.batches.create(query: batchQuery)
         print("   Batch ID: \(batch.id)")
         print("   Status: \(batch.status)")
 
@@ -126,10 +126,10 @@ class BatchAPIIntegrationTests: XCTestCase {
         let timeout: TimeInterval = 300 // 5 minutes max
 
         var currentBatch = batch
-        while currentBatch.status != BatchStatus.completed &&
-              currentBatch.status != BatchStatus.failed &&
-              currentBatch.status != BatchStatus.expired &&
-              currentBatch.status != BatchStatus.cancelled &&
+        while currentBatch.status != .completed &&
+              currentBatch.status != .failed &&
+              currentBatch.status != .expired &&
+              currentBatch.status != .cancelled &&
               currentBatch.status != .cancelling {
 
             if Date().timeIntervalSince(startTime) > timeout {
@@ -140,7 +140,7 @@ class BatchAPIIntegrationTests: XCTestCase {
             }
 
             try await Task.sleep(nanoseconds: 5_000_000_000) // 5 seconds
-            currentBatch = try await openAI.retrieveBatch(id: batch.id)
+            currentBatch = try await openAI.batches.retrieve(id: batch.id)
             print("   Status: \(currentBatch.status)")
 
             if let counts = currentBatch.requestCounts {
@@ -149,7 +149,7 @@ class BatchAPIIntegrationTests: XCTestCase {
         }
         
         // Step 5: Check results
-        XCTAssertEqual(currentBatch.status, BatchStatus.completed, "Batch should complete successfully")
+        XCTAssertEqual(currentBatch.status, .completed, "Batch should complete successfully")
 
         if let counts = currentBatch.requestCounts {
             print("📊 Final counts:")
@@ -161,7 +161,7 @@ class BatchAPIIntegrationTests: XCTestCase {
         // Step 6: Check for errors first
         if let errorFileId = currentBatch.errorFileId {
             print("⚠️ Error file exists: \(errorFileId)")
-            let errorData = try await openAI.retrieveFileContent(id: errorFileId)
+            let errorData = try await openAI.files.content(id: errorFileId)
             let errorString = String(data: errorData, encoding: .utf8) ?? "?"
             print("📄 Error file content:\n\(errorString)\n")
         }
@@ -173,7 +173,7 @@ class BatchAPIIntegrationTests: XCTestCase {
         }
 
         print("📥 Downloading output file: \(outputFileId)")
-        let outputData = try await openAI.retrieveFileContent(id: outputFileId)
+        let outputData = try await openAI.files.content(id: outputFileId)
         let outputString = String(data: outputData, encoding: .utf8)!
         print("📄 Output file content:\n\(outputString)\n")
 
@@ -236,7 +236,7 @@ class BatchAPIIntegrationTests: XCTestCase {
     /// Simple test to list existing batches
     func testListBatches() async throws {
         print("📋 Listing batches...")
-        let result = try await openAI.listBatches(after: nil, limit: 10)
+        let result = try await openAI.batches.list(query: .init(limit: 10))
 
         print("   Found \(result.data.count) batches")
         for batch in result.data.prefix(5) {
@@ -270,7 +270,7 @@ class BatchAPIIntegrationTests: XCTestCase {
         }
         // Cancel the batch
         print("🚫 Canceling batch...")
-        let cancelledBatch = try await openAI.cancelBatch(id: batch.id)
+        let cancelledBatch = try await openAI.batches.cancel(id: batch.id)
         print("   Status after cancel: \(cancelledBatch.status)")
         
         do {
@@ -314,7 +314,7 @@ class BatchAPIIntegrationTests: XCTestCase {
 
         // Delete the file
         print("🗑️ Deleting file...")
-        let deleteResult = try await openAI.deleteFile(id: fileResult.id)
+        let deleteResult = try await openAI.files.delete(id: fileResult.id)
         print("   Deleted: \(deleteResult.deleted)")
 
         XCTAssertTrue(deleteResult.deleted, "File should be deleted")
