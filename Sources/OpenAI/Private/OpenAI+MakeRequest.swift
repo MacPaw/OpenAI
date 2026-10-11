@@ -151,7 +151,7 @@ extension OpenAI {
         )
     }
     
-    func makeFilesRequest(query: FilesQuery) -> AssistantsRequest<FilesResult> {
+    func makeFilesRequest(query: CreateFileQuery) -> AssistantsRequest<FilesResult> {
         .multipartFormDataRequest(
             urlBuilder: DefaultURLBuilder(configuration: configuration, path: .Assistants.files.stringValue),
             body: query

@@ -207,9 +207,11 @@ import Combine
         XCTAssertEqual(result, expectedResult)
     }
 
+   // Exercises the deprecated `files(query:)`; marked deprecated itself so the call doesn't warn.
+   @available(*, deprecated)
    func testFilesQuery() throws {
       let data = try XCTUnwrap("{\"test\":\"data\"}".data(using: .utf8))
-      let query = FilesQuery(purpose: "assistant", file: data, fileName: "test.json", contentType: "application/json")
+      let query = CreateFileQuery(purpose: "assistant", file: data, fileName: "test.json", contentType: "application/json")
       let expectedResult = FilesResult(id: "file_1234", name: "test.json")
       try self.stub(result: expectedResult)
 

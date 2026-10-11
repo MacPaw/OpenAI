@@ -36,5 +36,6 @@ public protocol OpenAIAsync: Sendable {
     func threadsMessages(threadId: String) async throws -> ThreadsMessagesResult
     func threadsMessages(threadId: String, before: String?) async throws -> ThreadsMessagesResult
     func threadsAddMessage(threadId: String, query: MessageQuery) async throws -> ThreadAddMessageResult
-    func files(query: FilesQuery) async throws -> FilesResult
+    @available(*, deprecated, message: "Use files.create(query:), which returns the full file object.")
+    func files(query: CreateFileQuery) async throws -> FilesResult
 }

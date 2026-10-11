@@ -19,6 +19,105 @@ class FilesEndpointTests: XCTestCase {
         self.openAI = OpenAI(configuration: configuration, session: self.urlSession, streamingSessionFactory: MockStreamingSessionFactory())
     }
 
+    // MARK: - Create
+
+    func testCreate() async throws {
+        let expectedResult = Components.Schemas.OpenAIFile.mock()
+        urlSession.dataTask = try DataTaskMock.successfulJson(with: expectedResult)
+
+        let query = CreateFileQuery(
+            purpose: "batch",
+            file: Data("{\"custom_id\":\"request-1\"}".utf8),
+            fileName: "requests.jsonl",
+            contentType: "application/jsonl"
+        )
+        let result = try await openAI.files.create(query: query)
+        XCTAssertEqual(result, expectedResult)
+
+        let request = try XCTUnwrap(urlSession.dataAsyncCalls.last?.request)
+        XCTAssertEqual(request.httpMethod, "POST")
+        XCTAssertEqual(request.url?.path, "/v1/files")
+        XCTAssertTrue(request.value(forHTTPHeaderField: "Content-Type")?.hasPrefix("multipart/form-data; boundary=") == true)
+        XCTAssertNil(request.value(forHTTPHeaderField: "OpenAI-Beta"))
+        let body = String(decoding: try XCTUnwrap(request.httpBody), as: UTF8.self)
+        XCTAssertTrue(body.contains("name=\"purpose\"\r\n\r\nbatch\r\n"))
+        XCTAssertTrue(body.contains("name=\"file\"; filename=\"requests.jsonl\"\r\nContent-Type: application/jsonl\r\n\r\n{\"custom_id\":\"request-1\"}\r\n"))
+        XCTAssertFalse(body.contains("expires_after"))
+    }
+
+    func testCreateWithExpiration() async throws {
+        urlSession.dataTask = try DataTaskMock.successfulJson(with: Components.Schemas.OpenAIFile.mock())
+
+        let query = CreateFileQuery(
+            purpose: "batch",
+            file: Data("{}".utf8),
+            fileName: "requests.jsonl",
+            contentType: "application/jsonl",
+            expiresAfter: .init(anchor: .createdAt, seconds: 3600)
+        )
+        _ = try await openAI.files.create(query: query)
+
+        let body = String(decoding: try XCTUnwrap(urlSession.dataAsyncCalls.last?.request.httpBody), as: UTF8.self)
+        XCTAssertTrue(body.contains("name=\"expires_after[anchor]\"\r\n\r\ncreated_at\r\n"))
+        XCTAssertTrue(body.contains("name=\"expires_after[seconds]\"\r\n\r\n3600\r\n"))
+    }
+
+    // MARK: - Retrieve
+
+    func testRetrieve() async throws {
+        let expectedResult = Components.Schemas.OpenAIFile.mock()
+        urlSession.dataTask = try DataTaskMock.successfulJson(with: expectedResult)
+
+        let result = try await openAI.files.retrieve(id: "file-abc123")
+        XCTAssertEqual(result, expectedResult)
+
+        let request = try XCTUnwrap(urlSession.dataAsyncCalls.last?.request)
+        XCTAssertEqual(request.httpMethod, "GET")
+        XCTAssertEqual(request.url?.path, "/v1/files/file-abc123")
+    }
+
+    // MARK: - List
+
+    func testList() async throws {
+        let expectedResult = Components.Schemas.ListFilesResponse(
+            object: "list",
+            data: [.mock(id: "file-abc123"), .mock(id: "file-def456")],
+            firstId: "file-abc123",
+            lastId: "file-def456",
+            hasMore: false
+        )
+        urlSession.dataTask = try DataTaskMock.successfulJson(with: expectedResult)
+
+        let result = try await openAI.files.list()
+        XCTAssertEqual(result, expectedResult)
+
+        let request = try XCTUnwrap(urlSession.dataAsyncCalls.last?.request)
+        XCTAssertEqual(request.httpMethod, "GET")
+        XCTAssertEqual(request.url?.path, "/v1/files")
+        XCTAssertNil(request.url?.query)
+    }
+
+    func testListWithQuery() async throws {
+        urlSession.dataTask = try DataTaskMock.successfulJson(with: Components.Schemas.ListFilesResponse(
+            object: "list",
+            data: [.mock(id: "file-ghi789")],
+            firstId: "file-ghi789",
+            lastId: "file-ghi789",
+            hasMore: true
+        ))
+
+        _ = try await openAI.files.list(query: .init(purpose: "batch", limit: 1, order: .ascending, after: "file-def456"))
+
+        let url = try XCTUnwrap(urlSession.dataAsyncCalls.last?.request.url)
+        let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems
+        XCTAssertEqual(queryItems, [
+            .init(name: "purpose", value: "batch"),
+            .init(name: "limit", value: "1"),
+            .init(name: "order", value: "asc"),
+            .init(name: "after", value: "file-def456"),
+        ])
+    }
+
     // MARK: - Content
 
     func testContent() async throws {
@@ -96,4 +195,18 @@ class FilesEndpointTests: XCTestCase {
 
 private final class UncheckedBox<Value>: @unchecked Sendable {
     var value: Value?
+}
+
+extension Components.Schemas.OpenAIFile {
+    static func mock(id: String = "file-abc123") -> Self {
+        .init(
+            id: id,
+            bytes: 120000,
+            createdAt: 1677610602,
+            filename: "requests.jsonl",
+            object: .file,
+            purpose: .batch,
+            status: .processed
+        )
+    }
 }

@@ -36,6 +36,7 @@ public protocol OpenAICombine: Sendable {
     func threadsMessages(threadId: String) -> AnyPublisher<ThreadsMessagesResult, Error>
     func threadsMessages(threadId: String, before: String?) -> AnyPublisher<ThreadsMessagesResult, Error>
     func threadsAddMessage(threadId: String, query: MessageQuery) -> AnyPublisher<ThreadAddMessageResult, Error>
-    func files(query: FilesQuery) -> AnyPublisher<FilesResult, Error>
+    @available(*, deprecated, message: "Use files.create(query:), which returns the full file object.")
+    func files(query: CreateFileQuery) -> AnyPublisher<FilesResult, Error>
 }
 #endif

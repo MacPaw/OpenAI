@@ -264,7 +264,8 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         )
     }
     
-    public func files(query: FilesQuery, completion: @escaping @Sendable (Result<FilesResult, Error>) -> Void) -> CancellableRequest {
+    @available(*, deprecated, message: "Use files.create(query:), which returns the full file object.")
+    public func files(query: CreateFileQuery, completion: @escaping @Sendable (Result<FilesResult, Error>) -> Void) -> CancellableRequest {
         performRequest(
             request: makeFilesRequest(query: query),
             completion: completion
@@ -458,6 +459,7 @@ extension APIPath {
     static let imageVariations = "/images/variations"
 
     // Files API paths
+    static let files = "/files"
     static func file(_ fileId: String) -> String { "/files/\(fileId)" }
     static func fileContent(_ fileId: String) -> String { "/files/\(fileId)/content" }
 

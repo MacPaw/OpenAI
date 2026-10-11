@@ -734,6 +734,8 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(inError, apiError)
     }
 
+    // Exercises the deprecated `files(query:)` and `FilesQuery`; marked deprecated itself so they don't warn.
+    @available(*, deprecated)
     func testFilesQuery() async throws {
         let data = try XCTUnwrap("{\"test\":\"data\"}".data(using: .utf8))
         let query = FilesQuery(purpose: "assistant", file: data, fileName: "test.json", contentType: "application/json")
@@ -744,9 +746,10 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(result, expectedResult)
     }
     
+    @available(*, deprecated)
     func testFilesQueryError() async throws {
         let data = try XCTUnwrap("{\"test\":\"data\"}".data(using: .utf8))
-        let query = FilesQuery(purpose: "assistant", file: data, fileName: "test.json", contentType: "application/json")
+        let query = CreateFileQuery(purpose: "assistant", file: data, fileName: "test.json", contentType: "application/json")
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         

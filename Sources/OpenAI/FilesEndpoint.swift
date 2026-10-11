@@ -23,11 +23,25 @@ public final class FilesEndpoint: FilesEndpointProtocol, Sendable {
         self.configuration = configuration
     }
 
-    public func content(
-        id: String,
-        completion: @escaping @Sendable (Result<Data, Error>) -> Void
+    public func create(
+        query: CreateFileQuery,
+        completion: @escaping @Sendable (Result<Components.Schemas.OpenAIFile, Error>) -> Void
     ) -> CancellableRequest {
-        client.performRawDataRequest(request: makeContentRequest(id: id), completion: completion)
+        client.performRequest(request: makeCreateRequest(query: query), completion: completion)
+    }
+
+    public func retrieve(
+        id: String,
+        completion: @escaping @Sendable (Result<Components.Schemas.OpenAIFile, Error>) -> Void
+    ) -> CancellableRequest {
+        client.performRequest(request: makeRetrieveRequest(id: id), completion: completion)
+    }
+
+    public func list(
+        query: ListFilesQuery,
+        completion: @escaping @Sendable (Result<Components.Schemas.ListFilesResponse, Error>) -> Void
+    ) -> CancellableRequest {
+        client.performRequest(request: makeListRequest(query: query), completion: completion)
     }
 
     public func delete(
@@ -37,16 +51,48 @@ public final class FilesEndpoint: FilesEndpointProtocol, Sendable {
         client.performRequest(request: makeDeleteRequest(id: id), completion: completion)
     }
 
-    func makeContentRequest(id: String) -> JSONRequest<Data> {
-        .init(url: buildURL(path: .fileContent(id)), method: "GET")
+    public func content(
+        id: String,
+        completion: @escaping @Sendable (Result<Data, Error>) -> Void
+    ) -> CancellableRequest {
+        client.performRawDataRequest(request: makeContentRequest(id: id), completion: completion)
+    }
+
+    func makeCreateRequest(query: CreateFileQuery) -> MultipartFormDataRequest<Components.Schemas.OpenAIFile> {
+        .init(body: query, url: buildURL(path: .files))
+    }
+
+    func makeRetrieveRequest(id: String) -> JSONRequest<Components.Schemas.OpenAIFile> {
+        .init(url: buildURL(path: .file(id)), method: "GET")
+    }
+
+    func makeListRequest(query: ListFilesQuery) -> JSONRequest<Components.Schemas.ListFilesResponse> {
+        var queryItems: [URLQueryItem] = []
+        if let purpose = query.purpose {
+            queryItems.append(.init(name: "purpose", value: purpose))
+        }
+        if let limit = query.limit {
+            queryItems.append(.init(name: "limit", value: String(limit)))
+        }
+        if let order = query.order {
+            queryItems.append(.init(name: "order", value: order.rawValue))
+        }
+        if let after = query.after {
+            queryItems.append(.init(name: "after", value: after))
+        }
+        return .init(url: buildURL(path: .files, queryItems: queryItems), method: "GET")
     }
 
     func makeDeleteRequest(id: String) -> JSONRequest<Components.Schemas.DeleteFileResponse> {
         .init(url: buildURL(path: .file(id)), method: "DELETE")
     }
 
-    private func buildURL(path: String) -> URL {
-        DefaultURLBuilder(configuration: configuration, path: path)
+    func makeContentRequest(id: String) -> JSONRequest<Data> {
+        .init(url: buildURL(path: .fileContent(id)), method: "GET")
+    }
+
+    private func buildURL(path: String, queryItems: [URLQueryItem] = []) -> URL {
+        DefaultURLBuilder(configuration: configuration, path: path, queryItems: queryItems)
             .buildURL()
     }
 }
