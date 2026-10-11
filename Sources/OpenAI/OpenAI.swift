@@ -67,7 +67,6 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
     
     public let configuration: Configuration
     public let responses: ResponsesEndpointProtocol
-    public let batches: BatchesEndpointProtocol
     public let files: FilesEndpointProtocol
 
     public convenience init(apiToken: String) {
@@ -157,13 +156,6 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         self.responses = ResponsesEndpoint(
             client: client,
             streamingClient: streamingClient,
-            asyncClient: asyncClient,
-            combineClient: combineClient,
-            configuration: configuration
-        )
-        
-        self.batches = BatchesEndpoint(
-            client: client,
             asyncClient: asyncClient,
             combineClient: combineClient,
             configuration: configuration
@@ -468,11 +460,6 @@ extension APIPath {
     // Files API paths
     static func file(_ fileId: String) -> String { "/files/\(fileId)" }
     static func fileContent(_ fileId: String) -> String { "/files/\(fileId)/content" }
-
-    // Batch API paths
-    static let batches = "/batches"
-    static func batch(_ batchId: String) -> String { "/batches/\(batchId)" }
-    static func batchCancel(_ batchId: String) -> String { "/batches/\(batchId)/cancel" }
 
     func withPath(_ path: String) -> String {
         self + "/" + path

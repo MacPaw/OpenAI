@@ -15,7 +15,6 @@ public protocol OpenAIModern: OpenAIAsync {}
 
 public protocol OpenAIProtocol: OpenAIModern {
     var responses: ResponsesEndpointProtocol { get }
-    var batches: BatchesEndpointProtocol { get }
     var files: FilesEndpointProtocol { get }
 
     /**

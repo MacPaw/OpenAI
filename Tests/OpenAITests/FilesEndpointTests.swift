@@ -93,3 +93,7 @@ class FilesEndpointTests: XCTestCase {
     }
 #endif
 }
+
+private final class UncheckedBox<Value>: @unchecked Sendable {
+    var value: Value?
+}
