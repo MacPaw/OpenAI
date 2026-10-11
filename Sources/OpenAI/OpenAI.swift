@@ -404,8 +404,8 @@ extension OpenAI {
 }
 
 extension OpenAI {
-    func buildURL(path: String, after: String? = nil) -> URL {
-        DefaultURLBuilder(configuration: configuration, path: path, after: after)
+    func buildURL(path: String) -> URL {
+        DefaultURLBuilder(configuration: configuration, path: path)
             .buildURL()
     }
 
@@ -457,6 +457,10 @@ extension APIPath {
         
         static func listInputItems(responseId: String) -> Responses {
             .init(stringValue: "responses/\(responseId)/input_items")
+        }
+        
+        static func cancelModelResponse(responseId: String) -> Responses {
+            .init(stringValue: "responses/\(responseId)/cancel")
         }
         
         let stringValue: String

@@ -37,5 +37,13 @@ extension ResponsesEndpoint: ResponsesEndpointCombine {
             })
             .eraseToAnyPublisher()
     }
+    
+    public func retrieveResponse(query: RetrieveModelResponseQuery) -> AnyPublisher<ResponseObject, any Error> {
+        combineClient.performRequest(request: makeRetrieveResponseRequest(query: query))
+    }
+    
+    public func cancelResponse(id: String) -> AnyPublisher<ResponseObject, any Error> {
+        combineClient.performRequest(request: makeCancelResponseRequest(id: id))
+    }
 }
 #endif

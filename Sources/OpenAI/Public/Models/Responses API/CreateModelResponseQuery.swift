@@ -23,7 +23,9 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     
     /// Model ID used to generate the response, like `gpt-4o` or `o1`. OpenAI offers a wide range of models with different capabilities, performance characteristics, and price points.
     /// Refer to the [model guide](https://platform.openai.com/docs/models) to browse and compare available models.
-    public let model: String
+    ///
+    /// Optional when referencing a stored prompt by `prompt_id` (via `prompt`), in which case the model is taken from the prompt configuration.
+    public let model: String?
     
     /// Specify additional output data to include in the model response.
     ///
@@ -33,10 +35,13 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     /// - `computer_call_output.output.image_url`: Include image urls from the computer call output.
     /// - `reasoning.encrypted_content`: Includes an encrypted version of reasoning tokens in reasoning item outputs. This enables reasoning items to be used in multi-turn conversations when using the Responses API statelessly (like when the `store` parameter is set to `false`, or when an organization is enrolled in the zero data retention program).
     /// - `code_interpreter_call.outputs`: Includes the outputs of python code execution in code interpreter tool call items.
-    public let include: [Schemas.Includable]?
+    public let include: [Schemas.IncludeEnum]?
     
     /// Whether to run the model response in the background. [Learn more](https://platform.openai.com/docs/guides/background).
     public let background: Bool?
+    
+    /// Context management configuration for this request.
+    public let contextManagement: [Schemas.ContextManagementParam]?
     
     /// Inserts a system (or developer) message as the first item in the model's context.
     ///
@@ -63,7 +68,11 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     
     /// Reference to a prompt template and its variables. [Learn more](https://platform.openai.com/docs/guides/text?api-mode=responses#reusable-prompts).
     public let prompt: Schemas.Prompt?
-    
+
+    /// Used by OpenAI to cache responses for similar requests to optimize your cache hit rates.
+    /// Replaces the `user` field. [Learn more](https://platform.openai.com/docs/guides/prompt-caching).
+    public let promptCacheKey: String?
+
     /// **o-series models only**
     ///
     /// Configuration options for [reasoning models](https://platform.openai.com/docs/guides/reasoning).
@@ -101,7 +110,7 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     
     /// How the model should select which tool (or tools) to use when generating a response.
     /// See the `tools` parameter to see how to specify which tools the model can call.
-    public let toolChoice: ResponseProperties.ToolChoicePayload?
+    public let toolChoice: Schemas.ToolChoiceParam?
     
     /// An array of tools the model may call while generating a response. You can specify which tool to use by setting the `toolChoice` parameter.
     ///
@@ -128,22 +137,24 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
     
     public init(
         input: Input,
-        model: String,
-        include: [Schemas.Includable]? = nil,
+        model: String? = nil,
+        include: [Schemas.IncludeEnum]? = nil,
         background: Bool? = nil,
+        contextManagement: [Schemas.ContextManagementParam]? = nil,
         instructions: String? = nil,
         maxOutputTokens: Int? = nil,
         metadata: Schemas.Metadata? = nil,
         parallelToolCalls: Bool? = nil,
         previousResponseId: String? = nil,
         prompt: Schemas.Prompt? = nil,
+        promptCacheKey: String? = nil,
         reasoning: Schemas.Reasoning? = nil,
         serviceTier: ServiceTier? = nil,
         store: Bool? = nil,
         stream: Bool? = nil,
         temperature: Double? = nil,
         text: TextResponseConfigurationOptions? = nil,
-        toolChoice: ResponseProperties.ToolChoicePayload? = nil,
+        toolChoice: Schemas.ToolChoiceParam? = nil,
         tools: [Tool]? = nil,
         topP: Double? = nil,
         truncation: String? = nil,
@@ -153,12 +164,14 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
         self.model = model
         self.include = include
         self.background = background
+        self.contextManagement = contextManagement
         self.instructions = instructions
         self.maxOutputTokens = maxOutputTokens
         self.metadata = metadata
         self.parallelToolCalls = parallelToolCalls
         self.previousResponseId = previousResponseId
         self.prompt = prompt
+        self.promptCacheKey = promptCacheKey
         self.reasoning = reasoning
         self.serviceTier = serviceTier
         self.store = store
@@ -177,12 +190,14 @@ public struct CreateModelResponseQuery: Codable, Equatable, Sendable {
         case model
         case include
         case background
+        case contextManagement = "context_management"
         case instructions
         case maxOutputTokens = "max_output_tokens"
         case metadata
         case parallelToolCalls = "parallel_tool_calls"
         case previousResponseId = "previous_response_id"
         case prompt
+        case promptCacheKey = "prompt_cache_key"
         case reasoning
         case serviceTier = "service_tier"
         case store

@@ -13,8 +13,8 @@ struct JSONResponseErrorDecoder {
     func decodeErrorResponse(data: Data) -> (any ErrorResponse)? {
         if let decoded = try? decoder.decode(APIErrorResponse.self, from: data) {
             return decoded
-        } else if let decoded = try? decoder.decode([GeminiAPIErrorResponse].self, from: data) {
-            return decoded[0]
+        } else if let decoded = try? decoder.decode([GeminiAPIErrorResponse].self, from: data), let first = decoded.first {
+            return first
         } else {
             return nil
         }

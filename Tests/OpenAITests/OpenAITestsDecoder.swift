@@ -75,7 +75,54 @@ class OpenAITestsDecoder: XCTestCase {
         )
         try decode(data, expectedValue)
     }
-    
+
+    func testCompletionUsageWithCompletionTokensDetails() async throws {
+        let data = """
+        {
+          "completion_tokens": 320,
+          "prompt_tokens": 80,
+          "total_tokens": 400,
+          "completion_tokens_details": {
+            "accepted_prediction_tokens": 12,
+            "audio_tokens": 0,
+            "reasoning_tokens": 256,
+            "rejected_prediction_tokens": 4
+          }
+        }
+        """
+
+        let expectedValue = ChatResult.CompletionUsage(
+            completionTokens: 320,
+            promptTokens: 80,
+            totalTokens: 400,
+            promptTokensDetails: nil,
+            completionTokensDetails: .init(
+                acceptedPredictionTokens: 12,
+                audioTokens: 0,
+                reasoningTokens: 256,
+                rejectedPredictionTokens: 4
+            )
+        )
+        try decode(data, expectedValue)
+    }
+
+    func testCompletionUsageDecodesWithoutCompletionTokensDetails() async throws {
+        let data = """
+        {
+          "completion_tokens": 12,
+          "prompt_tokens": 9,
+          "total_tokens": 21
+        }
+        """
+
+        let expectedValue = ChatResult.CompletionUsage(
+            completionTokens: 12,
+            promptTokens: 9,
+            totalTokens: 21
+        )
+        try decode(data, expectedValue)
+    }
+
     func testImageQuery() async throws {
         let imageQuery = ImagesQuery(
             prompt: "test",
@@ -893,6 +940,68 @@ class OpenAITestsDecoder: XCTestCase {
 
         let data = try JSONEncoder().encode(query)
         try testEncodedCreateResponseQueryWithVerbosity(data)
+    }
+
+    func testCreateResponseQueryEncodesPromptCacheKey() throws {
+        let query = CreateModelResponseQuery(
+            input: .textInput("Hello"),
+            model: .gpt4_o,
+            promptCacheKey: "user-1234"
+        )
+
+        let data = try JSONEncoder().encode(query)
+        let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(dict["prompt_cache_key"] as? String), "user-1234")
+    }
+
+    func testCreateResponseQueryEncodesContextManagement() throws {
+        let query = CreateModelResponseQuery(
+            input: .textInput("Hello"),
+            model: .gpt4_o,
+            contextManagement: [.init(_type: "compaction", compactThreshold: 1000)]
+        )
+
+        let data = try JSONEncoder().encode(query)
+        let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let contextManagement = try XCTUnwrap(dict["context_management"] as? [[String: Any]])
+        XCTAssertEqual(contextManagement.count, 1)
+        XCTAssertEqual(contextManagement.first?["type"] as? String, "compaction")
+        XCTAssertEqual(contextManagement.first?["compact_threshold"] as? Int, 1000)
+    }
+
+    func testCreateResponseQueryOmitsPromptCacheKeyWhenNil() throws {
+        let query = CreateModelResponseQuery(
+            input: .textInput("Hello"),
+            model: .gpt4_o
+        )
+
+        let data = try JSONEncoder().encode(query)
+        let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertNil(dict["prompt_cache_key"])
+    }
+
+    func testCreateResponseQueryOmitsModelWhenNil() throws {
+        let query = CreateModelResponseQuery(
+            input: .textInput("Hello"),
+            prompt: .init(id: "pmpt_abc123")
+        )
+
+        let data = try JSONEncoder().encode(query)
+        let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertNil(dict["model"])
+        let prompt = try XCTUnwrap(dict["prompt"] as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(prompt["id"] as? String), "pmpt_abc123")
+    }
+
+    func testCreateResponseQueryEncodesModelWhenProvided() throws {
+        let query = CreateModelResponseQuery(
+            input: .textInput("Hello"),
+            model: .gpt4_o
+        )
+
+        let data = try JSONEncoder().encode(query)
+        let dict = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(dict["model"] as? String), "gpt-4o")
     }
 
     private func testEncodedChatQueryWithStructuredOutput(_ data: Data) throws {

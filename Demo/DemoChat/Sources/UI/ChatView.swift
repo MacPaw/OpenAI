@@ -72,6 +72,8 @@ public struct ChatView: View {
                         },
                         isSendingMessage: $store.isSendingMessage
                     )
+                    // Each conversation gets its own view state (chosen model, streaming, draft); without this SwiftUI reuses one DetailView across chats.
+                    .id(conversation.id)
                 }
             }
         }.onDisappear {

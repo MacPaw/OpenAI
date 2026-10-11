@@ -35,7 +35,7 @@ public final class MCPToolsStore: ObservableObject {
         public init(from tool: MCP.Tool) {
             self.id = tool.name
             self.name = tool.name
-            self.description = tool.description
+            self.description = tool.description ?? ""
             self.inputSchema = tool.inputSchema
         }
     }

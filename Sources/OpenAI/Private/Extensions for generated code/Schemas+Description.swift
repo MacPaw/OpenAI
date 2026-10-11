@@ -24,8 +24,7 @@ extension Components.Schemas.ModelResponseProperties: CustomStringConvertible {
         let parts: [String] = [
                     "metadata: \(metadata.map(String.init(describing:)) ?? "nil")",
                     "temperature: \(temperature.map(String.init(describing:)) ?? "nil")",
-                    "topP: \(topP.map(String.init(describing:)) ?? "nil")",
-                    "user: \(user.map { "\"\($0)\"" } ?? "nil")"
+                    "topP: \(topP.map(String.init(describing:)) ?? "nil")"
         ]
         
         return "ModelResponseProperties(\(parts.joined(separator: ", ")))"

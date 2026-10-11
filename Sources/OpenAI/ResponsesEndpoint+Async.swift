@@ -32,4 +32,12 @@ extension ResponsesEndpoint: ResponsesEndpointAsync {
             }
         }
     }
+    
+    public func retrieveResponse(query: RetrieveModelResponseQuery) async throws -> ResponseObject {
+        try await asyncClient.performRequest(request: makeRetrieveResponseRequest(query: query))
+    }
+    
+    public func cancelResponse(id: String) async throws -> ResponseObject {
+        try await asyncClient.performRequest(request: makeCancelResponseRequest(id: id))
+    }
 }

@@ -286,13 +286,13 @@ class OpenAITests: XCTestCase {
     func testModerationsIterable() {
         let categories = ModerationsResult.Moderation.Categories(harassment: false, harassmentThreatening: false, hate: false, hateThreatening: false, selfHarm: false, selfHarmIntent: false, selfHarmInstructions: false, sexual: false, sexualMinors: false, violence: false, violenceGraphic: false)
         Mirror(reflecting: categories).children.enumerated().forEach { index, element in
-            let label = ModerationsResult.Moderation.Categories.CodingKeys.allCases[index].stringValue.replacing(try! Regex("[/-]"), with: { _ in "" })
+            let label = ModerationsResult.Moderation.Categories.CodingKeys.allCases[index].stringValue.replacingOccurrences(of: "[/-]", with: "", options: .regularExpression)
             XCTAssertEqual(label, element.label!.lowercased())
         }
 
         let categoryScores = ModerationsResult.Moderation.CategoryScores(harassment: 0.1, harassmentThreatening: 0.1, hate: 0.1, hateThreatening: 0.1, selfHarm: 0.1, selfHarmIntent: 0.1, selfHarmInstructions: 0.1, sexual: 0.1, sexualMinors: 0.1, violence: 0.1, violenceGraphic: 0.1)
         Mirror(reflecting: categoryScores).children.enumerated().forEach { index, element in
-            let label = ModerationsResult.Moderation.CategoryScores.CodingKeys.allCases[index].stringValue.replacing(try! Regex("[/-]"), with: { _ in "" })
+            let label = ModerationsResult.Moderation.CategoryScores.CodingKeys.allCases[index].stringValue.replacingOccurrences(of: "[/-]", with: "", options: .regularExpression)
             XCTAssertEqual(label, element.label!.lowercased())
         }
     }
@@ -461,7 +461,19 @@ class OpenAITests: XCTestCase {
         let urlRequest = try jsonRequest.build(configuration: configuration)
         XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "OpenAI-Beta"), "assistants=v2")
     }
-    
+
+    func testAssistantsRequestAddsAfterQueryItem() throws {
+        let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14)
+        let openAI = OpenAI(configuration: configuration)
+
+        let urlRequest = try openAI.makeAssistantsRequest("asst_123").build(configuration: configuration)
+        XCTAssertEqual(urlRequest.url?.path, "/v1/assistants")
+        XCTAssertEqual(urlRequest.url?.query, "after=asst_123")
+
+        let firstPageRequest = try openAI.makeAssistantsRequest(nil).build(configuration: configuration)
+        XCTAssertNil(firstPageRequest.url?.query)
+    }
+
     func testCustomHeadersOverrideDefault() throws {
         let configuration = OpenAI.Configuration(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14, customHeaders: ["Authorization": "auth", "Content-Type": "ctype", "OpenAI-Organization": "org"])
         let completionQuery = ChatQuery(messages: [.user(.init(content: .string("how are you?")))], model: .gpt3_5Turbo_16k)

@@ -5,6 +5,8 @@
 //  Created by Oleksii Nezhyborets on 27.06.2025.
 //
 
+// Swift Testing ships with Swift 6 toolchains. The package still supports Swift 5.10, where these tests do not exist.
+#if canImport(Testing)
 import Testing
 import Foundation
 @testable import OpenAI
@@ -68,3 +70,4 @@ struct StreamingClientTests {
         #expect(mockSession.dataTaskCalls[0].request.url == interceptedURL)
     }
 }
+#endif

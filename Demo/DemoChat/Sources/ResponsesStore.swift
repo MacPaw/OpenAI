@@ -11,7 +11,7 @@ import OpenAI
 
 @MainActor
 public final class ResponsesStore: ObservableObject {
-    struct ConversationTurn: Identifiable, Hashable, Sendable {
+    struct ConversationTurn: Identifiable, Sendable {
         public enum TurnType: Sendable {
             case userInput
             case response
@@ -235,11 +235,10 @@ public final class ResponsesStore: ObservableObject {
         
         try await createResponse(
             input: .inputItemList([
-                .item(.functionToolCall(toolCall)),
                 .item(.functionCallOutputItemParam(.init(
                     callId: toolCall.callId,
                     _type: .functionCallOutput,
-                    output: result
+                    output: .case1(result)
                 )))
             ]),
             model: model,
@@ -269,8 +268,10 @@ public final class ResponsesStore: ObservableObject {
         pendingMCPApprovalRequest = approvalRequest
         showMCPApprovalDialog = true
 
-        // Store the current response ID for the approval response
-        mcpApprovalRequestResponseId = responseBeingStreamed?.id
+        // Store the current response ID for the approval response. `responseBeingStreamed` is only
+        // set while streaming a response; fall back to `lastOpenAIResponseId` (kept in sync for both
+        // paths) so a non-streaming response's approval request still gets a response ID to continue from.
+        mcpApprovalRequestResponseId = responseBeingStreamed?.id ?? lastOpenAIResponseId
     }
 
     func respondToMCPApprovalRequest(approve: Bool, model: Model, stream: Bool, webSearchEnabled: Bool, functionCallingEnabled: Bool, mcpEnabled: Bool = true) async throws {
@@ -328,7 +329,7 @@ public final class ResponsesStore: ObservableObject {
         var tools: [Tool] = []
 
         if webSearchEnabled {
-            tools.append(.webSearchTool(.init(_type: .webSearchPreview)))
+            tools.append(.webSearchPreviewTool(.init(_type: .webSearchPreview)))
         }
 
         if functionCallingEnabled {
@@ -337,13 +338,10 @@ public final class ResponsesStore: ObservableObject {
 
         if mcpEnabled {
             // Check if model supports MCP tools
-            let mcpCompatibleModels: Set<String> = [
-                Model.gpt4_o, Model.gpt4_1, Model.chatgpt_4o_latest,
-                Model.gpt4_o_mini, Model.gpt4_1_mini, Model.gpt4_1_nano
-            ]
+            let mcpCompatibleModels = Model.allModels(satisfying: .init(supportedEndpoints: [.responses], requiredTools: [.mcp]))
 
             if !mcpCompatibleModels.contains(model) {
-                print("Warning: Model '\(model)' may not support MCP tools. Recommended models: \(mcpCompatibleModels.joined(separator: ", "))")
+                print("Warning: Model '\(model)' may not support MCP tools. Recommended models: \(mcpCompatibleModels.sorted().joined(separator: ", "))")
             }
             
             // make it flexiable
@@ -408,8 +406,8 @@ public final class ResponsesStore: ObservableObject {
             encoder.outputFormatting = .prettyPrinted
             let jsonData = try encoder.encode(query)
             if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print("Request JSON:")
-                print(jsonString)
+                print("Request JSON, prefixed to 10000:")
+                print(jsonString.prefix(10000))
             }
         } catch {
             print("Failed to serialize request to JSON: \(error)")
@@ -484,6 +482,27 @@ public final class ResponsesStore: ObservableObject {
                         chatMessage: message
                     )
                 )
+            case .functionToolCall(let functionToolCall):
+                guard functionToolCall.name == weatherFunctionTool.name else {
+                    throw StoreError.unknownFunctionCalled(name: functionToolCall.name)
+                }
+
+                lastFinishedFunctionToolCall = functionToolCall
+            case .webSearchToolCall:
+                // The non-streaming response includes the completed web-search call
+                // alongside the assistant message. There is no incremental state to update.
+                webSearchInProgress = false
+            case .reasoning(let reasoningItem):
+                print("reasoning output item, summary: \(reasoningItem.summary)")
+            case .mcpApprovalRequest(let approvalRequest):
+                handleMCPApprovalRequest(approvalRequest)
+            case .mcpListTools(let mcpListTools):
+                print("MCP tools listed: \(mcpListTools.tools.map(\.name))")
+            case .mcpToolCall(let mcpCall):
+                print("MCP tool call completed: \(mcpCall.name)")
+                if let output = mcpCall.output {
+                    print("Result: \(output)")
+                }
             default:
                 throw StoreError.unhandledOutputItem(output)
             }
@@ -575,21 +594,13 @@ public final class ResponsesStore: ObservableObject {
                 // TODO: Implement proper annotation handling when type conversion is resolved
                 print("Text annotation added: itemId=\(event.itemId), annotationIndex=\(event.annotationIndex)")
             }
-        case .reasoning(let reasoningEvent):
+        case .reasoningText(let reasoningEvent):
             // Handle reasoning events - could show reasoning in UI
             switch reasoningEvent {
             case .delta(let event):
                 print("Reasoning delta: \(event.sequenceNumber)")
             case .done(let event):
                 print("Reasoning done: \(event.sequenceNumber)")
-            }
-        case .reasoningSummary(let reasoningSummaryEvent):
-            // Handle reasoning summary events
-            switch reasoningSummaryEvent {
-            case .delta(let event):
-                print("Reasoning summary delta: \(event.sequenceNumber)")
-            case .done(let event):
-                print("Reasoning summary done: \(event.sequenceNumber)")
             }
         case .audio(_ /* let audioEvent */):
             // Audio events - not implemented yet
@@ -618,6 +629,14 @@ public final class ResponsesStore: ObservableObject {
         case .reasoningSummaryText(_ /* let reasoningSummaryTextEvent */):
             // Reasoning summary text events - not implemented yet
             print("Reasoning summary text event received (not implemented)")
+            break
+        case .shellCall(_ /* let shellCallEvent */):
+            // Shell call events - not implemented yet
+            print("Shell call event received (not implemented)")
+            break
+        case .customToolCallInput(_ /* let customToolCallInputEvent */):
+            // Custom tool call input events - not implemented yet
+            print("Custom tool call input event received (not implemented)")
             break
         }
     }
@@ -656,6 +675,8 @@ public final class ResponsesStore: ObservableObject {
         case .mcpToolCall(_ /* let mcpCall */):
             // MCP tool call in progress - no UI action needed
             break
+        case .reasoning(let reasoningItem):
+            print("reasoning output item added, summary: \(reasoningItem.summary)")
         default:
             throw StoreError.unhandledOutputItem(outputItem)
         }
@@ -693,6 +714,8 @@ public final class ResponsesStore: ObservableObject {
             if let output = mcpCall.output {
                 print("Result: \(output)")
             }
+        case .reasoning(let reasoningItem):
+            print("reasoning output item done, summary: \(reasoningItem.summary)")
         default:
             throw StoreError.unhandledOutputItem(outputItem)
         }
@@ -772,13 +795,32 @@ public final class ResponsesStore: ObservableObject {
     ) throws {
         try updateMessageBeingStreamed(messageId: messageId) { message in
             switch outputContent {
-            case .OutputTextContent(let outputText):
-                message.text = outputText.text
-                message.annotations = outputText.annotations
-            case .RefusalContent(let refusal):
-                message.refusalText = refusal.refusal
+            case .outputTextContent(let c): Self.apply(c, to: message)
+            case .refusalContent(let c): Self.apply(c, to: message)
+            case .reasoningTextContent: break
             }
         }
+    }
+
+    private func updateMessageBeingStreamed(
+        messageId: String,
+        outputContent: Components.Schemas.OutputMessageContent
+    ) throws {
+        try updateMessageBeingStreamed(messageId: messageId) { message in
+            switch outputContent {
+            case .outputTextContent(let c): Self.apply(c, to: message)
+            case .refusalContent(let c): Self.apply(c, to: message)
+            }
+        }
+    }
+
+    private static func apply(_ outputText: Components.Schemas.OutputTextContent, to message: MessageData) {
+        message.text = outputText.text
+        message.annotations = outputText.annotations
+    }
+
+    private static func apply(_ refusal: Components.Schemas.RefusalContent, to message: MessageData) {
+        message.refusalText = refusal.refusal
     }
     
     private func conversationTurn(withResponseData responseData: ResponseData, messageData: MessageData) -> ConversationTurn {
@@ -885,50 +927,28 @@ public final class ResponsesStore: ObservableObject {
             return nil
         }
     }
-    
-    private func conversationTurn(
-        fromOutputContent outputContent: ResponseStreamEvent.Schemas.OutputContent,
-        messageId: String,
-        userId: String,
-        username: String
-    ) throws -> ConversationTurn {
-        guard let responseBeingStreamed else {
-            throw StoreError.noResponseToUpdate
-        }
-        
-        return .init(
-            id: responseBeingStreamed.id,
-            type: .response,
-            chatMessage: chatMessage(
-                fromOutputContent: outputContent,
-                messageId: messageId,
-                userId: userId,
-                username: username
-            )
-        )
-    }
-    
+
     private func chatMessage(
-        fromOutputContent outputContent: ResponseStreamEvent.Schemas.OutputContent,
+        fromOutputContent outputContent: Components.Schemas.OutputMessageContent,
         messageId: String,
         userId: String,
         username: String
     ) -> ExyteChat.Message {
         switch outputContent {
-        case .OutputTextContent(let outputText):
+        case .outputTextContent(let outputText):
             return makeChatMessage(
                 withText: outputText.text,
                 annotations: outputText.annotations,
                 messageId: messageId,
                 user: systemUser(withId: userId, username: username)
             )
-        case .RefusalContent(let refusal):
+        case .refusalContent(let refusal):
             let message = ExyteChat.Message(
                 id: messageId,
                 user: systemUser(withId: userId, username: username),
                 text: refusal.refusal
             )
-            
+
             return message
         }
     }

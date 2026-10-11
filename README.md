@@ -1,6 +1,7 @@
+
 # OpenAI
 
-![logo](https://user-images.githubusercontent.com/1411778/218319355-f56b6bd4-961a-4d8f-82cd-6dbd43111d7f.png)
+<img width="2000" height="800" alt="Cover OpenAI - white@2x" src="https://github.com/user-attachments/assets/a09710ea-ad67-4840-b803-3eb881e6a712" />
 
 ___
 
@@ -32,6 +33,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
     - [Audio Create Speech](#audio-create-speech)
     - [Audio Transcriptions](#audio-transcriptions)
     - [Audio Translations](#audio-translations)
+    - [Audio input and output with Chat Completions](#audio-input-and-output-with-chat-completions)
 - [Structured Outputs](#structured-outputs)
 - [Specialized models](#specialized-models)
     - [Embeddings](#embeddings)
@@ -743,6 +745,113 @@ openAI.audioTranslations(query: query) { result in
 let result = try await openAI.audioTranslations(query: query)
 ```
 
+### Audio input and output with Chat Completions
+
+Models like `gpt-audio-1.5` take audio as input and answer with spoken audio in a single Chat Completions call, so a separate transcription → chat → speech pipeline is not needed.
+
+There is no separate audio endpoint: use the same `ChatQuery` with `func chats(query:)` and `func chatsStream(query:)`. Two parameters opt a query into audio:
+
+- `modalities` — pass `[.text, .audio]` to get both a transcript and generated speech back
+- `audioOptions` — the `voice` and the `format` of the generated audio
+
+Audio input is a content part on a user message, so it mixes freely with text and image parts.
+
+**Models:** `.gpt_audio_1_5` (recommended), `.gpt_audio`, `.gpt_audio_mini`
+
+**Formats:**
+
+- Input audio: `wav` and `mp3`
+- Output audio: `mp3`, `opus`, `flac`, `wav` and `pcm16` — prefer `pcm16` when streaming, it is the cheapest to play back chunk by chunk
+
+**Example: audio in, audio out**
+
+```swift
+let audioData = try Data(contentsOf: audioFileURL)
+
+let query = ChatQuery(
+    messages: [
+        .system(.init(content: .textContent("You are a helpful voice assistant."))),
+        .user(.init(content: .contentParts([
+            .audio(.init(inputAudio: .init(data: audioData, format: .wav)))
+        ])))
+    ],
+    model: .gpt_audio_1_5,
+    modalities: [.text, .audio],
+    audioOptions: .init(format: .wav, voice: .alloy)
+)
+
+let result = try await openAI.chats(query: query)
+
+if let audio = result.choices.first?.message.audio {
+    print(audio.transcript)
+    let spokenReply = Data(base64Encoded: audio.data)
+}
+```
+
+`InputAudio` has an initializer that takes raw `Data` and base64-encodes it for you, and one that takes an already base64-encoded `String`.
+
+**Example: text in, audio out**
+
+Audio output does not require audio input — a plain text message works too.
+
+```swift
+let query = ChatQuery(
+    messages: [
+        .user(.init(content: .string("Tell me a joke about Swift")))
+    ],
+    model: .gpt_audio_1_5,
+    modalities: [.text, .audio],
+    audioOptions: .init(format: .mp3, voice: .sage)
+)
+
+let result = try await openAI.chats(query: query)
+```
+
+**Example: streaming**
+
+Streaming delivers the transcript and the audio in chunks on the delta. Every field of the delta audio is optional, since a chunk usually carries only one of them.
+
+```swift
+for try await result in openAI.chatsStream(query: query) {
+    guard let audio = result.choices.first?.delta.audio else { continue }
+
+    if let transcript = audio.transcript {
+        print(transcript, terminator: "")
+    }
+
+    if let data = audio.data, let chunk = Data(base64Encoded: data) {
+        // append to your player buffer
+    }
+}
+```
+
+**Example: multi-turn conversations**
+
+A generated audio response has an `id` that stays valid until `expiresAt`. Reference that id from an assistant message on the next turn instead of uploading the audio again.
+
+```swift
+guard let previousAudio = result.choices.first?.message.audio else { return }
+
+let nextTurn = ChatQuery(
+    messages: [
+        .user(.init(content: .contentParts([
+            .audio(.init(inputAudio: .init(data: firstQuestionAudio, format: .wav)))
+        ]))),
+        .assistant(.init(audio: .init(id: previousAudio.id))),
+        .user(.init(content: .contentParts([
+            .audio(.init(inputAudio: .init(data: secondQuestionAudio, format: .wav)))
+        ])))
+    ],
+    model: .gpt_audio_1_5,
+    modalities: [.text, .audio],
+    audioOptions: .init(format: .wav, voice: .alloy)
+)
+```
+
+Once `expiresAt` has passed the id is rejected, so keep the transcript around and send it as a text assistant message instead.
+
+Audio tokens are reported separately in `result.usage` — `promptTokensDetails.audioTokens` and `completionTokensDetails.audioTokens`.
+
 Review [Audio Documentation](https://platform.openai.com/docs/api-reference/audio) for more info.
 
 ## Structured Outputs
@@ -750,6 +859,13 @@ Review [Audio Documentation](https://platform.openai.com/docs/api-reference/audi
 > [!NOTE] This section focuses on non-function calling use cases in the Responses and Chat Completions APIs. To learn more about how to use Structured Outputs with function calling, check out the [Function Calling](#function-calling).
 
 To configure structured outputs you would define a JSON Schema and pass it to a query.
+
+> [!NOTE]
+> The two query types pass the schema via different parameters, mirroring the OpenAI API:
+> - `ChatQuery` (Chat Completions API): `responseFormat: .jsonSchema(...)` — encoded as `response_format`.
+> - `CreateModelResponseQuery` (Responses API): `text: .jsonSchema(...)` — encoded as `text`.
+>
+> Both accept the same `JSONSchemaDefinition` value, so the schema-building examples below apply to either query type.
 
 This SDK supports multiple ways to define a schema; choose the one you prefer.
 
@@ -833,7 +949,7 @@ for output in response.output {
 
 Use [Pydantic](https://docs.pydantic.dev/latest/) or [Zod](https://zod.dev) fashion to define schemas.
 
-- Use the `derivedJsonSchema(_ type:)` response format when creating a `ChatQuery` or `CreateModelResponseQuery`
+- Use the `derivedJsonSchema(_ type:)` schema definition. Pass it via `responseFormat:` for `ChatQuery` or via `text:` for `CreateModelResponseQuery`.
 - Provide a type that conforms to `JSONSchemaConvertible` and generates an instance as an example
 - Make sure all enum types within the provided type conform to `JSONSchemaEnumConvertible` and generate an array of names for all cases
 
@@ -1169,6 +1285,10 @@ Models are represented as a typealias `typealias Model = String`.
 public extension Model {
     static let gpt5_1 = "gpt-5.1"
     static let gpt5_1_chat_latest = "gpt-5.1-chat-latest"
+
+    static let gpt5_6_sol = "gpt-5.6-sol"
+    static let gpt5_6_terra = "gpt-5.6-terra"
+    static let gpt5_6_luna = "gpt-5.6-luna"
 
     static let gpt5 = "gpt-5"
     static let gpt5_mini = "gpt-5-mini"
@@ -1753,6 +1873,27 @@ Currently we handle such cases by simply adding additional fields to main model 
 
 You can find example iOS application in [Demo](/Demo) folder. 
 
+Use **API Configuration** (Misc tab) to choose OpenAI, Gemini, or a custom OpenAI-compatible
+base URL and enter that provider's API key. Provider changes clear the key; custom URLs
+are retained separately from the presets. Host-only URLs use HTTPS, and the form shows the
+effective URL. For local HTTP servers, include `http://` explicitly. Root-mounted endpoints
+are supported; include `/v1` or another API prefix only when required by the server. Save
+applies the settings together, while Cancel discards edits.
+
+Models are chosen per chat. With OpenAI, the chat's model menu lists the known models; with
+other providers, use **Custom model ID…** there (the ID is remembered per provider). The
+Responses tab works with OpenAI only.
+
+To skip typing a configuration, launch the app with `DEMO_API_PROVIDER` (`openAI`, `gemini` or
+`custom`; defaults to `openAI`) and `DEMO_API_KEY` in its environment, plus `DEMO_API_BASE_URL` for `custom`,
+and optionally `GITHUB_TOKEN` for the GitHub MCP tab. Set them in the Xcode scheme, or run
+`SIMCTL_CHILD_DEMO_API_KEY="$OPENAI_API_KEY" xcrun simctl launch booted openAI.MacPaw.Demo`.
+They are used as the configuration for that launch, and the API Configuration screen that normally opens
+at launch is skipped when they give a usable configuration. The app doesn't store them itself, but **Save**
+in API Configuration stores whatever the form contains, including them. Set `DEMO_RESET_SAVED_DATA=1`
+(`SIMCTL_CHILD_DEMO_RESET_SAVED_DATA=1` with `simctl`) to erase everything the app saved before it reads
+any of it, for a launch that doesn't depend on previous state.
+
 ![mockuuups-iphone-13-pro-mockup-perspective-right](https://user-images.githubusercontent.com/1411778/231449395-2ad6bab6-c21f-43dc-8977-f45f505b609d.png)
 
 ## Contribution Guidelines
@@ -1799,7 +1940,7 @@ We'll appreciate you including tests to your code if it is needed and possible. 
 ```
 MIT License
 
-Copyright (c) 2023 MacPaw Inc.
+Copyright (c) 2023 MacPaw Way Ltd.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

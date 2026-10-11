@@ -53,6 +53,17 @@ public extension Model {
     @available(*, deprecated, message: "On April 14th, 2025, developers were notified that the gpt-4.5-preview model is deprecated and will be removed from the API in the coming months. Recommended replacement: gpt-4.1")
     static let gpt4_5_preview = "gpt-4.5-preview"
 
+    // GPT-6
+
+    /// `gpt-6-astra` Most capable GPT-6 model, built for the hardest end-to-end work
+    static let gpt6_astra = "gpt-6-astra"
+
+    /// `gpt-6-sol` GPT-6 model built to power complex coding and agentic workflows
+    static let gpt6_sol = "gpt-6-sol"
+
+    /// `gpt-6-luna` Most efficient GPT-6 model for focused, high-volume tasks
+    static let gpt6_luna = "gpt-6-luna"
+
     // GPT-5.1
 
     /// `gpt-5.1` Enhanced version of GPT-5 with improved reasoning and performance
@@ -60,6 +71,17 @@ public extension Model {
 
     /// `gpt-5.1-chat-latest` Latest GPT-5.1 model optimized for chat interactions
     static let gpt5_1_chat_latest = "gpt-5.1-chat-latest"
+
+    // GPT-5.6
+
+    /// `gpt-5.6-sol` Most capable GPT-5.6 model for frontier reasoning and agentic workloads
+    static let gpt5_6_sol = "gpt-5.6-sol"
+
+    /// `gpt-5.6-terra` Balanced GPT-5.6 model for general-purpose workloads
+    static let gpt5_6_terra = "gpt-5.6-terra"
+
+    /// `gpt-5.6-luna` GPT-5.6 model optimized for cost-sensitive, high-volume workloads
+    static let gpt5_6_luna = "gpt-5.6-luna"
 
     // GPT-5
 
@@ -92,6 +114,7 @@ public extension Model {
     static let gpt4_o = "gpt-4o"
     
     /// `gpt-4o-audio-preview`, this is a preview release of the GPT-4o Audio models. These models accept audio inputs and outputs, and can be used in the Chat Completions REST API.
+    @available(*, deprecated, message: "gpt-4o-audio-preview was shut down on May 7th, 2026. Recommended replacement: gpt-audio-1.5")
     static let gpt_4o_audio_preview = "gpt-4o-audio-preview"
     
     /// `chatgpt-4o-latest`: GPT-4o model used in ChatGPT
@@ -108,6 +131,22 @@ public extension Model {
     /// `gpt-4o-mini-audio-preview`, this is a preview release of the smaller GPT-4o Audio mini model. It's designed to input audio or create audio outputs via the REST API.
     static let gpt_4o_mini_audio_preview = "gpt-4o-mini-audio-preview"
 
+    // MARK: - Audio models
+    // Models that accept audio inputs and produce audio outputs in the Chat Completions API.
+    
+    /// `gpt-audio-1.5`: OpenAI's recommended model for audio in, audio out over Chat Completions.
+    ///
+    /// Improves on the GPT-4o Audio preview models in instruction following, tool calling and multilingual accuracy.
+    ///
+    /// See the [audio guide](https://platform.openai.com/docs/guides/audio).
+    static let gpt_audio_1_5 = "gpt-audio-1.5"
+    
+    /// `gpt-audio`: audio model that accepts audio inputs and produces audio outputs in the Chat Completions API.
+    static let gpt_audio = "gpt-audio"
+    
+    /// `gpt-audio-mini`: smaller and cheaper audio model for audio inputs and outputs in the Chat Completions API.
+    static let gpt_audio_mini = "gpt-audio-mini"
+    
     // MARK: - Realtime models
     // Models capable of realtime text and audio inputs and outputs.
     
@@ -265,15 +304,20 @@ public extension Model {
     static let computer_use_preview = "computer-use-preview"
     
     static func allModels(satisfying filter: Filter) -> Set<Model> {
+        // Models described by a `ModelSpec` are filtered by their spec; the sets below cover the rest
+        let specModels = ModelSpec.all.filter { $0.satisfies(filter) }.map(\.id)
+        
         let chatCompletionsEndpoint: Set<Model> = [
             // reasoning
             .o4_mini, o3, o3_mini, .o1,
             // flagship
-            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt4_1, .gpt4_o, .gpt_4o_audio_preview, chatgpt_4o_latest,
+            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt4_1, .gpt4_o, .chatgpt_4o_latest,
             // cost-optimized
             .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini, .gpt_4o_mini_audio_preview,
             // tool-specific
             .gpt_4o_search_preview, .gpt_4o_mini_search_preview,
+            // audio
+            .gpt_audio_1_5, .gpt_audio, .gpt_audio_mini,
             // older
             .gpt4_turbo, .gpt4, .gpt3_5Turbo
         ]
@@ -289,6 +333,16 @@ public extension Model {
             .computer_use_preview
         ]
         
+        // Models whose docs page lists `mcp` among the tools supported in the Responses API
+        let mcpTool: Set<Model> = [
+            // reasoning
+            .o4_mini, .o3, .o3_mini, .o1, .o1_pro,
+            // flagship
+            .gpt5, .gpt5_mini, .gpt5_nano, .gpt5_chat, .gpt5_1, .gpt5_1_chat_latest, .gpt4_1, .gpt4_o,
+            // cost-optimized
+            .gpt4_1_mini, .gpt4_1_nano, .gpt4_o_mini
+        ]
+        
         let allModels = chatCompletionsEndpoint.union(responsesEndpoint)
         
         var final: Set<Model> = allModels
@@ -302,23 +356,33 @@ public extension Model {
             }
         }
         
-        return final
+        for tool in filter.requiredTools {
+            switch tool {
+            case .mcp:
+                final.formIntersection(mcpTool)
+            }
+        }
+        
+        return final.union(specModels)
     }
     
     struct Filter {
         enum Modality {}
         
-        public enum Endpoint {
-            case chatCompletions
-            case responses
-        }
-        
-        enum Feature {}
+        public typealias Endpoint = ModelSpec.Endpoint
+        public typealias Feature = ModelSpec.Feature
+        public typealias Tool = ModelSpec.Tool
         
         public let supportedEndpoints: [Endpoint]
+        public let requiredTools: [Tool]
         
         public init(supportedEndpoints: [Endpoint]) {
+            self.init(supportedEndpoints: supportedEndpoints, requiredTools: [])
+        }
+        
+        public init(supportedEndpoints: [Endpoint], requiredTools: [Tool]) {
             self.supportedEndpoints = supportedEndpoints
+            self.requiredTools = requiredTools
         }
     }
 }

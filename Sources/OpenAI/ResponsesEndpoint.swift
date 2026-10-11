@@ -64,8 +64,39 @@ public final class ResponsesEndpoint: ResponsesEndpointProtocol, Sendable {
         .init(body: query, url: buildURL(path: .Responses.createModelResponse.stringValue))
     }
     
-    private func buildURL(path: String, after: String? = nil) -> URL {
-        DefaultURLBuilder(configuration: configuration, path: path, after: after)
+    private func buildURL(path: String, queryItems: [URLQueryItem] = []) -> URL {
+        DefaultURLBuilder(configuration: configuration, path: path, queryItems: queryItems)
             .buildURL()
+    }
+}
+
+// MARK: - Retrieve Response
+
+extension ResponsesEndpoint {
+    
+    public func retrieveResponse(query: RetrieveModelResponseQuery, completion: @escaping @Sendable (Result<ResponseObject, any Error>) -> Void) -> any CancellableRequest {
+        client.performRequest(request: makeRetrieveResponseRequest(query: query),
+                              completion: completion)
+    }
+    
+    func makeRetrieveResponseRequest(query: RetrieveModelResponseQuery) -> JSONRequest<ResponseObject> {
+        let path = String.Responses.getModelResponse(responseId: query.responseId).stringValue
+        let queryItems = (query.include ?? []).map { URLQueryItem(name: "include[]", value: $0.rawValue) }
+        return .init(url: buildURL(path: path, queryItems: queryItems), method: "GET")
+    }
+}
+
+// MARK: - Cancel Response
+
+extension ResponsesEndpoint {
+    
+    public func cancelResponse(id: String, completion: @escaping @Sendable (Result<ResponseObject, any Error>) -> Void) -> any CancellableRequest {
+        client.performRequest(request: makeCancelResponseRequest(id: id),
+                              completion: completion)
+    }
+    
+    func makeCancelResponseRequest(id: String) -> JSONRequest<ResponseObject> {
+        let path = String.Responses.cancelModelResponse(responseId: id).stringValue
+        return .init(url: buildURL(path: path))
     }
 }

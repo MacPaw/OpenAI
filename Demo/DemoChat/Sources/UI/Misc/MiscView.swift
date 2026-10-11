@@ -11,6 +11,7 @@ public struct MiscView: View {
     @ObservedObject var store: MiscStore
     @ObservedObject var chatStore: ChatStore
     @ObservedObject var assistantStore: AssistantStore
+    @Environment(\.showAPIConfiguration) private var showAPIConfiguration
     
     public init(store: MiscStore, chatStore: ChatStore, assistantStore: AssistantStore) {
         self.store = store
@@ -21,6 +22,9 @@ public struct MiscView: View {
     public var body: some View {
         NavigationStack {
             List {
+                Section(header: Text("Configuration")) {
+                    Button("API Configuration", action: showAPIConfiguration)
+                }
                 Section(header: Text("Models")) {
                     NavigationLink("List Models", destination: ListModelsView(store: store))
                     NavigationLink("Retrieve Model", destination: RetrieveModelView())
@@ -36,6 +40,7 @@ public struct MiscView: View {
                 }
                 Section(header: Text("Audio")) {
                     NavigationLink("Create Speech", destination: TextToSpeechView(store: SpeechStore(openAIClient: store.openAIClient)))
+                    NavigationLink("Transcribe", destination: TranscribeView())
                 }
             }
             .listStyle(.insetGrouped)

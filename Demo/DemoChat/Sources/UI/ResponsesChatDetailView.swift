@@ -204,7 +204,6 @@ public struct ResponsesChatDetailView: View {
                 }
         })
         .setAvailableInputs([.text, .media])
-        .messageUseMarkdown(true)
     }
 }
 
@@ -278,6 +277,30 @@ private struct PreviewMockResponsesEndpointProtocol: ResponsesEndpointProtocol {
     }
     
     func createResponseStreaming(query: CreateModelResponseQuery, onResult: @escaping @Sendable (Result<ResponseStreamEvent, any Error>) -> Void, completion: (@Sendable ((any Error)?) -> Void)?) -> any CancellableRequest {
+        fatalError()
+    }
+    
+    func retrieveResponse(query: RetrieveModelResponseQuery) -> AnyPublisher<ResponseObject, any Error> {
+        fatalError()
+    }
+    
+    func retrieveResponse(query: RetrieveModelResponseQuery, completion: @escaping @Sendable (Result<ResponseObject, any Error>) -> Void) -> any CancellableRequest {
+        fatalError()
+    }
+    
+    func retrieveResponse(query: RetrieveModelResponseQuery) async throws -> ResponseObject {
+        fatalError()
+    }
+    
+    func cancelResponse(id: String) -> AnyPublisher<ResponseObject, any Error> {
+        fatalError()
+    }
+    
+    func cancelResponse(id: String, completion: @escaping @Sendable (Result<ResponseObject, any Error>) -> Void) -> any CancellableRequest {
+        fatalError()
+    }
+    
+    func cancelResponse(id: String) async throws -> ResponseObject {
         fatalError()
     }
 }

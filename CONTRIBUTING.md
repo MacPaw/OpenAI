@@ -29,67 +29,158 @@ Branch naming example: `feat/add-threads-API-handling` or `bug/fix-message-resul
 
 We'll appreciate you including tests to your code if it is needed and possible. ❤️
 
+## API stability
+
+The public API of this package is additive-only:
+
+- Anything declared `public` is part of the contract. That includes the generated
+  types in `Components.Schemas`, the `Edited` and `Facade` schema types, and every
+  hand-written query, result and protocol.
+- New functionality arrives as new optional parameters, new methods, new types or
+  new enum cases. Existing symbols are not renamed, removed or retyped.
+- A symbol that has to go away is marked `@available(*, deprecated, message:)`
+  with the reason and the replacement, and stays until the next major version.
+- A result type changes only when the API itself changed shape, and even then
+  prefer keeping the old member as a deprecated computed property over removing it.
+
+swift-openapi-generator's own docs recommend against exposing generated code as
+part of a package's public API, precisely because a `oneOf` schema gaining a
+case, a response gaining a content type, and similar spec changes are breaking
+in generated Swift even when they're additive in OpenAPI (see
+[API stability of generated code](https://swiftpackageindex.com/apple/swift-openapi-generator/documentation/swift-openapi-generator/api-stability-of-generated-code)).
+This package does it anyway, because generating and exposing `Components.Schemas`
+directly is what makes it practical to track a spec as large and fast-moving as
+OpenAI's: hand-writing and maintaining a wrapper type behind every generated
+schema would make keeping up with new APIs far slower. This section, and the
+*API Breakage* CI workflow described below, exist to make that trade-off safe:
+every such break has to be noticed and consciously accepted rather than
+silently shipped.
+
+### Adding endpoints
+
+New endpoint groups are added as namespaces, following the Responses API: one
+`var responses: ResponsesEndpointProtocol { get }` style property on
+`OpenAIProtocol`, with the methods on the endpoint protocol in completion-handler,
+async and Combine flavours. Introducing a namespace costs one new protocol
+requirement, and adding a method to an existing endpoint protocol costs one as
+well; both are recorded in the allowlist with a changelog entry, because external
+conformers such as test mocks have to add the member. Do not add new methods
+directly to `OpenAIProtocol`, `OpenAIAsync` or `OpenAICombine`.
+
+### How it is enforced
+
+The *API Breakage* workflow runs `swift package diagnose-api-breaking-changes` on
+every pull request, comparing the public API with the latest release tag. It fails
+on every reported break that is not listed in `.github/api-breakage-allowlist.txt`.
+Run the same check locally before opening a pull request, replacing `0.5.3` with
+the latest tag:
+
+```sh
+swift package diagnose-api-breaking-changes 0.5.3
+```
+
+### Accepting a break
+
+Sometimes the OpenAI spec forces a change that cannot be expressed additively, for
+example a field whose JSON type changed. In that case:
+
+1. Try the additive route first: extract the type into
+   `Sources/OpenAI/Public/Schemas/Edited/`, keep the old member as a deprecated
+   alias, and let the generated type change underneath.
+2. If a break is unavoidable, add the exact message from the workflow output to
+   `.github/api-breakage-allowlist.txt`, and describe the break and the migration
+   in the *Unreleased* section of `CHANGELOG.md`. The file holds one message per
+   line and nothing else: with a comment or blank line present, the checker
+   matches none of the entries. Explain accepted breaks in the changelog, not in
+   the file.
+3. Accepted breaks ship in a minor release with a call-out at the top of the
+   release notes. The allowlist is emptied when that release is tagged, because
+   the comparison baseline moves to the new tag.
+
+### Generated types
+
+`Components.swift` is regenerated from `openapi.yaml`, and each regeneration is a
+public API change. Run the breakage check on the regeneration diff, review every
+reported line, and add shims (typealiases, deprecated overloads, extracted `Edited`
+types) before accepting anything into the allowlist. Expose new API through
+hand-written or `Facade` types where possible, so that users depend on generated
+types as little as possible.
+
 ## Implementing an API
 
-> Using Code generation in this project is a bit nuanced. For small additions and edits it is OK to write everything manually. For larger changes consider asking a maintaner to implement the wanted piece. Read on if you'd like to implement larger parts and you're ok to dig into the nits-and-bits of the approach.
+There are two ways to add or change an API in this project: write the required
+methods and types by hand, or use the OpenAPI specification to generate the
+supporting types. Code generation is especially useful for a large API with many
+nested schemas, but it is not a requirement for every change.
 
-Currently there are 2 ways we can implement or edit an API:
-1. By implementing all the needed methods and types ourselves manually.
-2. By generating Types and using them in the code we write.
-
-Before attempting the Code Generation, see if the spec contains what you need:
-1. When a need to implement a new API arises - check if it's implemented in [openai-openapi](https://github.com/openai/openai-openapi)*. For an easier exploration use [Swagger Editor](https://editor.swagger.io) to browse `OpenAPI Specification` file and see if the needed Types are described there (yes, it may not be there, it may take time for OpenAI to update the spec).
-2. If the Paths and Types required for implementation are not in the spec file - [implement everything by hand](#implementing-by-hand).
-3. If the spec contains what's needed - proceed to [generate the code](#implementing-using-code-generation).
-
-> * [openai-openapi](https://github.com/openai/openai-openapi) repo may not contain the latest spec. Try checking `.stats.yml` of an official OpenAI SDK like [openai-python](https://github.com/openai/openai-python) or [openai-node](https://github.com/openai/openai-node), it may contain a more up-to-date spec.
-
-#### Pros and cons of using Code Generation
-
-##### + Implementation speed
-
-It's super fast to implement a large API like Responses API using Code Generation. Even though top-level types of the API are hand-crafted, they use so many smaller generated types, it would take very long to implement myself.
-
-##### + The generated types are structured
-
-OpenAPI spec is provided by OpenAPI - it has all the insights on the DB scheme used by OpenAI. It may contain insights about the schemes future which we, as an outside developers, may not be able to see. 
-
-For example, a generated `EasyInputMessage` type is used in both `Responses` and `Evals` APIs.
-
-##### - OpenAI lags behind
-
-OpenAI doesn't update the OpenAPI spec too frequently, which may lead to a nede to extract a generated type.
-
-##### - Generated code is not "beautiful"
-
-There are drawbacks in the looks of the generated code, like enums have upper case etc., which may lead to a desire to extract a type to make the code look more user friendly.
+Start by checking the repository's [`openapi.yaml`](openapi.yaml). A tool such as
+[Swagger Editor](https://editor.swagger.io) can make the document easier to
+explore. If it describes the paths and schemas you need, use the generation
+workflow below. If it does not, implement the missing API by hand rather than
+editing the generated file. See [openai-openapi](https://github.com/openai/openai-openapi) for the latest spec.
 
 ### Implementing by hand
 
-Implementing by hand is straightforward. See `ChatQuery`, `ChatResult` and their dependant types for an example.
+See `ChatQuery`, `ChatResult`, and their dependent types for examples. Handwritten
+top-level types are often preferable because they let us present a focused Swift
+API with carefully written documentation. Generated types can still supply the
+larger collection of nested schemas behind that API.
 
 ### Implementing using Code Generation
 
-#### What we generate and what we don't
-1. Currently the only thing we generate is Types. I.e. we don't generate API methods. So for example, during implementing `Responses API` I didn't generate `ResponsesEndpoint` file and its `createResponse` and `createResponseStreaming` methods.
-2. This is optional, but I haven't used generated types at the top level. In the `Reponses API` example, the 3 main (top level) types are `CreateModelResponseQuery`, `ResponseObject` and `ResponseStreamEvent`. They are all written by hand to make the API and documentation comments look good and full. What's generated are the types they depend on. `CreateModelResponseQuery` depends on `Schemas.Includable`, `ResponseObject` depends on `Schemas.ResponseError` and so on.
+Generation produces types only. API methods, endpoints, and the public top-level
+models that wrap those types remain handwritten. For example, the Responses API
+uses handwritten `CreateModelResponseQuery`, `ResponseObject`, and
+`ResponseStreamEvent` types, while their supporting schemas come from
+`Components.Schemas`.
 
-#### How to generate Types
-1. Use [Swift OpenAPI Generator](https://github.com/apple/swift-openapi-generator) to generate the code using OpenAI's OpenAPI spec file. See comments at the top of `Components.swift` on the configuration that was used for the last generation, append your configs to that so that a new generation doesn't miss something out. I used CLI to generate the files outside of the project folder and then just copied the generated code into the project.
-2. When you've got `Types.swift` generated - copy only the `Components` enum into `/Sources/OpenAI/Public/Schemas/Generated/Components.swift`. Replace the existing enum. See comments at the top of `Components.swift` file (section "Manual operations after Types.swift file was generated") for any operations that have to be done manually after the generated code is in place. If you need to edit anything manually in `Components` enum - note it in the mentioned section.
-3. Use the types from `Components.Schemas` as you need.
+The workflow is automated by [`make generate`](Makefile). The Makefile is the
+source of truth for prerequisites and the exact commands; in particular, it
+documents the required sibling checkout of the project's Swift OpenAPI Generator
+fork and the generator changes that fork must contain.
 
-#### What to do if a Generated Type is incomplete
-Let's say you've [come across an issue](https://github.com/MacPaw/OpenAI/issues/347) when a generated Types has missing fields, and the latest OpenAI-OpenAPI spec still doesn't have it implemented. Consider the constraints:
+Before running generation, update
+[`openapi-generator-config.yaml`](openapi-generator-config.yaml) with every path
+and standalone schema the change needs. Then run:
 
-1. We can't wait for them to update the spec, we don't even know if they are going to.
-2. We don't want to edit `Components.swift`, as we want to keep it easily replacable with new generations.
+```sh
+make generate
+```
 
-So, this is a case where we would [extract a type](#extracting-a-generated-type).
+The command:
 
-#### Extracting a generated Type
-If for any reason a generated Type doesn't meet your needs - you can always just extract it and edit, or just write a type manually.
+1. downloads the latest `openapi.yaml` from
+   [openai/openai-openapi](https://github.com/openai/openai-openapi), overwriting
+   the repository's copy;
+2. prepares a generator-compatible copy of that spec under `.build/`;
+3. applies the narrowly scoped workarounds documented in [`Scripts/`](Scripts/);
+4. runs Swift OpenAPI Generator with the repository's configuration; and
+5. extracts the generated `Components` enum into
+   `Sources/OpenAI/Public/Schemas/Generated/Components.swift` while preserving
+   that file's imports and header.
 
-If a type is a direct edit or extension of a type - put it into `Sources/OpenAI/Public/Schemas/Edited/`. It is preferred to keep the name and the structure of a file so that when OpenAPI spec is updated we could removed the edited file and use a generated code.
+The downloaded `openapi.yaml` is committed as-is; only the working copy under
+`.build/` receives the workarounds. The final preparation diff is written to
+`.build/openapi-generator/openapi.patch`; review it, the `openapi.yaml` diff,
+and the generated Swift diff together. Build the package and run the relevant
+tests before submitting the change.
 
-If the new type is not part of OpenAI provided spec - just name it the way you think right and put it into another folder. See `Sources/OpenAI/Public/Schemas/Facade/` for examples, where new types are introduced facading the generated code to make the Responses API in Swift more friendly.
+Run `make download-spec` on its own to refresh `openapi.yaml` without
+regenerating types.
+
+Do not edit `Components.swift` by hand. It is deliberately replaceable output,
+so a later generation would discard such edits.
+
+#### When a generated type is not suitable
+
+The specification can lag behind the live API, and generated types are not
+always the best public Swift interface. If a generated type is incomplete or
+awkward, extract or recreate it as a handwritten type instead of patching the
+generated file.
+
+Put a direct replacement or adaptation in
+`Sources/OpenAI/Public/Schemas/Edited/`. Keep its name and structure close to the
+generated schema where practical so it can be replaced again when the upstream
+specification catches up. Types that are not part of the specification belong in
+an appropriate handwritten area; `Sources/OpenAI/Public/Schemas/Facade/`
+contains examples that provide a friendlier API over generated schemas.

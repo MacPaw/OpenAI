@@ -55,13 +55,12 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
     }
     
     private func processEvent(_ event: ServerSentEventsStreamParser.Event) throws {
-        let finalEvent = event.fixMappingError()
-        var eventType = finalEvent.eventType
+        var eventType = event.eventType
 
         /// If the SSE `event` property is not specified by the provider service, our parser defaults it to "message" which is not a valid model response type.
         /// In this case we check the `data.type` property for a valid model response type.
         if eventType == "message" || eventType.isEmpty,
-           let payloadEventType = finalEvent.getPayloadType() {
+           let payloadEventType = event.getPayloadType() {
             eventType = payloadEventType
         }
 
@@ -69,8 +68,16 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
             throw InterpreterError.unknownEventType(eventType)
         }
         
-        let responseStreamEvent = try responseStreamEvent(modelResponseEventType: modelResponseEventType, data: finalEvent.data)
-        onEventDispatched?(responseStreamEvent)
+        do {
+            let responseStreamEvent = try responseStreamEvent(modelResponseEventType: modelResponseEventType, data: event.data)
+            onEventDispatched?(responseStreamEvent)
+        } catch {
+#if DEBUG
+            let payload = String(data: event.data, encoding: .utf8) ?? "<\(event.data.count) bytes of non-UTF-8 data>"
+            print("Decoding failed for modelResponseEventType: \(modelResponseEventType), payload: \(payload)")
+#endif
+            throw error
+        }
     }
 
     private func processError(_ error: Error) {
@@ -160,14 +167,10 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
                 .mcpListTools(.inProgress(try decode(data: data)))
         case .responseQueued:
                 .queued(try decode(data: data))
-        case .responseReasoningDelta:
-                .reasoning(.delta(try decode(data: data)))
-        case .responseReasoningDone:
-                .reasoning(.done(try decode(data: data)))
-        case .responseReasoningSummaryDelta:
-                .reasoningSummary(.delta(try decode(data: data)))
-        case .responseReasoningSummaryDone:
-                .reasoningSummary(.done(try decode(data: data)))
+        case .responseReasoningTextDelta:
+                .reasoningText(.delta(try decode(data: data)))
+        case .responseReasoningTextDone:
+                .reasoningText(.done(try decode(data: data)))
         case .responseOutputTextAnnotationAdded:
                 .outputTextAnnotation(.added(try decode(data: data)))
         case .responseAudioDelta:
@@ -200,6 +203,20 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
                 .codeInterpreterCall(.interpreting(try decode(data: data)))
         case .responseCodeInterpreterCallCompleted:
                 .codeInterpreterCall(.completed(try decode(data: data)))
+        case .responseShellCallCommandAdded:
+                .shellCall(.command(.added(try decode(data: data))))
+        case .responseShellCallCommandDelta:
+                .shellCall(.command(.delta(try decode(data: data))))
+        case .responseShellCallCommandDone:
+                .shellCall(.command(.done(try decode(data: data))))
+        case .responseShellCallOutputContentDelta:
+                .shellCall(.outputContent(.delta(try decode(data: data))))
+        case .responseShellCallOutputContentDone:
+                .shellCall(.outputContent(.done(try decode(data: data))))
+        case .responseCustomToolCallInputDelta:
+                .customToolCallInput(.delta(try decode(data: data)))
+        case .responseCustomToolCallInputDone:
+                .customToolCallInput(.done(try decode(data: data)))
         case .error:
                 .error(try decode(data: data))
         }
@@ -211,30 +228,6 @@ final class ModelResponseEventsStreamInterpreter: @unchecked Sendable, StreamInt
 }
 
 private extension ServerSentEventsStreamParser.Event {
-
-    // Remove when they have fixed (unified)!
-    //
-    // By looking at [API Reference](https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text_annotation/added)
-    // and generated type `Schemas.ResponseOutputTextAnnotationAddedEvent`
-    // We can see that "output_text.annotation" is incorrect, whereas output_text_annotation is the correct one
-    func fixMappingError() -> Self {
-        let incorrectEventType = "response.output_text.annotation.added"
-        let correctEventType = "response.output_text_annotation.added"
-
-        guard self.eventType == incorrectEventType || self.getPayloadType() == incorrectEventType else {
-            return self
-        }
-
-        let fixedDataString = self.decodedData.replacingOccurrences(of: incorrectEventType, with: correctEventType)
-        return .init(
-            id: self.id,
-            data: fixedDataString.data(using: .utf8) ?? self.data,
-            decodedData: fixedDataString,
-            eventType: correctEventType,
-            retry: self.retry
-        )
-    }
-
     struct TypeEnvelope: Decodable { let type: String }
 
     func getPayloadType() -> String? {

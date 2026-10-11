@@ -2,10 +2,13 @@
 //  ResponsesEndpointTests.swift
 //  OpenAI
 //
-//  Tests for ResponsesEndpoint.createResponse (async)
+//  Tests for ResponsesEndpoint
 //
 
 import XCTest
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 @testable import OpenAI
 
 class ResponsesEndpointTests: XCTestCase {
@@ -28,39 +31,14 @@ class ResponsesEndpointTests: XCTestCase {
         let task = DataTaskMock.successful(with: data)
         urlSession.dataTask = task
     }
-    
+
     func testCreateResponse() async throws {
-        // Build the query
         let query = CreateModelResponseQuery(
             input: .textInput("Hello"),
             model: "test-model"
         )
 
-        // Dummy response object
-        let dummy = ResponseObject(
-            createdAt: 123,
-            error: nil,
-            id: "resp-1",
-            incompleteDetails: nil,
-            instructions: nil,
-            maxOutputTokens: nil,
-            metadata: [:],
-            model: "test-model",
-            object: "response",
-            output: [],
-            parallelToolCalls: false,
-            previousResponseId: nil,
-            reasoning: nil,
-            status: "completed",
-            temperature: nil,
-            text: .init(format: nil),
-            toolChoice: .ToolChoiceOptions(.auto),
-            tools: [],
-            topP: nil,
-            truncation: nil,
-            usage: nil,
-            user: nil
-        )
+        let dummy = ResponseObject.makeMock()
         try stub(dummy)
 
         let result = try await openAI.responses.createResponse(query: query)
@@ -77,7 +55,6 @@ class ResponsesEndpointTests: XCTestCase {
             JSONSchemaField.properties(["foo": propSchema]),
             JSONSchemaField.required(["foo"])
         ])
-        // Create the function tool wrapper
         let functionTool = FunctionTool(
             type: "function",
             name: "my_function",
@@ -87,15 +64,13 @@ class ResponsesEndpointTests: XCTestCase {
         )
         let tool = Tool.functionTool(functionTool)
 
-        // Build the query
         let query = CreateModelResponseQuery(
             input: .textInput("Hello"),
             model: "test-model",
             tools: [tool]
         )
 
-        // Dummy response object
-        let dummy = makeResponse(tools: [tool])
+        let dummy = ResponseObject.makeMock(tools: [tool])
         try stub(dummy)
 
         let result = try await openAI.responses.createResponse(query: query)
@@ -105,44 +80,97 @@ class ResponsesEndpointTests: XCTestCase {
                 XCTFail("Expected function.parameters to be object")
                 return
             }
-            
+
             let type = (jsonSchemaObject["type"]?.value as? String)
             XCTAssertEqual(type, "object")
-            
+
             let properties = try XCTUnwrap(jsonSchemaObject["properties"]?.value as? JSONObject)
             let fooProperty = try XCTUnwrap(properties["foo"]?.value as? JSONObject)
             XCTAssertEqual(fooProperty["type"]?.value as? String, "string")
-            
+
             let required = try XCTUnwrap(jsonSchemaObject["required"]?.value as? [AnyJSONDocument])
             XCTAssertEqual(required.compactMap({ $0.value as? String }), ["foo"])
         default:
             XCTFail("Expected tool in response to be a function")
         }
     }
-    private func makeResponse(output: [OutputItem] = [], tools: [Tool] = []) -> ResponseObject {
-        .init(
-            createdAt: 123,
-            error: nil,
-            id: "resp-1",
-            incompleteDetails: nil,
-            instructions: nil,
-            maxOutputTokens: nil,
-            metadata: [:],
+
+    func testCreateResponseWithProgrammaticToolCallingTool() async throws {
+        let tool = Tool.programmaticToolCallingTool(.init(_type: .programmaticToolCalling))
+
+        let query = CreateModelResponseQuery(
+            input: .textInput("Hello"),
             model: "test-model",
-            object: "response",
-            output: output,
-            parallelToolCalls: false,
-            previousResponseId: nil,
-            reasoning: nil,
-            status: "completed",
-            temperature: nil,
-            text: .init(format: nil),
-            toolChoice: .ToolChoiceOptions(.auto),
-            tools: tools,
-            topP: nil,
-            truncation: nil,
-            usage: nil,
-            user: nil
+            tools: [tool]
         )
+
+        let dummy = ResponseObject.makeMock(tools: [tool])
+        try stub(dummy)
+
+        let result = try await openAI.responses.createResponse(query: query)
+        switch result.tools[0] {
+        case .programmaticToolCallingTool:
+            break
+        default:
+            XCTFail("Expected tool in response to be programmaticToolCallingTool")
+        }
+    }
+
+    func testRetrieveResponse() async throws {
+        let dummy = ResponseObject.makeMock()
+        try stub(dummy)
+
+        let result = try await openAI.responses.retrieveResponse(query: .init(responseId: "resp_123"))
+        XCTAssertEqual(dummy, result)
+    }
+
+    func testRetrieveResponseRequestWithoutInclude() throws {
+        let request = try buildRequest(endpoint().makeRetrieveResponseRequest(query: .init(responseId: "resp_123")))
+
+        XCTAssertEqual(request.httpMethod, "GET")
+        XCTAssertEqual(request.url?.path, "/v1/responses/resp_123")
+        XCTAssertNil(request.url?.query)
+        XCTAssertNil(request.httpBody)
+    }
+
+    func testRetrieveResponseRequestAddsIncludeQueryItems() throws {
+        let query = RetrieveModelResponseQuery(
+            responseId: "resp_123",
+            include: [.fileSearchCall_results, .webSearchCall_results]
+        )
+        let request = try buildRequest(endpoint().makeRetrieveResponseRequest(query: query))
+
+        let url = try XCTUnwrap(request.url)
+        let components = try XCTUnwrap(URLComponents(url: url, resolvingAgainstBaseURL: false))
+        XCTAssertEqual(components.path, "/v1/responses/resp_123")
+        XCTAssertEqual(components.queryItems, [
+            URLQueryItem(name: "include[]", value: "file_search_call.results"),
+            URLQueryItem(name: "include[]", value: "web_search_call.results")
+        ])
+    }
+
+    func testCancelResponse() async throws {
+        let dummy = ResponseObject.makeMock()
+        try stub(dummy)
+
+        let result = try await openAI.responses.cancelResponse(id: "resp_123")
+        XCTAssertEqual(dummy, result)
+    }
+
+    func testCancelResponseRequest() throws {
+        let request = try buildRequest(endpoint().makeCancelResponseRequest(id: "resp_123"))
+
+        XCTAssertEqual(request.httpMethod, "POST")
+        XCTAssertEqual(request.url?.path, "/v1/responses/resp_123/cancel")
+        XCTAssertNil(request.url?.query)
+        XCTAssertNil(request.httpBody)
+    }
+
+    private func endpoint() throws -> ResponsesEndpoint {
+        try XCTUnwrap(openAI.responses as? ResponsesEndpoint)
+    }
+
+    private func buildRequest(_ request: JSONRequest<ResponseObject>) throws -> URLRequest {
+        try request.build(token: "test-token", organizationIdentifier: nil, timeoutInterval: 10, customHeaders: [:])
     }
 }

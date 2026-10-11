@@ -1,0 +1,164 @@
+#!/usr/bin/env python3
+"""Remove selected component properties from OpenAPI `required` lists.
+
+Pass each removal as two arguments: `SchemaName property_name`. Every requested
+schema, schema-level `required` list, and property entry must exist exactly
+once. This strictness makes an upstream schema change visible instead of
+silently applying the transformation in the wrong place. The caller is
+responsible for documenting why each removal is needed.
+"""
+
+from __future__ import annotations
+
+import argparse
+import difflib
+import re
+from dataclasses import dataclass
+from pathlib import Path
+
+
+COMPONENT_SCHEMA_RE = re.compile(r"^    (?P<name>[^\s][^:]*):(?:\r?\n)?$")
+REQUIRED_KEY_RE = re.compile(r"^      required:[ \t]*(?:#.*)?(?:\r?\n)?$")
+REQUIRED_ITEM_RE = re.compile(
+    r"^        - (?P<name>[^\s#]+)[ \t]*(?:#.*)?(?:\r?\n)?$"
+)
+
+
+@dataclass(frozen=True)
+class RequiredProperty:
+    schema: str
+    property: str
+
+    @property
+    def description(self) -> str:
+        return f"{self.schema}/{self.property}"
+
+
+def remove_required_properties(
+    document: str, removals: list[RequiredProperty]
+) -> tuple[str, list[RequiredProperty]]:
+    """Return the document after applying all requested strict removals."""
+
+    lines = document.splitlines(keepends=True)
+    schema_starts = [
+        (index, match.group("name"))
+        for index, line in enumerate(lines)
+        if (match := COMPONENT_SCHEMA_RE.match(line)) is not None
+    ]
+    indexes_to_remove: list[int] = []
+
+    for removal in removals:
+        matching_starts = [
+            index for index, name in schema_starts if name == removal.schema
+        ]
+        if len(matching_starts) != 1:
+            raise ValueError(
+                f"Expected exactly one component schema {removal.schema!r}; "
+                f"found {len(matching_starts)}."
+            )
+
+        schema_start = matching_starts[0]
+        schema_end = next(
+            (
+                index
+                for index, _ in schema_starts
+                if index > schema_start
+            ),
+            len(lines),
+        )
+        required_starts = [
+            index
+            for index in range(schema_start + 1, schema_end)
+            if REQUIRED_KEY_RE.match(lines[index])
+        ]
+        if len(required_starts) != 1:
+            raise ValueError(
+                f"Expected exactly one schema-level required list in "
+                f"{removal.schema!r}; found {len(required_starts)}."
+            )
+
+        required_start = required_starts[0]
+        matching_items = []
+        for index in range(required_start + 1, schema_end):
+            match = REQUIRED_ITEM_RE.match(lines[index])
+            if match is None:
+                break
+            if match.group("name") == removal.property:
+                matching_items.append(index)
+
+        if len(matching_items) != 1:
+            raise ValueError(
+                f"Expected exactly one required entry {removal.description!r}; "
+                f"found {len(matching_items)}."
+            )
+        indexes_to_remove.append(matching_items[0])
+
+    for index in sorted(indexes_to_remove, reverse=True):
+        del lines[index]
+
+    # Remove any required: key left with no items after deletions.
+    lines = [
+        line for i, line in enumerate(lines)
+        if not (
+            REQUIRED_KEY_RE.match(line)
+            and (i + 1 >= len(lines) or REQUIRED_ITEM_RE.match(lines[i + 1]) is None)
+        )
+    ]
+
+    return "".join(lines), removals
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("input", type=Path)
+    parser.add_argument("output", type=Path)
+    parser.add_argument(
+        "--remove-required",
+        action="append",
+        nargs=2,
+        required=True,
+        metavar=("SCHEMA", "PROPERTY"),
+        help="Remove one property from a component schema's required list",
+    )
+    parser.add_argument(
+        "--diff-source",
+        type=Path,
+        help="Original document to compare with the final output",
+    )
+    parser.add_argument(
+        "--diff-output",
+        type=Path,
+        help="Write a unified diff from --diff-source to the final output",
+    )
+    args = parser.parse_args()
+
+    if (args.diff_source is None) != (args.diff_output is None):
+        parser.error("--diff-source and --diff-output must be provided together")
+
+    document = args.input.read_text(encoding="utf-8")
+    removals = [
+        RequiredProperty(schema=schema, property=property_name)
+        for schema, property_name in args.remove_required
+    ]
+    fixed_document, removals = remove_required_properties(document, removals)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(fixed_document, encoding="utf-8")
+
+    removed = ", ".join(removal.description for removal in removals)
+    print(f"Required properties workaround applied: removed {removed}.")
+
+    if args.diff_source is not None and args.diff_output is not None:
+        original_document = args.diff_source.read_text(encoding="utf-8")
+        diff = difflib.unified_diff(
+            original_document.splitlines(keepends=True),
+            fixed_document.splitlines(keepends=True),
+            fromfile=str(args.diff_source),
+            tofile=str(args.output),
+        )
+        args.diff_output.parent.mkdir(parents=True, exist_ok=True)
+        args.diff_output.write_text("".join(diff), encoding="utf-8")
+        print(f"Prepared OpenAPI diff written to: {args.diff_output.resolve()}")
+
+
+if __name__ == "__main__":
+    main()
