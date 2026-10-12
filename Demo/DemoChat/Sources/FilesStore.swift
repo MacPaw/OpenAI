@@ -56,6 +56,11 @@ public final class FilesStore: ObservableObject {
             hasMore = page.hasMore
         } catch {
             self.error = error
+            if after == nil {
+                // Don't keep showing files that may not match the current filter.
+                files = []
+                hasMore = false
+            }
         }
     }
 

@@ -69,6 +69,20 @@ struct FilesStoreTests {
     }
 
     @Test
+    func failedReloadClearsTheList() async throws {
+        let endpoint = FakeFilesEndpoint(pages: [.page(["file-1"], hasMore: true)])
+        let store = FilesStore(client: endpoint)
+        await store.reload()
+        store.purposeFilter = .batchOutput
+
+        await store.reload()
+
+        #expect(store.error != nil)
+        #expect(store.files.isEmpty)
+        #expect(!store.hasMore)
+    }
+
+    @Test
     func failedRequestIsPublished() async throws {
         let endpoint = FakeFilesEndpoint(pages: [])
         let store = FilesStore(client: endpoint)
