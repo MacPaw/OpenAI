@@ -58,3 +58,29 @@ build/tests passing), in logical commits with clear messages. When on `main`,
 create a branch first. Never run `git push` (or open a PR) unless the user
 explicitly asks for it at that point; the user decides what leaves their
 machine.
+
+## Documentation comments come from official sources
+
+When a public declaration mirrors part of the OpenAI API (a type, property,
+method, parameter or enum case), take its documentation comment word for word
+from an official source instead of writing your own description. In order of
+preference:
+
+1. The `description` fields in this repository's `openapi.yaml`. They are the
+   text of the [API Reference](https://platform.openai.com/docs/api-reference)
+   in a form that is easy to search. The vendored copy can lag behind; the
+   latest is at https://github.com/openai/openai-openapi.
+2. The official SDKs generated from the same spec, such as
+   [openai-python](https://github.com/openai/openai-python) and
+   [openai-java](https://github.com/openai/openai-java).
+3. The API Reference web page itself.
+
+Change only what Swift requires: property and parameter names
+(`expires_after` → `expiresAfter`) and relative links made absolute.
+
+Text that is about this SDK rather than the API, such as which method to use
+instead, why a type is hand-written, or what a Swift-only convenience does,
+has no official wording; write it yourself, in its own paragraph, so it is
+clear which text is OpenAI's. If no official source describes something,
+leave it undocumented and say so in your summary instead of inventing a
+description.
