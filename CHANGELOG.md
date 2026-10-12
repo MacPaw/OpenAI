@@ -6,6 +6,18 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ## [Unreleased]
 
+### Added
+- `openAI.files` (`FilesEndpointProtocol`) for the Files API: `create(query:)`, `retrieve(id:)`, `list(query:)` and `list()`, `delete(id:)` and `content(id:)`, in callback, async and Combine variants. The names match the official Java and Python SDKs' `files.create/retrieve/list/delete/content`. `ListFilesQuery` carries the `purpose`, `limit`, `order` and `after` parameters, `content(id:)` returns the file's contents as `Data`, and `delete(id:)` returns the generated `Components.Schemas.DeleteFileResponse` ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
+- `CreateFileQuery.expiresAfter`, sent as `expires_after`, to set a file's expiration policy ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
+- `OpenAIFile` and `ListFilesResponse`, hand-written replacements for the generated schemas of the same names. The spec's `purpose` enum on the file object omits `evals`, although `evals` is a valid upload purpose, so the generated type would fail to decode a file uploaded for evals; `OpenAIFile.Purpose` is an open type that decodes any value ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
+
+### Changed
+- **Breaking:** `OpenAIProtocol` gained a `files` requirement. Code that only calls `openAI.files` is unaffected, but custom conformances (e.g. test doubles) need to implement it ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
+- `FilesQuery` was renamed to `CreateFileQuery`, matching `files.create(query:)`. `FilesQuery` remains as a deprecated typealias, so existing code compiles unchanged. The API breakage check still reports that `files(query:)` changed its parameter type from `FilesQuery` to `CreateFileQuery`, because it compares type names; these reports are allowlisted ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
+
+### Deprecated
+- `files(query:)` on `OpenAIProtocol`, `OpenAIAsync` and `OpenAICombine`; use `openAI.files.create(query:)`, which returns the full `OpenAIFile` rather than a `FilesResult` with only an `id` and a `name` the API doesn't return ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
+
 ## [0.5.3] - 2026-10-08
 
 ### Added
