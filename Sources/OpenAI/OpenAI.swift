@@ -435,11 +435,11 @@ extension APIPath {
         }
         
         static func listInputItems(responseId: String) -> Responses {
-            .init(stringValue: "responses/\(responseId)/input_items")
+            .init(stringValue: "/responses/\(responseId)/input_items")
         }
         
         static func cancelModelResponse(responseId: String) -> Responses {
-            .init(stringValue: "responses/\(responseId)/cancel")
+            .init(stringValue: "/responses/\(responseId)/cancel")
         }
         
         let stringValue: String
