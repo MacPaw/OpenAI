@@ -141,6 +141,26 @@ class FilesEndpointTests: XCTestCase {
         XCTAssertNil(file.expiresAt)
     }
 
+    /// The API returns `null` IDs for an empty page, although the spec marks them required; see `ListFilesResponse`.
+    func testListDecodesEmptyPage() async throws {
+        let json = """
+        {
+          "object": "list",
+          "data": [],
+          "has_more": false,
+          "first_id": null,
+          "last_id": null
+        }
+        """
+        urlSession.dataTask = DataTaskMock.successful(with: Data(json.utf8))
+
+        let result = try await openAI.files.list(query: .init(purpose: "evals"))
+        XCTAssertTrue(result.data.isEmpty)
+        XCTAssertFalse(result.hasMore)
+        XCTAssertNil(result.firstId)
+        XCTAssertNil(result.lastId)
+    }
+
     // MARK: - Content
 
     func testContent() async throws {
