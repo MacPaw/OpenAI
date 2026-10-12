@@ -4058,47 +4058,6 @@ public enum Components {
                 }
             }
         }
-        /// - Remark: Generated from `#/components/schemas/ListFilesResponse`.
-        public struct ListFilesResponse: Codable, Hashable, Sendable {
-            /// - Remark: Generated from `#/components/schemas/ListFilesResponse/object`.
-            public var object: Swift.String
-            /// - Remark: Generated from `#/components/schemas/ListFilesResponse/data`.
-            public var data: [Components.Schemas.OpenAIFile]
-            /// - Remark: Generated from `#/components/schemas/ListFilesResponse/first_id`.
-            public var firstId: Swift.String
-            /// - Remark: Generated from `#/components/schemas/ListFilesResponse/last_id`.
-            public var lastId: Swift.String
-            /// - Remark: Generated from `#/components/schemas/ListFilesResponse/has_more`.
-            public var hasMore: Swift.Bool
-            /// Creates a new `ListFilesResponse`.
-            ///
-            /// - Parameters:
-            ///   - object:
-            ///   - data:
-            ///   - firstId:
-            ///   - lastId:
-            ///   - hasMore:
-            public init(
-                object: Swift.String,
-                data: [Components.Schemas.OpenAIFile],
-                firstId: Swift.String,
-                lastId: Swift.String,
-                hasMore: Swift.Bool
-            ) {
-                self.object = object
-                self.data = data
-                self.firstId = firstId
-                self.lastId = lastId
-                self.hasMore = hasMore
-            }
-            public enum CodingKeys: String, CodingKey {
-                case object
-                case data
-                case firstId = "first_id"
-                case lastId = "last_id"
-                case hasMore = "has_more"
-            }
-        }
         /// A tool call to run a command on the local shell.
         ///
         ///

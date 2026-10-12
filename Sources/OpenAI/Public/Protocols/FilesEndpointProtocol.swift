@@ -5,38 +5,46 @@
 
 import Foundation
 
-/// The [Files API](https://platform.openai.com/docs/api-reference/files): upload files for use with other APIs,
-/// such as the Batch API, and manage them.
+/// Files are used to upload documents that can be used with features like Assistants and Fine-tuning.
+///
+/// [Files API reference](https://platform.openai.com/docs/api-reference/files)
 public protocol FilesEndpointProtocol: FilesEndpointModern {
-    /// Uploads a file.
+    /// Upload a file that can be used across various endpoints. Individual files
+    /// can be up to 512 MB, and each project can store up to 2.5 TB of files in
+    /// total. There is no organization-wide storage limit. Uploads to this
+    /// endpoint are rate-limited to 1,000 requests per minute per authenticated
+    /// user.
     @discardableResult
     func create(
         query: CreateFileQuery,
-        completion: @escaping @Sendable (Result<Components.Schemas.OpenAIFile, Error>) -> Void
+        completion: @escaping @Sendable (Result<OpenAIFile, Error>) -> Void
     ) -> CancellableRequest
 
-    /// Retrieves information about a file.
+    /// Returns information about a specific file.
+    /// - Parameter id: The ID of the file to use for this request.
     @discardableResult
     func retrieve(
         id: String,
-        completion: @escaping @Sendable (Result<Components.Schemas.OpenAIFile, Error>) -> Void
+        completion: @escaping @Sendable (Result<OpenAIFile, Error>) -> Void
     ) -> CancellableRequest
 
-    /// Lists your organization's files.
+    /// Returns a list of files.
     @discardableResult
     func list(
         query: ListFilesQuery,
-        completion: @escaping @Sendable (Result<Components.Schemas.ListFilesResponse, Error>) -> Void
+        completion: @escaping @Sendable (Result<ListFilesResponse, Error>) -> Void
     ) -> CancellableRequest
 
-    /// Deletes a file.
+    /// Delete a file and remove it from all vector stores.
+    /// - Parameter id: The ID of the file to use for this request.
     @discardableResult
     func delete(
         id: String,
         completion: @escaping @Sendable (Result<Components.Schemas.DeleteFileResponse, Error>) -> Void
     ) -> CancellableRequest
 
-    /// Downloads the contents of a file, for example the JSONL output of a batch.
+    /// Returns a response containing the contents of the specified file.
+    /// - Parameter id: The ID of the file to use for this request.
     @discardableResult
     func content(
         id: String,
@@ -45,10 +53,10 @@ public protocol FilesEndpointProtocol: FilesEndpointModern {
 }
 
 extension FilesEndpointProtocol {
-    /// Lists your organization's files with the API's default parameters.
+    /// Lists files with the API's default parameters: ``ListFilesQuery`` with no values set.
     @discardableResult
     public func list(
-        completion: @escaping @Sendable (Result<Components.Schemas.ListFilesResponse, Error>) -> Void
+        completion: @escaping @Sendable (Result<ListFilesResponse, Error>) -> Void
     ) -> CancellableRequest {
         list(query: .init(), completion: completion)
     }

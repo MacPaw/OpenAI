@@ -8,15 +8,15 @@ import Combine
 import Foundation
 
 extension FilesEndpoint: FilesEndpointCombine {
-    public func create(query: CreateFileQuery) -> AnyPublisher<Components.Schemas.OpenAIFile, Error> {
+    public func create(query: CreateFileQuery) -> AnyPublisher<OpenAIFile, Error> {
         combineClient.performRequest(request: makeCreateRequest(query: query))
     }
 
-    public func retrieve(id: String) -> AnyPublisher<Components.Schemas.OpenAIFile, Error> {
+    public func retrieve(id: String) -> AnyPublisher<OpenAIFile, Error> {
         combineClient.performRequest(request: makeRetrieveRequest(id: id))
     }
 
-    public func list(query: ListFilesQuery) -> AnyPublisher<Components.Schemas.ListFilesResponse, Error> {
+    public func list(query: ListFilesQuery) -> AnyPublisher<ListFilesResponse, Error> {
         combineClient.performRequest(request: makeListRequest(query: query))
     }
 

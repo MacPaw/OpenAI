@@ -6,15 +6,15 @@
 import Foundation
 
 extension FilesEndpoint: FilesEndpointAsync {
-    public func create(query: CreateFileQuery) async throws -> Components.Schemas.OpenAIFile {
+    public func create(query: CreateFileQuery) async throws -> OpenAIFile {
         try await asyncClient.performRequest(request: makeCreateRequest(query: query))
     }
 
-    public func retrieve(id: String) async throws -> Components.Schemas.OpenAIFile {
+    public func retrieve(id: String) async throws -> OpenAIFile {
         try await asyncClient.performRequest(request: makeRetrieveRequest(id: id))
     }
 
-    public func list(query: ListFilesQuery) async throws -> Components.Schemas.ListFilesResponse {
+    public func list(query: ListFilesQuery) async throws -> ListFilesResponse {
         try await asyncClient.performRequest(request: makeListRequest(query: query))
     }
 

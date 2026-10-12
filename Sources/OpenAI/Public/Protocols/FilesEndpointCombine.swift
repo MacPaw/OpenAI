@@ -8,25 +8,32 @@ import Combine
 import Foundation
 
 public protocol FilesEndpointCombine: Sendable {
-    /// Uploads a file.
-    func create(query: CreateFileQuery) -> AnyPublisher<Components.Schemas.OpenAIFile, Error>
+    /// Upload a file that can be used across various endpoints. Individual files
+    /// can be up to 512 MB, and each project can store up to 2.5 TB of files in
+    /// total. There is no organization-wide storage limit. Uploads to this
+    /// endpoint are rate-limited to 1,000 requests per minute per authenticated
+    /// user.
+    func create(query: CreateFileQuery) -> AnyPublisher<OpenAIFile, Error>
 
-    /// Retrieves information about a file.
-    func retrieve(id: String) -> AnyPublisher<Components.Schemas.OpenAIFile, Error>
+    /// Returns information about a specific file.
+    /// - Parameter id: The ID of the file to use for this request.
+    func retrieve(id: String) -> AnyPublisher<OpenAIFile, Error>
 
-    /// Lists your organization's files.
-    func list(query: ListFilesQuery) -> AnyPublisher<Components.Schemas.ListFilesResponse, Error>
+    /// Returns a list of files.
+    func list(query: ListFilesQuery) -> AnyPublisher<ListFilesResponse, Error>
 
-    /// Deletes a file.
+    /// Delete a file and remove it from all vector stores.
+    /// - Parameter id: The ID of the file to use for this request.
     func delete(id: String) -> AnyPublisher<Components.Schemas.DeleteFileResponse, Error>
 
-    /// Downloads the contents of a file, for example the JSONL output of a batch.
+    /// Returns a response containing the contents of the specified file.
+    /// - Parameter id: The ID of the file to use for this request.
     func content(id: String) -> AnyPublisher<Data, Error>
 }
 
 extension FilesEndpointCombine {
-    /// Lists your organization's files with the API's default parameters.
-    public func list() -> AnyPublisher<Components.Schemas.ListFilesResponse, Error> {
+    /// Lists files with the API's default parameters: ``ListFilesQuery`` with no values set.
+    public func list() -> AnyPublisher<ListFilesResponse, Error> {
         list(query: .init())
     }
 }

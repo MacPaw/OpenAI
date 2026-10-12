@@ -444,6 +444,20 @@ extension APIPath {
         
         let stringValue: String
     }
+    
+    struct Files {
+        static let files = Files(stringValue: "/files")
+        
+        static func file(fileId: String) -> Files {
+            .init(stringValue: "/files/\(fileId)")
+        }
+        
+        static func fileContent(fileId: String) -> Files {
+            .init(stringValue: "/files/\(fileId)/content")
+        }
+        
+        let stringValue: String
+    }
 
     static let embeddings = "/embeddings"
     static let chats = "/chat/completions"
@@ -457,12 +471,7 @@ extension APIPath {
     static let images = "/images/generations"
     static let imageEdits = "/images/edits"
     static let imageVariations = "/images/variations"
-
-    // Files API paths
-    static let files = "/files"
-    static func file(_ fileId: String) -> String { "/files/\(fileId)" }
-    static func fileContent(_ fileId: String) -> String { "/files/\(fileId)/content" }
-
+    
     func withPath(_ path: String) -> String {
         self + "/" + path
     }

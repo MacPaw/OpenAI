@@ -746,6 +746,7 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(result, expectedResult)
     }
     
+    // Exercises the deprecated `files(query:)`; marked deprecated itself so the call doesn't warn.
     @available(*, deprecated)
     func testFilesQueryError() async throws {
         let data = try XCTUnwrap("{\"test\":\"data\"}".data(using: .utf8))

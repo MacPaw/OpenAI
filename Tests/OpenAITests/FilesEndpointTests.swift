@@ -22,7 +22,7 @@ class FilesEndpointTests: XCTestCase {
     // MARK: - Create
 
     func testCreate() async throws {
-        let expectedResult = Components.Schemas.OpenAIFile.mock()
+        let expectedResult = OpenAIFile.mock()
         urlSession.dataTask = try DataTaskMock.successfulJson(with: expectedResult)
 
         let query = CreateFileQuery(
@@ -46,7 +46,7 @@ class FilesEndpointTests: XCTestCase {
     }
 
     func testCreateWithExpiration() async throws {
-        urlSession.dataTask = try DataTaskMock.successfulJson(with: Components.Schemas.OpenAIFile.mock())
+        urlSession.dataTask = try DataTaskMock.successfulJson(with: OpenAIFile.mock())
 
         let query = CreateFileQuery(
             purpose: "batch",
@@ -65,7 +65,7 @@ class FilesEndpointTests: XCTestCase {
     // MARK: - Retrieve
 
     func testRetrieve() async throws {
-        let expectedResult = Components.Schemas.OpenAIFile.mock()
+        let expectedResult = OpenAIFile.mock()
         urlSession.dataTask = try DataTaskMock.successfulJson(with: expectedResult)
 
         let result = try await openAI.files.retrieve(id: "file-abc123")
@@ -79,7 +79,7 @@ class FilesEndpointTests: XCTestCase {
     // MARK: - List
 
     func testList() async throws {
-        let expectedResult = Components.Schemas.ListFilesResponse(
+        let expectedResult = ListFilesResponse(
             object: "list",
             data: [.mock(id: "file-abc123"), .mock(id: "file-def456")],
             firstId: "file-abc123",
@@ -98,7 +98,7 @@ class FilesEndpointTests: XCTestCase {
     }
 
     func testListWithQuery() async throws {
-        urlSession.dataTask = try DataTaskMock.successfulJson(with: Components.Schemas.ListFilesResponse(
+        urlSession.dataTask = try DataTaskMock.successfulJson(with: ListFilesResponse(
             object: "list",
             data: [.mock(id: "file-ghi789")],
             firstId: "file-ghi789",
@@ -116,6 +116,29 @@ class FilesEndpointTests: XCTestCase {
             .init(name: "order", value: "asc"),
             .init(name: "after", value: "file-def456"),
         ])
+    }
+
+    // MARK: - Decoding
+
+    /// `evals` is a valid upload purpose but missing from the spec's file object enum; see `OpenAIFile`.
+    func testFileDecodesPurposeMissingFromSpec() throws {
+        let json = """
+        {
+          "id": "file-abc123",
+          "object": "file",
+          "bytes": 120000,
+          "created_at": 1677610602,
+          "expires_at": null,
+          "filename": "eval_data.jsonl",
+          "purpose": "evals",
+          "status": "processed"
+        }
+        """
+
+        let file = try JSONDecoder().decode(OpenAIFile.self, from: Data(json.utf8))
+        XCTAssertEqual(file.purpose, .evals)
+        XCTAssertEqual(file.filename, "eval_data.jsonl")
+        XCTAssertNil(file.expiresAt)
     }
 
     // MARK: - Content
@@ -197,7 +220,7 @@ private final class UncheckedBox<Value>: @unchecked Sendable {
     var value: Value?
 }
 
-extension Components.Schemas.OpenAIFile {
+extension OpenAIFile {
     static func mock(id: String = "file-abc123") -> Self {
         .init(
             id: id,

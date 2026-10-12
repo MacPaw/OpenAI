@@ -6,25 +6,32 @@
 import Foundation
 
 public protocol FilesEndpointAsync: Sendable {
-    /// Uploads a file.
-    func create(query: CreateFileQuery) async throws -> Components.Schemas.OpenAIFile
+    /// Upload a file that can be used across various endpoints. Individual files
+    /// can be up to 512 MB, and each project can store up to 2.5 TB of files in
+    /// total. There is no organization-wide storage limit. Uploads to this
+    /// endpoint are rate-limited to 1,000 requests per minute per authenticated
+    /// user.
+    func create(query: CreateFileQuery) async throws -> OpenAIFile
 
-    /// Retrieves information about a file.
-    func retrieve(id: String) async throws -> Components.Schemas.OpenAIFile
+    /// Returns information about a specific file.
+    /// - Parameter id: The ID of the file to use for this request.
+    func retrieve(id: String) async throws -> OpenAIFile
 
-    /// Lists your organization's files.
-    func list(query: ListFilesQuery) async throws -> Components.Schemas.ListFilesResponse
+    /// Returns a list of files.
+    func list(query: ListFilesQuery) async throws -> ListFilesResponse
 
-    /// Deletes a file.
+    /// Delete a file and remove it from all vector stores.
+    /// - Parameter id: The ID of the file to use for this request.
     func delete(id: String) async throws -> Components.Schemas.DeleteFileResponse
 
-    /// Downloads the contents of a file, for example the JSONL output of a batch.
+    /// Returns a response containing the contents of the specified file.
+    /// - Parameter id: The ID of the file to use for this request.
     func content(id: String) async throws -> Data
 }
 
 extension FilesEndpointAsync {
-    /// Lists your organization's files with the API's default parameters.
-    public func list() async throws -> Components.Schemas.ListFilesResponse {
+    /// Lists files with the API's default parameters: ``ListFilesQuery`` with no values set.
+    public func list() async throws -> ListFilesResponse {
         try await list(query: .init())
     }
 }
