@@ -347,6 +347,15 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(inError, apiError)
     }
     
+    func testAudioSpeechErrorStatus() async throws {
+        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy)
+        let body = Data(#"{"error": {"message": "Invalid voice", "type": "invalid_request_error", "param": "voice", "code": null}}"#.utf8)
+        urlSession.dataTask = .errorResponse(statusCode: 400, data: body)
+
+        let error: APIErrorResponse = try await XCTExpectError { try await openAI.audioCreateSpeech(query: query) }
+        XCTAssertEqual(error.error.message, "Invalid voice")
+    }
+
     func testAudioTranscriptions() async throws {
         let data = Data()
         let query = AudioTranscriptionQuery(file: data, fileType: .m4a, model: .whisper_1)

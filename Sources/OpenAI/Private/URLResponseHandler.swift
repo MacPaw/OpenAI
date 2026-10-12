@@ -32,17 +32,36 @@ struct URLResponseHandler {
     
     func interceptAndDecodeRaw(response: URLResponse, urlRequest: URLRequest, responseData data: Data) throws -> Data {
         let interceptedData = intercept(response: response, data: data, request: urlRequest)
-        return interceptedData ?? data
+        let finalData = interceptedData ?? data
+        try throwIfErrorStatus(response: response, data: finalData)
+        return finalData
     }
     
     func interceptAndDecodeRaw(response: URLResponse?, urlRequest: URLRequest, error: Error?, responseData data: Data?) throws -> Data {
         let interceptedData = intercept(response: response, data: data, request: urlRequest)
-        return try unwrap(error: error, originalData: data, interceptedData: interceptedData)
+        if let error {
+            throw error
+        }
+        try throwIfErrorStatus(response: response, data: interceptedData ?? data)
+        return try unwrap(error: nil, originalData: data, interceptedData: interceptedData)
     }
     
     private func decodeJson<ResultType: Codable>(data: Data) throws -> ResultType {
         let jsonDecoder = JSONResponseDecoder(parsingOptions: configuration.parsingOptions)
         return try jsonDecoder.decodeResponseData(data)
+    }
+    
+    /// Raw responses aren't decoded as JSON, so unlike JSON requests they can't fall back to decoding an API error
+    /// when the expected type fails to decode; check the status code instead, as `StreamingSession` does.
+    private func throwIfErrorStatus(response: URLResponse?, data: Data?) throws {
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode >= 400 else {
+            return
+        }
+        
+        if let data, let decodedError = JSONResponseErrorDecoder(decoder: JSONDecoder()).decodeErrorResponse(data: data) {
+            throw decodedError
+        }
+        throw OpenAIError.statusError(response: httpResponse, statusCode: httpResponse.statusCode)
     }
     
     private func intercept(response: URLResponse?, data: Data?, request: URLRequest) -> Data? {

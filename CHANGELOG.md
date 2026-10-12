@@ -18,6 +18,9 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 ### Deprecated
 - `files(query:)` on `OpenAIProtocol`, `OpenAIAsync` and `OpenAICombine`; use `openAI.files.create(query:)`, which returns the full `OpenAIFile` rather than a `FilesResult` with only an `id` and a `name` the API doesn't return ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
 
+### Fixed
+- `audioCreateSpeech` and `files.content(id:)` returned an API error response's JSON body as if it were the audio or file content, because responses read as raw data never had their HTTP status checked. They now throw for a status of 400 or above: the decoded `APIErrorResponse`, or `OpenAIError.statusError` when the body isn't an API error, as streaming requests already did ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
+
 ## [0.5.3] - 2026-10-08
 
 ### Added

@@ -187,6 +187,46 @@ class FilesEndpointTests: XCTestCase {
         }
     }
 
+    /// The API rejects downloads for some purposes with a 400 and an error body, which must not come back as content.
+    func testContentThrowsAPIErrorOnErrorStatus() async throws {
+        urlSession.dataTask = .errorResponse(statusCode: 400, data: Self.downloadNotAllowedBody)
+
+        do {
+            let data = try await openAI.files.content(id: "file-abc123")
+            XCTFail("Expected an error, got \(data.count) bytes")
+        } catch let error as APIErrorResponse {
+            XCTAssertEqual(error.error.message, "Not allowed to download files of purpose: user_data")
+            XCTAssertEqual(error.error.type, "invalid_request_error")
+        }
+    }
+
+    func testContentThrowsStatusErrorForNonAPIErrorBody() async throws {
+        urlSession.dataTask = .errorResponse(statusCode: 502, data: Data("<html>Bad Gateway</html>".utf8))
+
+        do {
+            let data = try await openAI.files.content(id: "file-abc123")
+            XCTFail("Expected an error, got \(data.count) bytes")
+        } catch OpenAIError.statusError(_, let statusCode) {
+            XCTAssertEqual(statusCode, 502)
+        }
+    }
+
+    func testContentErrorStatusWithCompletionHandler() throws {
+        urlSession.dataTask = .errorResponse(statusCode: 400, data: Self.downloadNotAllowedBody)
+
+        let expectation = expectation(description: "content completes")
+        let result = UncheckedBox<Result<Data, Error>>()
+        openAI.files.content(id: "file-abc123") {
+            result.value = $0
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1)
+
+        XCTAssertThrowsError(try result.value?.get()) { error in
+            XCTAssertTrue(error is APIErrorResponse, "Expected APIErrorResponse, got \(error)")
+        }
+    }
+
     func testContentWithCompletionHandler() throws {
         let data = Data("content".utf8)
         urlSession.dataTask = DataTaskMock.successful(with: data)
@@ -219,6 +259,21 @@ class FilesEndpointTests: XCTestCase {
 
 #if canImport(Combine)
     @MainActor
+    func testContentErrorStatusWithCombine() throws {
+        let urlSession = URLSessionMockCombine()
+        let openAI = OpenAI(
+            configuration: .init(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14),
+            session: urlSession,
+            streamingSessionFactory: MockStreamingSessionFactory()
+        )
+        urlSession.dataTask = .errorResponse(statusCode: 400, data: Self.downloadNotAllowedBody)
+
+        XCTAssertThrowsError(try awaitPublisher(openAI.files.content(id: "file-abc123"))) { error in
+            XCTAssertTrue(error is APIErrorResponse, "Expected APIErrorResponse, got \(error)")
+        }
+    }
+
+    @MainActor
     func testContentWithCombine() throws {
         let urlSession = URLSessionMockCombine()
         let openAI = OpenAI(
@@ -234,6 +289,20 @@ class FilesEndpointTests: XCTestCase {
         XCTAssertEqual(urlSession.dataTaskPublisherCalls.last?.request.url?.path, "/v1/files/file-abc123/content")
     }
 #endif
+}
+
+extension FilesEndpointTests {
+    /// What the API returns when downloading a file whose purpose doesn't allow downloads.
+    static let downloadNotAllowedBody = Data("""
+    {
+      "error": {
+        "message": "Not allowed to download files of purpose: user_data",
+        "type": "invalid_request_error",
+        "param": null,
+        "code": null
+      }
+    }
+    """.utf8)
 }
 
 private final class UncheckedBox<Value>: @unchecked Sendable {

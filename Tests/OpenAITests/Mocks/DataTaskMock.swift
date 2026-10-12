@@ -49,6 +49,14 @@ extension DataTaskMock {
         return task
     }
     
+    /// An HTTP error response as the API sends it: a status code and an error body, without a transport error.
+    static func errorResponse(statusCode: Int, data: Data) -> DataTaskMock {
+        let task = DataTaskMock()
+        task.data = data
+        task.response = HTTPURLResponse(url: URL(fileURLWithPath: ""), statusCode: statusCode, httpVersion: nil, headerFields: nil)
+        return task
+    }
+    
     static func failed(with error: Error) -> DataTaskMock {
         let task = DataTaskMock()
         task.error = error
