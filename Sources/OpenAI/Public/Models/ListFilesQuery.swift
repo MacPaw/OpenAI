@@ -10,9 +10,15 @@ import Foundation
 public struct ListFilesQuery: Hashable, Sendable {
     /// Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending
     /// order.
-    public enum Order: String, Hashable, Sendable {
-        case ascending = "asc"
-        case descending = "desc"
+    public struct Order: RawRepresentable, Hashable, Sendable {
+        public static let ascending = Order(rawValue: "asc")
+        public static let descending = Order(rawValue: "desc")
+        
+        public let rawValue: String
+        
+        public init(rawValue: String) {
+            self.rawValue = rawValue
+        }
     }
 
     /// Only return files with the given purpose.
