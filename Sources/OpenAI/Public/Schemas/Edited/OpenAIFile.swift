@@ -9,10 +9,11 @@ import Foundation
 ///
 /// Hand-written replacement for `Components.Schemas.OpenAIFile`. The spec's `purpose` enum on the file object
 /// omits `evals`, although `evals` is a valid purpose when uploading (`CreateFileRequest`), so the generated
-/// closed enum fails to decode a file uploaded for evals. ``Purpose`` is an open type instead: it has constants
-/// for the known values and decodes any other value as well. Replace this type with the generated one if the
-/// spec's enum catches up and [#464](https://github.com/MacPaw/OpenAI/issues/464) settles on closed enums for
-/// response values.
+/// closed enum fails to decode a file uploaded for evals; see
+/// [openai/openai-openapi#587](https://github.com/openai/openai-openapi/issues/587). ``Purpose`` is an open type
+/// instead: it has constants for the known values and decodes any other value as well. Replace this type with the
+/// generated one if the spec's enum catches up and [#464](https://github.com/MacPaw/OpenAI/issues/464) settles on
+/// closed enums for response values.
 public struct OpenAIFile: Codable, Hashable, Sendable {
     public typealias ObjectPayload = Components.Schemas.OpenAIFile.ObjectPayload
     public typealias StatusPayload = Components.Schemas.OpenAIFile.StatusPayload
