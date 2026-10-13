@@ -62,9 +62,11 @@ machine.
 ## Documentation comments come from official sources
 
 When a public declaration mirrors part of the OpenAI API (a type, property,
-method, parameter or enum case), take its documentation comment word for word
-from an official source instead of writing your own description. In order of
-preference:
+method, parameter or enum case), take its documentation comment from an
+official source instead of writing your own description. Official text is up
+to date and well formatted (lists, links, bold, `code`), and that Markdown
+works in Swift documentation comments too, so copy both the wording and the
+formatting. In order of preference:
 
 1. The `description` fields in this repository's `openapi.yaml`. They are the
    text of the [API Reference](https://platform.openai.com/docs/api-reference)
@@ -75,8 +77,10 @@ preference:
    [openai-java](https://github.com/openai/openai-java).
 3. The API Reference web page itself.
 
-Change only what Swift requires: property and parameter names
-(`expires_after` → `expiresAfter`) and relative links made absolute.
+Adapt or rephrase it only where it doesn't fit as is: property and parameter
+names (`expires_after` → `expiresAfter`), relative links made absolute,
+formatting Swift documentation comments can't render, or wording that doesn't
+hold for the Swift declaration. Text that fits stays unchanged.
 
 Text that is about this SDK rather than the API, such as which method to use
 instead, why a type is hand-written, or what a Swift-only convenience does,
