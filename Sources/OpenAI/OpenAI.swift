@@ -67,6 +67,7 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
     
     public let configuration: Configuration
     public let responses: ResponsesEndpointProtocol
+    public let files: FilesEndpointProtocol
 
     public convenience init(apiToken: String) {
         self.init(
@@ -155,6 +156,13 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         self.responses = ResponsesEndpoint(
             client: client,
             streamingClient: streamingClient,
+            asyncClient: asyncClient,
+            combineClient: combineClient,
+            configuration: configuration
+        )
+        
+        self.files = FilesEndpoint(
+            client: client,
             asyncClient: asyncClient,
             combineClient: combineClient,
             configuration: configuration
@@ -256,7 +264,8 @@ final public class OpenAI: OpenAIProtocol, @unchecked Sendable {
         )
     }
     
-    public func files(query: FilesQuery, completion: @escaping @Sendable (Result<FilesResult, Error>) -> Void) -> CancellableRequest {
+    @available(*, deprecated, message: "Use files.create(query:), which returns the full file object.")
+    public func files(query: CreateFileQuery, completion: @escaping @Sendable (Result<FilesResult, Error>) -> Void) -> CancellableRequest {
         performRequest(
             request: makeFilesRequest(query: query),
             completion: completion
@@ -426,11 +435,25 @@ extension APIPath {
         }
         
         static func listInputItems(responseId: String) -> Responses {
-            .init(stringValue: "responses/\(responseId)/input_items")
+            .init(stringValue: "/responses/\(responseId)/input_items")
         }
         
         static func cancelModelResponse(responseId: String) -> Responses {
-            .init(stringValue: "responses/\(responseId)/cancel")
+            .init(stringValue: "/responses/\(responseId)/cancel")
+        }
+        
+        let stringValue: String
+    }
+    
+    struct Files {
+        static let files = Files(stringValue: "/files")
+        
+        static func file(fileId: String) -> Files {
+            .init(stringValue: "/files/\(fileId)")
+        }
+        
+        static func fileContent(fileId: String) -> Files {
+            .init(stringValue: "/files/\(fileId)/content")
         }
         
         let stringValue: String

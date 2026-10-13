@@ -181,7 +181,8 @@ extension OpenAI: OpenAICombine {
         )
     }
     
-    public func files(query: FilesQuery) -> AnyPublisher<FilesResult, Error> {
+    @available(*, deprecated, message: "Use files.create(query:), which returns the full file object.")
+    public func files(query: CreateFileQuery) -> AnyPublisher<FilesResult, Error> {
         performRequestCombine(
             request: makeFilesRequest(query: query)
         )

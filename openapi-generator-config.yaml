@@ -5,9 +5,12 @@ accessModifier: public
 filter:
   paths:
     - /audio/transcriptions
+    - /files/{file_id}
+    - /files/{file_id}/content
     - /responses
     - /responses/{response_id}
     - /responses/{response_id}/input_items
   schemas:
+    - FileExpirationAfter
     - WebSearchLocation
     - WebSearchContextSize

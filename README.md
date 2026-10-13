@@ -52,12 +52,16 @@ This repository contains Swift community-maintained implementation over [OpenAI]
         - [Retrieve Run](#retrieve-run)
         - [Retrieve Run Steps](#retrieve-run-steps)
         - [Submit Tool Outputs for Run](#submit-tool-outputs-for-run)
-    - [Files](#files)
-        - [Upload File](#upload-file)
 - [Other APIs](#other-apis)
     - [Models](#models)
         - [List Models](#list-models)
         - [Retrieve Model](#retrieve-model)
+    - [Files](#files)
+        - [Upload File](#upload-file)
+        - [Retrieve File](#retrieve-file)
+        - [List Files](#list-files)
+        - [Delete File](#delete-file)
+        - [Retrieve File Content](#retrieve-file-content)
     - [Utilities](#utilities)
 - [Support for other providers: Gemini, DeepSeek, Perplexity, OpenRouter, etc.](#support-for-other-providers)
 - [Example Project](#example-project)
@@ -1421,6 +1425,93 @@ let result = try await openAI.model(query: query)
 
 Review [Models Documentation](https://platform.openai.com/docs/api-reference/models) for more info.
 
+### Files
+
+Files are used to upload documents that can be used with features like Assistants and Fine-tuning.
+
+Use the `files` variable on `OpenAIProtocol` to call Files API methods. Each method is available with a completion handler, with `async`/`await` and as a Combine publisher.
+
+```swift
+public protocol OpenAIProtocol {
+    // ...
+    var files: FilesEndpointProtocol { get }
+    // ...
+}
+```
+
+Review [Files Documentation](https://platform.openai.com/docs/api-reference/files) for more info.
+
+#### Upload File
+
+Upload a file that can be used across various endpoints. Pass the file's data, name and content type in a `CreateFileQuery`, and get the uploaded file as an `OpenAIFile`.
+
+```swift
+let query = CreateFileQuery(
+    purpose: "assistants",
+    file: fileData,
+    fileName: url.lastPathComponent,
+    contentType: "application/pdf"
+)
+openAI.files.create(query: query) { result in
+  //Handle result here
+}
+//or
+let file = try await openAI.files.create(query: query)
+```
+
+To have the file expire, pass an expiration policy. By default, files with `purpose=batch` expire after 30 days and all other files are persisted until they are manually deleted.
+
+```swift
+let query = CreateFileQuery(
+    purpose: "batch",
+    file: jsonlData,
+    fileName: "requests.jsonl",
+    contentType: "application/jsonl",
+    expiresAfter: .init(anchor: .createdAt, seconds: 86400)
+)
+```
+
+`openAI.files(query:)` and `FilesQuery` are deprecated in favour of `openAI.files.create(query:)` and `CreateFileQuery`.
+
+#### Retrieve File
+
+Returns information about a specific file.
+
+```swift
+let file = try await openAI.files.retrieve(id: "file-abc123")
+print(file.filename, file.bytes, file.purpose.rawValue)
+```
+
+#### List Files
+
+Returns a list of files. Pass a `ListFilesQuery` to filter by purpose and to page through the results.
+
+```swift
+let firstPage = try await openAI.files.list()
+//or
+let batchFiles = try await openAI.files.list(query: .init(purpose: "batch", limit: 100))
+if batchFiles.hasMore {
+    let nextPage = try await openAI.files.list(query: .init(purpose: "batch", limit: 100, after: batchFiles.lastId))
+}
+```
+
+#### Delete File
+
+Delete a file and remove it from all vector stores.
+
+```swift
+let result = try await openAI.files.delete(id: "file-abc123")
+print(result.deleted) // true
+```
+
+#### Retrieve File Content
+
+Returns a response containing the contents of the specified file, as `Data`.
+
+```swift
+let data = try await openAI.files.content(id: "file-abc123")
+```
+
 ### Utilities
 
 The component comes with several handy utility functions to work with the vectors.
@@ -1580,20 +1671,6 @@ Example: Submit Tool Outputs for Run
 let output = RunToolOutputsQuery.ToolOutput(toolCallId: "call123", output: "Success")
 let query = RunToolOutputsQuery(toolOutputs: [output])
 openAI.runSubmitToolOutputs(threadId: currentThreadId, runId: currentRunId, query: query) { result in
-  //Handle response here
-}
-```
-
-### Files
-
-Review [Files Documentation](https://platform.openai.com/docs/api-reference/files) for more info.
-
-#### Upload file
-
-Example: Upload file
-```swift
-let query = FilesQuery(purpose: "assistants", file: fileData, fileName: url.lastPathComponent, contentType: "application/pdf")
-openAI.files(query: query) { result in
   //Handle response here
 }
 ```

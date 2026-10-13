@@ -347,6 +347,15 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(inError, apiError)
     }
     
+    func testAudioSpeechErrorStatus() async throws {
+        let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy)
+        let body = Data(#"{"error": {"message": "Invalid voice", "type": "invalid_request_error", "param": "voice", "code": null}}"#.utf8)
+        urlSession.dataTask = .errorResponse(statusCode: 400, data: body)
+
+        let error: APIErrorResponse = try await XCTExpectError { try await openAI.audioCreateSpeech(query: query) }
+        XCTAssertEqual(error.error.message, "Invalid voice")
+    }
+
     func testAudioTranscriptions() async throws {
         let data = Data()
         let query = AudioTranscriptionQuery(file: data, fileType: .m4a, model: .whisper_1)
@@ -734,6 +743,8 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(inError, apiError)
     }
 
+    // Exercises the deprecated `files(query:)` and `FilesQuery`; marked deprecated itself so they don't warn.
+    @available(*, deprecated)
     func testFilesQuery() async throws {
         let data = try XCTUnwrap("{\"test\":\"data\"}".data(using: .utf8))
         let query = FilesQuery(purpose: "assistant", file: data, fileName: "test.json", contentType: "application/json")
@@ -744,9 +755,11 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(result, expectedResult)
     }
     
+    // Exercises the deprecated `files(query:)`; marked deprecated itself so the call doesn't warn.
+    @available(*, deprecated)
     func testFilesQueryError() async throws {
         let data = try XCTUnwrap("{\"test\":\"data\"}".data(using: .utf8))
-        let query = FilesQuery(purpose: "assistant", file: data, fileName: "test.json", contentType: "application/json")
+        let query = CreateFileQuery(purpose: "assistant", file: data, fileName: "test.json", contentType: "application/json")
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
         self.stub(error: inError)
         

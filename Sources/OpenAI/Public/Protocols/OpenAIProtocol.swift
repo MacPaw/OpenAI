@@ -15,7 +15,8 @@ public protocol OpenAIModern: OpenAIAsync {}
 
 public protocol OpenAIProtocol: OpenAIModern {
     var responses: ResponsesEndpointProtocol { get }
-    
+    var files: FilesEndpointProtocol { get }
+
     /**
      This function sends an images query to the OpenAI API and retrieves generated images in response. The Images Generation API enables you to create various images or graphics using OpenAI's powerful deep learning models.
      
@@ -440,14 +441,15 @@ public protocol OpenAIProtocol: OpenAIModern {
      
      Example: Upload file
      ```
-     let query = FilesQuery(purpose: "assistants", file: fileData, fileName: url.lastPathComponent, contentType: "application/pdf")
+     let query = CreateFileQuery(purpose: "assistants", file: fileData, fileName: url.lastPathComponent, contentType: "application/pdf")
      openAI.files(query: query) { result in
      //Handle response here
      }
      ```
-     - Parameter query: The `FilesQuery` instance, containing the information required for the files request.
+     - Parameter query: The `CreateFileQuery` instance, containing the information required for the files request.
      - Parameter completion: The completion handler to be executed upon completion of the files request.
      Returns a `Result` of type `FilesResult` if successful, or an `Error` if an error occurs.
      **/
-    @discardableResult func files(query: FilesQuery, completion: @escaping @Sendable (Result<FilesResult, Error>) -> Void) -> CancellableRequest
+    @available(*, deprecated, message: "Use files.create(query:), which returns the full file object.")
+    @discardableResult func files(query: CreateFileQuery, completion: @escaping @Sendable (Result<FilesResult, Error>) -> Void) -> CancellableRequest
 }

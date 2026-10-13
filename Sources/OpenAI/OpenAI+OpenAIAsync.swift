@@ -186,7 +186,8 @@ extension OpenAI: OpenAIAsync {
         )
     }
     
-    public func files(query: FilesQuery) async throws -> FilesResult {
+    @available(*, deprecated, message: "Use files.create(query:), which returns the full file object.")
+    public func files(query: CreateFileQuery) async throws -> FilesResult {
         try await performRequestAsync(
             request: makeFilesRequest(query: query)
         )

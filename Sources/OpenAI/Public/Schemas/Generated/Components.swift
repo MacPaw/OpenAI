@@ -2129,6 +2129,39 @@ public enum Components {
                 try self.value2.encode(to: encoder)
             }
         }
+        /// - Remark: Generated from `#/components/schemas/DeleteFileResponse`.
+        public struct DeleteFileResponse: Codable, Hashable, Sendable {
+            /// - Remark: Generated from `#/components/schemas/DeleteFileResponse/id`.
+            public var id: Swift.String
+            /// - Remark: Generated from `#/components/schemas/DeleteFileResponse/object`.
+            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case file = "file"
+            }
+            /// - Remark: Generated from `#/components/schemas/DeleteFileResponse/object`.
+            public var object: Components.Schemas.DeleteFileResponse.ObjectPayload
+            /// - Remark: Generated from `#/components/schemas/DeleteFileResponse/deleted`.
+            public var deleted: Swift.Bool
+            /// Creates a new `DeleteFileResponse`.
+            ///
+            /// - Parameters:
+            ///   - id:
+            ///   - object:
+            ///   - deleted:
+            public init(
+                id: Swift.String,
+                object: Components.Schemas.DeleteFileResponse.ObjectPayload,
+                deleted: Swift.Bool
+            ) {
+                self.id = id
+                self.object = object
+                self.deleted = deleted
+            }
+            public enum CodingKeys: String, CodingKey {
+                case id
+                case object
+                case deleted
+            }
+        }
         /// A message input to the model with a role indicating instruction following
         /// hierarchy. Instructions given with the `developer` or `system` role take
         /// precedence over instructions given with the `user` role. Messages with the
@@ -2298,6 +2331,41 @@ public enum Components {
             }
             public enum CodingKeys: String, CodingKey {
                 case error
+            }
+        }
+        /// The expiration policy for a file. By default, files with `purpose=batch` expire after 30 days and all other files are persisted until they are manually deleted.
+        ///
+        /// - Remark: Generated from `#/components/schemas/FileExpirationAfter`.
+        public struct FileExpirationAfter: Codable, Hashable, Sendable {
+            /// Anchor timestamp after which the expiration policy applies. Supported anchors: `created_at`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/FileExpirationAfter/anchor`.
+            @frozen public enum AnchorPayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case createdAt = "created_at"
+            }
+            /// Anchor timestamp after which the expiration policy applies. Supported anchors: `created_at`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/FileExpirationAfter/anchor`.
+            public var anchor: Components.Schemas.FileExpirationAfter.AnchorPayload
+            /// The number of seconds after the anchor time that the file will expire. Must be between 3600 (1 hour) and 2592000 (30 days).
+            ///
+            /// - Remark: Generated from `#/components/schemas/FileExpirationAfter/seconds`.
+            public var seconds: Swift.Int64
+            /// Creates a new `FileExpirationAfter`.
+            ///
+            /// - Parameters:
+            ///   - anchor: Anchor timestamp after which the expiration policy applies. Supported anchors: `created_at`.
+            ///   - seconds: The number of seconds after the anchor time that the file will expire. Must be between 3600 (1 hour) and 2592000 (30 days).
+            public init(
+                anchor: Components.Schemas.FileExpirationAfter.AnchorPayload,
+                seconds: Swift.Int64
+            ) {
+                self.anchor = anchor
+                self.seconds = seconds
+            }
+            public enum CodingKeys: String, CodingKey {
+                case anchor
+                case seconds
             }
         }
         /// A path to a file.
@@ -5257,6 +5325,120 @@ public enum Components {
                 case safetyIdentifier = "safety_identifier"
                 case promptCacheKey = "prompt_cache_key"
                 case promptCacheRetention = "prompt_cache_retention"
+            }
+        }
+        /// The `File` object represents a document that has been uploaded to OpenAI.
+        ///
+        /// - Remark: Generated from `#/components/schemas/OpenAIFile`.
+        public struct OpenAIFile: Codable, Hashable, Sendable {
+            /// The file identifier, which can be referenced in the API endpoints.
+            ///
+            /// - Remark: Generated from `#/components/schemas/OpenAIFile/id`.
+            public var id: Swift.String
+            /// The size of the file, in bytes.
+            ///
+            /// - Remark: Generated from `#/components/schemas/OpenAIFile/bytes`.
+            public var bytes: Swift.Int
+            /// The Unix timestamp (in seconds) for when the file was created.
+            ///
+            /// - Remark: Generated from `#/components/schemas/OpenAIFile/created_at`.
+            public var createdAt: Swift.Int
+            /// The Unix timestamp (in seconds) for when the file will expire.
+            ///
+            /// - Remark: Generated from `#/components/schemas/OpenAIFile/expires_at`.
+            public var expiresAt: Swift.Int?
+            /// The name of the file.
+            ///
+            /// - Remark: Generated from `#/components/schemas/OpenAIFile/filename`.
+            public var filename: Swift.String
+            /// The object type, which is always `file`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/OpenAIFile/object`.
+            @frozen public enum ObjectPayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case file = "file"
+            }
+            /// The object type, which is always `file`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/OpenAIFile/object`.
+            public var object: Components.Schemas.OpenAIFile.ObjectPayload
+            /// The intended purpose of the file. Supported values are `assistants`, `assistants_output`, `batch`, `batch_output`, `fine-tune`, `fine-tune-results`, `vision`, and `user_data`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/OpenAIFile/purpose`.
+            @frozen public enum PurposePayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case assistants = "assistants"
+                case assistantsOutput = "assistants_output"
+                case batch = "batch"
+                case batchOutput = "batch_output"
+                case fineTune = "fine-tune"
+                case fineTuneResults = "fine-tune-results"
+                case vision = "vision"
+                case userData = "user_data"
+            }
+            /// The intended purpose of the file. Supported values are `assistants`, `assistants_output`, `batch`, `batch_output`, `fine-tune`, `fine-tune-results`, `vision`, and `user_data`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/OpenAIFile/purpose`.
+            public var purpose: Components.Schemas.OpenAIFile.PurposePayload
+            /// Deprecated. The current status of the file, which can be either `uploaded`, `processed`, or `error`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/OpenAIFile/status`.
+            @frozen public enum StatusPayload: String, Codable, Hashable, Sendable, CaseIterable {
+                case uploaded = "uploaded"
+                case processed = "processed"
+                case error = "error"
+            }
+            /// Deprecated. The current status of the file, which can be either `uploaded`, `processed`, or `error`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/OpenAIFile/status`.
+            @available(*, deprecated)
+            public var status: Components.Schemas.OpenAIFile.StatusPayload
+            /// Deprecated. For details on why a fine-tuning training file failed validation, see the `error` field on `fine_tuning.job`.
+            ///
+            /// - Remark: Generated from `#/components/schemas/OpenAIFile/status_details`.
+            @available(*, deprecated)
+            public var statusDetails: Swift.String?
+            /// Creates a new `OpenAIFile`.
+            ///
+            /// - Parameters:
+            ///   - id: The file identifier, which can be referenced in the API endpoints.
+            ///   - bytes: The size of the file, in bytes.
+            ///   - createdAt: The Unix timestamp (in seconds) for when the file was created.
+            ///   - expiresAt: The Unix timestamp (in seconds) for when the file will expire.
+            ///   - filename: The name of the file.
+            ///   - object: The object type, which is always `file`.
+            ///   - purpose: The intended purpose of the file. Supported values are `assistants`, `assistants_output`, `batch`, `batch_output`, `fine-tune`, `fine-tune-results`, `vision`, and `user_data`.
+            ///   - status: Deprecated. The current status of the file, which can be either `uploaded`, `processed`, or `error`.
+            ///   - statusDetails: Deprecated. For details on why a fine-tuning training file failed validation, see the `error` field on `fine_tuning.job`.
+            public init(
+                id: Swift.String,
+                bytes: Swift.Int,
+                createdAt: Swift.Int,
+                expiresAt: Swift.Int? = nil,
+                filename: Swift.String,
+                object: Components.Schemas.OpenAIFile.ObjectPayload,
+                purpose: Components.Schemas.OpenAIFile.PurposePayload,
+                status: Components.Schemas.OpenAIFile.StatusPayload,
+                statusDetails: Swift.String? = nil
+            ) {
+                self.id = id
+                self.bytes = bytes
+                self.createdAt = createdAt
+                self.expiresAt = expiresAt
+                self.filename = filename
+                self.object = object
+                self.purpose = purpose
+                self.status = status
+                self.statusDetails = statusDetails
+            }
+            public enum CodingKeys: String, CodingKey {
+                case id
+                case bytes
+                case createdAt = "created_at"
+                case expiresAt = "expires_at"
+                case filename
+                case object
+                case purpose
+                case status
+                case statusDetails = "status_details"
             }
         }
         /// - Remark: Generated from `#/components/schemas/OutputContent`.

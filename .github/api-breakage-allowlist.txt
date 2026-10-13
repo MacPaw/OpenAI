@@ -1,0 +1,6 @@
+API breakage: func OpenAI.files(query:) has parameter 0 type change from OpenAI.FilesQuery to OpenAI.CreateFileQuery
+API breakage: func OpenAI.files(query:completion:) has parameter 0 type change from OpenAI.FilesQuery to OpenAI.CreateFileQuery
+API breakage: func OpenAIAsync.files(query:) has parameter 0 type change from OpenAI.FilesQuery to OpenAI.CreateFileQuery
+API breakage: func OpenAICombine.files(query:) has parameter 0 type change from OpenAI.FilesQuery to OpenAI.CreateFileQuery
+API breakage: func OpenAIProtocol.files(query:completion:) has parameter 0 type change from OpenAI.FilesQuery to OpenAI.CreateFileQuery
+API breakage: var OpenAIProtocol.files has been added as a protocol requirement

@@ -53,7 +53,7 @@ public final class ResponsesEndpoint: ResponsesEndpointProtocol, Sendable {
         return streamingClient.performResponsesStreamingRequest(
             request: JSONRequest<CreateModelResponseQuery>(
                 body: query,
-                url: buildURL(path: .Responses.createModelResponse.stringValue)
+                url: buildURL(path: .createModelResponse)
             ),
             onResult: onResult,
             completion: completion
@@ -61,11 +61,11 @@ public final class ResponsesEndpoint: ResponsesEndpointProtocol, Sendable {
     }
     
     func makeCreateResponseRequest(query: CreateModelResponseQuery) -> JSONRequest<ResponseObject> {
-        .init(body: query, url: buildURL(path: .Responses.createModelResponse.stringValue))
+        .init(body: query, url: buildURL(path: .createModelResponse))
     }
     
-    private func buildURL(path: String, queryItems: [URLQueryItem] = []) -> URL {
-        DefaultURLBuilder(configuration: configuration, path: path, queryItems: queryItems)
+    private func buildURL(path: APIPath.Responses, queryItems: [URLQueryItem] = []) -> URL {
+        DefaultURLBuilder(configuration: configuration, path: path.stringValue, queryItems: queryItems)
             .buildURL()
     }
 }
@@ -80,9 +80,8 @@ extension ResponsesEndpoint {
     }
     
     func makeRetrieveResponseRequest(query: RetrieveModelResponseQuery) -> JSONRequest<ResponseObject> {
-        let path = String.Responses.getModelResponse(responseId: query.responseId).stringValue
         let queryItems = (query.include ?? []).map { URLQueryItem(name: "include[]", value: $0.rawValue) }
-        return .init(url: buildURL(path: path, queryItems: queryItems), method: "GET")
+        return .init(url: buildURL(path: .getModelResponse(responseId: query.responseId), queryItems: queryItems), method: "GET")
     }
 }
 
@@ -96,7 +95,6 @@ extension ResponsesEndpoint {
     }
     
     func makeCancelResponseRequest(id: String) -> JSONRequest<ResponseObject> {
-        let path = String.Responses.cancelModelResponse(responseId: id).stringValue
-        return .init(url: buildURL(path: path))
+        .init(url: buildURL(path: .cancelModelResponse(responseId: id)))
     }
 }

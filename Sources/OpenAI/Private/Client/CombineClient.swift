@@ -44,6 +44,12 @@ final class CombineClient: Sendable {
     }
     
     func performSpeechRequest(request: any URLRequestBuildable) -> AnyPublisher<AudioSpeechResult, Error> {
+        performRawDataRequest(request: request)
+            .map { AudioSpeechResult(audio: $0) }
+            .eraseToAnyPublisher()
+    }
+
+    func performRawDataRequest(request: any URLRequestBuildable) -> AnyPublisher<Data, Error> {
         do {
             let urlRequest = try request.build(configuration: configuration)
             let interceptedRequest = middlewares.reduce(urlRequest) { current, middleware in
@@ -52,11 +58,10 @@ final class CombineClient: Sendable {
             return session
                 .dataTaskPublisher(for: interceptedRequest)
                 .tryMap { (data, response) in
-                    let finalData: Data = try self.responseHandler.interceptAndDecodeRaw(response: response, urlRequest: urlRequest, responseData: data)
-                    return .init(audio: finalData)
+                    try self.responseHandler.interceptAndDecodeRaw(response: response, urlRequest: urlRequest, responseData: data)
                 }.eraseToAnyPublisher()
         } catch {
-            return Fail(outputType: AudioSpeechResult.self, failure: error)
+            return Fail(outputType: Data.self, failure: error)
                 .eraseToAnyPublisher()
         }
     }
