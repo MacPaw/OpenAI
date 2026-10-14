@@ -16,7 +16,6 @@ struct FileDetailView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var content: Data?
-    @State private var contentFileURL: URL?
     @State private var isLoadingContent = false
     @State private var isDeleteConfirmationPresented = false
 
@@ -40,9 +39,8 @@ struct FileDetailView: View {
             Section("Content") {
                 if let content {
                     contentPreview(content)
-                    if let contentFileURL {
-                        ShareLink("Share", item: contentFileURL)
-                    }
+                    let shared = DownloadedFileContent(data: content, filename: file.filename, fallbackName: file.id)
+                    ShareLink("Share", item: shared, preview: SharePreview(shared.fileName))
                 } else if isLoadingContent {
                     ProgressView()
                 } else {
@@ -103,11 +101,6 @@ struct FileDetailView: View {
         Task {
             if let data = await store.content(id: file.id) {
                 content = data
-                // Share a copy named like the original, so the receiving app sees the right type.
-                let url = FileManager.default.temporaryDirectory.appendingPathComponent(file.filename)
-                if (try? data.write(to: url)) != nil {
-                    contentFileURL = url
-                }
             }
             isLoadingContent = false
         }
