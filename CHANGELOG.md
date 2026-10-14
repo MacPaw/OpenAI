@@ -20,6 +20,7 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ### Fixed
 - `audioCreateSpeech` and `files.content(id:)` returned an API error response's JSON body as if it were the audio or file content, because responses read as raw data never had their HTTP status checked. They now throw for a status of 400 or above: the decoded `APIErrorResponse`, or `OpenAIError.statusError` when the body isn't an API error, as streaming requests already did ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
+- JSON requests never checked the HTTP status, so an HTML gateway body surfaced as a `DecodingError`, and with `ParsingOptions.relaxed` a status of 400 or above whose body was missing required fields could decode as a successful result. Completion-handler, async, and Combine JSON calls now throw for a status of 400 or above, as raw and streaming calls already did: the decoded `APIErrorResponse` or `GeminiAPIErrorResponse`, or `OpenAIError.statusError` when the body isn't an API error.
 
 ## [0.5.3] - 2026-10-08
 

@@ -20,30 +20,19 @@ struct URLResponseHandler {
     }
     
     func interceptAndDecode<ResultType: Codable>(response: URLResponse, urlRequest: URLRequest, responseData data: Data) throws -> ResultType {
-        let interceptedData = intercept(response: response, data: data, request: urlRequest)
-        return try decodeJson(data: interceptedData ?? data)
+        try decodeJson(data: try interceptedData(response: response, urlRequest: urlRequest, error: nil, responseData: data))
     }
     
     func interceptAndDecode<ResultType: Codable>(response: URLResponse?, urlRequest: URLRequest, error: Error?, responseData data: Data?) throws -> ResultType {
-        let interceptedData = intercept(response: response, data: data, request: urlRequest)
-        let unwrappedData = try self.unwrap(error: error, originalData: data, interceptedData: interceptedData)
-        return try decodeJson(data: unwrappedData)
+        try decodeJson(data: try interceptedData(response: response, urlRequest: urlRequest, error: error, responseData: data))
     }
     
     func interceptAndDecodeRaw(response: URLResponse, urlRequest: URLRequest, responseData data: Data) throws -> Data {
-        let interceptedData = intercept(response: response, data: data, request: urlRequest)
-        let finalData = interceptedData ?? data
-        try throwIfErrorStatus(response: response, data: finalData)
-        return finalData
+        try interceptedData(response: response, urlRequest: urlRequest, error: nil, responseData: data)
     }
     
     func interceptAndDecodeRaw(response: URLResponse?, urlRequest: URLRequest, error: Error?, responseData data: Data?) throws -> Data {
-        let interceptedData = intercept(response: response, data: data, request: urlRequest)
-        if let error {
-            throw error
-        }
-        try throwIfErrorStatus(response: response, data: interceptedData ?? data)
-        return try unwrap(error: nil, originalData: data, interceptedData: interceptedData)
+        try interceptedData(response: response, urlRequest: urlRequest, error: error, responseData: data)
     }
     
     private func decodeJson<ResultType: Codable>(data: Data) throws -> ResultType {
@@ -51,8 +40,27 @@ struct URLResponseHandler {
         return try jsonDecoder.decodeResponseData(data)
     }
     
-    /// Raw responses aren't decoded as JSON, so unlike JSON requests they can't fall back to decoding an API error
-    /// when the expected type fails to decode; check the status code instead, as `StreamingSession` does.
+    /// Response middleware runs first, then a transport error is thrown unchanged. An HTTP status of 400 or above
+    /// is an error for every JSON and raw response: the decoded API or Gemini error, or `OpenAIError.statusError`.
+    /// The body is returned only after that check, or `OpenAIError.emptyData` when there is none. JSON callers
+    /// decode that body next, so a 2xx that isn't the result type still falls back to an API or Gemini error.
+    private func interceptedData(response: URLResponse?, urlRequest: URLRequest, error: Error?, responseData data: Data?) throws -> Data {
+        let middlewareData = intercept(response: response, data: data, request: urlRequest)
+        if let error {
+            throw error
+        }
+        
+        let body = middlewareData ?? data
+        try throwIfErrorStatus(response: response, data: body)
+        guard let body else {
+            throw OpenAIError.emptyData
+        }
+        
+        return body
+    }
+    
+    /// Status >= 400, matching `StreamingSession`: throw a decoded API or Gemini error when the body has one,
+    /// otherwise `OpenAIError.statusError`. Statuses below 400 are not an error here.
     private func throwIfErrorStatus(response: URLResponse?, data: Data?) throws {
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode >= 400 else {
             return
@@ -70,18 +78,5 @@ struct URLResponseHandler {
         }
         
         return interceptedData
-    }
-    
-    private func unwrap(error: Error?, originalData: Data?, interceptedData: Data?) throws -> Data {
-        if let error {
-            throw error
-        }
-        
-        let finalData = interceptedData ?? originalData
-        guard let finalData else {
-            throw OpenAIError.emptyData
-        }
-        
-        return finalData
     }
 }
