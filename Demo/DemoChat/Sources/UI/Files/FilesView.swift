@@ -33,6 +33,8 @@ public struct FilesView: View {
                         Text(purpose.rawValue).tag(Optional(purpose))
                     }
                 }
+                // Changing the filter starts a reload, which `FilesStore` skips while another load is running.
+                .disabled(store.isLoading)
             }
 
             Section {

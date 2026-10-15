@@ -33,17 +33,21 @@ public final class FilesStore: ObservableObject {
     }
 
     /// Loads the first page of files for the current purpose filter.
+    ///
+    /// Does nothing while another load is running: only one list request is in flight at a time, so a slower
+    /// response can't overwrite a newer one. The purpose filter is disabled while loading for the same reason.
     func reload() async {
         await load(after: nil)
     }
 
     /// Appends the next page, if there is one.
     func loadMore() async {
-        guard hasMore, !isLoading, let lastId = files.last?.id else { return }
+        guard hasMore, let lastId = files.last?.id else { return }
         await load(after: lastId)
     }
 
     private func load(after: String?) async {
+        guard !isLoading else { return }
         isLoading = true
         defer { isLoading = false }
         do {

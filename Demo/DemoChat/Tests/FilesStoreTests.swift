@@ -69,6 +69,51 @@ struct FilesStoreTests {
     }
 
     @Test
+    func reloadIsSkippedWhileALoadIsRunning() async throws {
+        let endpoint = FakeFilesEndpoint(pages: [.page(["file-1"], hasMore: false)])
+        endpoint.holdsList = true
+        let store = FilesStore(client: endpoint)
+
+        let firstReload = Task { await store.reload() }
+        await waitUntil { endpoint.listQueries.count == 1 }
+        #expect(store.isLoading)
+
+        // In its own task, so that if it does call `list`, the test fails instead of waiting forever.
+        let secondReload = Task { await store.reload() }
+        await yieldRepeatedly()
+        #expect(endpoint.listQueries.count == 1)
+
+        endpoint.releaseList()
+        await firstReload.value
+        await secondReload.value
+        #expect(store.files.map(\.id) == ["file-1"])
+        #expect(!store.isLoading)
+    }
+
+    @Test
+    func loadMoreIsSkippedWhileAReloadIsRunning() async throws {
+        let endpoint = FakeFilesEndpoint(pages: [
+            .page(["file-1"], hasMore: true),
+            .page(["file-2"], hasMore: false),
+        ])
+        let store = FilesStore(client: endpoint)
+        await store.reload()
+        endpoint.holdsList = true
+
+        let reload = Task { await store.reload() }
+        await waitUntil { endpoint.listQueries.count == 2 }
+
+        let loadMore = Task { await store.loadMore() }
+        await yieldRepeatedly()
+        #expect(endpoint.listQueries.count == 2)
+
+        endpoint.releaseList()
+        await reload.value
+        await loadMore.value
+        #expect(store.files.map(\.id) == ["file-2"])
+    }
+
+    @Test
     func failedReloadClearsTheList() async throws {
         let endpoint = FakeFilesEndpoint(pages: [.page(["file-1"], hasMore: true)])
         let store = FilesStore(client: endpoint)
@@ -95,6 +140,22 @@ struct FilesStoreTests {
 }
 
 private struct NoMorePagesError: Error {}
+
+/// Yields to other tasks until `condition` holds.
+@MainActor
+private func waitUntil(_ condition: () -> Bool) async {
+    while !condition() {
+        await Task.yield()
+    }
+}
+
+/// Gives other tasks a chance to run, for checking that something does *not* happen.
+@MainActor
+private func yieldRepeatedly() async {
+    for _ in 0..<20 {
+        await Task.yield()
+    }
+}
 
 private extension ListFilesResponse {
     static func page(_ ids: [String], hasMore: Bool) -> Self {
@@ -127,9 +188,18 @@ private final class FakeFilesEndpoint: FilesEndpointProtocol, @unchecked Sendabl
     private var pages: [ListFilesResponse]
     private(set) var listQueries: [ListFilesQuery] = []
     private(set) var createQueries: [CreateFileQuery] = []
+    /// When set, `list` waits until `releaseList()` is called, so a test can act while a load is in flight.
+    var holdsList = false
+    private var heldLists: [CheckedContinuation<Void, Never>] = []
 
     init(pages: [ListFilesResponse]) {
         self.pages = pages
+    }
+
+    /// Lets every held `list` call continue.
+    func releaseList() {
+        heldLists.forEach { $0.resume() }
+        heldLists = []
     }
 
     func create(query: CreateFileQuery) async throws -> OpenAIFile {
@@ -139,6 +209,9 @@ private final class FakeFilesEndpoint: FilesEndpointProtocol, @unchecked Sendabl
 
     func list(query: ListFilesQuery) async throws -> ListFilesResponse {
         listQueries.append(query)
+        if holdsList {
+            await withCheckedContinuation { heldLists.append($0) }
+        }
         guard !pages.isEmpty else { throw NoMorePagesError() }
         return pages.removeFirst()
     }
