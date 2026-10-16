@@ -33,8 +33,9 @@ public struct FilesView: View {
                         Text(purpose.rawValue).tag(Optional(purpose))
                     }
                 }
-                // Changing the filter starts a reload, which `FilesStore` skips while another load is running.
-                .disabled(store.isLoading)
+                // `FilesStore` runs one request at a time and skips a reload while busy, so the filter is
+                // disabled meanwhile instead. The same goes for the other controls that start a request below.
+                .disabled(store.isBusy)
             }
 
             Section {
@@ -53,12 +54,13 @@ public struct FilesView: View {
                         }
                     }
                 }
+                .deleteDisabled(store.isBusy)
 
                 if store.hasMore {
                     Button("Load More") {
                         Task { await store.loadMore() }
                     }
-                    .disabled(store.isLoading)
+                    .disabled(store.isBusy)
                 }
             }
         }
@@ -81,6 +83,7 @@ public struct FilesView: View {
             } label: {
                 Label("Upload File", systemImage: "plus")
             }
+            .disabled(store.isBusy)
         }
         .sheet(isPresented: $isUploadPresented) {
             UploadFileView(store: store)

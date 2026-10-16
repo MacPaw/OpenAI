@@ -50,6 +50,7 @@ struct FileDetailView: View {
                 Button("Delete File", role: .destructive) {
                     isDeleteConfirmationPresented = true
                 }
+                .disabled(store.isBusy)
             }
         }
         .listStyle(.insetGrouped)

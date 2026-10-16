@@ -24,7 +24,10 @@ public final class FilesStore: ObservableObject {
 
     @Published private(set) var files: [OpenAIFile] = []
     @Published private(set) var hasMore = false
+    /// A list request is in flight. Uploads and deletions are refused meanwhile, so the response can't undo them.
     @Published private(set) var isLoading = false
+    /// An upload or deletion is in flight. List requests are skipped meanwhile, for the same reason.
+    @Published private(set) var isChanging = false
     @Published var purposeFilter: OpenAIFile.Purpose? = nil
     @Published var error: Error?
 
@@ -32,22 +35,27 @@ public final class FilesStore: ObservableObject {
         self.client = client
     }
 
-    /// Loads the first page of files for the current purpose filter.
-    ///
-    /// Does nothing while another load is running: only one list request is in flight at a time, so a slower
-    /// response can't overwrite a newer one. The purpose filter is disabled while loading for the same reason.
+    /// Whether any request that changes `files` is in flight. Only one runs at a time, so a list response can't
+    /// overwrite a newer one or undo an upload or deletion. The UI disables the controls that start them meanwhile.
+    var isBusy: Bool {
+        isLoading || isChanging
+    }
+
+    /// Loads the first page of files for the current purpose filter. Does nothing while busy.
     func reload() async {
         await load(after: nil)
     }
 
-    /// Appends the next page, if there is one.
+    /// Appends the next page, if there is one. Does nothing while busy.
     func loadMore() async {
-        guard hasMore, let lastId = files.last?.id else { return }
-        await load(after: lastId)
+        guard hasMore else { return }
+        // The cursor is the last loaded file that still exists: the API rejects a deleted file as `after` (404).
+        // With every loaded file deleted, the remaining ones are the first page.
+        await load(after: files.last?.id)
     }
 
     private func load(after: String?) async {
-        guard !isLoading else { return }
+        guard !isBusy else { return }
         isLoading = true
         defer { isLoading = false }
         do {
@@ -71,6 +79,9 @@ public final class FilesStore: ObservableObject {
     /// Uploads the file at `url`, which may be security-scoped (as returned by a file importer).
     @discardableResult
     func upload(url: URL, purpose: String, expiresAfterSeconds: Int64?) async -> OpenAIFile? {
+        guard !isBusy else { return nil }
+        isChanging = true
+        defer { isChanging = false }
         do {
             // Off the main actor: the file can be up to 512 MB, and reading it here would freeze the UI.
             let data = try await Task.detached { try Self.readSecurityScopedFile(at: url) }.value
@@ -119,6 +130,9 @@ public final class FilesStore: ObservableObject {
     /// Deletes the file and removes it from the list. Returns whether the API reported it as deleted.
     @discardableResult
     func delete(id: String) async -> Bool {
+        guard !isBusy else { return false }
+        isChanging = true
+        defer { isChanging = false }
         do {
             let result = try await client.delete(id: id)
             if result.deleted {

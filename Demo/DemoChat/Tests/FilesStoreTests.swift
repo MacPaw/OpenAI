@@ -71,7 +71,7 @@ struct FilesStoreTests {
     @Test
     func reloadIsSkippedWhileALoadIsRunning() async throws {
         let endpoint = FakeFilesEndpoint(pages: [.page(["file-1"], hasMore: false)])
-        endpoint.holdsList = true
+        endpoint.holdsRequests = true
         let store = FilesStore(client: endpoint)
 
         let firstReload = Task { await store.reload() }
@@ -83,7 +83,7 @@ struct FilesStoreTests {
         await yieldRepeatedly()
         #expect(endpoint.listQueries.count == 1)
 
-        endpoint.releaseList()
+        endpoint.releaseRequests()
         await firstReload.value
         await secondReload.value
         #expect(store.files.map(\.id) == ["file-1"])
@@ -98,7 +98,7 @@ struct FilesStoreTests {
         ])
         let store = FilesStore(client: endpoint)
         await store.reload()
-        endpoint.holdsList = true
+        endpoint.holdsRequests = true
 
         let reload = Task { await store.reload() }
         await waitUntil { endpoint.listQueries.count == 2 }
@@ -107,10 +107,89 @@ struct FilesStoreTests {
         await yieldRepeatedly()
         #expect(endpoint.listQueries.count == 2)
 
-        endpoint.releaseList()
+        endpoint.releaseRequests()
         await reload.value
         await loadMore.value
         #expect(store.files.map(\.id) == ["file-2"])
+    }
+
+    @Test
+    func deleteIsRefusedWhileAReloadIsRunning() async throws {
+        let endpoint = FakeFilesEndpoint(pages: [
+            .page(["file-1", "file-2"], hasMore: false),
+            .page(["file-1", "file-2"], hasMore: false),
+        ])
+        let store = FilesStore(client: endpoint)
+        await store.reload()
+        endpoint.holdsRequests = true
+
+        let reload = Task { await store.reload() }
+        await waitUntil { endpoint.listQueries.count == 2 }
+
+        // In its own task, so that if it does call the API, the test fails instead of waiting forever.
+        let delete = Task { await store.delete(id: "file-1") }
+        await yieldRepeatedly()
+        #expect(endpoint.deletedIDs.isEmpty)
+
+        endpoint.releaseRequests()
+        await reload.value
+        #expect(await delete.value == false)
+        #expect(store.files.map(\.id) == ["file-1", "file-2"])
+    }
+
+    /// A reload started during a deletion could return the file before the server removes it, and bring it back.
+    @Test
+    func reloadIsSkippedWhileADeletionIsRunning() async throws {
+        let endpoint = FakeFilesEndpoint(pages: [.page(["file-1", "file-2"], hasMore: false)])
+        let store = FilesStore(client: endpoint)
+        await store.reload()
+        endpoint.holdsRequests = true
+
+        let delete = Task { await store.delete(id: "file-1") }
+        await waitUntil { endpoint.deletedIDs.count == 1 }
+
+        let reload = Task { await store.reload() }
+        await yieldRepeatedly()
+        #expect(endpoint.listQueries.count == 1)
+
+        endpoint.releaseRequests()
+        _ = await delete.value
+        await reload.value
+        #expect(store.files.map(\.id) == ["file-2"])
+    }
+
+    @Test
+    func loadMoreUsesTheLastRemainingFileAsTheCursor() async throws {
+        let endpoint = FakeFilesEndpoint(pages: [
+            .page(["file-1", "file-2"], hasMore: true),
+            .page(["file-3"], hasMore: false),
+        ])
+        let store = FilesStore(client: endpoint)
+        await store.reload()
+
+        await store.delete(id: "file-2")
+        await store.loadMore()
+
+        #expect(endpoint.listQueries.last?.after == "file-1")
+        #expect(store.files.map(\.id) == ["file-1", "file-3"])
+    }
+
+    @Test
+    func loadMoreLoadsTheFirstPageWhenEveryLoadedFileWasDeleted() async throws {
+        let endpoint = FakeFilesEndpoint(pages: [
+            .page(["file-1", "file-2"], hasMore: true),
+            .page(["file-3"], hasMore: false),
+        ])
+        let store = FilesStore(client: endpoint)
+        await store.reload()
+
+        await store.delete(id: "file-1")
+        await store.delete(id: "file-2")
+        await store.loadMore()
+
+        #expect(endpoint.listQueries.count == 2)
+        #expect(endpoint.listQueries.last?.after == nil)
+        #expect(store.files.map(\.id) == ["file-3"])
     }
 
     @Test
@@ -183,23 +262,32 @@ private extension OpenAIFile {
     }
 }
 
-/// Returns the given list pages in order, echoes uploads back as files, and records the queries it receives.
-private final class FakeFilesEndpoint: FilesEndpointProtocol, @unchecked Sendable {
+/// Returns the given list pages in order, echoes uploads back as files, and records the requests it receives.
+/// Main-actor isolated like the tests, so recording a request and holding it can't interleave with a test's checks.
+@MainActor
+private final class FakeFilesEndpoint: FilesEndpointProtocol {
     private var pages: [ListFilesResponse]
     private(set) var listQueries: [ListFilesQuery] = []
     private(set) var createQueries: [CreateFileQuery] = []
-    /// When set, `list` waits until `releaseList()` is called, so a test can act while a load is in flight.
-    var holdsList = false
-    private var heldLists: [CheckedContinuation<Void, Never>] = []
+    private(set) var deletedIDs: [String] = []
+    /// When set, `list` and `delete` wait until `releaseRequests()`, so a test can act while one is in flight.
+    var holdsRequests = false
+    private var heldRequests: [CheckedContinuation<Void, Never>] = []
 
     init(pages: [ListFilesResponse]) {
         self.pages = pages
     }
 
-    /// Lets every held `list` call continue.
-    func releaseList() {
-        heldLists.forEach { $0.resume() }
-        heldLists = []
+    /// Lets every held request continue.
+    func releaseRequests() {
+        heldRequests.forEach { $0.resume() }
+        heldRequests = []
+    }
+
+    private func holdIfNeeded() async {
+        if holdsRequests {
+            await withCheckedContinuation { heldRequests.append($0) }
+        }
     }
 
     func create(query: CreateFileQuery) async throws -> OpenAIFile {
@@ -209,29 +297,29 @@ private final class FakeFilesEndpoint: FilesEndpointProtocol, @unchecked Sendabl
 
     func list(query: ListFilesQuery) async throws -> ListFilesResponse {
         listQueries.append(query)
-        if holdsList {
-            await withCheckedContinuation { heldLists.append($0) }
-        }
+        await holdIfNeeded()
         guard !pages.isEmpty else { throw NoMorePagesError() }
         return pages.removeFirst()
     }
 
     func delete(id: String) async throws -> Components.Schemas.DeleteFileResponse {
-        .init(id: id, object: .file, deleted: true)
+        deletedIDs.append(id)
+        await holdIfNeeded()
+        return .init(id: id, object: .file, deleted: true)
     }
 
     func retrieve(id: String) async throws -> OpenAIFile { fatalError() }
     func content(id: String) async throws -> Data { fatalError() }
 
-    func create(query: CreateFileQuery) -> AnyPublisher<OpenAIFile, Error> { fatalError() }
-    func retrieve(id: String) -> AnyPublisher<OpenAIFile, Error> { fatalError() }
-    func list(query: ListFilesQuery) -> AnyPublisher<ListFilesResponse, Error> { fatalError() }
-    func delete(id: String) -> AnyPublisher<Components.Schemas.DeleteFileResponse, Error> { fatalError() }
-    func content(id: String) -> AnyPublisher<Data, Error> { fatalError() }
+    nonisolated func create(query: CreateFileQuery) -> AnyPublisher<OpenAIFile, Error> { fatalError() }
+    nonisolated func retrieve(id: String) -> AnyPublisher<OpenAIFile, Error> { fatalError() }
+    nonisolated func list(query: ListFilesQuery) -> AnyPublisher<ListFilesResponse, Error> { fatalError() }
+    nonisolated func delete(id: String) -> AnyPublisher<Components.Schemas.DeleteFileResponse, Error> { fatalError() }
+    nonisolated func content(id: String) -> AnyPublisher<Data, Error> { fatalError() }
 
-    func create(query: CreateFileQuery, completion: @escaping @Sendable (Result<OpenAIFile, Error>) -> Void) -> CancellableRequest { fatalError() }
-    func retrieve(id: String, completion: @escaping @Sendable (Result<OpenAIFile, Error>) -> Void) -> CancellableRequest { fatalError() }
-    func list(query: ListFilesQuery, completion: @escaping @Sendable (Result<ListFilesResponse, Error>) -> Void) -> CancellableRequest { fatalError() }
-    func delete(id: String, completion: @escaping @Sendable (Result<Components.Schemas.DeleteFileResponse, Error>) -> Void) -> CancellableRequest { fatalError() }
-    func content(id: String, completion: @escaping @Sendable (Result<Data, Error>) -> Void) -> CancellableRequest { fatalError() }
+    nonisolated func create(query: CreateFileQuery, completion: @escaping @Sendable (Result<OpenAIFile, Error>) -> Void) -> CancellableRequest { fatalError() }
+    nonisolated func retrieve(id: String, completion: @escaping @Sendable (Result<OpenAIFile, Error>) -> Void) -> CancellableRequest { fatalError() }
+    nonisolated func list(query: ListFilesQuery, completion: @escaping @Sendable (Result<ListFilesResponse, Error>) -> Void) -> CancellableRequest { fatalError() }
+    nonisolated func delete(id: String, completion: @escaping @Sendable (Result<Components.Schemas.DeleteFileResponse, Error>) -> Void) -> CancellableRequest { fatalError() }
+    nonisolated func content(id: String, completion: @escaping @Sendable (Result<Data, Error>) -> Void) -> CancellableRequest { fatalError() }
 }
