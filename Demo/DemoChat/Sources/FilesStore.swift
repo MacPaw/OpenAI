@@ -72,7 +72,8 @@ public final class FilesStore: ObservableObject {
     @discardableResult
     func upload(url: URL, purpose: String, expiresAfterSeconds: Int64?) async -> OpenAIFile? {
         do {
-            let data = try readSecurityScopedFile(at: url)
+            // Off the main actor: the file can be up to 512 MB, and reading it here would freeze the UI.
+            let data = try await Task.detached { try Self.readSecurityScopedFile(at: url) }.value
             let contentType = UTType(filenameExtension: url.pathExtension)?.preferredMIMEType
                 ?? "application/octet-stream"
             let file = try await client.create(query: CreateFileQuery(
@@ -130,7 +131,7 @@ public final class FilesStore: ObservableObject {
         }
     }
 
-    private func readSecurityScopedFile(at url: URL) throws -> Data {
+    private nonisolated static func readSecurityScopedFile(at url: URL) throws -> Data {
         let isAccessing = url.startAccessingSecurityScopedResource()
         defer {
             if isAccessing {
