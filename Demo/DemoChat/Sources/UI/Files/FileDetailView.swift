@@ -8,14 +8,12 @@ import SwiftUI
 
 /// Shows a file's details, refreshes them, downloads its content and deletes it.
 struct FileDetailView: View {
-    /// How much of a text file's content to show.
-    private static let previewLength = 5_000
-
     @ObservedObject var store: FilesStore
     @State var file: OpenAIFile
     @Environment(\.dismiss) private var dismiss
 
     @State private var content: Data?
+    @State private var contentPreview: FileContentPreview?
     @State private var isLoadingContent = false
     @State private var isDeleteConfirmationPresented = false
 
@@ -37,8 +35,8 @@ struct FileDetailView: View {
             }
 
             Section("Content") {
-                if let content {
-                    contentPreview(content)
+                if let content, let contentPreview {
+                    previewView(contentPreview)
                     let shared = DownloadedFileContent(data: content, filename: file.filename, fallbackName: file.id)
                     ShareLink("Share", item: shared, preview: SharePreview(shared.fileName))
                 } else if isLoadingContent {
@@ -85,13 +83,14 @@ struct FileDetailView: View {
     }
 
     @ViewBuilder
-    private func contentPreview(_ content: Data) -> some View {
-        if let text = String(data: content, encoding: .utf8) {
-            Text(text.count > Self.previewLength ? String(text.prefix(Self.previewLength)) + "…" : text)
+    private func previewView(_ preview: FileContentPreview) -> some View {
+        switch preview {
+        case .text(let text, let isTruncated):
+            Text(isTruncated ? text + "…" : text)
                 .font(.system(.footnote, design: .monospaced))
                 .textSelection(.enabled)
-        } else {
-            Text("Binary content, \(Int64(content.count).formatted(.byteCount(style: .file)))")
+        case .binary(let byteCount):
+            Text("Binary content, \(Int64(byteCount).formatted(.byteCount(style: .file)))")
                 .foregroundStyle(.secondary)
         }
     }
@@ -100,6 +99,7 @@ struct FileDetailView: View {
         isLoadingContent = true
         Task {
             if let data = await store.content(id: file.id) {
+                contentPreview = FileContentPreview(data)
                 content = data
             }
             isLoadingContent = false
