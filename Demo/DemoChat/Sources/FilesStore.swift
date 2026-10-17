@@ -24,21 +24,15 @@ public final class FilesStore: ObservableObject {
 
     @Published private(set) var files: [OpenAIFile] = []
     @Published private(set) var hasMore = false
-    /// A list request is in flight. Uploads and deletions are refused meanwhile, so the response can't undo them.
-    @Published private(set) var isLoading = false
-    /// An upload or deletion is in flight. List requests are skipped meanwhile, for the same reason.
-    @Published private(set) var isChanging = false
+    /// Whether a request that changes `files` (list, upload or deletion) is in flight. Only one runs at a time, so
+    /// a list response can't overwrite a newer one or undo an upload or deletion; the others are skipped meanwhile.
+    /// The UI disables the controls that start them while busy.
+    @Published private(set) var isBusy = false
     @Published var purposeFilter: OpenAIFile.Purpose? = nil
     @Published var error: Error?
 
     public init(client: FilesEndpointProtocol) {
         self.client = client
-    }
-
-    /// Whether any request that changes `files` is in flight. Only one runs at a time, so a list response can't
-    /// overwrite a newer one or undo an upload or deletion. The UI disables the controls that start them meanwhile.
-    var isBusy: Bool {
-        isLoading || isChanging
     }
 
     /// Loads the first page of files for the current purpose filter. Does nothing while busy.
@@ -56,8 +50,8 @@ public final class FilesStore: ObservableObject {
 
     private func load(after: String?) async {
         guard !isBusy else { return }
-        isLoading = true
-        defer { isLoading = false }
+        isBusy = true
+        defer { isBusy = false }
         do {
             let page = try await client.list(query: .init(
                 purpose: purposeFilter?.rawValue,
@@ -80,8 +74,8 @@ public final class FilesStore: ObservableObject {
     @discardableResult
     func upload(url: URL, purpose: String, expiresAfterSeconds: Int64?) async -> OpenAIFile? {
         guard !isBusy else { return nil }
-        isChanging = true
-        defer { isChanging = false }
+        isBusy = true
+        defer { isBusy = false }
         do {
             // Off the main actor: the file can be up to 512 MB, and reading it here would freeze the UI.
             let data = try await Task.detached { try Self.readSecurityScopedFile(at: url) }.value
@@ -131,8 +125,8 @@ public final class FilesStore: ObservableObject {
     @discardableResult
     func delete(id: String) async -> Bool {
         guard !isBusy else { return false }
-        isChanging = true
-        defer { isChanging = false }
+        isBusy = true
+        defer { isBusy = false }
         do {
             let result = try await client.delete(id: id)
             if result.deleted {

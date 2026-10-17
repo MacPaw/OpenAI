@@ -76,7 +76,7 @@ struct FilesStoreTests {
 
         let firstReload = Task { await store.reload() }
         await waitUntil { endpoint.listQueries.count == 1 }
-        #expect(store.isLoading)
+        #expect(store.isBusy)
 
         // In its own task, so that if it does call `list`, the test fails instead of waiting forever.
         let secondReload = Task { await store.reload() }
@@ -87,7 +87,7 @@ struct FilesStoreTests {
         await firstReload.value
         await secondReload.value
         #expect(store.files.map(\.id) == ["file-1"])
-        #expect(!store.isLoading)
+        #expect(!store.isBusy)
     }
 
     @Test

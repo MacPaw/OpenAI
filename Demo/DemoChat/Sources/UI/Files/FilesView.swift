@@ -66,7 +66,7 @@ public struct FilesView: View {
         }
         .listStyle(.insetGrouped)
         .overlay {
-            if store.isLoading && store.files.isEmpty {
+            if store.isBusy && store.files.isEmpty {
                 ProgressView()
             } else if store.files.isEmpty {
                 ContentUnavailableView(
