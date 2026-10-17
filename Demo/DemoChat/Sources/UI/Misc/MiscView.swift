@@ -35,6 +35,9 @@ public struct MiscView: View {
                         assistantStore: assistantStore
                     ))
                 }
+                Section(header: Text("Files")) {
+                    NavigationLink("Files", destination: FilesView(client: store.openAIClient.files))
+                }
                 Section(header: Text("Moderations")) {
                     NavigationLink("Moderation Chat", destination: ModerationChatView(store: store))
                 }
