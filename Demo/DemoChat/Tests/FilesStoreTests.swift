@@ -1,6 +1,7 @@
 import Combine
 import Foundation
 import Testing
+import os
 @testable import DemoChat
 @testable import OpenAI
 
@@ -56,6 +57,43 @@ struct FilesStoreTests {
         #expect(query.file == Data("{}".utf8))
         #expect(query.expiresAfter?.seconds == 3600)
         #expect(store.files.map(\.id) == [try #require(file).id])
+    }
+
+    @Test
+    func uploadCancelledBeforeSendingSendsNothing() async throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("cancelled.json")
+        try Data("{}".utf8).write(to: url)
+        let endpoint = FakeFilesEndpoint(pages: [])
+        let store = FilesStore(client: endpoint)
+
+        // Cancelled before it starts, so the cancellation is already there when the file has been read.
+        let upload = Task { await store.upload(url: url, purpose: "batch", expiresAfterSeconds: nil) }
+        upload.cancel()
+
+        #expect(await upload.value == nil)
+        #expect(endpoint.createQueries.isEmpty)
+        #expect(store.error == nil)
+        #expect(!store.isBusy)
+    }
+
+    /// Goes through a real client and URLSession, so it checks that cancelling the task actually cancels the request.
+    @Test
+    func uploadCancelledWhileSendingCancelsTheRequest() async throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("sending.json")
+        try Data("{}".utf8).write(to: url)
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [UnansweredURLProtocol.self]
+        let client = OpenAI(configuration: .init(token: "test"), session: URLSession(configuration: configuration))
+        let store = FilesStore(client: client.files)
+
+        let upload = Task { await store.upload(url: url, purpose: "batch", expiresAfterSeconds: nil) }
+        try await sleepUntil { UnansweredURLProtocol.state.withLock { $0.started } }
+        upload.cancel()
+
+        #expect(await upload.value == nil)
+        try await sleepUntil { UnansweredURLProtocol.state.withLock { $0.stopped } }
+        #expect(store.error == nil)
+        #expect(!store.isBusy)
     }
 
     @Test
@@ -254,6 +292,31 @@ private struct NoMorePagesError: Error {}
 private func waitUntil(_ condition: () -> Bool) async {
     while !condition() {
         await Task.yield()
+    }
+}
+
+/// Sleeps until `condition` holds, for state changed on another thread, such as URL loading.
+@MainActor
+private func sleepUntil(_ condition: () -> Bool) async throws {
+    while !condition() {
+        try await Task.sleep(for: .milliseconds(10))
+    }
+}
+
+/// Receives requests and never answers them, like an upload that's still being sent. Records whether a request
+/// started and whether URLSession stopped it.
+private final class UnansweredURLProtocol: URLProtocol {
+    static let state = OSAllocatedUnfairLock(initialState: (started: false, stopped: false))
+
+    override class func canInit(with request: URLRequest) -> Bool { true }
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+
+    override func startLoading() {
+        Self.state.withLock { $0.started = true }
+    }
+
+    override func stopLoading() {
+        Self.state.withLock { $0.stopped = true }
     }
 }
 

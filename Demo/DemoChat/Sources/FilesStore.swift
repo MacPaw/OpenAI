@@ -88,6 +88,10 @@ public final class FilesStore: ObservableObject {
     }
 
     /// Uploads the file at `url`, which may be security-scoped (as returned by a file importer).
+    ///
+    /// Cancelling the calling task stops the upload: before anything is sent if the file is still being read,
+    /// otherwise by cancelling the request. A cancelled upload isn't reported as an error. If the request was
+    /// already sent in full, the file may still be created.
     @discardableResult
     func upload(url: URL, purpose: String, expiresAfterSeconds: Int64?) async -> OpenAIFile? {
         guard !isBusy else { return nil }
@@ -97,6 +101,8 @@ public final class FilesStore: ObservableObject {
         do {
             // Off the main actor: the file can be up to 512 MB, and reading it here would freeze the UI.
             let data = try await Task.detached { try Self.readSecurityScopedFile(at: url) }.value
+            // The detached read doesn't see this task's cancellation, so check for it before sending.
+            try Task.checkCancellation()
             let contentType = UTType(filenameExtension: url.pathExtension)?.preferredMIMEType
                 ?? "application/octet-stream"
             let file = try await client.create(query: CreateFileQuery(
@@ -112,7 +118,7 @@ public final class FilesStore: ObservableObject {
             }
             return file
         } catch {
-            guard isCurrent(generation) else { return nil }
+            guard isCurrent(generation), !Self.isCancellation(error) else { return nil }
             self.error = error
             return nil
         }
@@ -178,6 +184,12 @@ public final class FilesStore: ObservableObject {
         if isCurrent(generation) {
             isBusy = false
         }
+    }
+
+    /// Whether `error` comes from cancelling the task: `CancellationError` from a cancellation check, or
+    /// `URLError.cancelled` from URLSession cancelling the request.
+    private static func isCancellation(_ error: Error) -> Bool {
+        error is CancellationError || (error as? URLError)?.code == .cancelled
     }
 
     private nonisolated static func readSecurityScopedFile(at url: URL) throws -> Data {
