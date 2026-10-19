@@ -4,7 +4,9 @@ import Testing
 @testable import DemoChat
 @testable import OpenAI
 
+// Several tests hold requests in flight; a mistake there deadlocks the test, so fail it instead of waiting forever.
 @MainActor
+@Suite(.timeLimit(.minutes(1)))
 struct FilesStoreTests {
     @Test
     func reloadListsFirstPageWithPurposeFilter() async throws {
@@ -190,6 +192,33 @@ struct FilesStoreTests {
         #expect(endpoint.listQueries.count == 2)
         #expect(endpoint.listQueries.last?.after == nil)
         #expect(store.files.map(\.id) == ["file-3"])
+    }
+
+    /// The API configuration changed, possibly to another account, while a request to the old one was in flight.
+    @Test
+    func switchingTheClientClearsTheListAndIgnoresTheOldClientsResponses() async throws {
+        let oldEndpoint = FakeFilesEndpoint(pages: [
+            .page(["file-1"], hasMore: true),
+            .page(["file-2"], hasMore: false),
+        ])
+        let store = FilesStore(client: oldEndpoint)
+        await store.reload()
+        oldEndpoint.holdsRequests = true
+        let staleLoad = Task { await store.loadMore() }
+        await waitUntil { oldEndpoint.listQueries.count == 2 }
+
+        store.client = FakeFilesEndpoint(pages: [.page(["file-new"], hasMore: false)])
+        #expect(store.files.isEmpty)
+        #expect(!store.hasMore)
+        #expect(!store.isBusy)
+
+        await store.reload()
+        #expect(store.files.map(\.id) == ["file-new"])
+
+        oldEndpoint.releaseRequests()
+        await staleLoad.value
+        #expect(store.files.map(\.id) == ["file-new"])
+        #expect(!store.isBusy)
     }
 
     @Test

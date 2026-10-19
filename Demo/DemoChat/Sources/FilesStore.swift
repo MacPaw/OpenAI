@@ -20,7 +20,21 @@ public final class FilesStore: ObservableObject {
 
     static let pageSize = 20
 
-    var client: FilesEndpointProtocol
+    /// Set when the API configuration changes. The new client may use another API key, and so another account, so
+    /// this drops everything the previous client loaded and lets requests start right away.
+    public var client: FilesEndpointProtocol {
+        didSet {
+            generation += 1
+            files = []
+            hasMore = false
+            error = nil
+            isBusy = false
+        }
+    }
+
+    /// Changes with `client`. A request publishes its result only if this hasn't changed since it started, so a
+    /// response for the previous client can't show up after the switch.
+    private var generation = 0
 
     @Published private(set) var files: [OpenAIFile] = []
     @Published private(set) var hasMore = false
@@ -51,16 +65,19 @@ public final class FilesStore: ObservableObject {
     private func load(after: String?) async {
         guard !isBusy else { return }
         isBusy = true
-        defer { isBusy = false }
+        let generation = generation
+        defer { finishRequest(generation) }
         do {
             let page = try await client.list(query: .init(
                 purpose: purposeFilter?.rawValue,
                 limit: Self.pageSize,
                 after: after
             ))
+            guard isCurrent(generation) else { return }
             files = after == nil ? page.data : files + page.data
             hasMore = page.hasMore
         } catch {
+            guard isCurrent(generation) else { return }
             self.error = error
             if after == nil {
                 // Don't keep showing files that may not match the current filter.
@@ -75,7 +92,8 @@ public final class FilesStore: ObservableObject {
     func upload(url: URL, purpose: String, expiresAfterSeconds: Int64?) async -> OpenAIFile? {
         guard !isBusy else { return nil }
         isBusy = true
-        defer { isBusy = false }
+        let generation = generation
+        defer { finishRequest(generation) }
         do {
             // Off the main actor: the file can be up to 512 MB, and reading it here would freeze the UI.
             let data = try await Task.detached { try Self.readSecurityScopedFile(at: url) }.value
@@ -88,11 +106,13 @@ public final class FilesStore: ObservableObject {
                 contentType: contentType,
                 expiresAfter: expiresAfterSeconds.map { .init(anchor: .createdAt, seconds: $0) }
             ))
+            guard isCurrent(generation) else { return nil }
             if purposeFilter == nil || purposeFilter == file.purpose {
                 files.insert(file, at: 0)
             }
             return file
         } catch {
+            guard isCurrent(generation) else { return nil }
             self.error = error
             return nil
         }
@@ -100,22 +120,28 @@ public final class FilesStore: ObservableObject {
 
     /// Fetches the file again and updates it in the list.
     func retrieve(id: String) async -> OpenAIFile? {
+        let generation = generation
         do {
             let file = try await client.retrieve(id: id)
+            guard isCurrent(generation) else { return nil }
             if let index = files.firstIndex(where: { $0.id == id }) {
                 files[index] = file
             }
             return file
         } catch {
+            guard isCurrent(generation) else { return nil }
             self.error = error
             return nil
         }
     }
 
     func content(id: String) async -> Data? {
+        let generation = generation
         do {
-            return try await client.content(id: id)
+            let data = try await client.content(id: id)
+            return isCurrent(generation) ? data : nil
         } catch {
+            guard isCurrent(generation) else { return nil }
             self.error = error
             return nil
         }
@@ -126,16 +152,31 @@ public final class FilesStore: ObservableObject {
     func delete(id: String) async -> Bool {
         guard !isBusy else { return false }
         isBusy = true
-        defer { isBusy = false }
+        let generation = generation
+        defer { finishRequest(generation) }
         do {
             let result = try await client.delete(id: id)
+            guard isCurrent(generation) else { return false }
             if result.deleted {
                 files.removeAll { $0.id == id }
             }
             return result.deleted
         } catch {
+            guard isCurrent(generation) else { return false }
             self.error = error
             return false
+        }
+    }
+
+    private func isCurrent(_ generation: Int) -> Bool {
+        generation == self.generation
+    }
+
+    /// Ends a list, upload or deletion. A request for the previous client leaves `isBusy` alone: the client switch
+    /// already reset it, and a request for the new client may be running.
+    private func finishRequest(_ generation: Int) {
+        if isCurrent(generation) {
+            isBusy = false
         }
     }
 

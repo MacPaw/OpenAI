@@ -8,12 +8,12 @@ import SwiftUI
 
 /// Lists the files in the organization, filtered by purpose, with paging, upload and delete.
 public struct FilesView: View {
-    @StateObject private var store: FilesStore
+    @ObservedObject var store: FilesStore
     @Environment(\.apiProvider) private var apiProvider
     @State private var isUploadPresented = false
 
-    public init(client: FilesEndpointProtocol) {
-        _store = StateObject(wrappedValue: FilesStore(client: client))
+    public init(store: FilesStore) {
+        self.store = store
     }
 
     public var body: some View {
