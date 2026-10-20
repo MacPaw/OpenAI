@@ -45,8 +45,16 @@ public final class FilesStore: ObservableObject {
     @Published var purposeFilter: OpenAIFile.Purpose? = nil
     @Published var error: Error?
 
-    public init(client: FilesEndpointProtocol) {
+    /// Reads the file to upload. Tests replace it to hold a read in flight.
+    private let readFile: @Sendable (URL) async throws -> Data
+
+    public convenience init(client: FilesEndpointProtocol) {
+        self.init(client: client, readFile: Self.readOffMainActor)
+    }
+
+    init(client: FilesEndpointProtocol, readFile: @escaping @Sendable (URL) async throws -> Data) {
         self.client = client
+        self.readFile = readFile
     }
 
     /// Loads the first page of files for the current purpose filter. Does nothing while busy.
@@ -99,9 +107,8 @@ public final class FilesStore: ObservableObject {
         let generation = generation
         defer { finishRequest(generation) }
         do {
-            // Off the main actor: the file can be up to 512 MB, and reading it here would freeze the UI.
-            let data = try await Task.detached { try Self.readSecurityScopedFile(at: url) }.value
-            // The detached read doesn't see this task's cancellation, so check for it before sending.
+            let data = try await readFile(url)
+            // The read doesn't see this task's cancellation, so check for it before sending.
             try Task.checkCancellation()
             // The client may have been replaced during the read; don't send the file to the new one.
             guard isCurrent(generation) else { return nil }
@@ -192,6 +199,11 @@ public final class FilesStore: ObservableObject {
     /// `URLError.cancelled` from URLSession cancelling the request.
     private static func isCancellation(_ error: Error) -> Bool {
         error is CancellationError || (error as? URLError)?.code == .cancelled
+    }
+
+    /// Reads the file off the main actor: it can be up to 512 MB, and reading it there would freeze the UI.
+    private nonisolated static func readOffMainActor(_ url: URL) async throws -> Data {
+        try await Task.detached { try readSecurityScopedFile(at: url) }.value
     }
 
     private nonisolated static func readSecurityScopedFile(at url: URL) throws -> Data {

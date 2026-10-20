@@ -78,16 +78,17 @@ struct FilesStoreTests {
 
     @Test
     func uploadIsNotSentWhenTheClientChangesDuringTheRead() async throws {
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("switched.json")
-        try Data("{}".utf8).write(to: url)
         let oldEndpoint = FakeFilesEndpoint(pages: [])
         let newEndpoint = FakeFilesEndpoint(pages: [])
-        let store = FilesStore(client: oldEndpoint)
+        let reader = HeldFileReader()
+        let store = FilesStore(client: oldEndpoint, readFile: { _ in await reader.read() })
 
-        let upload = Task { await store.upload(url: url, purpose: "batch", expiresAfterSeconds: nil) }
-        // Busy is set right before the read, which is the upload's only suspension before sending.
-        await waitUntil { store.isBusy }
+        let upload = Task {
+            await store.upload(url: URL(filePath: "/switched.json"), purpose: "batch", expiresAfterSeconds: nil)
+        }
+        await waitUntil { reader.startedReads == 1 }
         store.client = newEndpoint
+        reader.releaseReads()
 
         #expect(await upload.value == nil)
         #expect(oldEndpoint.createQueries.isEmpty)
@@ -319,6 +320,25 @@ private func waitUntil(_ condition: () -> Bool) async {
 private func sleepUntil(_ condition: () -> Bool) async throws {
     while !condition() {
         try await Task.sleep(for: .milliseconds(10))
+    }
+}
+
+/// Stands in for reading the file to upload, and holds each read until `releaseReads()`, so a test can act while
+/// one is in flight.
+@MainActor
+private final class HeldFileReader {
+    private(set) var startedReads = 0
+    private var heldReads: [CheckedContinuation<Void, Never>] = []
+
+    func read() async -> Data {
+        startedReads += 1
+        await withCheckedContinuation { heldReads.append($0) }
+        return Data("{}".utf8)
+    }
+
+    func releaseReads() {
+        heldReads.forEach { $0.resume() }
+        heldReads = []
     }
 }
 
