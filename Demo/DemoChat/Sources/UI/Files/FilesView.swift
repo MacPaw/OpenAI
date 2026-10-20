@@ -68,12 +68,14 @@ public struct FilesView: View {
         .overlay {
             if store.isBusy && store.files.isEmpty {
                 ProgressView()
-            } else if store.files.isEmpty {
+            } else if store.files.isEmpty && !store.hasMore {
                 ContentUnavailableView(
                     "No Files",
                     systemImage: "doc",
                     description: Text("Upload a file with the + button.")
                 )
+                // Decorative; keep the purpose picker under it usable.
+                .allowsHitTesting(false)
             }
         }
         .navigationTitle("Files")
