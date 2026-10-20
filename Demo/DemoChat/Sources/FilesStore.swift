@@ -103,6 +103,8 @@ public final class FilesStore: ObservableObject {
             let data = try await Task.detached { try Self.readSecurityScopedFile(at: url) }.value
             // The detached read doesn't see this task's cancellation, so check for it before sending.
             try Task.checkCancellation()
+            // The client may have been replaced during the read; don't send the file to the new one.
+            guard isCurrent(generation) else { return nil }
             let contentType = UTType(filenameExtension: url.pathExtension)?.preferredMIMEType
                 ?? "application/octet-stream"
             let file = try await client.create(query: CreateFileQuery(

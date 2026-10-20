@@ -76,6 +76,25 @@ struct FilesStoreTests {
         #expect(!store.isBusy)
     }
 
+    @Test
+    func uploadIsNotSentWhenTheClientChangesDuringTheRead() async throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("switched.json")
+        try Data("{}".utf8).write(to: url)
+        let oldEndpoint = FakeFilesEndpoint(pages: [])
+        let newEndpoint = FakeFilesEndpoint(pages: [])
+        let store = FilesStore(client: oldEndpoint)
+
+        let upload = Task { await store.upload(url: url, purpose: "batch", expiresAfterSeconds: nil) }
+        // Busy is set right before the read, which is the upload's only suspension before sending.
+        await waitUntil { store.isBusy }
+        store.client = newEndpoint
+
+        #expect(await upload.value == nil)
+        #expect(oldEndpoint.createQueries.isEmpty)
+        #expect(newEndpoint.createQueries.isEmpty)
+        #expect(store.error == nil)
+    }
+
     /// Goes through a real client and URLSession, so it checks that cancelling the task actually cancels the request.
     @Test
     func uploadCancelledWhileSendingCancelsTheRequest() async throws {
