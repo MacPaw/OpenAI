@@ -85,7 +85,8 @@ public final class FilesStore: ObservableObject {
             files = after == nil ? page.data : files + page.data
             hasMore = page.hasMore
         } catch {
-            guard isCurrent(generation) else { return }
+            // Leaving the Files screen cancels its reload, which isn't a failure to report.
+            guard isCurrent(generation), !Self.isCancellation(error) else { return }
             self.error = error
             if after == nil {
                 // Don't keep showing files that may not match the current filter.

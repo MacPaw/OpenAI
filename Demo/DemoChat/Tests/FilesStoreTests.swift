@@ -293,6 +293,20 @@ struct FilesStoreTests {
         #expect(!store.hasMore)
     }
 
+    /// Leaving the Files screen cancels its reload, and URLSession reports that as `URLError.cancelled`.
+    @Test
+    func cancelledReloadIsNotPublishedAsAnError() async throws {
+        let endpoint = FakeFilesEndpoint(pages: [.page(["file-1"], hasMore: false)])
+        let store = FilesStore(client: endpoint)
+        await store.reload()
+        endpoint.listError = URLError(.cancelled)
+
+        await store.reload()
+
+        #expect(store.error == nil)
+        #expect(store.files.map(\.id) == ["file-1"])
+    }
+
     @Test
     func failedRequestIsPublished() async throws {
         let endpoint = FakeFilesEndpoint(pages: [])
@@ -403,6 +417,8 @@ private final class FakeFilesEndpoint: FilesEndpointProtocol {
     private(set) var deletedIDs: [String] = []
     /// When set, `list` and `delete` wait until `releaseRequests()`, so a test can act while one is in flight.
     var holdsRequests = false
+    /// When set, `list` fails with it.
+    var listError: Error?
     private var heldRequests: [CheckedContinuation<Void, Never>] = []
 
     init(pages: [ListFilesResponse]) {
@@ -429,6 +445,7 @@ private final class FakeFilesEndpoint: FilesEndpointProtocol {
     func list(query: ListFilesQuery) async throws -> ListFilesResponse {
         listQueries.append(query)
         await holdIfNeeded()
+        if let listError { throw listError }
         guard !pages.isEmpty else { throw NoMorePagesError() }
         return pages.removeFirst()
     }
