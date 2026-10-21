@@ -15,6 +15,7 @@ struct ContentView: View {
     @ObservedObject var assistantStore: AssistantStore
     @ObservedObject var miscStore: MiscStore
     @ObservedObject var responsesStore: ResponsesStore
+    @ObservedObject var filesStore: FilesStore
     @ObservedObject var mcpToolsStore: MCPToolsStore
     
     @State private var selectedTab = 0
@@ -59,7 +60,8 @@ struct ContentView: View {
             MiscView(
                 store: miscStore,
                 chatStore: chatStore,
-                assistantStore: assistantStore
+                assistantStore: assistantStore,
+                filesStore: filesStore
             )
             .tabItem {
                 Label("Misc", systemImage: "ellipsis")

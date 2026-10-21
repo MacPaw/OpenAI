@@ -25,6 +25,36 @@ tests — cannot break a consumer's build, so skip the Demo build for those
 `Demo`). When in doubt about whether something is really internal-only, build
 Demo anyway.
 
+## Running `xcodebuild test` without the post-failure diagnostics
+
+`DemoChat`'s tests (and anything else run on a simulator) are run with
+`xcodebuild test`. By default, pass `-collect-test-diagnostics never`:
+
+```sh
+cd Demo/DemoChat
+xcodebuild test -scheme DemoChat \
+  -destination "platform=iOS Simulator,name=<booted simulator>" \
+  -collect-test-diagnostics never
+```
+
+Without it, a run with **any failing test** prints its results and then
+doesn't exit: `xcodebuild` runs `simctl diagnose` on the simulator to collect
+a sysdiagnose-style bundle and waits for it, with no output in the meantime.
+That usually takes under a minute, but it's allowed up to 10 minutes and
+sometimes uses all of them. It looks like a hang, and it slows down every
+deliberate "does this test fail without the fix?" check. Passing runs aren't
+affected.
+
+The bundle (simulator logs, crash reports, system state) is worth having when
+a failure's cause is outside the test code: a crash or a hang in the app or
+test process, simulator- or system-level behavior, or a UI test. Leave the
+option out for those runs. A failing `#expect` in a unit test already says
+what went wrong, and the bundle adds nothing to it.
+
+Killing a waiting `xcodebuild` doesn't stop its `simctl diagnose`. If one was
+interrupted, check for leftovers with `pgrep -fl "simctl diagnose"` and stop
+them before the next run.
+
 ## Foundation types that don't exist on Linux
 
 CI builds and tests this package on Linux (Swift 5.10, 6.0, 6.3) in addition
