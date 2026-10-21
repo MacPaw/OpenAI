@@ -1065,6 +1065,9 @@ You can use the [MCP Swift library](https://github.com/modelcontextprotocol/swif
 
 #### MCP Tool Integration
 
+For a runnable anonymous web search and page fetching example, see
+[Parallel Search MCP](Examples/ParallelSearch). It also prepares native Responses API MCP queries.
+
 **Request**
 
 ```swift
