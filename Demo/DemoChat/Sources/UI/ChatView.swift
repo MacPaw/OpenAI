@@ -26,7 +26,7 @@ public struct ChatView: View {
         ZStack {
             NavigationSplitView {
                 ListView(
-                    conversations: $store.debouncedConversations,
+                    conversations: $store.conversations,
                     selectedConversationId: Binding<Conversation.ID?>(
                         get: {
                             store.selectedConversationID

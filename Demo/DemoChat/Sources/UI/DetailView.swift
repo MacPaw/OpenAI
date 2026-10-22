@@ -25,6 +25,7 @@ struct DetailView: View {
     /// A message sent before any model was chosen. The chat view has already cleared its draft, so it's held here and sent once a model is entered.
     @State private var pendingMessage: (text: String, image: Message.Image?)?
     @State private var streamEnabled = true
+    @StateObject private var pacedMessages = ChatMessagesPacer()
     @Environment(\.apiProvider) private var apiProvider
     var availableAssistants: [Assistant]
     /// Whether a message can only be sent once a chat model is chosen. Moderation sends with its own fixed model, so it opts out.
@@ -178,7 +179,7 @@ struct DetailView: View {
     @ViewBuilder
     private func chatView() -> some View {
         ExyteChat.ChatView(
-            messages: conversation.exyteChatMessages,
+            messages: pacedMessages.messages,
             chatType: .conversation,
             replyMode: .answer,
             didSendMessage: { draftMessage in
@@ -214,6 +215,9 @@ struct DetailView: View {
         })
         .setAvailableInputs([.text, .media])
         .betweenListAndInputViewBuilder(infoMessage)
+        .onChange(of: conversation.exyteChatMessages, initial: true) { _, messages in
+            pacedMessages.update(to: messages)
+        }
     }
     
     @ViewBuilder func infoMessage() -> some View {
