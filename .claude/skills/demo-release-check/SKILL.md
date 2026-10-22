@@ -98,6 +98,17 @@ Arguments (optional): a section prefix (`R` = Responses, `C` = Chats, …) or
    xcrun simctl install booted build/DemoDerivedData/Build/Products/Debug-iphonesimulator/Demo.app
    ```
 
+   Then put the file the Files cases upload into the Files app's **On My
+   iPhone** folder, where the app's document picker finds it. It survives
+   relaunches and reinstalls of Demo:
+
+   ```sh
+   group="$(xcrun simctl get_app_container booted com.apple.DocumentsApp groups \
+     | awk -F'\t' '$1 == "group.com.apple.FileProvider.LocalStorage" { print $2 }')"
+   [ -n "$group" ] && mkdir -p "$group/File Provider Storage" \
+     && printf 'Demo release check upload\n' > "$group/File Provider Storage/demo-release-check.txt"
+   ```
+
    Then `control` → `attach` so the user can watch.
 5. **Launch each case fresh.** Launch through Bash (the `control` tool's
    `launch` can't pass environment variables), with the configuration the
