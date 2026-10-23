@@ -89,18 +89,6 @@ create a branch first. Never run `git push` (or open a PR) unless the user
 explicitly asks for it at that point; the user decides what leaves their
 machine.
 
-## PR descriptions start with the main changes
-
-Open every pull request description with a short, clear list of only the
-main things the PR changes, a line or two each. Someone reading just that
-list should know what the PR does without scrolling further.
-
-Everything else comes after it, for readers who want to go deeper: smaller
-or incidental changes, background and reasoning, measurements, how it was
-tested, and what is left for after merging. A change that took a lot of
-work still belongs in the details if it isn't one of the main things the PR
-does.
-
 ## Documentation comments come from official sources
 
 When a public declaration mirrors part of the OpenAI API (a type, property,
