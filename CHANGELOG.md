@@ -6,10 +6,13 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-22
+
 ### Added
 - `openAI.files` (`FilesEndpointProtocol`) for the Files API: `create(query:)`, `retrieve(id:)`, `list(query:)` and `list()`, `delete(id:)` and `content(id:)`, in callback, async and Combine variants. The names match the official Java and Python SDKs' `files.create/retrieve/list/delete/content`. `ListFilesQuery` carries the `purpose`, `limit`, `order` and `after` parameters, `content(id:)` returns the file's contents as `Data`, and `delete(id:)` returns the generated `Components.Schemas.DeleteFileResponse` ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
 - `CreateFileQuery.expiresAfter`, sent as `expires_after`, to set a file's expiration policy ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
 - `OpenAIFile` and `ListFilesResponse`, hand-written replacements for the generated schemas of the same names. The spec's `purpose` enum on the file object omits `evals`, although `evals` is a valid upload purpose, so the generated type would fail to decode a file uploaded for evals; `OpenAIFile.Purpose` is an open type that decodes any value. `ListFilesResponse.firstId` and `lastId` are optional, because the API returns `null` for both on an empty page although the spec marks them required ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
+- `Demo`: a Files screen (*Misc → Files*) that lists, uploads, retrieves, downloads and deletes files through `openAI.files` ([#470](https://github.com/MacPaw/OpenAI/pull/470)).
 
 ### Changed
 - **Breaking:** `OpenAIProtocol` gained a `files` requirement. Code that only calls `openAI.files` is unaffected, but custom conformances (e.g. test doubles) need to implement it ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
@@ -113,7 +116,8 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 Older releases are documented on the [GitHub Releases](https://github.com/MacPaw/OpenAI/releases) page.
 
-[Unreleased]: https://github.com/MacPaw/OpenAI/compare/0.5.3...HEAD
+[Unreleased]: https://github.com/MacPaw/OpenAI/compare/0.6.0...HEAD
+[0.6.0]: https://github.com/MacPaw/OpenAI/compare/0.5.3...0.6.0
 [0.5.3]: https://github.com/MacPaw/OpenAI/compare/0.5.2...0.5.3
 [0.5.2]: https://github.com/MacPaw/OpenAI/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/MacPaw/OpenAI/compare/0.5.0...0.5.1

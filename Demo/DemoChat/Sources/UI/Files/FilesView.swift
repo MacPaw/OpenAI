@@ -102,7 +102,9 @@ public struct FilesView: View {
         .onChange(of: store.purposeFilter) {
             Task { await store.reload() }
         }
-        .filesErrorAlert(store: store)
+        // The upload sheet shows its own errors. Presenting this alert too would dismiss the sheet, and with
+        // it the sheet's alert, which clears the error before it can be read.
+        .filesErrorAlert(store: store, isEnabled: !isUploadPresented)
     }
 }
 
@@ -127,12 +129,13 @@ private struct FileRow: View {
 }
 
 extension View {
-    /// Shows the store's last error, and clears it when dismissed.
-    func filesErrorAlert(store: FilesStore) -> some View {
+    /// Shows the store's last error, and clears it when dismissed. While `isEnabled` is `false`, the error
+    /// is left for another view to show.
+    func filesErrorAlert(store: FilesStore, isEnabled: Bool = true) -> some View {
         alert(
             "Request Failed",
             isPresented: Binding(
-                get: { store.error != nil },
+                get: { isEnabled && store.error != nil },
                 set: { if !$0 { store.error = nil } }
             ),
             presenting: store.error

@@ -15,13 +15,7 @@ public final class ChatStore: ObservableObject {
     public var openAIClient: OpenAIProtocol
     let idProvider: () -> String
 
-    private var conversations: [Conversation] = [] {
-        didSet {
-            updateDebouncedConversations(with: conversations)
-        }
-    }
-    
-    @Published var debouncedConversations: [Conversation] = []
+    @Published var conversations: [Conversation] = []
     @Published var conversationErrors: [Conversation.ID: Error] = [:]
     @Published var selectedConversationID: Conversation.ID?
     @Published var isSendingMessage = false
@@ -32,8 +26,6 @@ public final class ChatStore: ObservableObject {
     private var currentRunId: String?
     private var currentThreadId: String?
     private var currentConversationId: String?
-    private var currentUpdateTask: Task<Void, Never>?
-    private var conversationsForNextUpdateTask: [Conversation]?
 
     var selectedConversation: Conversation? {
         selectedConversationID.flatMap { id in
@@ -490,34 +482,5 @@ public final class ChatStore: ObservableObject {
         else {
             conversations[conversationIndex].messages.append(message)
         }
-    }
-    
-    private func updateDebouncedConversations(with conversations: [Conversation]) {
-        if currentUpdateTask == nil {
-            scheduleReplaceDebouncedConversations(withConversations: conversations)
-        } else {
-            conversationsForNextUpdateTask = conversations
-        }
-    }
-    
-    private func scheduleReplaceDebouncedConversations(withConversations conversations: [Conversation]) {
-        currentUpdateTask = .init(operation: {
-            // Debouncing because otherwise it's hard for ExyteChat to handle very quick updates
-            do {
-                // 1000 nano == 1 micro, 1000 micro == 1 milli, 100 milli = 0.1s
-                try await Task.sleep(nanoseconds: 1000 * 1000 * 100)
-            } catch {
-                assert(error is CancellationError)
-                return
-            }
-            
-            self.debouncedConversations = conversations
-            self.currentUpdateTask = nil
-            
-            if let pendingItem = conversationsForNextUpdateTask {
-                conversationsForNextUpdateTask = nil
-                scheduleReplaceDebouncedConversations(withConversations: pendingItem)
-            }
-        })
     }
 }

@@ -40,8 +40,9 @@ Arguments (optional): a section prefix (`R` = Responses, `C` = Chats, …) or
   the simulator tool taps by coordinates. Take a screenshot before each tap;
   never hardcode coordinates.
 - **Screenshot pixels are not points.** Screenshots are downscaled, so convert
-  before tapping: `point = pixel × (point width ÷ image width shown)`. On the
-  iPhone 17 (402×874 pt) a 920-px-wide screenshot means ×0.437.
+  before tapping: `point = pixel × (point width ÷ image width shown)`. `attach`
+  reports the device's size in points; on an iPhone 17 Pro Max (440×956 pt), for
+  example, a 921-px-wide screenshot means ×0.478.
 - **Simulator actions are order-dependent, so run them one at a time.** Never
   put `tap`, `text` or `swipe` calls in the same parallel tool-call block, even
   when they look independent: a send tap that runs before the typing has
@@ -79,12 +80,17 @@ Arguments (optional): a section prefix (`R` = Responses, `C` = Chats, …) or
    app has saved, and never ask the user to type a credential into the app. The
    user can pass a narrower argument to leave those cases out.
 2. **Open the simulator panel first:** `control` → `attach`. If no simulator is
-   booted, boot one (prefer `iPhone 17`) and retry.
-3. **Build** from the repo root, into a gitignored folder:
+   booted, boot any available iPhone (`xcrun simctl list devices available |
+   grep iPhone`, then `xcrun simctl boot <UDID>`) and retry; the cases don't
+   depend on the model. The commands below target `booted`: if more than one
+   simulator is booted, use the UDID of the one `attach` opened instead.
+3. **Build** from the repo root, into a gitignored folder. The generic
+   destination builds for every simulator architecture, so the app installs on
+   whichever simulator is booted:
 
    ```sh
    xcodebuild -project Demo/Demo.xcodeproj -scheme Demo \
-     -destination "platform=iOS Simulator,name=iPhone 17" \
+     -destination "generic/platform=iOS Simulator" \
      -derivedDataPath build/DemoDerivedData build
    ```
 
@@ -96,6 +102,17 @@ Arguments (optional): a section prefix (`R` = Responses, `C` = Chats, …) or
 
    ```sh
    xcrun simctl install booted build/DemoDerivedData/Build/Products/Debug-iphonesimulator/Demo.app
+   ```
+
+   Then put the file the Files cases upload into the Files app's **On My
+   iPhone** folder, where the app's document picker finds it. It survives
+   relaunches and reinstalls of Demo:
+
+   ```sh
+   group="$(xcrun simctl get_app_container booted com.apple.DocumentsApp groups \
+     | awk -F'\t' '$1 == "group.com.apple.FileProvider.LocalStorage" { print $2 }')"
+   [ -n "$group" ] && mkdir -p "$group/File Provider Storage" \
+     && printf 'Demo release check upload\n' > "$group/File Provider Storage/demo-release-check.txt"
    ```
 
    Then `control` → `attach` so the user can watch.
@@ -160,7 +177,7 @@ just say it was aborted, which variables are missing, and which cases need them
 it in a file my shell reads and rerun.").
 
 ```
-Demo release check: <date>, iPhone 17 / iOS <version>, git <short SHA> (<clean|dirty>)
+Demo release check: <date>, <device> / iOS <version>, git <short SHA> (<clean|dirty>)
 Scope: <all | smoke | section>
 
 | Case | Title | Status | Note |
