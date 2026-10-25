@@ -145,7 +145,7 @@ public final class FilesStore: ObservableObject {
             }
             return file
         } catch {
-            guard isCurrent(generation) else { return nil }
+            guard isCurrent(generation), !Self.isCancellation(error) else { return nil }
             throw error
         }
     }
@@ -156,7 +156,7 @@ public final class FilesStore: ObservableObject {
             let data = try await client.content(id: id)
             return isCurrent(generation) ? data : nil
         } catch {
-            guard isCurrent(generation) else { return nil }
+            guard isCurrent(generation), !Self.isCancellation(error) else { return nil }
             throw error
         }
     }
@@ -176,7 +176,7 @@ public final class FilesStore: ObservableObject {
             }
             return result.deleted
         } catch {
-            guard isCurrent(generation) else { return false }
+            guard isCurrent(generation), !Self.isCancellation(error) else { return false }
             throw error
         }
     }

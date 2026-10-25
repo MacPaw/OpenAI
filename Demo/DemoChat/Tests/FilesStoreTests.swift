@@ -304,6 +304,21 @@ struct FilesStoreTests {
     }
 
     @Test
+    func cancelledFileRequestsDoNotThrow() async throws {
+        let endpoint = FakeFilesEndpoint(pages: [.page(["file-1"], hasMore: false)])
+        let store = FilesStore(client: endpoint)
+        try await store.reload()
+        endpoint.fileRequestError = URLError(.cancelled)
+
+        #expect(try await store.retrieve(id: "file-1") == nil)
+        #expect(try await store.content(id: "file-1") == nil)
+        #expect(try await store.delete(id: "file-1") == false)
+
+        #expect(store.files.map(\.id) == ["file-1"])
+        #expect(!store.isBusy)
+    }
+
+    @Test
     func failedUploadThrows() async throws {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("rejected.json")
         try Data("{}".utf8).write(to: url)
@@ -422,6 +437,8 @@ private final class FakeFilesEndpoint: FilesEndpointProtocol {
     var listError: Error?
     /// When set, `create` fails with it.
     var createError: Error?
+    /// When set, `retrieve`, `content` and `delete` fail with it.
+    var fileRequestError: Error?
     private var heldRequests: [CheckedContinuation<Void, Never>] = []
 
     init(pages: [ListFilesResponse]) {
@@ -457,11 +474,19 @@ private final class FakeFilesEndpoint: FilesEndpointProtocol {
     func delete(id: String) async throws -> Components.Schemas.DeleteFileResponse {
         deletedIDs.append(id)
         await holdIfNeeded()
+        if let fileRequestError { throw fileRequestError }
         return .init(id: id, object: .file, deleted: true)
     }
 
-    func retrieve(id: String) async throws -> OpenAIFile { fatalError() }
-    func content(id: String) async throws -> Data { fatalError() }
+    func retrieve(id: String) async throws -> OpenAIFile {
+        if let fileRequestError { throw fileRequestError }
+        return .mock(id: id)
+    }
+
+    func content(id: String) async throws -> Data {
+        if let fileRequestError { throw fileRequestError }
+        return Data("{}".utf8)
+    }
 
     nonisolated func create(query: CreateFileQuery) -> AnyPublisher<OpenAIFile, Error> { fatalError() }
     nonisolated func retrieve(id: String) -> AnyPublisher<OpenAIFile, Error> { fatalError() }
