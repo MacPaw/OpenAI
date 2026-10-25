@@ -11,6 +11,7 @@ public struct FilesView: View {
     @ObservedObject var store: FilesStore
     @Environment(\.apiProvider) private var apiProvider
     @State private var isUploadPresented = false
+    @State private var error: Error?
 
     public init(store: FilesStore) {
         self.store = store
@@ -49,8 +50,10 @@ public struct FilesView: View {
                 .onDelete { offsets in
                     let ids = offsets.map { store.files[$0].id }
                     Task {
-                        for id in ids {
-                            await store.delete(id: id)
+                        await showingError {
+                            for id in ids {
+                                try await store.delete(id: id)
+                            }
                         }
                     }
                 }
@@ -58,7 +61,7 @@ public struct FilesView: View {
 
                 if store.hasMore {
                     Button("Load More") {
-                        Task { await store.loadMore() }
+                        Task { await showingError { try await store.loadMore() } }
                     }
                     .disabled(store.isBusy)
                 }
@@ -91,20 +94,27 @@ public struct FilesView: View {
             UploadFileView(store: store)
         }
         .refreshable {
-            await store.reload()
+            await showingError { try await store.reload() }
         }
         .task {
             // Runs again when returning from a file's details; keep the loaded pages then.
             if store.files.isEmpty {
-                await store.reload()
+                await showingError { try await store.reload() }
             }
         }
         .onChange(of: store.purposeFilter) {
-            Task { await store.reload() }
+            Task { await showingError { try await store.reload() } }
         }
-        // The upload sheet shows its own errors. Presenting this alert too would dismiss the sheet, and with
-        // it the sheet's alert, which clears the error before it can be read.
-        .filesErrorAlert(store: store, isEnabled: !isUploadPresented)
+        .filesErrorAlert($error)
+    }
+
+    /// Runs a request to the store, and shows the error it throws.
+    private func showingError(of request: () async throws -> Void) async {
+        do {
+            try await request()
+        } catch {
+            self.error = error
+        }
     }
 }
 
@@ -129,16 +139,15 @@ private struct FileRow: View {
 }
 
 extension View {
-    /// Shows the store's last error, and clears it when dismissed. While `isEnabled` is `false`, the error
-    /// is left for another view to show.
-    func filesErrorAlert(store: FilesStore, isEnabled: Bool = true) -> some View {
+    /// Shows `error` in an alert while it's set, and clears it when dismissed.
+    func filesErrorAlert(_ error: Binding<Error?>) -> some View {
         alert(
             "Request Failed",
             isPresented: Binding(
-                get: { isEnabled && store.error != nil },
-                set: { if !$0, isEnabled { store.error = nil } }
+                get: { error.wrappedValue != nil },
+                set: { if !$0 { error.wrappedValue = nil } }
             ),
-            presenting: store.error
+            presenting: error.wrappedValue
         ) { _ in
             Button("OK", role: .cancel) {}
         } message: { error in
