@@ -136,7 +136,7 @@ extension View {
             "Request Failed",
             isPresented: Binding(
                 get: { isEnabled && store.error != nil },
-                set: { if !$0 { store.error = nil } }
+                set: { if !$0, isEnabled { store.error = nil } }
             ),
             presenting: store.error
         ) { _ in
