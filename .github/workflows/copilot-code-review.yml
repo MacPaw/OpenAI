@@ -1,0 +1,24 @@
+# Sets up the environment Copilot code review runs in, and pins it to standard GitHub-hosted runners.
+# Without this file Copilot picks the runner itself, and its reviews have waited in the queue for a runner group
+# that never picked them up, then fell back to a lighter review.
+# https://docs.github.com/en/copilot/how-tos/copilot-on-github/set-up-copilot/configure-runners
+
+name: Copilot Code Review Setup
+
+# Copilot runs the job itself. These triggers only check the file: in a pull request that changes it, and
+# manually from the Actions tab.
+on:
+  pull_request:
+    branches: [ "main" ]
+    paths: [ ".github/workflows/copilot-code-review.yml" ]
+  workflow_dispatch:
+
+jobs:
+  # Copilot only picks up a single job with this name. Of its settings, it uses `runs-on`, `steps`,
+  # `permissions`, `services`, `snapshot` and `timeout-minutes`, and ignores the rest.
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
