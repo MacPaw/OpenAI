@@ -121,6 +121,10 @@ create a branch first. Never run `git push` (or open a PR) unless the user
 explicitly asks for it at that point; the user decides what leaves their
 machine.
 
+Reply to a review comment about a code change only once that change is
+pushed, so the reply points to code the reviewer can see. Until then, draft
+the reply if it helps, and post it after the push.
+
 ## Documentation comments come from official sources
 
 When a public declaration mirrors part of the OpenAI API (a type, property,
