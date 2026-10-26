@@ -55,6 +55,23 @@ Killing a waiting `xcodebuild` doesn't stop its `simctl diagnose`. If one was
 interrupted, check for leftovers with `pgrep -fl "simctl diagnose"` and stop
 them before the next run.
 
+## Make a type testable by injecting its dependencies
+
+When a test needs to control something a type depends on, such as an API
+client, a clock, a delay or a file read, pass it in explicitly: an
+initializer parameter, typed as a protocol or a closure. `FilesStore` in
+`DemoChat` is an example: it takes a `FilesEndpointProtocol` client and a
+`readFile` closure.
+
+Prefer that over workarounds such as test-only flags or hooks, `#if DEBUG`
+branches, subclassing to override behavior, or global state a test swaps
+out. Don't make a type's `private` members less private for a test either:
+test the type through the API its callers use, and inject whatever the test
+needs to control.
+
+Injection is the default, not a hard rule: where another technique clearly
+fits a case better, use that instead.
+
 ## Foundation types that don't exist on Linux
 
 CI builds and tests this package on Linux (Swift 5.10, 6.0, 6.3) in addition
