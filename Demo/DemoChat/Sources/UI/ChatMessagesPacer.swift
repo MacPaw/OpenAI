@@ -41,11 +41,24 @@ final class ChatMessagesPacer: ObservableObject {
             applyPendingMessages()
             return
         }
-        updateTask = Task {
-            try? await Task.sleep(until: deadline)
+        updateTask = Task { [weak self] in
+            do {
+                try await Task.sleep(until: deadline)
+            } catch is CancellationError {
+                // Cancelled when the pacer goes away: there's nothing left to pass the messages on to.
+                return
+            } catch {
+                // Not expected from `Task.sleep`. The wait only paces the updates, so pass them on anyway.
+                print("ChatMessagesPacer: waiting for the next update failed: \(error)")
+            }
+            guard let self else { return }
             updateTask = nil
             applyPendingMessages()
         }
+    }
+
+    deinit {
+        updateTask?.cancel()
     }
 
     private func applyPendingMessages() {
