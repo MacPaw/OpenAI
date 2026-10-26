@@ -72,6 +72,21 @@ needs to control.
 Injection is the default, not a hard rule: where another technique clearly
 fits a case better, use that instead.
 
+## Handle errors instead of discarding them with `try?`
+
+Don't use `try?` to make an error go away. Catch it and decide what it
+means:
+
+- **Propagate it** (`throws`) when the caller is in a better position to
+  handle it, for example to show it to the user.
+- **Ignore an expected error explicitly:** check for its type or code, ignore
+  only that one, and say why. `FilesStore` is an example: it returns without
+  throwing when a request is cancelled (`CancellationError` or
+  `URLError.cancelled`), since that isn't a failure to report, and throws any
+  other error.
+- **Log it** when there's nothing meaningful to do with it, in the project's
+  preferred way of logging errors.
+
 ## Foundation types that don't exist on Linux
 
 CI builds and tests this package on Linux (Swift 5.10, 6.0, 6.3) in addition
