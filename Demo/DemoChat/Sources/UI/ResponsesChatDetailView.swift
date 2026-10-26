@@ -14,7 +14,9 @@ public struct ResponsesChatDetailView: View {
     @State private var errorTitle = ""
     @State private var errorAlertPresented = false
     @StateObject private var settingsStore = ResponsesSettingsStore()
-    @StateObject private var pacedMessages = ChatMessagesPacer()
+    @StateObject private var pacedMessages = ChatMessagesPacer(
+        minimumInterval: ChatMessagesPacer.chatViewUpdateInterval
+    )
     @ObservedObject var store: ResponsesStore
     
     @State private var isFunctionCallViewPresented = false

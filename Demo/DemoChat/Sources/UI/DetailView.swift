@@ -25,7 +25,9 @@ struct DetailView: View {
     /// A message sent before any model was chosen. The chat view has already cleared its draft, so it's held here and sent once a model is entered.
     @State private var pendingMessage: (text: String, image: Message.Image?)?
     @State private var streamEnabled = true
-    @StateObject private var pacedMessages = ChatMessagesPacer()
+    @StateObject private var pacedMessages = ChatMessagesPacer(
+        minimumInterval: ChatMessagesPacer.chatViewUpdateInterval
+    )
     @Environment(\.apiProvider) private var apiProvider
     var availableAssistants: [Assistant]
     /// Whether a message can only be sent once a chat model is chosen. Moderation sends with its own fixed model, so it opts out.

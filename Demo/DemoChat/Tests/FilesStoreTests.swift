@@ -345,14 +345,6 @@ private func waitUntil(_ condition: () -> Bool) async {
     }
 }
 
-/// Sleeps until `condition` holds, for state changed on another thread, such as URL loading.
-@MainActor
-private func sleepUntil(_ condition: () -> Bool) async throws {
-    while !condition() {
-        try await Task.sleep(for: .milliseconds(10))
-    }
-}
-
 /// Stands in for reading the file to upload, and holds each read until `releaseReads()`, so a test can act while
 /// one is in flight.
 @MainActor

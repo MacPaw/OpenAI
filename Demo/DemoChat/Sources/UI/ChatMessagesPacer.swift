@@ -20,18 +20,24 @@ import ExyteChat
 /// only some updates.
 @MainActor
 final class ChatMessagesPacer: ObservableObject {
-    private static let minimumInterval: Duration = .milliseconds(500)
+    /// About how long `ChatView` takes to apply an animated update.
+    static let chatViewUpdateInterval: Duration = .milliseconds(500)
 
     @Published private(set) var messages: [ExyteChat.Message] = []
 
+    private let minimumInterval: Duration
     private var pendingMessages: [ExyteChat.Message]?
     private var updateTask: Task<Void, Never>?
     private var lastUpdate: ContinuousClock.Instant?
 
+    init(minimumInterval: Duration) {
+        self.minimumInterval = minimumInterval
+    }
+
     func update(to messages: [ExyteChat.Message]) {
         pendingMessages = messages
         guard updateTask == nil else { return }
-        guard let deadline = lastUpdate.map({ $0 + Self.minimumInterval }), deadline > .now else {
+        guard let deadline = lastUpdate.map({ $0 + minimumInterval }), deadline > .now else {
             applyPendingMessages()
             return
         }
