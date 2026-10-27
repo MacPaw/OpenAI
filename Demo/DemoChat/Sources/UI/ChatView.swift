@@ -16,6 +16,7 @@ public struct ChatView: View {
     @Environment(\.idProviderValue) var idProvider
     
     @State private var sendMessageTask: Task<Void, Never>?
+    @State private var deletionError: Error?
 
     public init(store: ChatStore, assistantStore: AssistantStore) {
         self.store = store
@@ -26,13 +27,22 @@ public struct ChatView: View {
         ZStack {
             NavigationSplitView {
                 ListView(
-                    conversations: $store.conversations,
+                    conversations: store.conversations,
                     selectedConversationId: Binding<Conversation.ID?>(
                         get: {
                             store.selectedConversationID
                         }, set: { newId in
                             store.selectConversation(newId)
-                        })
+                        }),
+                    deleteConversations: { ids in
+                        do {
+                            for id in ids {
+                                try store.deleteConversation(id)
+                            }
+                        } catch {
+                            deletionError = error
+                        }
+                    }
                 )
                 .toolbar {
                     ToolbarItem(
@@ -79,6 +89,18 @@ public struct ChatView: View {
         }.onDisappear {
             // It may not produce an ideal behavior, but it's here for demonstrating that cancellation works as expected
             sendMessageTask?.cancel()
+        }
+        .alert(
+            "Can't Delete Conversation",
+            isPresented: Binding(
+                get: { deletionError != nil },
+                set: { if !$0 { deletionError = nil } }
+            ),
+            presenting: deletionError
+        ) { _ in
+            Button("OK", role: .cancel) {}
+        } message: { error in
+            Text(error.localizedDescription)
         }
     }
 }

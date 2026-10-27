@@ -15,7 +15,7 @@ public final class ChatStore: ObservableObject {
     public var openAIClient: OpenAIProtocol
     let idProvider: () -> String
 
-    @Published var conversations: [Conversation] = []
+    @Published private(set) var conversations: [Conversation] = []
     @Published var conversationErrors: [Conversation.ID: Error] = [:]
     @Published var selectedConversationID: Conversation.ID?
     @Published var isSendingMessage = false
@@ -26,6 +26,21 @@ public final class ChatStore: ObservableObject {
     private var currentRunId: String?
     private var currentThreadId: String?
     private var currentConversationId: String?
+
+    /// Requests in flight that refer to a conversation by its position in `conversations`.
+    private var requestsInProgress = 0
+
+    /// Whether a reply is in progress: a request is in flight, or an assistant run is being polled for a reply.
+    private var isReplyInProgress: Bool {
+        requestsInProgress > 0 || timer != nil
+    }
+
+    /// Thrown by `deleteConversation(_:)` while a reply is in progress.
+    struct ReplyInProgressError: LocalizedError {
+        var errorDescription: String? {
+            "A conversation can't be deleted while a reply is in progress."
+        }
+    }
 
     var selectedConversation: Conversation? {
         selectedConversationID.flatMap { id in
@@ -58,10 +73,16 @@ public final class ChatStore: ObservableObject {
         selectedConversationID = conversationId
     }
 
-    func deleteConversation(_ conversationId: Conversation.ID) {
+    /// Deletes the conversation, or throws `ReplyInProgressError` while a reply is in progress. A reply's requests refer
+    /// to conversations by their position in `conversations`, which a deletion would shift, and an assistant run's
+    /// polling only stops once its reply reaches the conversation.
+    func deleteConversation(_ conversationId: Conversation.ID) throws {
+        guard !isReplyInProgress else {
+            throw ReplyInProgressError()
+        }
         conversations.removeAll(where: { $0.id == conversationId })
     }
-    
+
     func sendMessage(
         _ message: Message,
         conversationId: Conversation.ID,
@@ -71,6 +92,8 @@ public final class ChatStore: ObservableObject {
         guard let conversationIndex = conversations.firstIndex(where: { $0.id == conversationId }) else {
             return
         }
+        requestsInProgress += 1
+        defer { requestsInProgress -= 1 }
 
         switch conversations[conversationIndex].type  {
         case .normal:
@@ -365,7 +388,10 @@ public final class ChatStore: ObservableObject {
         guard let conversationIndex = conversations.firstIndex(where: { $0.id == currentConversationId }) else {
             return
         }
+        // Counted from here: the task uses the index after polling has stopped.
+        requestsInProgress += 1
         Task {
+            defer { requestsInProgress -= 1 }
             await MainActor.run {
                 self.stopPolling()
             }
