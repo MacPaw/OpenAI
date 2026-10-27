@@ -53,6 +53,8 @@ struct ChatMessagesPacerTests {
         #expect(pacer.messages.map(\.id) == ["1", "2"])
     }
 
+    /// A held-back update waits in a task. If that task held the pacer strongly, a pacer its view had released would stay
+    /// alive until the wait ended, and its `deinit` couldn't cancel the wait.
     @Test
     func releasedPacerIsDeallocatedWhileHoldingAnUpdateBack() {
         var pacer: ChatMessagesPacer? = ChatMessagesPacer(minimumInterval: Self.interval)
