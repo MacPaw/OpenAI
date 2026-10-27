@@ -56,7 +56,7 @@ struct ChatMessagesPacerTests {
     @Test
     func releasedPacerIsDeallocatedWhileHoldingAnUpdateBack() {
         var pacer: ChatMessagesPacer? = ChatMessagesPacer(minimumInterval: Self.interval)
-        weak var releasedPacer = pacer
+        weak let releasedPacer = pacer
         pacer?.update(to: .mocks(["1"]))
         pacer?.update(to: .mocks(["1", "2"]))
 
