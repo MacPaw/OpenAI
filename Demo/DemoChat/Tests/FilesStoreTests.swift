@@ -15,7 +15,7 @@ struct FilesStoreTests {
         let store = FilesStore(client: endpoint)
         store.purposeFilter = .batch
 
-        await store.reload()
+        try await store.reload()
 
         let query = try #require(endpoint.listQueries.first)
         #expect(query.purpose == "batch")
@@ -33,8 +33,8 @@ struct FilesStoreTests {
         ])
         let store = FilesStore(client: endpoint)
 
-        await store.reload()
-        await store.loadMore()
+        try await store.reload()
+        try await store.loadMore()
 
         #expect(endpoint.listQueries.last?.after == "file-2")
         #expect(store.files.map(\.id) == ["file-1", "file-2", "file-3"])
@@ -48,7 +48,7 @@ struct FilesStoreTests {
         let endpoint = FakeFilesEndpoint(pages: [])
         let store = FilesStore(client: endpoint)
 
-        let file = await store.upload(url: url, purpose: "batch", expiresAfterSeconds: 3600)
+        let file = try await store.upload(url: url, purpose: "batch", expiresAfterSeconds: 3600)
 
         let query = try #require(endpoint.createQueries.first)
         #expect(query.purpose == "batch")
@@ -67,12 +67,11 @@ struct FilesStoreTests {
         let store = FilesStore(client: endpoint)
 
         // Cancelled before it starts, so the cancellation is already there when the file has been read.
-        let upload = Task { await store.upload(url: url, purpose: "batch", expiresAfterSeconds: nil) }
+        let upload = Task { try await store.upload(url: url, purpose: "batch", expiresAfterSeconds: nil) }
         upload.cancel()
 
-        #expect(await upload.value == nil)
+        #expect(try await upload.value == nil)
         #expect(endpoint.createQueries.isEmpty)
-        #expect(store.error == nil)
         #expect(!store.isBusy)
     }
 
@@ -84,16 +83,15 @@ struct FilesStoreTests {
         let store = FilesStore(client: oldEndpoint, readFile: { _ in await reader.read() })
 
         let upload = Task {
-            await store.upload(url: URL(filePath: "/switched.json"), purpose: "batch", expiresAfterSeconds: nil)
+            try await store.upload(url: URL(filePath: "/switched.json"), purpose: "batch", expiresAfterSeconds: nil)
         }
         await waitUntil { reader.startedReads == 1 }
         store.client = newEndpoint
         reader.releaseReads()
 
-        #expect(await upload.value == nil)
+        #expect(try await upload.value == nil)
         #expect(oldEndpoint.createQueries.isEmpty)
         #expect(newEndpoint.createQueries.isEmpty)
-        #expect(store.error == nil)
     }
 
     /// Goes through a real client and URLSession, so it checks that cancelling the task actually cancels the request.
@@ -106,13 +104,12 @@ struct FilesStoreTests {
         let client = OpenAI(configuration: .init(token: "test"), session: URLSession(configuration: configuration))
         let store = FilesStore(client: client.files)
 
-        let upload = Task { await store.upload(url: url, purpose: "batch", expiresAfterSeconds: nil) }
+        let upload = Task { try await store.upload(url: url, purpose: "batch", expiresAfterSeconds: nil) }
         try await sleepUntil { UnansweredURLProtocol.state.withLock { $0.started } }
         upload.cancel()
 
-        #expect(await upload.value == nil)
+        #expect(try await upload.value == nil)
         try await sleepUntil { UnansweredURLProtocol.state.withLock { $0.stopped } }
-        #expect(store.error == nil)
         #expect(!store.isBusy)
     }
 
@@ -120,9 +117,9 @@ struct FilesStoreTests {
     func deleteRemovesTheFile() async throws {
         let endpoint = FakeFilesEndpoint(pages: [.page(["file-1", "file-2"], hasMore: false)])
         let store = FilesStore(client: endpoint)
-        await store.reload()
+        try await store.reload()
 
-        let deleted = await store.delete(id: "file-1")
+        let deleted = try await store.delete(id: "file-1")
 
         #expect(deleted)
         #expect(store.files.map(\.id) == ["file-2"])
@@ -134,18 +131,18 @@ struct FilesStoreTests {
         endpoint.holdsRequests = true
         let store = FilesStore(client: endpoint)
 
-        let firstReload = Task { await store.reload() }
+        let firstReload = Task { try await store.reload() }
         await waitUntil { endpoint.listQueries.count == 1 }
         #expect(store.isBusy)
 
         // In its own task, so that if it does call `list`, the test fails instead of waiting forever.
-        let secondReload = Task { await store.reload() }
+        let secondReload = Task { try await store.reload() }
         await yieldRepeatedly()
         #expect(endpoint.listQueries.count == 1)
 
         endpoint.releaseRequests()
-        await firstReload.value
-        await secondReload.value
+        try await firstReload.value
+        try await secondReload.value
         #expect(store.files.map(\.id) == ["file-1"])
         #expect(!store.isBusy)
     }
@@ -157,19 +154,19 @@ struct FilesStoreTests {
             .page(["file-2"], hasMore: false),
         ])
         let store = FilesStore(client: endpoint)
-        await store.reload()
+        try await store.reload()
         endpoint.holdsRequests = true
 
-        let reload = Task { await store.reload() }
+        let reload = Task { try await store.reload() }
         await waitUntil { endpoint.listQueries.count == 2 }
 
-        let loadMore = Task { await store.loadMore() }
+        let loadMore = Task { try await store.loadMore() }
         await yieldRepeatedly()
         #expect(endpoint.listQueries.count == 2)
 
         endpoint.releaseRequests()
-        await reload.value
-        await loadMore.value
+        try await reload.value
+        try await loadMore.value
         #expect(store.files.map(\.id) == ["file-2"])
     }
 
@@ -180,20 +177,20 @@ struct FilesStoreTests {
             .page(["file-1", "file-2"], hasMore: false),
         ])
         let store = FilesStore(client: endpoint)
-        await store.reload()
+        try await store.reload()
         endpoint.holdsRequests = true
 
-        let reload = Task { await store.reload() }
+        let reload = Task { try await store.reload() }
         await waitUntil { endpoint.listQueries.count == 2 }
 
         // In its own task, so that if it does call the API, the test fails instead of waiting forever.
-        let delete = Task { await store.delete(id: "file-1") }
+        let delete = Task { try await store.delete(id: "file-1") }
         await yieldRepeatedly()
         #expect(endpoint.deletedIDs.isEmpty)
 
         endpoint.releaseRequests()
-        await reload.value
-        #expect(await delete.value == false)
+        try await reload.value
+        #expect(try await delete.value == false)
         #expect(store.files.map(\.id) == ["file-1", "file-2"])
     }
 
@@ -202,19 +199,19 @@ struct FilesStoreTests {
     func reloadIsSkippedWhileADeletionIsRunning() async throws {
         let endpoint = FakeFilesEndpoint(pages: [.page(["file-1", "file-2"], hasMore: false)])
         let store = FilesStore(client: endpoint)
-        await store.reload()
+        try await store.reload()
         endpoint.holdsRequests = true
 
-        let delete = Task { await store.delete(id: "file-1") }
+        let delete = Task { try await store.delete(id: "file-1") }
         await waitUntil { endpoint.deletedIDs.count == 1 }
 
-        let reload = Task { await store.reload() }
+        let reload = Task { try await store.reload() }
         await yieldRepeatedly()
         #expect(endpoint.listQueries.count == 1)
 
         endpoint.releaseRequests()
-        _ = await delete.value
-        await reload.value
+        _ = try await delete.value
+        try await reload.value
         #expect(store.files.map(\.id) == ["file-2"])
     }
 
@@ -225,10 +222,10 @@ struct FilesStoreTests {
             .page(["file-3"], hasMore: false),
         ])
         let store = FilesStore(client: endpoint)
-        await store.reload()
+        try await store.reload()
 
-        await store.delete(id: "file-2")
-        await store.loadMore()
+        try await store.delete(id: "file-2")
+        try await store.loadMore()
 
         #expect(endpoint.listQueries.last?.after == "file-1")
         #expect(store.files.map(\.id) == ["file-1", "file-3"])
@@ -241,11 +238,11 @@ struct FilesStoreTests {
             .page(["file-3"], hasMore: false),
         ])
         let store = FilesStore(client: endpoint)
-        await store.reload()
+        try await store.reload()
 
-        await store.delete(id: "file-1")
-        await store.delete(id: "file-2")
-        await store.loadMore()
+        try await store.delete(id: "file-1")
+        try await store.delete(id: "file-2")
+        try await store.loadMore()
 
         #expect(endpoint.listQueries.count == 2)
         #expect(endpoint.listQueries.last?.after == nil)
@@ -260,9 +257,9 @@ struct FilesStoreTests {
             .page(["file-2"], hasMore: false),
         ])
         let store = FilesStore(client: oldEndpoint)
-        await store.reload()
+        try await store.reload()
         oldEndpoint.holdsRequests = true
-        let staleLoad = Task { await store.loadMore() }
+        let staleLoad = Task { try await store.loadMore() }
         await waitUntil { oldEndpoint.listQueries.count == 2 }
 
         store.client = FakeFilesEndpoint(pages: [.page(["file-new"], hasMore: false)])
@@ -270,11 +267,11 @@ struct FilesStoreTests {
         #expect(!store.hasMore)
         #expect(!store.isBusy)
 
-        await store.reload()
+        try await store.reload()
         #expect(store.files.map(\.id) == ["file-new"])
 
         oldEndpoint.releaseRequests()
-        await staleLoad.value
+        try await staleLoad.value
         #expect(store.files.map(\.id) == ["file-new"])
         #expect(!store.isBusy)
     }
@@ -283,39 +280,58 @@ struct FilesStoreTests {
     func failedReloadClearsTheList() async throws {
         let endpoint = FakeFilesEndpoint(pages: [.page(["file-1"], hasMore: true)])
         let store = FilesStore(client: endpoint)
-        await store.reload()
+        try await store.reload()
         store.purposeFilter = .batchOutput
 
-        await store.reload()
+        await #expect(throws: NoMorePagesError.self) { try await store.reload() }
 
-        #expect(store.error != nil)
         #expect(store.files.isEmpty)
         #expect(!store.hasMore)
+        #expect(!store.isBusy)
     }
 
     /// Leaving the Files screen cancels its reload, and URLSession reports that as `URLError.cancelled`.
     @Test
-    func cancelledReloadIsNotPublishedAsAnError() async throws {
+    func cancelledReloadDoesNotThrow() async throws {
         let endpoint = FakeFilesEndpoint(pages: [.page(["file-1"], hasMore: false)])
         let store = FilesStore(client: endpoint)
-        await store.reload()
+        try await store.reload()
         endpoint.listError = URLError(.cancelled)
 
-        await store.reload()
+        try await store.reload()
 
-        #expect(store.error == nil)
         #expect(store.files.map(\.id) == ["file-1"])
     }
 
     @Test
-    func failedRequestIsPublished() async throws {
+    func cancelledFileRequestsDoNotThrow() async throws {
+        let endpoint = FakeFilesEndpoint(pages: [.page(["file-1"], hasMore: false)])
+        let store = FilesStore(client: endpoint)
+        try await store.reload()
+        endpoint.fileRequestError = URLError(.cancelled)
+
+        #expect(try await store.retrieve(id: "file-1") == nil)
+        #expect(try await store.content(id: "file-1") == nil)
+        #expect(try await store.delete(id: "file-1") == false)
+
+        #expect(store.files.map(\.id) == ["file-1"])
+        #expect(!store.isBusy)
+    }
+
+    @Test
+    func failedUploadThrows() async throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("rejected.json")
+        try Data("{}".utf8).write(to: url)
         let endpoint = FakeFilesEndpoint(pages: [])
+        endpoint.createError = URLError(.badServerResponse)
         let store = FilesStore(client: endpoint)
 
-        await store.reload()
+        await #expect(throws: URLError.self) {
+            try await store.upload(url: url, purpose: "batch", expiresAfterSeconds: nil)
+        }
 
-        #expect(store.error != nil)
         #expect(store.files.isEmpty)
+        #expect(!store.isBusy)
     }
 }
 
@@ -326,14 +342,6 @@ private struct NoMorePagesError: Error {}
 private func waitUntil(_ condition: () -> Bool) async {
     while !condition() {
         await Task.yield()
-    }
-}
-
-/// Sleeps until `condition` holds, for state changed on another thread, such as URL loading.
-@MainActor
-private func sleepUntil(_ condition: () -> Bool) async throws {
-    while !condition() {
-        try await Task.sleep(for: .milliseconds(10))
     }
 }
 
@@ -419,6 +427,10 @@ private final class FakeFilesEndpoint: FilesEndpointProtocol {
     var holdsRequests = false
     /// When set, `list` fails with it.
     var listError: Error?
+    /// When set, `create` fails with it.
+    var createError: Error?
+    /// When set, `retrieve`, `content` and `delete` fail with it.
+    var fileRequestError: Error?
     private var heldRequests: [CheckedContinuation<Void, Never>] = []
 
     init(pages: [ListFilesResponse]) {
@@ -439,6 +451,7 @@ private final class FakeFilesEndpoint: FilesEndpointProtocol {
 
     func create(query: CreateFileQuery) async throws -> OpenAIFile {
         createQueries.append(query)
+        if let createError { throw createError }
         return .mock(id: "file-uploaded")
     }
 
@@ -453,11 +466,19 @@ private final class FakeFilesEndpoint: FilesEndpointProtocol {
     func delete(id: String) async throws -> Components.Schemas.DeleteFileResponse {
         deletedIDs.append(id)
         await holdIfNeeded()
+        if let fileRequestError { throw fileRequestError }
         return .init(id: id, object: .file, deleted: true)
     }
 
-    func retrieve(id: String) async throws -> OpenAIFile { fatalError() }
-    func content(id: String) async throws -> Data { fatalError() }
+    func retrieve(id: String) async throws -> OpenAIFile {
+        if let fileRequestError { throw fileRequestError }
+        return .mock(id: id)
+    }
+
+    func content(id: String) async throws -> Data {
+        if let fileRequestError { throw fileRequestError }
+        return Data("{}".utf8)
+    }
 
     nonisolated func create(query: CreateFileQuery) -> AnyPublisher<OpenAIFile, Error> { fatalError() }
     nonisolated func retrieve(id: String) -> AnyPublisher<OpenAIFile, Error> { fatalError() }

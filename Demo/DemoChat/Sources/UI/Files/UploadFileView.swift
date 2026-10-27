@@ -18,6 +18,7 @@ struct UploadFileView: View {
     @State private var expirationHours = 1
     @State private var isUploading = false
     @State private var uploadTask: Task<Void, Never>?
+    @State private var error: Error?
 
     var body: some View {
         NavigationStack {
@@ -71,7 +72,7 @@ struct UploadFileView: View {
                     fileURL = url
                 }
             }
-            .filesErrorAlert(store: store)
+            .filesErrorAlert($error)
         }
         .onDisappear {
             // Both Cancel and swiping the sheet down end up here. Stop the upload rather than let it finish unseen.
@@ -83,14 +84,19 @@ struct UploadFileView: View {
         guard let fileURL else { return }
         isUploading = true
         uploadTask = Task {
-            let file = await store.upload(
-                url: fileURL,
-                purpose: purpose,
-                expiresAfterSeconds: expires ? Int64(expirationHours) * 3600 : nil
-            )
-            isUploading = false
-            if file != nil {
-                dismiss()
+            do {
+                let file = try await store.upload(
+                    url: fileURL,
+                    purpose: purpose,
+                    expiresAfterSeconds: expires ? Int64(expirationHours) * 3600 : nil
+                )
+                isUploading = false
+                if file != nil {
+                    dismiss()
+                }
+            } catch {
+                isUploading = false
+                self.error = error
             }
         }
     }

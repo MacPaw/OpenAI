@@ -8,6 +8,9 @@ import OpenAI
 import UniformTypeIdentifiers
 
 /// Backs the Files screens: lists, uploads, retrieves, downloads and deletes files through `openAI.files`.
+///
+/// A failed request throws its error, so the screen that made the request shows it. A cancelled request, or one
+/// for a client that has since been replaced, returns without throwing: neither is a failure to report.
 @MainActor
 public final class FilesStore: ObservableObject {
     /// Upload purposes accepted by the API.
@@ -27,7 +30,6 @@ public final class FilesStore: ObservableObject {
             generation += 1
             files = []
             hasMore = false
-            error = nil
             isBusy = false
         }
     }
@@ -43,7 +45,6 @@ public final class FilesStore: ObservableObject {
     /// The UI disables the controls that start them while busy.
     @Published private(set) var isBusy = false
     @Published var purposeFilter: OpenAIFile.Purpose? = nil
-    @Published var error: Error?
 
     /// Reads the file to upload. Tests replace it to hold a read in flight.
     private let readFile: @Sendable (URL) async throws -> Data
@@ -58,19 +59,19 @@ public final class FilesStore: ObservableObject {
     }
 
     /// Loads the first page of files for the current purpose filter. Does nothing while busy.
-    func reload() async {
-        await load(after: nil)
+    func reload() async throws {
+        try await load(after: nil)
     }
 
     /// Appends the next page, if there is one. Does nothing while busy.
-    func loadMore() async {
+    func loadMore() async throws {
         guard hasMore else { return }
         // The cursor is the last loaded file that still exists: the API rejects a deleted file as `after` (404).
         // With every loaded file deleted, the remaining ones are the first page.
-        await load(after: files.last?.id)
+        try await load(after: files.last?.id)
     }
 
-    private func load(after: String?) async {
+    private func load(after: String?) async throws {
         guard !isBusy else { return }
         isBusy = true
         let generation = generation
@@ -87,22 +88,22 @@ public final class FilesStore: ObservableObject {
         } catch {
             // Leaving the Files screen cancels its reload, which isn't a failure to report.
             guard isCurrent(generation), !Self.isCancellation(error) else { return }
-            self.error = error
             if after == nil {
                 // Don't keep showing files that may not match the current filter.
                 files = []
                 hasMore = false
             }
+            throw error
         }
     }
 
     /// Uploads the file at `url`, which may be security-scoped (as returned by a file importer).
     ///
     /// Cancelling the calling task stops the upload: before anything is sent if the file is still being read,
-    /// otherwise by cancelling the request. A cancelled upload isn't reported as an error. If the request was
+    /// otherwise by cancelling the request. A cancelled upload returns `nil` instead of throwing. If the request was
     /// already sent in full, the file may still be created.
     @discardableResult
-    func upload(url: URL, purpose: String, expiresAfterSeconds: Int64?) async -> OpenAIFile? {
+    func upload(url: URL, purpose: String, expiresAfterSeconds: Int64?) async throws -> OpenAIFile? {
         guard !isBusy else { return nil }
         isBusy = true
         let generation = generation
@@ -129,13 +130,12 @@ public final class FilesStore: ObservableObject {
             return file
         } catch {
             guard isCurrent(generation), !Self.isCancellation(error) else { return nil }
-            self.error = error
-            return nil
+            throw error
         }
     }
 
     /// Fetches the file again and updates it in the list.
-    func retrieve(id: String) async -> OpenAIFile? {
+    func retrieve(id: String) async throws -> OpenAIFile? {
         let generation = generation
         do {
             let file = try await client.retrieve(id: id)
@@ -145,27 +145,25 @@ public final class FilesStore: ObservableObject {
             }
             return file
         } catch {
-            guard isCurrent(generation) else { return nil }
-            self.error = error
-            return nil
+            guard isCurrent(generation), !Self.isCancellation(error) else { return nil }
+            throw error
         }
     }
 
-    func content(id: String) async -> Data? {
+    func content(id: String) async throws -> Data? {
         let generation = generation
         do {
             let data = try await client.content(id: id)
             return isCurrent(generation) ? data : nil
         } catch {
-            guard isCurrent(generation) else { return nil }
-            self.error = error
-            return nil
+            guard isCurrent(generation), !Self.isCancellation(error) else { return nil }
+            throw error
         }
     }
 
     /// Deletes the file and removes it from the list. Returns whether the API reported it as deleted.
     @discardableResult
-    func delete(id: String) async -> Bool {
+    func delete(id: String) async throws -> Bool {
         guard !isBusy else { return false }
         isBusy = true
         let generation = generation
@@ -178,9 +176,8 @@ public final class FilesStore: ObservableObject {
             }
             return result.deleted
         } catch {
-            guard isCurrent(generation) else { return false }
-            self.error = error
-            return false
+            guard isCurrent(generation), !Self.isCancellation(error) else { return false }
+            throw error
         }
     }
 

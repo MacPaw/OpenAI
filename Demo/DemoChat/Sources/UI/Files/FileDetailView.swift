@@ -16,6 +16,7 @@ struct FileDetailView: View {
     @State private var contentPreview: FileContentPreview?
     @State private var isLoadingContent = false
     @State private var isDeleteConfirmationPresented = false
+    @State private var error: Error?
 
     var body: some View {
         List {
@@ -59,8 +60,12 @@ struct FileDetailView: View {
         .toolbar {
             Button {
                 Task {
-                    if let refreshed = await store.retrieve(id: file.id) {
-                        file = refreshed
+                    do {
+                        if let refreshed = try await store.retrieve(id: file.id) {
+                            file = refreshed
+                        }
+                    } catch {
+                        self.error = error
                     }
                 }
             } label: {
@@ -74,13 +79,17 @@ struct FileDetailView: View {
         ) {
             Button("Delete", role: .destructive) {
                 Task {
-                    if await store.delete(id: file.id) {
-                        dismiss()
+                    do {
+                        if try await store.delete(id: file.id) {
+                            dismiss()
+                        }
+                    } catch {
+                        self.error = error
                     }
                 }
             }
         }
-        .filesErrorAlert(store: store)
+        .filesErrorAlert($error)
     }
 
     @ViewBuilder
@@ -99,9 +108,13 @@ struct FileDetailView: View {
     private func downloadContent() {
         isLoadingContent = true
         Task {
-            if let data = await store.content(id: file.id) {
-                contentPreview = FileContentPreview(data)
-                content = data
+            do {
+                if let data = try await store.content(id: file.id) {
+                    contentPreview = FileContentPreview(data)
+                    content = data
+                }
+            } catch {
+                self.error = error
             }
             isLoadingContent = false
         }

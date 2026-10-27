@@ -55,6 +55,38 @@ Killing a waiting `xcodebuild` doesn't stop its `simctl diagnose`. If one was
 interrupted, check for leftovers with `pgrep -fl "simctl diagnose"` and stop
 them before the next run.
 
+## Make a type testable by injecting its dependencies
+
+When a test needs to control something a type depends on, such as an API
+client, a clock, a delay or a file read, pass it in explicitly: an
+initializer parameter, typed as a protocol or a closure. `FilesStore` in
+`DemoChat` is an example: it takes a `FilesEndpointProtocol` client and a
+`readFile` closure.
+
+Prefer that over workarounds such as test-only flags or hooks, `#if DEBUG`
+branches, subclassing to override behavior, or global state a test swaps
+out. Don't make a type's `private` members less private for a test either:
+test the type through the API its callers use, and inject whatever the test
+needs to control.
+
+Injection is the default, not a hard rule: where another technique clearly
+fits a case better, use that instead.
+
+## Handle errors instead of discarding them with `try?`
+
+Don't use `try?` to make an error go away. Catch it and decide what it
+means:
+
+- **Propagate it** (`throws`) when the caller is in a better position to
+  handle it, for example to show it to the user.
+- **Ignore an expected error explicitly:** check for its type or code, ignore
+  only that one, and say why. `FilesStore` is an example: it returns without
+  throwing when a request is cancelled (`CancellationError` or
+  `URLError.cancelled`), since that isn't a failure to report, and throws any
+  other error.
+- **Log it** when there's nothing meaningful to do with it, in the project's
+  preferred way of logging errors.
+
 ## Foundation types that don't exist on Linux
 
 CI builds and tests this package on Linux (Swift 5.10, 6.0, 6.3) in addition
@@ -88,6 +120,10 @@ build/tests passing), in logical commits with clear messages. When on `main`,
 create a branch first. Never run `git push` (or open a PR) unless the user
 explicitly asks for it at that point; the user decides what leaves their
 machine.
+
+Reply to a review comment about a code change only once that change is
+pushed, so the reply points to code the reviewer can see. Until then, draft
+the reply if it helps, and post it after the push.
 
 ## Documentation comments come from official sources
 
