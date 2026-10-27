@@ -6,7 +6,7 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ## [Unreleased]
 
-## [0.6.0] - 2026-10-22
+## [0.6.0] - 2026-10-27
 
 ### Added
 - `openAI.files` (`FilesEndpointProtocol`) for the Files API: `create(query:)`, `retrieve(id:)`, `list(query:)` and `list()`, `delete(id:)` and `content(id:)`, in callback, async and Combine variants. The names match the official Java and Python SDKs' `files.create/retrieve/list/delete/content`. `ListFilesQuery` carries the `purpose`, `limit`, `order` and `after` parameters, `content(id:)` returns the file's contents as `Data`, and `delete(id:)` returns the generated `Components.Schemas.DeleteFileResponse` ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
@@ -23,6 +23,8 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ### Fixed
 - `audioCreateSpeech` and `files.content(id:)` returned an API error response's JSON body as if it were the audio or file content, because responses read as raw data never had their HTTP status checked. They now throw for a status of 400 or above: the decoded `APIErrorResponse`, or `OpenAIError.statusError` when the body isn't an API error, as streaming requests already did ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
+- `Demo`: streamed chat replies kept updating long after the stream had ended; with a web search reply in Responses, the last update came 15.5 s later. ExyteChat's `ChatView` applies each change to its messages as a separate animated update of about half a second, while the stores published a change every 100 ms. The Chats and Responses screens now pass on at most one update every 500 ms, always with the latest messages ([#475](https://github.com/MacPaw/OpenAI/pull/475)).
+- `Demo`: deleting a conversation in Chats didn't remove it from `ChatStore`, so it came back the next time the conversations changed. It's now deleted, except while a reply is in progress, when an alert explains that it can't be ([#475](https://github.com/MacPaw/OpenAI/pull/475)).
 
 ## [0.5.3] - 2026-10-08
 
