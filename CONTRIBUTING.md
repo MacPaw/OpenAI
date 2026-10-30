@@ -72,11 +72,12 @@ directly to `OpenAIProtocol`, `OpenAIAsync` or `OpenAICombine`.
 The *API Breakage* workflow runs `swift package diagnose-api-breaking-changes` on
 every pull request, comparing the public API with the latest release tag. It fails
 on every reported break that is not listed in `.github/api-breakage-allowlist.txt`.
-Run the same check locally before opening a pull request, replacing `0.5.3` with
-the latest tag:
+Run the same check locally before opening a pull request, replacing
+`<latest tag>` with the latest release tag from the
+[Releases page](https://github.com/MacPaw/OpenAI/releases):
 
 ```sh
-swift package diagnose-api-breaking-changes 0.5.3
+swift package diagnose-api-breaking-changes <latest tag>
 ```
 
 ### Accepting a break

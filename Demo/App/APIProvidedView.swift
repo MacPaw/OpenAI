@@ -17,6 +17,7 @@ struct APIProvidedView: View {
     @StateObject var assistantStore: AssistantStore
     @StateObject var miscStore: MiscStore
     @StateObject var responsesStore: ResponsesStore
+    @StateObject var filesStore: FilesStore
     @StateObject var mcpToolsStore: MCPToolsStore
 
     @Environment(\.idProviderValue) var idProvider
@@ -61,6 +62,11 @@ struct APIProvidedView: View {
                 client: client.responses
             )
         )
+        self._filesStore = StateObject(
+            wrappedValue: FilesStore(
+                client: client.files
+            )
+        )
         self._mcpToolsStore = StateObject(
             wrappedValue: MCPToolsStore(githubToken: githubToken)
         )
@@ -73,6 +79,7 @@ struct APIProvidedView: View {
             assistantStore: assistantStore,
             miscStore: miscStore,
             responsesStore: responsesStore,
+            filesStore: filesStore,
             mcpToolsStore: mcpToolsStore
         )
         .environment(\.apiProvider, configuration.provider)
@@ -91,6 +98,7 @@ struct APIProvidedView: View {
         assistantStore.openAIClient = client
         miscStore.openAIClient = client
         responsesStore.client = client.responses
+        filesStore.client = client.files
     }
 
     private static func makeClient(

@@ -95,8 +95,6 @@ public final class ResponsesStore: ObservableObject {
     )
     
     private var responseBeingStreamed: ResponseData?
-    private var currentUpdateTask: Task<Void, Never>?
-    private var conversationTurnForNextUpdateTask: ConversationTurn?
     private var conversationTurns: [ConversationTurn] = [] {
         didSet {
             chatMessages = conversationTurns.map(\.chatMessage)
@@ -841,35 +839,7 @@ public final class ResponsesStore: ObservableObject {
     }
     
     private func replaceLastConversationTurn(with updatedTurn: ConversationTurn) {
-        if currentUpdateTask == nil {
-            scheduleReplaceConversationTurnTask(withUpdatedTurn: updatedTurn)
-        } else {
-            conversationTurnForNextUpdateTask = updatedTurn
-        }
-    }
-    
-    private func scheduleReplaceConversationTurnTask(withUpdatedTurn updatedTurn: ConversationTurn) {
-        currentUpdateTask = .init(operation: {
-            // Debouncing because otherwise it's hard for ExyteChat to handle very quick updates
-            do {
-                // 1000 nano == 1 micro, 1000 micro == 1 milli, 100 milli = 0.1s
-                try await Task.sleep(nanoseconds: 1000 * 1000 * 100)
-            } catch {
-                assert(error is CancellationError)
-                return
-            }
-            
-            var turns = self.conversationTurns
-            turns.removeLast()
-            turns.append(updatedTurn)
-            self.conversationTurns = turns
-            self.currentUpdateTask = nil
-            
-            if let pendingItem = conversationTurnForNextUpdateTask {
-                conversationTurnForNextUpdateTask = nil
-                scheduleReplaceConversationTurnTask(withUpdatedTurn: pendingItem)
-            }
-        })
+        conversationTurns[conversationTurns.count - 1] = updatedTurn
     }
     
     private func applyOutputTextDeltaToMessageBeingStreamed(messageId: String, newText: String) throws {

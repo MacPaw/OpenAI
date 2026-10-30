@@ -14,6 +14,9 @@ public struct ResponsesChatDetailView: View {
     @State private var errorTitle = ""
     @State private var errorAlertPresented = false
     @StateObject private var settingsStore = ResponsesSettingsStore()
+    @StateObject private var pacedMessages = ChatMessagesPacer(
+        minimumInterval: ChatMessagesPacer.chatViewUpdateInterval
+    )
     @ObservedObject var store: ResponsesStore
     
     @State private var isFunctionCallViewPresented = false
@@ -183,7 +186,7 @@ public struct ResponsesChatDetailView: View {
     @ViewBuilder
     private func chatView() -> some View {
         ExyteChat.ChatView(
-            messages: store.chatMessages,
+            messages: pacedMessages.messages,
             chatType: .conversation,
             replyMode: .answer,
             didSendMessage: { draftMessage in
@@ -204,6 +207,9 @@ public struct ResponsesChatDetailView: View {
                 }
         })
         .setAvailableInputs([.text, .media])
+        .onChange(of: store.chatMessages, initial: true) { _, messages in
+            pacedMessages.update(to: messages)
+        }
     }
 }
 

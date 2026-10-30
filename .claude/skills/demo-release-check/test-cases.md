@@ -232,8 +232,8 @@ Misc is the last tab.
 Needs: none
 Steps: open the Misc tab
 Expect: sections Configuration (API Configuration), Models (List Models,
-Retrieve Model), Assistants Beta (Assistants), Moderations (Moderation Chat),
-Audio (Create Speech, Transcribe).
+Retrieve Model), Assistants Beta (Assistants), Files (Files), Moderations
+(Moderation Chat), Audio (Create Speech, Transcribe).
 
 ### X-02 List models  [smoke]
 Needs: OpenAI key
@@ -269,3 +269,44 @@ Needs: none
 Steps: Misc → Audio → **Transcribe**
 Expect: the screen reads "Transcribe: TBD". Update this case if transcription
 ships.
+
+### X-08 List files  [smoke]
+Needs: OpenAI key
+Steps: Misc → Files → **Files** → wait for the list to load → set **Purpose** to
+`user_data` → set it back to **All**
+Expect: a screen titled "Files" with a **Purpose** picker and a **+** button;
+after each load, either file rows (the filename, then purpose, size and date)
+or a "No Files" placeholder; no "Request Failed" alert. Either is a PASS: an
+empty page is a valid result (the API sends `null` for its `first_id` and
+`last_id`, which once failed to decode). Read-only: don't upload or delete here.
+
+### X-09 Files is OpenAI-only on other providers
+Needs: Custom provider
+Steps: Misc → Files → **Files**
+Expect: no list; a screen titled "Files is OpenAI-only" saying the current
+provider is Custom and pointing to Misc > API Configuration; no alert.
+
+### X-10 Upload, download and delete a file
+Needs: OpenAI key
+Steps: Misc → Files → **Files** → **+** → **Choose File** → in the document
+picker, tap **Browse** if it opens on Recents → **demo-release-check** (On My
+iPhone; step 4 of `SKILL.md` puts it there) → leave Purpose `user_data` → turn
+**Expire** on (After 1 hour) → **Upload** → tap the new row → **Download
+Content** → **OK** → **Refresh** (toolbar) → **Delete File** → **Delete**
+Expect: the sheet closes and `demo-release-check.txt` is the first row; its
+details show purpose `user_data`, 26 bytes, and an Expires time an hour after
+Created; **Download Content** shows a "Request Failed" alert saying files of
+purpose `user_data` can't be downloaded (not the error's JSON as content);
+**Refresh** keeps the same details; **Delete** returns to the list without
+the file; no other alert. This creates a file on the account: if the case
+fails after **Upload**, delete `demo-release-check.txt` from the list (swipe
+left on its row) and say in the report whether that worked.
+
+### X-11 A failed upload keeps the sheet and shows the error
+Needs: none
+Steps: Misc → Files → **Files** → **OK** on the "Request Failed" alert (the
+placeholder key is rejected) → **+** → **Choose File** → pick
+**demo-release-check** as in X-10 → **Upload**
+Expect: the Upload File sheet stays open and a "Request Failed" alert says the
+API key is incorrect; **OK** returns to the sheet with `demo-release-check.txt`
+still chosen.

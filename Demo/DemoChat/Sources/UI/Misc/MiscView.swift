@@ -11,12 +11,14 @@ public struct MiscView: View {
     @ObservedObject var store: MiscStore
     @ObservedObject var chatStore: ChatStore
     @ObservedObject var assistantStore: AssistantStore
+    @ObservedObject var filesStore: FilesStore
     @Environment(\.showAPIConfiguration) private var showAPIConfiguration
     
-    public init(store: MiscStore, chatStore: ChatStore, assistantStore: AssistantStore) {
+    public init(store: MiscStore, chatStore: ChatStore, assistantStore: AssistantStore, filesStore: FilesStore) {
         self.store = store
         self.chatStore = chatStore
         self.assistantStore = assistantStore
+        self.filesStore = filesStore
     }
     
     public var body: some View {
@@ -34,6 +36,9 @@ public struct MiscView: View {
                         store: chatStore,
                         assistantStore: assistantStore
                     ))
+                }
+                Section(header: Text("Files")) {
+                    NavigationLink("Files", destination: FilesView(store: filesStore))
                 }
                 Section(header: Text("Moderations")) {
                     NavigationLink("Moderation Chat", destination: ModerationChatView(store: store))

@@ -6,10 +6,16 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ## [Unreleased]
 
+### Fixed
+- JSON requests never checked the HTTP status, so an HTML gateway body surfaced as a `DecodingError`, and with `ParsingOptions.relaxed` a status of 400 or above whose body was missing required fields could decode as a successful result. Completion-handler, async, and Combine JSON calls now throw for a status of 400 or above, as raw and streaming calls already did: the decoded `APIErrorResponse` or `GeminiAPIErrorResponse`, or `OpenAIError.statusError` when the body isn't an API error ([#471](https://github.com/MacPaw/OpenAI/pull/471)).
+
+## [0.6.0] - 2026-10-27
+
 ### Added
 - `openAI.files` (`FilesEndpointProtocol`) for the Files API: `create(query:)`, `retrieve(id:)`, `list(query:)` and `list()`, `delete(id:)` and `content(id:)`, in callback, async and Combine variants. The names match the official Java and Python SDKs' `files.create/retrieve/list/delete/content`. `ListFilesQuery` carries the `purpose`, `limit`, `order` and `after` parameters, `content(id:)` returns the file's contents as `Data`, and `delete(id:)` returns the generated `Components.Schemas.DeleteFileResponse` ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
 - `CreateFileQuery.expiresAfter`, sent as `expires_after`, to set a file's expiration policy ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
 - `OpenAIFile` and `ListFilesResponse`, hand-written replacements for the generated schemas of the same names. The spec's `purpose` enum on the file object omits `evals`, although `evals` is a valid upload purpose, so the generated type would fail to decode a file uploaded for evals; `OpenAIFile.Purpose` is an open type that decodes any value. `ListFilesResponse.firstId` and `lastId` are optional, because the API returns `null` for both on an empty page although the spec marks them required ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
+- `Demo`: a Files screen (*Misc → Files*) that lists, uploads, retrieves, downloads and deletes files through `openAI.files` ([#470](https://github.com/MacPaw/OpenAI/pull/470)).
 
 ### Changed
 - **Breaking:** `OpenAIProtocol` gained a `files` requirement. Code that only calls `openAI.files` is unaffected, but custom conformances (e.g. test doubles) need to implement it ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
@@ -20,7 +26,8 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ### Fixed
 - `audioCreateSpeech` and `files.content(id:)` returned an API error response's JSON body as if it were the audio or file content, because responses read as raw data never had their HTTP status checked. They now throw for a status of 400 or above: the decoded `APIErrorResponse`, or `OpenAIError.statusError` when the body isn't an API error, as streaming requests already did ([#401](https://github.com/MacPaw/OpenAI/pull/401)).
-- JSON requests never checked the HTTP status, so an HTML gateway body surfaced as a `DecodingError`, and with `ParsingOptions.relaxed` a status of 400 or above whose body was missing required fields could decode as a successful result. Completion-handler, async, and Combine JSON calls now throw for a status of 400 or above, as raw and streaming calls already did: the decoded `APIErrorResponse` or `GeminiAPIErrorResponse`, or `OpenAIError.statusError` when the body isn't an API error.
+- `Demo`: streamed chat replies kept updating long after the stream had ended; with a web search reply in Responses, the last update came 15.5 s later. ExyteChat's `ChatView` applies each change to its messages as a separate animated update of about half a second, while the stores published a change every 100 ms. The Chats and Responses screens now pass on at most one update every 500 ms, always with the latest messages ([#475](https://github.com/MacPaw/OpenAI/pull/475)).
+- `Demo`: deleting a conversation in Chats didn't remove it from `ChatStore`, so it came back the next time the conversations changed. It's now deleted, except while a reply is in progress, when an alert explains that it can't be ([#475](https://github.com/MacPaw/OpenAI/pull/475)).
 
 ## [0.5.3] - 2026-10-08
 
@@ -114,7 +121,8 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 Older releases are documented on the [GitHub Releases](https://github.com/MacPaw/OpenAI/releases) page.
 
-[Unreleased]: https://github.com/MacPaw/OpenAI/compare/0.5.3...HEAD
+[Unreleased]: https://github.com/MacPaw/OpenAI/compare/0.6.0...HEAD
+[0.6.0]: https://github.com/MacPaw/OpenAI/compare/0.5.3...0.6.0
 [0.5.3]: https://github.com/MacPaw/OpenAI/compare/0.5.2...0.5.3
 [0.5.2]: https://github.com/MacPaw/OpenAI/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/MacPaw/OpenAI/compare/0.5.0...0.5.1
