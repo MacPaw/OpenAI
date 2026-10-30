@@ -6,6 +6,9 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ## [Unreleased]
 
+### Fixed
+- JSON requests never checked the HTTP status, so an HTML gateway body surfaced as a `DecodingError`, and with `ParsingOptions.relaxed` a status of 400 or above whose body was missing required fields could decode as a successful result. Completion-handler, async, and Combine JSON calls now throw for a status of 400 or above, as raw and streaming calls already did: the decoded `APIErrorResponse` or `GeminiAPIErrorResponse`, or `OpenAIError.statusError` when the body isn't an API error ([#471](https://github.com/MacPaw/OpenAI/pull/471)).
+
 ## [0.6.0] - 2026-10-27
 
 ### Added
