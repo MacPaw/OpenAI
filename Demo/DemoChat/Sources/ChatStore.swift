@@ -358,26 +358,35 @@ public final class ChatStore: ObservableObject {
 
     private func timerFired() {
         Task {
-            let result = try await openAIClient.runRetrieve(threadId: currentThreadId ?? "", runId: currentRunId ?? "")
+            do {
+                let result = try await openAIClient.runRetrieve(threadId: currentThreadId ?? "", runId: currentRunId ?? "")
 
-            // TESTING RETRIEVAL OF RUN STEPS
-            try await handleRunRetrieveSteps()
+                // TESTING RETRIEVAL OF RUN STEPS
+                try await handleRunRetrieveSteps()
 
-            switch result.status {
-                // Get threadsMesages.
-            case .completed:
-                handleCompleted()
-            case .failed:
-                // Handle more gracefully with a popup dialog or failure indicator
-                await MainActor.run {
-                    self.stopPolling()
+                switch result.status {
+                    // Get threadsMesages.
+                case .completed:
+                    handleCompleted()
+                case .failed:
+                    // Handle more gracefully with a popup dialog or failure indicator
+                    await MainActor.run {
+                        self.stopPolling()
+                    }
+                case .requiresAction:
+                    try await handleRequiresAction(result)
+                default:
+                    // Handle additional statuses "requires_action", "queued" ?, "expired", "cancelled"
+                    // https://platform.openai.com/docs/assistants/how-it-works/runs-and-run-steps
+                    break
                 }
-            case .requiresAction:
-                try await handleRequiresAction(result)
-            default:
-                // Handle additional statuses "requires_action", "queued" ?, "expired", "cancelled"
-                // https://platform.openai.com/docs/assistants/how-it-works/runs-and-run-steps
-                break
+            } catch {
+                // Stop polling: a request that keeps failing would otherwise be repeated, and its error shown, every tick.
+                print("error: \(error) polling the assistant run")
+                stopPolling()
+                if let currentConversationId {
+                    conversationErrors[currentConversationId] = error
+                }
             }
         }
     }
@@ -401,7 +410,14 @@ public final class ChatStore: ObservableObject {
                 before = lastNonLocalMessage.id
             }
 
-            let result = try await openAIClient.threadsMessages(threadId: currentThreadId ?? "", before: before)
+            let result: ThreadsMessagesResult
+            do {
+                result = try await openAIClient.threadsMessages(threadId: currentThreadId ?? "", before: before)
+            } catch {
+                print("error: \(error) retrieving the thread's messages")
+                conversationErrors[self.conversations[conversationIndex].id] = error
+                return
+            }
 
             for item in result.data.reversed() {
                 let role = item.role
