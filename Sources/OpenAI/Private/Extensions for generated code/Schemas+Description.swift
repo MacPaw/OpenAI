@@ -39,7 +39,7 @@ extension Components.Schemas.ResponseTextDeltaEvent: CustomStringConvertible {
 
 extension Components.Schemas.ResponseOutputTextAnnotationAddedEvent: CustomStringConvertible {
     public var description: String {
-        "ResponseOutputTextAnnotationAddedEvent(itemId: \"\(itemId)\", outputIndex: \(outputIndex), contentIndex: \(contentIndex), annotationIndex: \(annotationIndex), annotation: \(annotation))"
+        "ResponseOutputTextAnnotationAddedEvent(itemId: \"\(itemId)\", outputIndex: \(outputIndex), contentIndex: \(contentIndex), annotationIndex: \(annotationIndex), annotation: \(annotation.map(String.init(describing:)) ?? "nil"))"
     }
 }
 

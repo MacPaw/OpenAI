@@ -24,7 +24,6 @@ struct DemoApp: App {
     @State private var launchGitHubToken = DemoLaunchEnvironment.githubToken(from: DemoApp.environment)
 
     let idProvider: () -> String
-    let dateProvider: () -> Date
 
     init() {
         // Before anything reads saved data
@@ -34,7 +33,6 @@ struct DemoApp: App {
         self.idProvider = {
             UUID().uuidString
         }
-        self.dateProvider = Date.init
     }
 
     var body: some Scene {

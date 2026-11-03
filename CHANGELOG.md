@@ -6,7 +6,12 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ## [Unreleased]
 
+### Changed
+- CI: the *API Breakage* allowlist is emptied, because the 0.6.0 release is now the comparison baseline for the breaks it listed.
+
 ### Fixed
+- `Components.Schemas.ResponseOutputTextAnnotationAddedEvent.description` printed a present `annotation` as `Optional(...)`; it now prints the annotation itself, or `nil`.
+- `Demo`: an error from a request made while polling an assistant run in Chats was silently ignored and the request repeated every second. It now stops the polling and is shown in the conversation. Link preview failures are logged instead of discarded.
 - JSON requests never checked the HTTP status, so an HTML gateway body surfaced as a `DecodingError`, and with `ParsingOptions.relaxed` a status of 400 or above whose body was missing required fields could decode as a successful result. Completion-handler, async, and Combine JSON calls now throw for a status of 400 or above, as raw and streaming calls already did: the decoded `APIErrorResponse` or `GeminiAPIErrorResponse`, or `OpenAIError.statusError` when the body isn't an API error ([#471](https://github.com/MacPaw/OpenAI/pull/471)).
 
 ## [0.6.0] - 2026-10-27

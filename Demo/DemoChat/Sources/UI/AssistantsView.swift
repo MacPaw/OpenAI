@@ -13,9 +13,6 @@ public struct AssistantsView: View {
     @ObservedObject var store: ChatStore
     @ObservedObject var assistantStore: AssistantStore
 
-    @Environment(\.dateProviderValue) var dateProvider
-    @Environment(\.idProviderValue) var idProvider
-
     // state to select file
     @State private var isPickerPresented: Bool = false
     @State private var fileURL: URL?

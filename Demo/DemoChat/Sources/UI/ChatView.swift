@@ -12,9 +12,6 @@ public struct ChatView: View {
     @ObservedObject var store: ChatStore
     @ObservedObject var assistantStore: AssistantStore
 
-    @Environment(\.dateProviderValue) var dateProvider
-    @Environment(\.idProviderValue) var idProvider
-    
     @State private var sendMessageTask: Task<Void, Never>?
     @State private var deletionError: Error?
 
@@ -68,10 +65,10 @@ public struct ChatView: View {
                             self.sendMessageTask = Task {
                                 await store.sendMessage(
                                     Message(
-                                        id: idProvider(),
+                                        id: UUID().uuidString,
                                         role: .user,
                                         content: message,
-                                        createdAt: dateProvider(),
+                                        createdAt: Date(),
                                         image: image
                                     ),
                                     conversationId: conversation.id,

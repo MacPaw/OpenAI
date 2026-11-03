@@ -19,7 +19,11 @@ struct LinkPreview: UIViewRepresentable {
     
     func updateUIView(_ uiView: UIViewType, context: Context) {
         Task { @MainActor in
-            uiView.metadata = try await fetchMetadata()
+            do {
+                uiView.metadata = try await fetchMetadata()
+            } catch {
+                print("error: \(error) fetching the link metadata for \(previewURL)")
+            }
         }
     }
     
