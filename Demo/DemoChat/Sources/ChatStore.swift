@@ -342,6 +342,7 @@ public final class ChatStore: ObservableObject {
         currentRunId = runId
         currentThreadId = threadId
         currentConversationId = conversationId
+        conversationErrors[conversationId] = nil
         isSendingMessage = true
         timer = Timer.scheduledTimer(withTimeInterval: timeInterval, repeats: true) { [weak self] _ in
             DispatchQueue.main.async {
