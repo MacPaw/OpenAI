@@ -20,9 +20,6 @@ struct APIProvidedView: View {
     @StateObject var filesStore: FilesStore
     @StateObject var mcpToolsStore: MCPToolsStore
 
-    @Environment(\.idProviderValue) var idProvider
-    @Environment(\.dateProviderValue) var dateProvider
-
     init(
         configuration: Binding<DemoAPIConfiguration>,
         sdkConfiguration: OpenAI.Configuration,

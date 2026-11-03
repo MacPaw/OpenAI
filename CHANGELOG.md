@@ -6,6 +6,13 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ## [Unreleased]
 
+### Changed
+- CI: the *API Breakage* allowlist is emptied, because the 0.6.0 release is now the comparison baseline for the breaks it listed.
+
+### Fixed
+- `Components.Schemas.ResponseOutputTextAnnotationAddedEvent.description` printed a present `annotation` as `Optional(...)`; it now prints the annotation itself, or `nil`.
+- `Demo`: an error from a request made while polling an assistant run in Chats was silently ignored and the request repeated every second. It now stops the polling and is shown in the conversation. Link preview failures are logged instead of discarded.
+
 ## [0.6.0] - 2026-10-27
 
 ### Added

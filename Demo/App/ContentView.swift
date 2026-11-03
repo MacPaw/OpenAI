@@ -19,7 +19,6 @@ struct ContentView: View {
     @ObservedObject var mcpToolsStore: MCPToolsStore
     
     @State private var selectedTab = 0
-    @Environment(\.idProviderValue) var idProvider
     @Environment(\.apiProvider) private var apiProvider
 
     var body: some View {

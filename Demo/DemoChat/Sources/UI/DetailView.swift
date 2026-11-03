@@ -83,7 +83,7 @@ struct DetailView: View {
                 .safeAreaInset(edge: .top) {
                     HStack {
                         Text(
-                            "Model: \(conversation.type == .assistant ? Model.gpt4_o_mini : selectedChatModel ?? "not set"), stream: \(streamEnabled)"
+                            "Model: \(conversation.type == .assistant ? Model.gpt4_o_mini : selectedChatModel ?? "not set"), stream: \(String(streamEnabled))"
                         )
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -175,7 +175,7 @@ struct DetailView: View {
                 }
         }
         .onAppear(perform: loadStoredModel)
-        .onChange(of: apiProvider) { _ in loadStoredModel() }
+        .onChange(of: apiProvider) { loadStoredModel() }
     }
     
     @ViewBuilder

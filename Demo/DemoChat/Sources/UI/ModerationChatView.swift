@@ -10,9 +10,6 @@ import SwiftUI
 public struct ModerationChatView: View {
     @ObservedObject var store: MiscStore
     
-    @Environment(\.dateProviderValue) var dateProvider
-    @Environment(\.idProviderValue) var idProvider
-
     public init(store: MiscStore) {
         self.store = store
     }
@@ -25,10 +22,10 @@ public struct ModerationChatView: View {
                 Task {
                     await store.sendModerationMessage(
                         Message(
-                            id: idProvider(),
+                            id: UUID().uuidString,
                             role: .user,
                             content: message,
-                            createdAt: dateProvider()
+                            createdAt: Date()
                         )
                     )
                 }
