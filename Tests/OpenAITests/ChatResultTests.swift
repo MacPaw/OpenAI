@@ -236,6 +236,7 @@ final class ChatResultTests: XCTestCase {
             }
             """
         
+        decoder.userInfo = [.parsingOptions: ParsingOptions.relaxed]
         let usage = try XCTUnwrap(decode(jsonString).usage)
         XCTAssertEqual(usage.totalTokens, 100)
         XCTAssertEqual(usage.promptTokensDetails?.cachedTokens, 12)

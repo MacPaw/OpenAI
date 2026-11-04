@@ -268,12 +268,13 @@ public struct ChatResult: Codable, Equatable, Sendable {
                 case audioTokens = "audio_tokens"
                 case cachedTokens = "cached_tokens"
             }
-            
-            public init(from decoder: Decoder) throws {
+
+            public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
+                let parsingOptions = decoder.userInfo[.parsingOptions] as? ParsingOptions ?? []
                 // OpenAI-compatible providers (e.g. DeepSeek, Gemini) often send only one of these fields.
-                self.audioTokens = try container.decodeIfPresent(Int.self, forKey: .audioTokens) ?? 0
-                self.cachedTokens = try container.decodeIfPresent(Int.self, forKey: .cachedTokens) ?? 0
+                self.audioTokens = try container.decodeInt(forKey: .audioTokens, parsingOptions: parsingOptions)
+                self.cachedTokens = try container.decodeInt(forKey: .cachedTokens, parsingOptions: parsingOptions)
             }
         }
 
