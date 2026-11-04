@@ -20,19 +20,19 @@ struct URLResponseHandler {
     }
     
     func interceptAndDecode<ResultType: Codable>(response: URLResponse, urlRequest: URLRequest, responseData data: Data) throws -> ResultType {
-        try decodeJson(data: try interceptedData(response: response, urlRequest: urlRequest, error: nil, responseData: data))
+        try decodeJson(data: interceptAndValidate(response: response, urlRequest: urlRequest, error: nil, responseData: data))
     }
     
     func interceptAndDecode<ResultType: Codable>(response: URLResponse?, urlRequest: URLRequest, error: Error?, responseData data: Data?) throws -> ResultType {
-        try decodeJson(data: try interceptedData(response: response, urlRequest: urlRequest, error: error, responseData: data))
+        try decodeJson(data: interceptAndValidate(response: response, urlRequest: urlRequest, error: error, responseData: data))
     }
     
     func interceptAndDecodeRaw(response: URLResponse, urlRequest: URLRequest, responseData data: Data) throws -> Data {
-        try interceptedData(response: response, urlRequest: urlRequest, error: nil, responseData: data)
+        try interceptAndValidate(response: response, urlRequest: urlRequest, error: nil, responseData: data)
     }
     
     func interceptAndDecodeRaw(response: URLResponse?, urlRequest: URLRequest, error: Error?, responseData data: Data?) throws -> Data {
-        try interceptedData(response: response, urlRequest: urlRequest, error: error, responseData: data)
+        try interceptAndValidate(response: response, urlRequest: urlRequest, error: error, responseData: data)
     }
     
     private func decodeJson<ResultType: Codable>(data: Data) throws -> ResultType {
@@ -44,7 +44,7 @@ struct URLResponseHandler {
     /// response and body the middleware returns. An HTTP status of 400 or above is an error for every JSON and raw
     /// response: the decoded API or Gemini error, or `OpenAIError.statusError`. The body is returned only after that check, or `OpenAIError.emptyData` when there is none. JSON callers
     /// decode that body next, so a 2xx that isn't the result type still falls back to an API or Gemini error.
-    private func interceptedData(response: URLResponse?, urlRequest: URLRequest, error: Error?, responseData data: Data?) throws -> Data {
+    private func interceptAndValidate(response: URLResponse?, urlRequest: URLRequest, error: Error?, responseData data: Data?) throws -> Data {
         let intercepted = intercept(response: response, data: data, request: urlRequest)
         if let error {
             throw error
