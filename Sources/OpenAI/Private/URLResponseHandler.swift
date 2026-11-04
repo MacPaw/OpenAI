@@ -40,18 +40,18 @@ struct URLResponseHandler {
         return try jsonDecoder.decodeResponseData(data)
     }
     
-    /// Response middleware runs first, then a transport error is thrown unchanged. An HTTP status of 400 or above
-    /// is an error for every JSON and raw response: the decoded API or Gemini error, or `OpenAIError.statusError`.
-    /// The body is returned only after that check, or `OpenAIError.emptyData` when there is none. JSON callers
+    /// Response middleware runs first, then a transport error is thrown unchanged. The status check reads the
+    /// response and body the middleware returns. An HTTP status of 400 or above is an error for every JSON and raw
+    /// response: the decoded API or Gemini error, or `OpenAIError.statusError`. The body is returned only after that check, or `OpenAIError.emptyData` when there is none. JSON callers
     /// decode that body next, so a 2xx that isn't the result type still falls back to an API or Gemini error.
     private func interceptedData(response: URLResponse?, urlRequest: URLRequest, error: Error?, responseData data: Data?) throws -> Data {
-        let middlewareData = intercept(response: response, data: data, request: urlRequest)
+        let intercepted = intercept(response: response, data: data, request: urlRequest)
         if let error {
             throw error
         }
         
-        let body = middlewareData ?? data
-        try throwIfErrorStatus(response: response, data: body)
+        let body = intercepted.data ?? data
+        try throwIfErrorStatus(response: intercepted.response ?? response, data: body)
         guard let body else {
             throw OpenAIError.emptyData
         }
@@ -72,11 +72,9 @@ struct URLResponseHandler {
         throw OpenAIError.statusError(response: httpResponse, statusCode: httpResponse.statusCode)
     }
     
-    private func intercept(response: URLResponse?, data: Data?, request: URLRequest) -> Data? {
-        let (_, interceptedData) = self.middlewares.reduce((response, data)) { current, middleware in
+    private func intercept(response: URLResponse?, data: Data?, request: URLRequest) -> (response: URLResponse?, data: Data?) {
+        self.middlewares.reduce((response, data)) { current, middleware in
             middleware.intercept(response: current.response, request: request, data: current.data)
         }
-        
-        return interceptedData
     }
 }

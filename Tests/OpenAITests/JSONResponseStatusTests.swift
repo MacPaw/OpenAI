@@ -163,6 +163,29 @@ final class JSONResponseStatusTests: XCTestCase {
         }
     }
 
+    /// The status check reads the response a middleware returns, not the original one.
+    func testAsyncChatsThrowsStatusErrorForMiddlewareErrorStatus() async throws {
+        let openAI = makeOpenAI(middlewares: [StatusOverrideMiddleware(statusCode: 503)])
+        urlSession.dataTask = .errorResponse(statusCode: 200, data: Data("<html>Unavailable</html>".utf8))
+
+        do {
+            let result = try await openAI.chats(query: chatQuery())
+            XCTFail("Expected an error, got \(result)")
+        } catch OpenAIError.statusError(_, let statusCode) {
+            XCTAssertEqual(statusCode, 503)
+        }
+    }
+
+    /// A middleware that turns an error status into a success lets the body decode.
+    func testAsyncModelDecodesWhenMiddlewareReturnsSuccessStatus() async throws {
+        let openAI = makeOpenAI(middlewares: [StatusOverrideMiddleware(statusCode: 200)])
+        let body = Data(#"{"id":"gpt-3.5-turbo","created":1,"object":"model","owned_by":"openai"}"#.utf8)
+        urlSession.dataTask = .errorResponse(statusCode: 500, data: body)
+
+        let result = try await openAI.model(query: ModelQuery(model: .gpt3_5Turbo))
+        XCTAssertEqual(result, ModelResult(id: "gpt-3.5-turbo", created: 1, object: "model", ownedBy: "openai"))
+    }
+
 #if canImport(Combine)
     @MainActor
     func testCombineChatsThrowsAPIErrorForErrorStatus() throws {
@@ -202,14 +225,19 @@ final class JSONResponseStatusTests: XCTestCase {
     }
 #endif
 
-    private func makeOpenAI(parsingOptions: ParsingOptions) -> OpenAI {
+    private func makeOpenAI(parsingOptions: ParsingOptions = [], middlewares: [OpenAIMiddleware] = []) -> OpenAI {
         let configuration = OpenAI.Configuration(
             token: "foo",
             organizationIdentifier: "bar",
             timeoutInterval: 14,
             parsingOptions: parsingOptions
         )
-        return OpenAI(configuration: configuration, session: urlSession, streamingSessionFactory: MockStreamingSessionFactory())
+        return OpenAI(
+            configuration: configuration,
+            session: urlSession,
+            streamingSessionFactory: MockStreamingSessionFactory(),
+            middlewares: middlewares
+        )
     }
 
     private func chatQuery() -> ChatQuery {
@@ -227,6 +255,16 @@ final class JSONResponseStatusTests: XCTestCase {
       }
     }
     """.utf8)
+}
+
+/// Replaces the HTTP status of every response it sees.
+private struct StatusOverrideMiddleware: OpenAIMiddleware {
+    let statusCode: Int
+
+    func intercept(response: URLResponse?, request: URLRequest, data: Data?) -> (response: URLResponse?, data: Data?) {
+        let url = response?.url ?? URL(fileURLWithPath: "")
+        return (HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil), data)
+    }
 }
 
 private final class UncheckedBox<Value>: @unchecked Sendable {
