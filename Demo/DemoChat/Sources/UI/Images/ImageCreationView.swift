@@ -15,11 +15,10 @@ public struct ImageCreationView: View {
     @State private var n: Int = 1
     @State private var size = ImagesQuery.Size._1024
 
-    private var sizes = ImagesQuery.Size.allCases.dropLast(2)
+    private let sizes: [ImagesQuery.Size] = [._1024, ._1536x1024, ._1024x1536, .auto]
     
     public init(store: ImageStore) {
         self.store = store
-        size = sizes[0]
     }
     
     public var body: some View {
@@ -47,17 +46,33 @@ public struct ImageCreationView: View {
                     actionButton
                     .foregroundColor(.accentColor)
                     Spacer()
+                    if store.imagesQueryInProgress {
+                        ProgressView()
+                    }
+                }
+                if let error = store.imagesQueryError {
+                    Text(error.localizedDescription)
+                        .foregroundColor(.red)
+                        .font(.caption)
                 }
             }
-            if !$store.images.isEmpty {
+            if !store.images.isEmpty {
                 Section("Images") {
-                    ForEach($store.images, id: \.url) { image in
-                        let urlString = image.wrappedValue.url ?? ""
-                        if let imageURL = URL(string: urlString), UIApplication.shared.canOpenURL(imageURL) {
+                    ForEach(Array(store.images.enumerated()), id: \.offset) { _, image in
+                        if let b64JSON = image.b64Json {
+                            if let data = Data(base64Encoded: b64JSON), let result = UIImage(data: data) {
+                                Image(uiImage: result)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                            } else {
+                                Text("Failed to decode image.")
+                                    .foregroundColor(.red)
+                            }
+                        } else if let urlString = image.url, let imageURL = URL(string: urlString), UIApplication.shared.canOpenURL(imageURL) {
                             LinkPreview(previewURL: imageURL)
                                 .aspectRatio(contentMode: .fit)
                         } else {
-                            Text(urlString)
+                            Text(image.url ?? "No image returned.")
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -75,8 +90,7 @@ public struct ImageCreationView: View {
             }
         } else {
             Button("Create Image" + (n == 1 ? "" : "s")) {
-                let query = ImagesQuery(prompt: prompt, n: n, size: size)
-                store.images(query: query)
+                store.images(prompt: prompt, n: n, size: size)
             }
         }
     }

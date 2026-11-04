@@ -14,6 +14,7 @@ public final class ImageStore: ObservableObject {
     
     @Published var imagesQueryInProgress = false
     @Published var images: [ImagesResult.Image] = []
+    @Published var imagesQueryError: Error?
     
     private var subscription: AnyCancellable?
     
@@ -24,33 +25,37 @@ public final class ImageStore: ObservableObject {
     }
     
     @MainActor
-    func images(query: ImagesQuery) {
+    func images(prompt: String, n: Int, size: ImagesQuery.Size) {
+        cancelImagesQuery()
         imagesQueryInProgress = true
         images.removeAll()
+        imagesQueryError = nil
+        let query = ImagesQuery(prompt: prompt, model: .gpt_image_1, n: n, size: size)
         
         subscription = openAIClient
             .images(query: query)
             .receive(on: DispatchQueue.main)
-            .handleEvents(receiveCancel: {
-                self.imagesQueryInProgress = false
-            })
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: { [weak self] completion in
+                guard let self else { return }
                 self.imagesQueryInProgress = false
                 
                 switch completion {
                 case .finished:
                     break
                 case .failure(let failure):
-                    // TODO: Better error handling
-                    print(failure)
+                    if !(failure is CancellationError), (failure as? URLError)?.code != .cancelled {
+                        self.imagesQueryError = failure
+                    }
                 }
-            }, receiveValue: { imagesResult in
-                self.images = imagesResult.data
+            }, receiveValue: { [weak self] imagesResult in
+                self?.images = imagesResult.data
             })
     }
     
+    @MainActor
     func cancelImagesQuery() {
         subscription?.cancel()
         subscription = nil
+        imagesQueryInProgress = false
     }
 }
