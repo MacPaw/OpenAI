@@ -98,7 +98,7 @@ final class JSONResponseStatusTests: XCTestCase {
     /// A status below 400 still decodes. `ModelResult` fills missing `created`, `object`, and `owned_by` only under `.relaxed`.
     func testRelaxedAsyncModelDecodesPartialBodyOnSuccessStatus() async throws {
         let openAI = makeOpenAI(parsingOptions: .relaxed)
-        urlSession.dataTask = .errorResponse(statusCode: 200, data: Data(#"{"id":"gemini-2.0-flash"}"#.utf8))
+        urlSession.dataTask = .successful(with: Data(#"{"id":"gemini-2.0-flash"}"#.utf8))
 
         let result = try await openAI.model(query: ModelQuery(model: .gpt3_5Turbo))
         XCTAssertEqual(result, ModelResult(id: "gemini-2.0-flash", created: 0, object: "model", ownedBy: ""))
@@ -106,7 +106,7 @@ final class JSONResponseStatusTests: XCTestCase {
 
     /// The status guard applies only at 400 and above. A 200 error document still throws through `JSONResponseDecoder`.
     func testAsyncChatsThrowsAPIErrorForErrorDocumentOnSuccessStatus() async throws {
-        urlSession.dataTask = .errorResponse(statusCode: 200, data: Self.apiErrorBody)
+        urlSession.dataTask = .successful(with: Self.apiErrorBody)
 
         do {
             _ = try await openAI.chats(query: chatQuery())
@@ -166,7 +166,7 @@ final class JSONResponseStatusTests: XCTestCase {
     /// The status check reads the response a middleware returns, not the original one.
     func testAsyncChatsThrowsStatusErrorForMiddlewareErrorStatus() async throws {
         let openAI = makeOpenAI(middlewares: [StatusOverrideMiddleware(statusCode: 503)])
-        urlSession.dataTask = .errorResponse(statusCode: 200, data: Data("<html>Unavailable</html>".utf8))
+        urlSession.dataTask = .successful(with: Data("<html>Unavailable</html>".utf8))
 
         do {
             let result = try await openAI.chats(query: chatQuery())
