@@ -305,10 +305,6 @@ extension FilesEndpointTests {
     """.utf8)
 }
 
-private final class UncheckedBox<Value>: @unchecked Sendable {
-    var value: Value?
-}
-
 extension OpenAIFile {
     static func mock(id: String = "file-abc123") -> Self {
         .init(

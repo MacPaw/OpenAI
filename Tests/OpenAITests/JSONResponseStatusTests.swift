@@ -266,7 +266,3 @@ private struct StatusOverrideMiddleware: OpenAIMiddleware {
         return (HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil), data)
     }
 }
-
-private final class UncheckedBox<Value>: @unchecked Sendable {
-    var value: Value?
-}
