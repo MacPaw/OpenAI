@@ -216,6 +216,15 @@ final class ChatResultTests: XCTestCase {
         XCTAssertEqual(usage.completionTokensDetails?.audioTokens, 35)
     }
     
+    func testPromptTokensDetailsMemberwiseInit() {
+        let details = ChatResult.CompletionUsage.PromptTokensDetails(audioTokens: 3, cachedTokens: 7)
+        let usage = ChatResult.CompletionUsage(
+            completionTokens: 1, promptTokens: 2, totalTokens: 3, promptTokensDetails: details
+        )
+        XCTAssertEqual(usage.promptTokensDetails?.audioTokens, 3)
+        XCTAssertEqual(usage.promptTokensDetails?.cachedTokens, 7)
+    }
+
     func testUsageDecodesWhenPromptTokensDetailsOmitsAudioTokens() throws {
         // Some OpenAI-compatible providers (e.g. DeepSeek, Gemini) only send `cached_tokens`.
         let jsonString = """

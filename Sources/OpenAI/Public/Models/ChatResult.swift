@@ -269,6 +269,11 @@ public struct ChatResult: Codable, Equatable, Sendable {
                 case cachedTokens = "cached_tokens"
             }
 
+            public init(audioTokens: Int, cachedTokens: Int) {
+                self.audioTokens = audioTokens
+                self.cachedTokens = cachedTokens
+            }
+
             public init(from decoder: any Decoder) throws {
                 let container = try decoder.container(keyedBy: CodingKeys.self)
                 let parsingOptions = decoder.userInfo[.parsingOptions] as? ParsingOptions ?? []
