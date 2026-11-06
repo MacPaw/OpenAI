@@ -216,6 +216,42 @@ final class ChatResultTests: XCTestCase {
         XCTAssertEqual(usage.completionTokensDetails?.audioTokens, 35)
     }
     
+    func testPromptTokensDetailsMemberwiseInit() {
+        let details = ChatResult.CompletionUsage.PromptTokensDetails(audioTokens: 3, cachedTokens: 7)
+        let usage = ChatResult.CompletionUsage(
+            completionTokens: 1, promptTokens: 2, totalTokens: 3, promptTokensDetails: details
+        )
+        XCTAssertEqual(usage.promptTokensDetails?.audioTokens, 3)
+        XCTAssertEqual(usage.promptTokensDetails?.cachedTokens, 7)
+    }
+
+    func testUsageDecodesWhenPromptTokensDetailsOmitsAudioTokens() throws {
+        // Some OpenAI-compatible providers (e.g. DeepSeek, Gemini) only send `cached_tokens`.
+        let jsonString = """
+            {
+                "id": "chatcmpl-1",
+                "object": "chat.completion",
+                "created": 1677652288,
+                "model": "deepseek-chat",
+                "choices": [],
+                "usage": {
+                    "prompt_tokens": 60,
+                    "completion_tokens": 40,
+                    "total_tokens": 100,
+                    "prompt_tokens_details": {
+                        "cached_tokens": 12
+                    }
+                }
+            }
+            """
+        
+        decoder.userInfo = [.parsingOptions: ParsingOptions.relaxed]
+        let usage = try XCTUnwrap(decode(jsonString).usage)
+        XCTAssertEqual(usage.totalTokens, 100)
+        XCTAssertEqual(usage.promptTokensDetails?.cachedTokens, 12)
+        XCTAssertEqual(usage.promptTokensDetails?.audioTokens, 0)
+    }
+    
     private func decode(_ jsonString: String) throws -> ChatResult {
         let jsonData = jsonString.data(using: .utf8)!
         return try decoder.decode(ChatResult.self, from: jsonData)
