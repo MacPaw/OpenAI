@@ -66,11 +66,7 @@ struct ImageStoreTests {
         try await sleepUntil { !store.imagesQueryInProgress }
         #expect(store.imagesQueryError == nil)
         #expect(store.images.count == 2)
-        #expect(store.images.allSatisfy { $0.b64Json == png && $0.url == nil })
-        #if canImport(UIKit)
-        #expect(store.decodedImages.count == 2)
-        #expect(store.decodedImages.allSatisfy { $0?.size == CGSize(width: 1, height: 1) })
-        #endif
+        #expect(store.images.allSatisfy { $0.hasBase64 && $0.url == nil && $0.cgImage?.width == 1 && $0.cgImage?.height == 1 })
     }
 
     @Test

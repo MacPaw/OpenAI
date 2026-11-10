@@ -60,10 +60,10 @@ public struct ImageCreationView: View {
             }
             if !store.images.isEmpty {
                 Section("Images") {
-                    ForEach(Array(store.images.enumerated()), id: \.offset) { index, image in
-                        if image.b64Json != nil {
-                            if index < store.decodedImages.count, let result = store.decodedImages[index] {
-                                Image(uiImage: result)
+                    ForEach(store.images) { image in
+                        if image.hasBase64 {
+                            if let cgImage = image.cgImage {
+                                Image(cgImage, scale: 1, label: Text(image.revisedPrompt ?? "Generated image"))
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                             } else {

@@ -8,20 +8,24 @@
 import Foundation
 import OpenAI
 import Combine
-#if canImport(UIKit)
-import UIKit
-#endif
+import CoreGraphics
+import ImageIO
+
+struct GeneratedImage: Identifiable {
+    let id = UUID()
+    let url: String?
+    /// Decoded from `b64_json`, or `nil` when it is absent or not an image.
+    let cgImage: CGImage?
+    /// `b64_json` was present, so the view can tell a failed decode from a URL image.
+    let hasBase64: Bool
+    let revisedPrompt: String?
+}
 
 public final class ImageStore: ObservableObject {
     public var openAIClient: OpenAIProtocol
     
     @Published var imagesQueryInProgress = false
-    @Published var images: [ImagesResult.Image] = []
-    #if canImport(UIKit)
-    /// `images[i].b64Json` decoded, or `nil` when it is absent or not an image.
-    /// Decoded once per response, off the main thread, so the view doesn't decode on every body evaluation.
-    @Published var decodedImages: [UIImage?] = []
-    #endif
+    @Published var images: [GeneratedImage] = []
     @Published var imagesQueryError: Error?
     
     private var subscription: AnyCancellable?
@@ -37,15 +41,12 @@ public final class ImageStore: ObservableObject {
         cancelImagesQuery()
         imagesQueryInProgress = true
         images.removeAll()
-        #if canImport(UIKit)
-        decodedImages.removeAll()
-        #endif
         imagesQueryError = nil
         let query = ImagesQuery(prompt: prompt, model: .gpt_image_1_5, n: n, size: size)
         
         subscription = openAIClient
             .images(query: query)
-            .map(Self.decodeImages)
+            .map(Self.makeImages)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self else { return }
@@ -62,28 +63,32 @@ public final class ImageStore: ObservableObject {
                         self.imagesQueryError = failure
                     }
                 }
-            }, receiveValue: { [weak self] imagesResult, decoded in
-                self?.images = imagesResult.data
-                #if canImport(UIKit)
-                self?.decodedImages = decoded
-                #endif
+            }, receiveValue: { [weak self] in
+                self?.images = $0
             })
     }
 
     // A function rather than a closure: a closure written in `images(prompt:n:size:)` would be
     // isolated to the main actor, but this runs on the URL session's queue.
-    #if canImport(UIKit)
-    private static func decodeImages(_ result: ImagesResult) -> (ImagesResult, [UIImage?]) {
-        let decoded = result.data.map { image in
-            image.b64Json.flatMap { Data(base64Encoded: $0) }.flatMap(UIImage.init(data:))
+    private static func makeImages(_ result: ImagesResult) -> [GeneratedImage] {
+        result.data.map { image in
+            GeneratedImage(
+                url: image.url,
+                cgImage: image.b64Json.flatMap(decode),
+                hasBase64: image.b64Json != nil,
+                revisedPrompt: image.revisedPrompt
+            )
         }
-        return (result, decoded)
     }
-    #else
-    private static func decodeImages(_ result: ImagesResult) -> (ImagesResult, Void) {
-        (result, ())
+
+    private static func decode(_ base64: String) -> CGImage? {
+        guard let data = Data(base64Encoded: base64),
+              let source = CGImageSourceCreateWithData(data as CFData, nil) else {
+            return nil
+        }
+        // Decode the pixels here, off the main thread, rather than on first draw
+        return CGImageSourceCreateImageAtIndex(source, 0, [kCGImageSourceShouldCacheImmediately: true] as CFDictionary)
     }
-    #endif
     
     @MainActor
     func cancelImagesQuery() {
