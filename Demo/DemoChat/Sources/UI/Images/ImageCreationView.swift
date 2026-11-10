@@ -15,11 +15,12 @@ public struct ImageCreationView: View {
     @State private var n: Int = 1
     @State private var size = ImagesQuery.Size._1024
 
-    private var sizes = ImagesQuery.Size.allCases.dropLast(2)
+    // The sizes the GPT image models accept. `ImageStore` always requests `gpt_image_1_5`, and the other
+    // `ImagesQuery.Size` cases are for dall-e-2 (256 and 512) or dall-e-3 (1792), which the API rejects for it.
+    private let sizes: [ImagesQuery.Size] = [._1024, ._1536x1024, ._1024x1536, .auto]
     
     public init(store: ImageStore) {
         self.store = store
-        size = sizes[0]
     }
     
     public var body: some View {
@@ -47,17 +48,33 @@ public struct ImageCreationView: View {
                     actionButton
                     .foregroundColor(.accentColor)
                     Spacer()
+                    if store.imagesQueryInProgress {
+                        ProgressView()
+                    }
+                }
+                if let error = store.imagesQueryError {
+                    Text(error.localizedDescription)
+                        .foregroundColor(.red)
+                        .font(.caption)
                 }
             }
-            if !$store.images.isEmpty {
+            if !store.images.isEmpty {
                 Section("Images") {
-                    ForEach($store.images, id: \.url) { image in
-                        let urlString = image.wrappedValue.url ?? ""
-                        if let imageURL = URL(string: urlString), UIApplication.shared.canOpenURL(imageURL) {
+                    ForEach(store.images) { image in
+                        if image.hasBase64 {
+                            if let cgImage = image.cgImage {
+                                Image(cgImage, scale: 1, label: Text(image.revisedPrompt ?? "Generated image"))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                            } else {
+                                Text("Failed to decode image.")
+                                    .foregroundColor(.red)
+                            }
+                        } else if let urlString = image.url, let imageURL = URL(string: urlString), UIApplication.shared.canOpenURL(imageURL) {
                             LinkPreview(previewURL: imageURL)
                                 .aspectRatio(contentMode: .fit)
                         } else {
-                            Text(urlString)
+                            Text(image.url ?? "No image returned.")
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -75,8 +92,7 @@ public struct ImageCreationView: View {
             }
         } else {
             Button("Create Image" + (n == 1 ? "" : "s")) {
-                let query = ImagesQuery(prompt: prompt, n: n, size: size)
-                store.images(query: query)
+                store.images(prompt: prompt, n: n, size: size)
             }
         }
     }

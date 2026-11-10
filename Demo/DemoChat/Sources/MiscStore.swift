@@ -52,7 +52,7 @@ public final class MiscStore: ObservableObject {
             let response = try await openAIClient.moderations(
                 query: ModerationsQuery(
                     input: .init(message.content),
-                    model: .textModerationLatest
+                    model: .omniModerationLatest
                 )
             )
             

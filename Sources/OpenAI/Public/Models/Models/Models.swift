@@ -250,6 +250,7 @@ public extension Model {
     static let dall_e_2 = "dall-e-2"
     static let dall_e_3 = "dall-e-3"
     static let gpt_image_1 = "gpt-image-1"
+    static let gpt_image_1_5 = "gpt-image-1.5"
 
     // MARK: - Fine Tunes
     
@@ -278,6 +279,7 @@ public extension Model {
     /// Most capable moderation model. Accuracy will be slightly higher than the stable model.
     static let textModerationLatest = "text-moderation-latest"
     static let moderation = "text-moderation-007"
+    static let omniModerationLatest = "omni-moderation-latest"
     
     // MARK: - Tool-specific models
     // Models to support specific built-in tools.

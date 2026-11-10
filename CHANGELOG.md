@@ -6,6 +6,9 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ## [Unreleased]
 
+### Added
+- `Model.gpt_image_1_5` for `gpt-image-1.5` and `Model.omniModerationLatest` for `omni-moderation-latest` ([#485](https://github.com/MacPaw/OpenAI/pull/485)).
+
 ### Changed
 - CI: the *API Breakage* allowlist is emptied, because the 0.6.0 release is now the comparison baseline for the breaks it listed.
 
