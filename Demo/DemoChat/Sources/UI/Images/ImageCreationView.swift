@@ -58,9 +58,9 @@ public struct ImageCreationView: View {
             }
             if !store.images.isEmpty {
                 Section("Images") {
-                    ForEach(Array(store.images.enumerated()), id: \.offset) { _, image in
-                        if let b64JSON = image.b64Json {
-                            if let data = Data(base64Encoded: b64JSON), let result = UIImage(data: data) {
+                    ForEach(Array(store.images.enumerated()), id: \.offset) { index, image in
+                        if image.b64Json != nil {
+                            if index < store.decodedImages.count, let result = store.decodedImages[index] {
                                 Image(uiImage: result)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)

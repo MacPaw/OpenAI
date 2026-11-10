@@ -89,6 +89,10 @@ struct ImageStoreTests {
         #expect(store.imagesQueryError == nil)
         #expect(store.images.count == 2)
         #expect(store.images.allSatisfy { $0.b64Json == png && $0.url == nil })
+        #if canImport(UIKit)
+        #expect(store.decodedImages.count == 2)
+        #expect(store.decodedImages.allSatisfy { $0?.size == CGSize(width: 1, height: 1) })
+        #endif
 
         store.images(prompt: "A puppy", n: 2, size: ._1024)
         try await sleepUntil { requests.withLock { $0 == 3 } }
