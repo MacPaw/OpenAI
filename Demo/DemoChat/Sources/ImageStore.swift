@@ -45,7 +45,7 @@ public final class ImageStore: ObservableObject {
         
         subscription = openAIClient
             .images(query: query)
-            .map { result in (result, Self.decode(result.data)) }
+            .map(Self.decodeImages)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self else { return }
@@ -67,14 +67,19 @@ public final class ImageStore: ObservableObject {
             })
     }
 
+    // A function rather than a closure: a closure written in `images(prompt:n:size:)` would be
+    // isolated to the main actor, but this runs on the URL session's queue.
     #if canImport(UIKit)
-    private static func decode(_ images: [ImagesResult.Image]) -> [UIImage?] {
-        images.map { image in
+    private static func decodeImages(_ result: ImagesResult) -> (ImagesResult, [UIImage?]) {
+        let decoded = result.data.map { image in
             image.b64Json.flatMap { Data(base64Encoded: $0) }.flatMap(UIImage.init(data:))
         }
+        return (result, decoded)
     }
     #else
-    private static func decode(_ images: [ImagesResult.Image]) -> Void {}
+    private static func decodeImages(_ result: ImagesResult) -> (ImagesResult, Void) {
+        (result, ())
+    }
     #endif
     
     @MainActor
