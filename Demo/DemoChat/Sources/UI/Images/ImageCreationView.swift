@@ -15,6 +15,8 @@ public struct ImageCreationView: View {
     @State private var n: Int = 1
     @State private var size = ImagesQuery.Size._1024
 
+    // The sizes the GPT image models accept. `ImageStore` always requests `gpt_image_1_5`, and the other
+    // `ImagesQuery.Size` cases are for dall-e-2 (256 and 512) or dall-e-3 (1792), which the API rejects for it.
     private let sizes: [ImagesQuery.Size] = [._1024, ._1536x1024, ._1024x1536, .auto]
     
     public init(store: ImageStore) {
