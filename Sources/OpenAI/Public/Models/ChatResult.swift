@@ -268,6 +268,19 @@ public struct ChatResult: Codable, Equatable, Sendable {
                 case audioTokens = "audio_tokens"
                 case cachedTokens = "cached_tokens"
             }
+
+            public init(audioTokens: Int, cachedTokens: Int) {
+                self.audioTokens = audioTokens
+                self.cachedTokens = cachedTokens
+            }
+
+            public init(from decoder: any Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                let parsingOptions = decoder.userInfo[.parsingOptions] as? ParsingOptions ?? []
+                // OpenAI-compatible providers (e.g. DeepSeek, Gemini) often send only one of these fields.
+                self.audioTokens = try container.decodeInt(forKey: .audioTokens, parsingOptions: parsingOptions)
+                self.cachedTokens = try container.decodeInt(forKey: .cachedTokens, parsingOptions: parsingOptions)
+            }
         }
 
         public struct CompletionTokensDetails: Codable, Equatable, Sendable {
