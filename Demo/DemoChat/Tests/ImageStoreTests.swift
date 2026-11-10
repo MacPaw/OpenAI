@@ -38,7 +38,7 @@ struct ImageStoreTests {
 
         let body = try #require(capturedBody.withLock { $0 })
         let json = try #require(JSONSerialization.jsonObject(with: body) as? [String: Any])
-        #expect(json["model"] as? String == "gpt-image-1")
+        #expect(json["model"] as? String == "gpt-image-1.5")
         #expect(json["prompt"] as? String == "A puppy")
         #expect(json["n"] as? Int == n)
         #expect(json["size"] as? String == size.rawValue)

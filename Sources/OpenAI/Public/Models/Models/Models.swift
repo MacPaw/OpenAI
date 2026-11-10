@@ -250,6 +250,7 @@ public extension Model {
     static let dall_e_2 = "dall-e-2"
     static let dall_e_3 = "dall-e-3"
     static let gpt_image_1 = "gpt-image-1"
+    static let gpt_image_1_5 = "gpt-image-1.5"
 
     // MARK: - Fine Tunes
     

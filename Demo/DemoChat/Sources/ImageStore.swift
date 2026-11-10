@@ -30,7 +30,7 @@ public final class ImageStore: ObservableObject {
         imagesQueryInProgress = true
         images.removeAll()
         imagesQueryError = nil
-        let query = ImagesQuery(prompt: prompt, model: .gpt_image_1, n: n, size: size)
+        let query = ImagesQuery(prompt: prompt, model: .gpt_image_1_5, n: n, size: size)
         
         subscription = openAIClient
             .images(query: query)
