@@ -279,6 +279,8 @@ public extension Model {
     /// Most capable moderation model. Accuracy will be slightly higher than the stable model.
     static let textModerationLatest = "text-moderation-latest"
     static let moderation = "text-moderation-007"
+    /// Moderation model that classifies both text and images.
+    static let omniModerationLatest = "omni-moderation-latest"
     
     // MARK: - Tool-specific models
     // Models to support specific built-in tools.
