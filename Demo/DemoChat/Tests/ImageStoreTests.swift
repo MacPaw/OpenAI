@@ -48,40 +48,39 @@ struct ImageStoreTests {
     }
 
     @Test
-    func failureIsVisibleAndRetryPublishesBase64ImagesThenCancellationEndsProgress() async throws {
-        let host = UUID().uuidString.lowercased() + ".test"
-        let requests = OSAllocatedUnfairLock(initialState: 0)
-        let png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
-        ImageURLProtocol.handlers.withLock { handlers in
-            handlers[host] = { _ in
-                let number = requests.withLock { count in
-                    count += 1
-                    return count
-                }
-                switch number {
-                case 1:
-                    return Data(#"{"error":{"message":"Image generation rejected","type":"invalid_request_error"}}"#.utf8)
-                case 2:
-                    return try JSONSerialization.data(withJSONObject: [
-                        "created": 1, "data": [["b64_json": png], ["b64_json": png]]
-                    ])
-                default:
-                    return nil
-                }
-            }
+    func failureIsVisible() async throws {
+        let (store, removeStub) = makeStore { _ in
+            Data(#"{"error":{"message":"Image generation rejected","type":"invalid_request_error"}}"#.utf8)
         }
-        defer { ImageURLProtocol.handlers.withLock { $0.removeValue(forKey: host) } }
-        let configuration = URLSessionConfiguration.ephemeral
-        configuration.protocolClasses = [ImageURLProtocol.self]
-        let session = URLSession(configuration: configuration)
-        defer { session.invalidateAndCancel() }
-        let client = OpenAI(configuration: .init(token: "test", host: host), session: session)
-        let store = ImageStore(openAIClient: client)
+        defer { removeStub() }
 
         store.images(prompt: "A puppy", n: 2, size: ._1024)
         try await sleepUntil { !store.imagesQueryInProgress }
         #expect(store.imagesQueryError?.localizedDescription == "Image generation rejected")
         #expect(store.images.isEmpty)
+    }
+
+    @Test
+    func retryClearsErrorAndPublishesBase64Images() async throws {
+        let requests = OSAllocatedUnfairLock(initialState: 0)
+        let png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
+        let (store, removeStub) = makeStore { _ in
+            let number = requests.withLock { count in
+                count += 1
+                return count
+            }
+            if number == 1 {
+                return Data(#"{"error":{"message":"Image generation rejected","type":"invalid_request_error"}}"#.utf8)
+            }
+            return try JSONSerialization.data(withJSONObject: [
+                "created": 1, "data": [["b64_json": png], ["b64_json": png]]
+            ])
+        }
+        defer { removeStub() }
+
+        store.images(prompt: "A puppy", n: 2, size: ._1024)
+        try await sleepUntil { !store.imagesQueryInProgress }
+        #expect(store.imagesQueryError != nil)
 
         store.images(prompt: "A puppy", n: 2, size: ._1024)
         #expect(store.imagesQueryError == nil)
@@ -93,14 +92,42 @@ struct ImageStoreTests {
         #expect(store.decodedImages.count == 2)
         #expect(store.decodedImages.allSatisfy { $0?.size == CGSize(width: 1, height: 1) })
         #endif
+    }
+
+    @Test
+    func cancellationEndsProgress() async throws {
+        let requests = OSAllocatedUnfairLock(initialState: 0)
+        let (store, removeStub) = makeStore { _ in
+            requests.withLock { $0 += 1 }
+            // Returning nil never answers the request, so it stays in flight until cancelled
+            return nil
+        }
+        defer { removeStub() }
 
         store.images(prompt: "A puppy", n: 2, size: ._1024)
-        try await sleepUntil { requests.withLock { $0 == 3 } }
+        try await sleepUntil { requests.withLock { $0 == 1 } }
         #expect(store.imagesQueryInProgress)
         store.cancelImagesQuery()
         #expect(!store.imagesQueryInProgress)
         #expect(store.imagesQueryError == nil)
         #expect(store.images.isEmpty)
+    }
+
+    /// An `ImageStore` whose requests are answered by `handler`; call the returned closure to remove the stub
+    private func makeStore(
+        handler: @escaping @Sendable (URLRequest) throws -> Data?
+    ) -> (ImageStore, () -> Void) {
+        let host = UUID().uuidString.lowercased() + ".test"
+        ImageURLProtocol.handlers.withLock { $0[host] = handler }
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [ImageURLProtocol.self]
+        let session = URLSession(configuration: configuration)
+        let client = OpenAI(configuration: .init(token: "test", host: host), session: session)
+        let store = ImageStore(openAIClient: client)
+        return (store, {
+            session.invalidateAndCancel()
+            ImageURLProtocol.handlers.withLock { $0.removeValue(forKey: host) }
+        })
     }
 }
 
