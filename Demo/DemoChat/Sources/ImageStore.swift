@@ -55,6 +55,9 @@ public final class ImageStore: ObservableObject {
                 case .finished:
                     break
                 case .failure(let failure):
+                    // `cancelImagesQuery()` cancels the subscription, so its cancellation never reaches here. A cancelled
+                    // error still can when the request is cancelled underneath the subscription, for example when the
+                    // URL session is invalidated, and that isn't a failure to show.
                     if !(failure is CancellationError), (failure as? URLError)?.code != .cancelled {
                         self.imagesQueryError = failure
                     }
