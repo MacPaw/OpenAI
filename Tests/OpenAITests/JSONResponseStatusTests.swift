@@ -25,9 +25,11 @@ final class JSONResponseStatusTests: XCTestCase {
         do {
             _ = try await openAI.chats(query: chatQuery())
             XCTFail("Expected an error")
-        } catch let error as APIErrorResponse {
-            XCTAssertEqual(error.error.message, "Invalid request")
-            XCTAssertEqual(error.error.type, "invalid_request_error")
+        } catch let error as HTTPResponseError {
+            XCTAssertEqual(error.statusCode, 400)
+            let apiError = try XCTUnwrap(error.apiError as? APIErrorResponse)
+            XCTAssertEqual(apiError.error.message, "Invalid request")
+            XCTAssertEqual(apiError.error.type, "invalid_request_error")
         }
     }
 
@@ -43,26 +45,29 @@ final class JSONResponseStatusTests: XCTestCase {
         wait(for: [expectation], timeout: 1)
 
         XCTAssertThrowsError(try result.value?.get()) { error in
-            guard let apiError = error as? APIErrorResponse else {
-                return XCTFail("Expected APIErrorResponse, got \(error)")
+            guard let httpError = error as? HTTPResponseError, let apiError = httpError.apiError as? APIErrorResponse else {
+                return XCTFail("Expected HTTPResponseError with an APIErrorResponse, got \(error)")
             }
+            XCTAssertEqual(httpError.statusCode, 400)
             XCTAssertEqual(apiError.error.message, "Invalid request")
             XCTAssertEqual(apiError.error.type, "invalid_request_error")
         }
     }
 
-    func testAsyncChatsThrowsStatusErrorForHTMLBody() async throws {
+    func testAsyncChatsThrowsHTTPResponseErrorForHTMLBody() async throws {
         urlSession.dataTask = .errorResponse(statusCode: 502, data: Data("<html>Bad Gateway</html>".utf8))
 
         do {
             _ = try await openAI.chats(query: chatQuery())
             XCTFail("Expected an error")
-        } catch OpenAIError.statusError(_, let statusCode) {
-            XCTAssertEqual(statusCode, 502)
+        } catch let error as HTTPResponseError {
+            XCTAssertEqual(error.statusCode, 502)
+            XCTAssertNil(error.apiError)
+            XCTAssertEqual(error.body, Data("<html>Bad Gateway</html>".utf8))
         }
     }
 
-    func testCompletionChatsThrowsStatusErrorForHTMLBody() throws {
+    func testCompletionChatsThrowsHTTPResponseErrorForHTMLBody() throws {
         urlSession.dataTask = .errorResponse(statusCode: 502, data: Data("<html>Bad Gateway</html>".utf8))
 
         let expectation = expectation(description: "chats completes")
@@ -74,24 +79,27 @@ final class JSONResponseStatusTests: XCTestCase {
         wait(for: [expectation], timeout: 1)
 
         XCTAssertThrowsError(try result.value?.get()) { error in
-            guard case let .statusError(_, statusCode)? = error as? OpenAIError else {
-                return XCTFail("Expected OpenAIError.statusError, got \(error)")
+            guard let httpError = error as? HTTPResponseError else {
+                return XCTFail("Expected HTTPResponseError, got \(error)")
             }
-            XCTAssertEqual(statusCode, 502)
+            XCTAssertEqual(httpError.statusCode, 502)
+            XCTAssertNil(httpError.apiError)
+            XCTAssertEqual(httpError.body, Data("<html>Bad Gateway</html>".utf8))
         }
     }
 
     /// `.relaxed` fills the missing `id`, `object`, and `model` strings, so this body decodes as `ChatResult`.
     /// A status of 400 must still be an error. `created` and `choices` are not filled by `.relaxed`.
-    func testRelaxedAsyncChatsThrowsStatusErrorForPartialBody() async throws {
+    func testRelaxedAsyncChatsThrowsHTTPResponseErrorForPartialBody() async throws {
         let openAI = makeOpenAI(parsingOptions: .relaxed)
         urlSession.dataTask = .errorResponse(statusCode: 400, data: Data(#"{"created":1,"choices":[]}"#.utf8))
 
         do {
             let result = try await openAI.chats(query: chatQuery())
             XCTFail("Expected an error, got \(result)")
-        } catch OpenAIError.statusError(_, let statusCode) {
-            XCTAssertEqual(statusCode, 400)
+        } catch let error as HTTPResponseError {
+            XCTAssertEqual(error.statusCode, 400)
+            XCTAssertNil(error.apiError)
         }
     }
 
@@ -117,8 +125,9 @@ final class JSONResponseStatusTests: XCTestCase {
         }
     }
 
-    /// `DataTaskMock.failed` sets a transport error and status 503 with nil data. The transport error is thrown.
-    func testCompletionChatsThrowsTransportError() throws {
+    /// `DataTaskMock.failed` sets a transport error and status 503 with nil data. The 503 is an HTTP failure,
+    /// and the transport error is kept as its `underlyingError`.
+    func testCompletionChatsKeepsTransportErrorOfErrorStatus() throws {
         let transportError = URLError(.cannotConnectToHost)
         urlSession.dataTask = .failed(with: transportError)
 
@@ -131,7 +140,12 @@ final class JSONResponseStatusTests: XCTestCase {
         wait(for: [expectation], timeout: 1)
 
         XCTAssertThrowsError(try result.value?.get()) { error in
-            XCTAssertEqual(error as? URLError, transportError)
+            guard let httpError = error as? HTTPResponseError else {
+                return XCTFail("Expected HTTPResponseError, got \(error)")
+            }
+            XCTAssertEqual(httpError.statusCode, 503)
+            XCTAssertEqual(httpError.underlyingError as? URLError, transportError)
+            XCTAssertEqual(httpError.body, Data())
         }
     }
 
@@ -142,37 +156,41 @@ final class JSONResponseStatusTests: XCTestCase {
         do {
             _ = try await openAI.chats(query: chatQuery())
             XCTFail("Expected an error")
-        } catch let error as GeminiAPIErrorResponse {
-            XCTAssertEqual(error.error.code, 400)
-            XCTAssertEqual(error.error.message, "Request contains an invalid argument.")
-            XCTAssertEqual(error.error.status, "INVALID_ARGUMENT")
+        } catch let error as HTTPResponseError {
+            XCTAssertEqual(error.statusCode, 400)
+            let geminiError = try XCTUnwrap(error.apiError as? GeminiAPIErrorResponse)
+            XCTAssertEqual(geminiError.error.code, 400)
+            XCTAssertEqual(geminiError.error.message, "Request contains an invalid argument.")
+            XCTAssertEqual(geminiError.error.status, "INVALID_ARGUMENT")
         }
     }
 
     /// A single Gemini error object is not the array `JSONResponseErrorDecoder` accepts, and it is not an
-    /// `APIErrorResponse` (`type` is required), so a 400 falls through to `OpenAIError.statusError`.
-    func testAsyncChatsThrowsStatusErrorForSingleGeminiErrorObject() async throws {
+    /// `APIErrorResponse` (`type` is required), so a 400 has no decoded `apiError`.
+    func testAsyncChatsThrowsHTTPResponseErrorForSingleGeminiErrorObject() async throws {
         let body = Data(#"{"error":{"code":400,"message":"Request contains an invalid argument.","status":"INVALID_ARGUMENT"}}"#.utf8)
         urlSession.dataTask = .errorResponse(statusCode: 400, data: body)
 
         do {
             _ = try await openAI.chats(query: chatQuery())
             XCTFail("Expected an error")
-        } catch OpenAIError.statusError(_, let statusCode) {
-            XCTAssertEqual(statusCode, 400)
+        } catch let error as HTTPResponseError {
+            XCTAssertEqual(error.statusCode, 400)
+            XCTAssertNil(error.apiError)
+            XCTAssertEqual(error.body, body)
         }
     }
 
     /// The status check reads the response a middleware returns, not the original one.
-    func testAsyncChatsThrowsStatusErrorForMiddlewareErrorStatus() async throws {
+    func testAsyncChatsThrowsHTTPResponseErrorForMiddlewareErrorStatus() async throws {
         let openAI = makeOpenAI(middlewares: [StatusOverrideMiddleware(statusCode: 503)])
         urlSession.dataTask = .successful(with: Data("<html>Unavailable</html>".utf8))
 
         do {
             let result = try await openAI.chats(query: chatQuery())
             XCTFail("Expected an error, got \(result)")
-        } catch OpenAIError.statusError(_, let statusCode) {
-            XCTAssertEqual(statusCode, 503)
+        } catch let error as HTTPResponseError {
+            XCTAssertEqual(error.statusCode, 503)
         }
     }
 
@@ -198,16 +216,17 @@ final class JSONResponseStatusTests: XCTestCase {
         urlSession.dataTask = .errorResponse(statusCode: 400, data: Self.apiErrorBody)
 
         XCTAssertThrowsError(try awaitPublisher(openAI.chats(query: chatQuery()))) { error in
-            guard let apiError = error as? APIErrorResponse else {
-                return XCTFail("Expected APIErrorResponse, got \(error)")
+            guard let httpError = error as? HTTPResponseError, let apiError = httpError.apiError as? APIErrorResponse else {
+                return XCTFail("Expected HTTPResponseError with an APIErrorResponse, got \(error)")
             }
+            XCTAssertEqual(httpError.statusCode, 400)
             XCTAssertEqual(apiError.error.message, "Invalid request")
             XCTAssertEqual(apiError.error.type, "invalid_request_error")
         }
     }
 
     @MainActor
-    func testCombineChatsThrowsStatusErrorForHTMLBody() throws {
+    func testCombineChatsThrowsHTTPResponseErrorForHTMLBody() throws {
         let urlSession = URLSessionMockCombine()
         let openAI = OpenAI(
             configuration: .init(token: "foo", organizationIdentifier: "bar", timeoutInterval: 14),
@@ -217,10 +236,12 @@ final class JSONResponseStatusTests: XCTestCase {
         urlSession.dataTask = .errorResponse(statusCode: 502, data: Data("<html>Bad Gateway</html>".utf8))
 
         XCTAssertThrowsError(try awaitPublisher(openAI.chats(query: chatQuery()))) { error in
-            guard case let .statusError(_, statusCode)? = error as? OpenAIError else {
-                return XCTFail("Expected OpenAIError.statusError, got \(error)")
+            guard let httpError = error as? HTTPResponseError else {
+                return XCTFail("Expected HTTPResponseError, got \(error)")
             }
-            XCTAssertEqual(statusCode, 502)
+            XCTAssertEqual(httpError.statusCode, 502)
+            XCTAssertNil(httpError.apiError)
+            XCTAssertEqual(httpError.body, Data("<html>Bad Gateway</html>".utf8))
         }
     }
 #endif

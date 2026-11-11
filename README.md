@@ -18,6 +18,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
     - [Initialization](#initialization)
     - [Using the SDK for other providers except OpenAI](#using-the-sdk-for-other-providers-except-openai)
     - [Cancelling requests](#cancelling-requests)
+    - [HTTP failures](#http-failures)
 - [Text and prompting](#text-and-prompting)
     - [Responses](#responses)
     - [Chat Completions](#chat-completions)
@@ -124,6 +125,36 @@ Once you posses the token, and the instance is initialized you are ready to make
 This SDK is more focused on working with OpenAI Platform, but also works with other providers that support OpenAI-compatible API.
 
 Use `.relaxed` parsing option on Configuration, or see more details on the topic [here](#support-for-other-providers)
+
+### HTTP failures
+
+HTTP responses with status 400 or higher throw `HTTPResponseError` for both streaming
+and non-streaming requests. No middleware is required to inspect them:
+
+```swift
+do {
+    for try await event in openAI.responses.createResponseStreaming(query: query) {
+        // Handle the event.
+    }
+} catch let error as HTTPResponseError {
+    let status = error.statusCode
+    let retryAfter = error.response.value(forHTTPHeaderField: "Retry-After")
+    let body = error.body
+    let decoded = error.apiError as? APIErrorResponse
+}
+```
+
+The original `body` is available even for unsupported JSON schemas or HTML responses.
+At most 256 KiB is retained; `isBodyTruncated` indicates when that limit was exceeded.
+Streaming downloads stop at the limit. Non-streaming requests use URLSession's data
+APIs, so the retention limit does not cap the download itself. `underlyingError`
+preserves a transport failure encountered while reading an error body. Cancellation
+initiated by the caller remains cancellation, not an HTTP failure.
+
+`apiError` contains the decoded `APIErrorResponse` or `GeminiAPIErrorResponse` when the
+body is one. Existing callers catching `APIErrorResponse`, `GeminiAPIErrorResponse` or
+`OpenAIError.statusError` for HTTP failures should now inspect this property.
+Errors sent inside a successful HTTP stream keep their existing error types.
 
 ### Cancelling requests
 

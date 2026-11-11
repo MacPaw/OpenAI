@@ -433,8 +433,8 @@ public final class ResponsesStore: ObservableObject {
             }
 
             // Provide specific guidance for common errors
-            if let urlResponse = (error as NSError).userInfo["response"] as? HTTPURLResponse {
-                switch urlResponse.statusCode {
+            if let httpError = error as? HTTPResponseError {
+                switch httpError.statusCode {
                 case 400:
                     print("❌ 400 Bad Request - This could be due to:")
                     print("   • MCP tools not being supported by the current OpenAI API")
@@ -446,7 +446,7 @@ public final class ResponsesStore: ObservableObject {
                 case 429:
                     print("❌ 429 Rate Limited - Too many requests, try again later")
                 default:
-                    print("❌ HTTP \(urlResponse.statusCode) - Unexpected error")
+                    print("❌ HTTP \(httpError.statusCode) - Unexpected error")
                 }
             }
             print("===========================")
