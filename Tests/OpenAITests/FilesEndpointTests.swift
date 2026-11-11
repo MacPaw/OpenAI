@@ -194,20 +194,24 @@ class FilesEndpointTests: XCTestCase {
         do {
             let data = try await openAI.files.content(id: "file-abc123")
             XCTFail("Expected an error, got \(data.count) bytes")
-        } catch let error as APIErrorResponse {
-            XCTAssertEqual(error.error.message, "Not allowed to download files of purpose: user_data")
-            XCTAssertEqual(error.error.type, "invalid_request_error")
+        } catch let error as HTTPResponseError {
+            XCTAssertEqual(error.statusCode, 400)
+            let apiError = try XCTUnwrap(error.apiError as? APIErrorResponse)
+            XCTAssertEqual(apiError.error.message, "Not allowed to download files of purpose: user_data")
+            XCTAssertEqual(apiError.error.type, "invalid_request_error")
         }
     }
 
-    func testContentThrowsStatusErrorForNonAPIErrorBody() async throws {
+    func testContentThrowsHTTPResponseErrorForNonAPIErrorBody() async throws {
         urlSession.dataTask = .errorResponse(statusCode: 502, data: Data("<html>Bad Gateway</html>".utf8))
 
         do {
             let data = try await openAI.files.content(id: "file-abc123")
             XCTFail("Expected an error, got \(data.count) bytes")
-        } catch OpenAIError.statusError(_, let statusCode) {
-            XCTAssertEqual(statusCode, 502)
+        } catch let error as HTTPResponseError {
+            XCTAssertEqual(error.statusCode, 502)
+            XCTAssertNil(error.apiError)
+            XCTAssertEqual(error.body, Data("<html>Bad Gateway</html>".utf8))
         }
     }
 
@@ -223,7 +227,7 @@ class FilesEndpointTests: XCTestCase {
         wait(for: [expectation], timeout: 1)
 
         XCTAssertThrowsError(try result.value?.get()) { error in
-            XCTAssertTrue(error is APIErrorResponse, "Expected APIErrorResponse, got \(error)")
+            XCTAssertTrue((error as? HTTPResponseError)?.apiError is APIErrorResponse, "Expected HTTPResponseError with an APIErrorResponse, got \(error)")
         }
     }
 
@@ -269,7 +273,7 @@ class FilesEndpointTests: XCTestCase {
         urlSession.dataTask = .errorResponse(statusCode: 400, data: Self.downloadNotAllowedBody)
 
         XCTAssertThrowsError(try awaitPublisher(openAI.files.content(id: "file-abc123"))) { error in
-            XCTAssertTrue(error is APIErrorResponse, "Expected APIErrorResponse, got \(error)")
+            XCTAssertTrue((error as? HTTPResponseError)?.apiError is APIErrorResponse, "Expected HTTPResponseError with an APIErrorResponse, got \(error)")
         }
     }
 
