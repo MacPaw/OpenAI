@@ -8,14 +8,18 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ### Added
 - `Model.gpt_image_1_5` for `gpt-image-1.5` and `Model.omniModerationLatest` for `omni-moderation-latest` ([#485](https://github.com/MacPaw/OpenAI/pull/485)).
+- `HTTPResponseError`, which gives callers the HTTP response, the original body (at most 256 KiB, with a truncation flag), the decoded API error when there is one, and any error that interrupted reading the body, without needing a middleware ([#491](https://github.com/MacPaw/OpenAI/pull/491)).
 
 ### Changed
 - CI: the *API Breakage* allowlist is emptied, because the 0.6.0 release is now the comparison baseline for the breaks it listed.
+- A status of 400 or above now throws `HTTPResponseError` for streaming, async, completion-handler and Combine requests, JSON and raw alike, instead of the decoded `APIErrorResponse` or `GeminiAPIErrorResponse`, or `OpenAIError.statusError`. Code that catches those types for an HTTP failure still compiles but no longer matches it; read `HTTPResponseError.apiError` for the decoded API error instead. API errors sent inside a successful stream keep their existing types ([#491](https://github.com/MacPaw/OpenAI/pull/491)).
 
 ### Fixed
 - `Components.Schemas.ResponseOutputTextAnnotationAddedEvent.description` printed a present `annotation` as `Optional(...)`; it now prints the annotation itself, or `nil`.
 - `Demo`: an error from a request made while polling an assistant run in Chats was silently ignored and the request repeated every second. It now stops the polling and is shown in the conversation. Link preview failures are logged instead of discarded.
 - JSON requests never checked the HTTP status, so an HTML gateway body surfaced as a `DecodingError`, and with `ParsingOptions.relaxed` a status of 400 or above whose body was missing required fields could decode as a successful result. Completion-handler, async, and Combine JSON calls now throw for a status of 400 or above, as raw and streaming calls already did: the decoded `APIErrorResponse` or `GeminiAPIErrorResponse`, or `OpenAIError.statusError` when the body isn't an API error ([#471](https://github.com/MacPaw/OpenAI/pull/471)).
+- A failed streaming response's body went through `interceptStreamingData`, the middleware hook for stream data, but never reached `intercept(response:request:data:)`, so a middleware couldn't see the failed response together with its body. The error body now skips the stream-data hook and reaches the response hook before it is decoded. A body chunk that crossed the 256 KiB limit was also appended in full before the limit was checked; it is now cut at the limit. Cancelling a stream while its error body was being read reported an HTTP failure; it now ends with the cancellation error ([#491](https://github.com/MacPaw/OpenAI/pull/491)).
+- `Demo`: the Responses screen's status-specific hints for 400, 401 and 429 never printed, because they read the status from `NSError.userInfo`, which the SDK doesn't set. They now read `HTTPResponseError.statusCode` ([#491](https://github.com/MacPaw/OpenAI/pull/491)).
 
 ## [0.6.0] - 2026-10-27
 

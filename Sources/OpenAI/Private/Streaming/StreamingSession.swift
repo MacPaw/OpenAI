@@ -11,10 +11,6 @@ import Foundation
 import FoundationNetworking
 #endif
 
-/// Real API error bodies are at most a few KB. Cap how much of a non-2xx body we'll buffer so a
-/// malformed or malicious server can't force unbounded memory growth by never ending the response.
-private let maxErrorBodyByteCount = 256 * 1024
-
 final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifiable, URLSessionDataDelegateProtocol, @unchecked Sendable {
     typealias ResultType = Interpreter.ResultType
     
@@ -32,6 +28,7 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
     /// While set, incoming data is treated as an error body rather than being fed to the interpreter.
     private var errorResponse: HTTPURLResponse?
     private var errorData = Data()
+    private var exceededErrorBodyLimit = false
 
     init(
         urlSessionFactory: URLSessionFactory = FoundationURLSessionFactory(),
@@ -64,10 +61,23 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
     
     func urlSession(_ session: any URLSessionProtocol, task: any URLSessionTaskProtocol, didCompleteWithError error: (any Error)?) {
         executionSerializer.dispatch {
+            defer { self.errorData.removeAll() }
+            if (error as? URLError)?.code == .cancelled && !self.exceededErrorBodyLimit {
+                self.onComplete?(self, error)
+                return
+            }
             if let httpResponse = self.errorResponse {
-                let decodedError = JSONResponseErrorDecoder(decoder: JSONDecoder()).decodeErrorResponse(data: self.errorData) as (any Error)?
-                let resolvedError = decodedError
-                    ?? OpenAIError.statusError(response: httpResponse, statusCode: httpResponse.statusCode)
+                let original: (response: URLResponse?, data: Data?) = (httpResponse, self.errorData)
+                let intercepted = self.middlewares.reduce(original) { current, middleware in
+                    middleware.intercept(response: current.response, request: self.urlRequest, data: current.data)
+                }
+                let resolvedError = HTTPResponseError(
+                    response: httpResponse,
+                    body: self.errorData,
+                    isBodyTruncated: self.exceededErrorBodyLimit,
+                    underlyingError: self.exceededErrorBodyLimit ? nil : error,
+                    decodingBody: intercepted.data
+                )
                 self.onProcessingError?(self, resolvedError)
                 self.onComplete?(self, resolvedError)
                 return
@@ -78,20 +88,20 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
 
     func urlSession(_ session: any URLSessionProtocol, dataTask: any URLSessionDataTaskProtocol, didReceive data: Data) {
         executionSerializer.dispatch {
-            let data = self.middlewares.reduce(data) { current, middleware in
-                middleware.interceptStreamingData(request: dataTask.originalRequest, current)
-            }
-
             if self.errorResponse != nil {
-                self.errorData.append(data)
-                if self.errorData.count > maxErrorBodyByteCount {
-                    // Give up on this body: stop letting the server grow it further and let
-                    // didCompleteWithError fall back to statusError with whatever we have.
+                guard !self.exceededErrorBodyLimit else { return }
+                let remaining = HTTPResponseError.maximumBodyByteCount - self.errorData.count
+                self.errorData.append(data.prefix(remaining))
+                if data.count > remaining {
+                    self.exceededErrorBodyLimit = true
                     dataTask.cancel()
                 }
                 return
             }
 
+            let data = self.middlewares.reduce(data) { current, middleware in
+                middleware.interceptStreamingData(request: dataTask.originalRequest, current)
+            }
             self.interpreter.processData(data)
         }
     }
