@@ -119,7 +119,8 @@ Commit when you judge a coherent piece of work is done (changes made,
 build/tests passing), in logical commits with clear messages. When on `main`,
 create a branch first. Never run `git push` (or open a PR) unless the user
 explicitly asks for it at that point; the user decides what leaves their
-machine.
+machine. When asked to open a PR, follow the naming conventions in
+`CONTRIBUTING.md` and the template in `.github/PULL_REQUEST_TEMPLATE.md`.
 
 Reply to a review comment about a code change only once that change is
 pushed, so the reply points to code the reviewer can see. Until then, draft
