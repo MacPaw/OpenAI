@@ -6,16 +6,22 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-11-15
+
 ### Added
 - `Model.gpt_image_1_5` for `gpt-image-1.5` and `Model.omniModerationLatest` for `omni-moderation-latest` ([#485](https://github.com/MacPaw/OpenAI/pull/485)).
+- Public memberwise `init(audioTokens:cachedTokens:)` on `ChatResult.CompletionUsage.PromptTokensDetails`, matching `CompletionTokensDetails` ([#483](https://github.com/MacPaw/OpenAI/pull/483)).
 
 ### Changed
-- CI: the *API Breakage* allowlist is emptied, because the 0.6.0 release is now the comparison baseline for the breaks it listed.
+- swift-openapi-runtime 1.12.2 → 1.13.4 ([#480](https://github.com/MacPaw/OpenAI/pull/480), [#492](https://github.com/MacPaw/OpenAI/pull/492)).
+- CI: the *API Breakage* allowlist is emptied, because the 0.6.0 release is now the comparison baseline for the breaks it listed ([#482](https://github.com/MacPaw/OpenAI/pull/482)).
 
 ### Fixed
-- `Components.Schemas.ResponseOutputTextAnnotationAddedEvent.description` printed a present `annotation` as `Optional(...)`; it now prints the annotation itself, or `nil`.
-- `Demo`: an error from a request made while polling an assistant run in Chats was silently ignored and the request repeated every second. It now stops the polling and is shown in the conversation. Link preview failures are logged instead of discarded.
 - JSON requests never checked the HTTP status, so an HTML gateway body surfaced as a `DecodingError`, and with `ParsingOptions.relaxed` a status of 400 or above whose body was missing required fields could decode as a successful result. Completion-handler, async, and Combine JSON calls now throw for a status of 400 or above, as raw and streaming calls already did: the decoded `APIErrorResponse` or `GeminiAPIErrorResponse`, or `OpenAIError.statusError` when the body isn't an API error ([#471](https://github.com/MacPaw/OpenAI/pull/471)).
+- `ChatResult.CompletionUsage.PromptTokensDetails` now honors `ParsingOptions` when decoding `audio_tokens` and `cached_tokens`, defaulting missing or `null` counts to `0` under `.fillRequiredFieldIfKeyNotFound` / `.fillRequiredFieldIfValueNotFound` (such as `ParsingOptions.relaxed`), instead of failing to decode and dropping `ChatResult.usage` and `ChatStreamResult.usage` as `nil` on OpenAI-compatible providers such as DeepSeek and Gemini ([#483](https://github.com/MacPaw/OpenAI/pull/483)).
+- `Components.Schemas.ResponseOutputTextAnnotationAddedEvent.description` printed a present `annotation` as `Optional(...)`; it now prints the annotation itself, or `nil` ([#482](https://github.com/MacPaw/OpenAI/pull/482)).
+- `Demo`: an error from a request made while polling an assistant run in Chats was silently ignored and the request repeated every second. It now stops the polling, clears when a new run starts, and is shown in the conversation. Link preview failures are logged instead of discarded ([#482](https://github.com/MacPaw/OpenAI/pull/482)).
+- `Demo`: restored Moderation Chat and Create Image. Moderation now uses `Model.omniModerationLatest` (instead of `text-moderation-latest`); Create Image now uses `Model.gpt_image_1_5` with GPT image sizes, decodes `b64_json` results off the main thread alongside URL results, shows progress and request errors, and cancels any in-flight request when starting a new one ([#485](https://github.com/MacPaw/OpenAI/pull/485)).
 
 ## [0.6.0] - 2026-10-27
 
@@ -129,7 +135,8 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 Older releases are documented on the [GitHub Releases](https://github.com/MacPaw/OpenAI/releases) page.
 
-[Unreleased]: https://github.com/MacPaw/OpenAI/compare/0.6.0...HEAD
+[Unreleased]: https://github.com/MacPaw/OpenAI/compare/0.6.1...HEAD
+[0.6.1]: https://github.com/MacPaw/OpenAI/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/MacPaw/OpenAI/compare/0.5.3...0.6.0
 [0.5.3]: https://github.com/MacPaw/OpenAI/compare/0.5.2...0.5.3
 [0.5.2]: https://github.com/MacPaw/OpenAI/compare/0.5.1...0.5.2
