@@ -19,7 +19,7 @@ final class URLResponseHandlerTests: XCTestCase {
         ]
         for call in calls {
             XCTAssertThrowsError(try call()) { error in
-                guard let error = error as? HTTPResponseError else { return XCTFail("Expected HTTPResponseError") }
+                guard let error = error.httpResponseError else { return XCTFail("Expected OpenAIError.httpStatusError") }
                 XCTAssertEqual(error.statusCode, 403)
                 XCTAssertEqual(error.response.value(forHTTPHeaderField: "Retry-After"), "600")
                 XCTAssertEqual(error.body, body)
@@ -32,21 +32,23 @@ final class URLResponseHandlerTests: XCTestCase {
     func testSupportedBodyPreservesResponseAndDecodedError() throws {
         let body = Data(#"{"error":{"type":"invalid_request_error","code":"invalid","message":"Invalid request"}}"#.utf8)
         XCTAssertThrowsError(try handler.interceptAndDecodeRaw(response: makeResponse(400), urlRequest: request, responseData: body)) {
-            guard let error = $0 as? HTTPResponseError else { return XCTFail("Expected HTTPResponseError") }
+            guard let error = $0.httpResponseError else { return XCTFail("Expected OpenAIError.httpStatusError") }
             XCTAssertEqual(error.statusCode, 400)
             XCTAssertEqual(error.body, body)
             XCTAssertEqual((error.apiError as? APIErrorResponse)?.error.code, "invalid")
-            XCTAssertEqual(error.localizedDescription, "Invalid request")
+            XCTAssertEqual(error.errorDescription, "Invalid request")
+            XCTAssertEqual($0.localizedDescription, "Invalid request")
         }
     }
 
     func testEmptyHTMLAndMalformedBodiesStillThrowHTTPFailure() {
         for body in [Data(), Data("<html>Unavailable</html>".utf8), Data(#"{"error":"#.utf8)] {
             XCTAssertThrowsError(try handler.interceptAndDecodeRaw(response: makeResponse(503), urlRequest: request, responseData: body)) {
-                guard let error = $0 as? HTTPResponseError else { return XCTFail("Expected HTTPResponseError") }
+                guard let error = $0.httpResponseError else { return XCTFail("Expected OpenAIError.httpStatusError") }
                 XCTAssertEqual(error.statusCode, 503)
                 XCTAssertEqual(error.body, body)
                 XCTAssertNil(error.apiError)
+                XCTAssertEqual($0.localizedDescription, "HTTP request failed with status 503.")
             }
         }
     }
@@ -56,7 +58,7 @@ final class URLResponseHandlerTests: XCTestCase {
             response: makeResponse(503), urlRequest: request,
             error: URLError(.networkConnectionLost), responseData: nil
         )) {
-            guard let error = $0 as? HTTPResponseError else { return XCTFail("Expected HTTPResponseError") }
+            guard let error = $0.httpResponseError else { return XCTFail("Expected OpenAIError.httpStatusError") }
             XCTAssertEqual(error.statusCode, 503)
             XCTAssertEqual(error.body, Data())
             XCTAssertEqual((error.underlyingError as? URLError)?.code, .networkConnectionLost)
@@ -69,7 +71,7 @@ final class URLResponseHandlerTests: XCTestCase {
                 response: makeResponse(500), urlRequest: request,
                 responseData: Data(repeating: 0x61, count: size)
             )) {
-                guard let error = $0 as? HTTPResponseError else { return XCTFail("Expected HTTPResponseError") }
+                guard let error = $0.httpResponseError else { return XCTFail("Expected OpenAIError.httpStatusError") }
                 XCTAssertEqual(error.body.count, min(size, 256 * 1024))
                 XCTAssertEqual(error.isBodyTruncated, size > 256 * 1024)
             }

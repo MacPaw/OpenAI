@@ -194,7 +194,7 @@ class FilesEndpointTests: XCTestCase {
         do {
             let data = try await openAI.files.content(id: "file-abc123")
             XCTFail("Expected an error, got \(data.count) bytes")
-        } catch let error as HTTPResponseError {
+        } catch OpenAIError.httpStatusError(let error) {
             XCTAssertEqual(error.statusCode, 400)
             let apiError = try XCTUnwrap(error.apiError as? APIErrorResponse)
             XCTAssertEqual(apiError.error.message, "Not allowed to download files of purpose: user_data")
@@ -208,7 +208,7 @@ class FilesEndpointTests: XCTestCase {
         do {
             let data = try await openAI.files.content(id: "file-abc123")
             XCTFail("Expected an error, got \(data.count) bytes")
-        } catch let error as HTTPResponseError {
+        } catch OpenAIError.httpStatusError(let error) {
             XCTAssertEqual(error.statusCode, 502)
             XCTAssertNil(error.apiError)
             XCTAssertEqual(error.body, Data("<html>Bad Gateway</html>".utf8))
@@ -227,7 +227,7 @@ class FilesEndpointTests: XCTestCase {
         wait(for: [expectation], timeout: 1)
 
         XCTAssertThrowsError(try result.value?.get()) { error in
-            XCTAssertTrue((error as? HTTPResponseError)?.apiError is APIErrorResponse, "Expected HTTPResponseError with an APIErrorResponse, got \(error)")
+            XCTAssertTrue(error.httpResponseError?.apiError is APIErrorResponse, "Expected OpenAIError.httpStatusError with an APIErrorResponse, got \(error)")
         }
     }
 
@@ -273,7 +273,7 @@ class FilesEndpointTests: XCTestCase {
         urlSession.dataTask = .errorResponse(statusCode: 400, data: Self.downloadNotAllowedBody)
 
         XCTAssertThrowsError(try awaitPublisher(openAI.files.content(id: "file-abc123"))) { error in
-            XCTAssertTrue((error as? HTTPResponseError)?.apiError is APIErrorResponse, "Expected HTTPResponseError with an APIErrorResponse, got \(error)")
+            XCTAssertTrue(error.httpResponseError?.apiError is APIErrorResponse, "Expected OpenAIError.httpStatusError with an APIErrorResponse, got \(error)")
         }
     }
 

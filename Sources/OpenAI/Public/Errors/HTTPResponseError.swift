@@ -5,8 +5,10 @@ import FoundationNetworking
 
 /// An HTTP failure, independent of the server's error-body schema.
 ///
-/// Returned for HTTP status codes of 400 or higher, including streaming requests.
-public struct HTTPResponseError: LocalizedError {
+/// Describes an HTTP status code of 400 or higher, including for streaming requests. It is never thrown on
+/// its own: the SDK throws it as the payload of ``OpenAIError/httpStatusError(_:)``, so catch `OpenAIError`
+/// and match that case.
+public struct HTTPResponseError: Sendable {
     public let response: HTTPURLResponse
     public var statusCode: Int { response.statusCode }
 

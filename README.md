@@ -128,15 +128,17 @@ Use `.relaxed` parsing option on Configuration, or see more details on the topic
 
 ### HTTP failures
 
-HTTP responses with status 400 or higher throw `HTTPResponseError` for both streaming
-and non-streaming requests. No middleware is required to inspect them:
+HTTP responses with status 400 or higher throw `OpenAIError.httpStatusError` for both
+streaming and non-streaming requests. Its `HTTPResponseError` payload describes the
+failure; it is never thrown on its own, so catch `OpenAIError` and match the case.
+No middleware is required to inspect it:
 
 ```swift
 do {
     for try await event in openAI.responses.createResponseStreaming(query: query) {
         // Handle the event.
     }
-} catch let error as HTTPResponseError {
+} catch OpenAIError.httpStatusError(let error) {
     let status = error.statusCode
     let retryAfter = error.response.value(forHTTPHeaderField: "Retry-After")
     let body = error.body
@@ -153,7 +155,8 @@ initiated by the caller remains cancellation, not an HTTP failure.
 
 `apiError` contains the decoded `APIErrorResponse` or `GeminiAPIErrorResponse` when the
 body is one. Existing callers catching `APIErrorResponse`, `GeminiAPIErrorResponse` or
-`OpenAIError.statusError` for HTTP failures should now inspect this property.
+`OpenAIError.statusError` for HTTP failures should now match `OpenAIError.httpStatusError`
+and inspect its `apiError` or `statusCode` instead.
 Errors sent inside a successful HTTP stream keep their existing error types.
 
 ### Cancelling requests

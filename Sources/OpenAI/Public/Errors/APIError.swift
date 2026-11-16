@@ -13,7 +13,21 @@ import FoundationNetworking
 
 public enum OpenAIError: DescribedError {
     case emptyData
+
+    @available(*, deprecated, message: "No longer thrown. HTTP failures throw OpenAIError.httpStatusError instead.")
     case statusError(response: HTTPURLResponse, statusCode: Int)
+
+    /// The server responded with an HTTP status of 400 or higher, for a streaming or a non-streaming request.
+    case httpStatusError(HTTPResponseError)
+
+    public var errorDescription: String? {
+        switch self {
+        case .httpStatusError(let httpError):
+            return httpError.errorDescription
+        default:
+            return String(describing: self)
+        }
+    }
 }
 
 public struct APIError: Error, Decodable, Equatable {

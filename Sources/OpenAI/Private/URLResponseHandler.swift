@@ -41,7 +41,7 @@ struct URLResponseHandler {
     }
     
     /// Response middleware runs first, then cancellation is thrown unchanged. The status check reads the response
-    /// the middleware returns. An HTTP status of 400 or above is an `HTTPResponseError` for every JSON and raw
+    /// the middleware returns. An HTTP status of 400 or above is an `OpenAIError.httpStatusError` for every JSON and raw
     /// response, carrying the original body, the API or Gemini error decoded from the body the middleware returns,
     /// and any transport error. Otherwise a transport error is thrown unchanged. The body is returned only after
     /// that check, or `OpenAIError.emptyData` when there is none. JSON callers decode that body next, so a 2xx that
@@ -70,13 +70,13 @@ struct URLResponseHandler {
             return
         }
         
-        throw HTTPResponseError(
+        throw OpenAIError.httpStatusError(HTTPResponseError(
             response: httpResponse,
             body: body ?? Data(),
             isBodyTruncated: false,
             underlyingError: error,
             decodingBody: decodingBody
-        )
+        ))
     }
     
     private func intercept(response: URLResponse?, data: Data?, request: URLRequest) -> (response: URLResponse?, data: Data?) {

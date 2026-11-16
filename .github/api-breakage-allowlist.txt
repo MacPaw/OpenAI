@@ -1,0 +1,1 @@
+API breakage: enumelement OpenAIError.httpStatusError has been added as a new enum case

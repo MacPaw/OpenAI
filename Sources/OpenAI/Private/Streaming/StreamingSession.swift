@@ -71,13 +71,15 @@ final class StreamingSession<Interpreter: StreamInterpreter>: NSObject, Identifi
                 let intercepted = self.middlewares.reduce(original) { current, middleware in
                     middleware.intercept(response: current.response, request: self.urlRequest, data: current.data)
                 }
-                let resolvedError = HTTPResponseError(
-                    response: httpResponse,
+                // The status was already checked before middleware ran, and the collected body isn't a stream, so
+                // this stays a failure even if a middleware rewrites the status below 400.
+                let resolvedError = OpenAIError.httpStatusError(HTTPResponseError(
+                    response: (intercepted.response as? HTTPURLResponse) ?? httpResponse,
                     body: self.errorData,
                     isBodyTruncated: self.exceededErrorBodyLimit,
                     underlyingError: self.exceededErrorBodyLimit ? nil : error,
                     decodingBody: intercepted.data
-                )
+                ))
                 self.onProcessingError?(self, resolvedError)
                 self.onComplete?(self, resolvedError)
                 return

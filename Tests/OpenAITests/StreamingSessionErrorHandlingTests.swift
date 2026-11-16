@@ -74,7 +74,7 @@ final class StreamingSessionErrorHandlingTests: XCTestCase {
         XCTAssertEqual(receivedContentCount, 0, "Error body must not be fed to the SSE interpreter")
         XCTAssertEqual(processingErrors.count, 1)
 
-        let failure = try XCTUnwrap(processingErrors.first as? HTTPResponseError)
+        let failure = try XCTUnwrap(processingErrors.first?.httpResponseError)
         let apiErrorResponse = try XCTUnwrap(failure.apiError as? APIErrorResponse)
         XCTAssertEqual(failure.statusCode, 400)
         XCTAssertEqual(failure.body, errorBody)
@@ -83,7 +83,7 @@ final class StreamingSessionErrorHandlingTests: XCTestCase {
         XCTAssertEqual(apiErrorResponse.error.code, "model_not_found")
 
         let completionError = try XCTUnwrap(completionErrors.first ?? nil)
-        XCTAssertTrue(completionError is HTTPResponseError)
+        XCTAssertTrue(completionError.httpResponseError != nil)
     }
 
     func testUnsupportedBodyIsPreservedInHTTPError() throws {
@@ -100,7 +100,7 @@ final class StreamingSessionErrorHandlingTests: XCTestCase {
         streamingSession.urlSession(urlSessionFactory.urlSession, task: dataTask, didCompleteWithError: nil)
 
         XCTAssertEqual(processingErrors.count, 1)
-        let error = try XCTUnwrap(processingErrors.first as? HTTPResponseError)
+        let error = try XCTUnwrap(processingErrors.first?.httpResponseError)
         XCTAssertEqual(error.statusCode, 400)
         XCTAssertEqual(error.body, Data("not json".utf8))
         XCTAssertNil(error.apiError)
@@ -123,7 +123,7 @@ final class StreamingSessionErrorHandlingTests: XCTestCase {
         streamingSession.urlSession(urlSessionFactory.urlSession, task: task, didCompleteWithError: nil)
 
         assertStatusError(403)
-        let error = try XCTUnwrap(processingErrors.first as? HTTPResponseError)
+        let error = try XCTUnwrap(processingErrors.first?.httpResponseError)
         XCTAssertEqual(error.body, body)
         XCTAssertEqual(error.response.value(forHTTPHeaderField: "Retry-After"), "600")
         XCTAssertFalse(error.isBodyTruncated)
@@ -153,7 +153,7 @@ final class StreamingSessionErrorHandlingTests: XCTestCase {
         streamingSession.urlSession(urlSessionFactory.urlSession, task: dataTask, didCompleteWithError: nil)
 
         XCTAssertEqual(processingErrors.count, 1)
-        let error = try XCTUnwrap(processingErrors.first as? HTTPResponseError)
+        let error = try XCTUnwrap(processingErrors.first?.httpResponseError)
         XCTAssertTrue(error.isBodyTruncated)
         XCTAssertEqual(error.body.count, 256 * 1024)
     }
@@ -235,11 +235,33 @@ final class StreamingSessionErrorHandlingTests: XCTestCase {
 
         XCTAssertEqual(transformation.interceptedResponses.first?.data, Data("original".utf8))
         XCTAssertEqual(recorder.interceptedResponses.first?.data, body)
-        let error = try XCTUnwrap(processingErrors.first as? HTTPResponseError)
+        let error = try XCTUnwrap(processingErrors.first?.httpResponseError)
         XCTAssertEqual(error.body, Data("original".utf8))
         let decoded = try XCTUnwrap(error.apiError as? APIErrorResponse)
         XCTAssertEqual(decoded.error.message, "Transformed")
         XCTAssertEqual(decoded.error.code, "invalid")
+    }
+
+    func testErrorCarriesResponseReturnedByMiddleware() throws {
+        let original = makeErrorResponse(statusCode: 429)
+        let rewritten = HTTPURLResponse(
+            url: original.url!,
+            statusCode: 429,
+            httpVersion: nil,
+            headerFields: ["Retry-After": "7"]
+        )!
+        let transformation = MockMiddleware()
+        transformation.interceptResponseReturnValue = (rewritten, Data("busy".utf8))
+        middlewares = [transformation]
+        let task = DataTaskMock()
+        streamingSession.urlSession(urlSessionFactory.urlSession, dataTask: task, didReceive: original) { _ in }
+        streamingSession.urlSession(urlSessionFactory.urlSession, dataTask: task, didReceive: Data("busy".utf8))
+
+        streamingSession.urlSession(urlSessionFactory.urlSession, task: task, didCompleteWithError: nil)
+
+        let error = try XCTUnwrap(processingErrors.first?.httpResponseError)
+        XCTAssertTrue(error.response === rewritten)
+        XCTAssertEqual(error.response.value(forHTTPHeaderField: "Retry-After"), "7")
     }
 
     func testInterruptedErrorBodyPreservesStatusAndPartialData() {
@@ -253,8 +275,8 @@ final class StreamingSessionErrorHandlingTests: XCTestCase {
         streamingSession.urlSession(urlSessionFactory.urlSession, task: task, didCompleteWithError: URLError(.networkConnectionLost))
 
         XCTAssertEqual(recorder.interceptedResponses.first?.data, partialBody)
-        XCTAssertEqual((processingErrors.first as? HTTPResponseError)?.body, partialBody)
-        XCTAssertEqual(((processingErrors.first as? HTTPResponseError)?.underlyingError as? URLError)?.code, .networkConnectionLost)
+        XCTAssertEqual(processingErrors.first?.httpResponseError?.body, partialBody)
+        XCTAssertEqual((processingErrors.first?.httpResponseError?.underlyingError as? URLError)?.code, .networkConnectionLost)
         assertStatusError(503)
     }
 
@@ -285,7 +307,7 @@ final class StreamingSessionErrorHandlingTests: XCTestCase {
 
         XCTAssertEqual(task.cancelCallCount, 0)
         XCTAssertEqual(recorder.interceptedResponses.first?.data?.count, 256 * 1024)
-        XCTAssertEqual((processingErrors.first as? HTTPResponseError)?.isBodyTruncated, false)
+        XCTAssertEqual(processingErrors.first?.httpResponseError?.isBodyTruncated, false)
         assertStatusError(400)
     }
 
@@ -303,8 +325,8 @@ final class StreamingSessionErrorHandlingTests: XCTestCase {
         XCTAssertEqual(task.cancelCallCount, 1)
         XCTAssertEqual(recorder.interceptedResponses.first?.data?.count, 256 * 1024)
         XCTAssertEqual(recorder.interceptedResponses.first?.data?.last, 0x62)
-        XCTAssertEqual((processingErrors.first as? HTTPResponseError)?.isBodyTruncated, true)
-        XCTAssertNil((processingErrors.first as? HTTPResponseError)?.underlyingError)
+        XCTAssertEqual(processingErrors.first?.httpResponseError?.isBodyTruncated, true)
+        XCTAssertNil(processingErrors.first?.httpResponseError?.underlyingError)
         assertStatusError(400)
     }
 
@@ -325,8 +347,8 @@ final class StreamingSessionErrorHandlingTests: XCTestCase {
     private func assertStatusError(_ expected: Int, file: StaticString = #filePath, line: UInt = #line) {
         XCTAssertEqual(processingErrors.count, 1, file: file, line: line)
         XCTAssertEqual(completionErrors.count, 1, file: file, line: line)
-        guard let error = processingErrors.first as? HTTPResponseError,
-              let completionError = (completionErrors.first ?? nil) as? HTTPResponseError
+        guard let error = processingErrors.first?.httpResponseError,
+              let completionError = (completionErrors.first ?? nil)?.httpResponseError
         else {
             return XCTFail("Expected HTTP status error", file: file, line: line)
         }

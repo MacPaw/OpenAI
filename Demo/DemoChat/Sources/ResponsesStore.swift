@@ -433,7 +433,7 @@ public final class ResponsesStore: ObservableObject {
             }
 
             // Provide specific guidance for common errors
-            if let httpError = error as? HTTPResponseError {
+            if case .httpStatusError(let httpError)? = error as? OpenAIError {
                 switch httpError.statusCode {
                 case 400:
                     print("❌ 400 Bad Request - This could be due to:")
