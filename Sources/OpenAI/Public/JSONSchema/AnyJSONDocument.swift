@@ -8,15 +8,21 @@
 import Foundation
 
 public struct AnyJSONDocument: JSONDocument {
-    // The value is internal instead of private for testability
-    let value: any JSONDocument
+    /// A wrapped JSON `null` value.
+    public static let null = AnyJSONDocument(JSONNullValue())
+
+    /// The wrapped JSON value.
+    public let value: any JSONDocument
 
     public init(_ value: any JSONDocument) {
-        self.value = value
+        self.value = (value as? AnyJSONDocument)?.value ?? value
     }
 
     public func encode(to encoder: Encoder) throws {
-        try value.encode(to: encoder)
+        // Encoding through a container preserves JSONEncoder's special handling of Decimal
+        // as a JSON number. Calling value.encode(to:) directly encodes its stored properties.
+        var container = encoder.singleValueContainer()
+        try container.encode(value)
     }
 
     public init(from decoder: Decoder) throws {
@@ -24,34 +30,40 @@ public struct AnyJSONDocument: JSONDocument {
 
         if container.decodeNil() {
             self.value = JSONNullValue()
-        } else if let intVal = try? container.decode(Int.self) {
-            self.value = intVal
-        } else if let decimalVal = try? container.decode(Decimal.self) {
-            self.value = decimalVal
-        } else if let boolVal = try? container.decode(Bool.self) {
-            self.value = boolVal
-        } else if let stringVal = try? container.decode(String.self) {
-            self.value = stringVal
-        } else if let arrayVal = try? container.decode([AnyJSONDocument].self) {
-            self.value = arrayVal
-        } else if let dictVal = try? container.decode([String: AnyJSONDocument].self) {
-            self.value = dictVal
+        } else if let value = try container.decodeJSONCandidate(Int.self, allowNumericOverflow: true) {
+            self.value = value
+        } else if let value = try container.decodeJSONCandidate(Decimal.self, allowNumericOverflow: true) {
+            self.value = value
+        } else if let value = try container.decodeJSONCandidate(Double.self) {
+            self.value = value
+        } else if let value = try container.decodeJSONCandidate(Bool.self) {
+            self.value = value
+        } else if let value = try container.decodeJSONCandidate(String.self) {
+            self.value = value
+        } else if let value = try container.decodeJSONCandidate([AnyJSONDocument].self) {
+            self.value = value
         } else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unsupported JSONDocument type.")
+            self.value = try container.decode(JSONObject.self)
         }
     }
 }
 
 extension AnyJSONDocument: Equatable {
+    private static func equals<T: JSONDocument>(_ lhs: T, _ rhs: any JSONDocument) -> Bool {
+        guard let rhs = rhs as? T else { return false }
+        return lhs == rhs
+    }
+
     public static func == (lhs: AnyJSONDocument, rhs: AnyJSONDocument) -> Bool {
         switch (lhs.value, rhs.value) {
         case (let l as Int, let r as Int): return l == r
         case (let l as Decimal, let r as Decimal): return l == r
+        case (let l as Double, let r as Double): return l == r
         case (let l as String, let r as String): return l == r
         case (let l as Bool, let r as Bool): return l == r
         case (_ as JSONNullValue, _ as JSONNullValue): return true
         case (let l as [any JSONDocument], let r as [any JSONDocument]):
-            return zip(l, r).allSatisfy { AnyJSONDocument($0) == AnyJSONDocument($1) }
+            return l.count == r.count && zip(l, r).allSatisfy { AnyJSONDocument($0) == AnyJSONDocument($1) }
         case (let l as [String: any JSONDocument], let r as [String: any JSONDocument]):
             return l.count == r.count &&
                    l.keys.allSatisfy { key in
@@ -60,7 +72,7 @@ extension AnyJSONDocument: Equatable {
                        }
                        return false
                    }
-        default: return false
+        default: return equals(lhs.value, rhs.value)
         }
     }
 }
@@ -88,7 +100,23 @@ extension AnyJSONDocument: Hashable {
                 hasher.combine(AnyJSONDocument(v))
             }
         default:
-            break
+            value.hash(into: &hasher)
+        }
+    }
+}
+
+private extension SingleValueDecodingContainer {
+    func decodeJSONCandidate<T: Decodable>(_ type: T.Type, allowNumericOverflow: Bool = false) throws -> T? {
+        do {
+            return try decode(type)
+        } catch DecodingError.typeMismatch {
+            // JSON values have no type tag; try the next supported representation.
+            return nil
+        } catch where allowNumericOverflow {
+            // Foundation can throw a private JSONError for an unrepresentable number,
+            // rather than DecodingError. Retry a wider numeric representation; Double
+            // decoding below still propagates an error if no representation succeeds.
+            return nil
         }
     }
 }

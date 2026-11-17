@@ -6,6 +6,13 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ## [Unreleased]
 
+### Fixed
+- `AnyJSONDocument` now encodes decoded JSON `null` as `null` and `Decimal` values as JSON numbers, preserving decoded tool schemas when they are sent back to the API.
+- JSON values compare and hash correctly for doubles, nested objects and arrays; decoding supports numbers outside the range of `Decimal`.
+
+### Added
+- `AnyJSONDocument.null`, a public value for an explicit JSON `null`. `JSONObject` and `AnyJSONDocument.value` are now public so wrapped JSON values can be built and read.
+
 ## [0.6.1] - 2026-11-15
 
 ### Added

@@ -15,7 +15,21 @@ public protocol JSONDocument: Codable, Hashable, Sendable {
 
 /// [null](https://json-schema.org/draft/2020-12/json-schema-core#section-4.2.1-3.2)
 /// A JSON "null" value
-struct JSONNullValue: JSONDocument {}
+struct JSONNullValue: JSONDocument {
+    init() {}
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        guard container.decodeNil() else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Expected null.")
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encodeNil()
+    }
+}
 extension Int: JSONDocument {}
 extension Double: JSONDocument {}
 extension String: JSONDocument {}
@@ -27,4 +41,5 @@ extension Decimal: JSONDocument {}
 extension Array: JSONDocument where Element: JSONDocument {}
 extension Dictionary: JSONDocument where Key == String, Value: JSONDocument {}
 
-typealias JSONObject = Dictionary<String, AnyJSONDocument>
+/// A JSON object whose values are wrapped in ``AnyJSONDocument``.
+public typealias JSONObject = Dictionary<String, AnyJSONDocument>
