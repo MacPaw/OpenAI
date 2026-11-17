@@ -6,6 +6,9 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ## [Unreleased]
 
+### Fixed
+- `APIError` now decodes a numeric `code`, as sent by `llama.cpp` server, as its string form instead of failing to decode the error.
+
 ## [0.6.1] - 2026-11-15
 
 ### Added
