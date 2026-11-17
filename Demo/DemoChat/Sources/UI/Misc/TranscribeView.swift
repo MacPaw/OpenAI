@@ -10,7 +10,7 @@ import UIKit
 
 struct TranscribeView: View {
     @ObservedObject var miscStore: MiscStore
-    @StateObject private var store = TranscriptionStore()
+    @State private var store = TranscriptionStore()
     @Environment(\.apiProvider) private var apiProvider
     @State private var showsFileImporter = false
     @State private var hasConfiguredModel = false
@@ -36,9 +36,9 @@ struct TranscribeView: View {
             Section("Options") {
                 if apiProvider == .openAI {
                     Picker("Model", selection: $store.model) {
-                        Text("whisper-1").tag("whisper-1")
-                        Text("gpt-4o-transcribe").tag("gpt-4o-transcribe")
-                        Text("gpt-4o-mini-transcribe").tag("gpt-4o-mini-transcribe")
+                        Text(Model.whisper_1).tag(Model.whisper_1)
+                        Text(Model.gpt_4o_transcribe).tag(Model.gpt_4o_transcribe)
+                        Text(Model.gpt_4o_mini_transcribe).tag(Model.gpt_4o_mini_transcribe)
                     }
                 } else {
                     TextField("Transcription model ID", text: $store.model)
@@ -99,15 +99,18 @@ struct TranscribeView: View {
                 hasConfiguredModel = true
             }
         }
+        .onReceive(miscStore.$openAIClient.dropFirst()) { _ in
+            store.resetForClientChange()
+        }
         .onChange(of: apiProvider) { _, _ in
-            store.cancel()
+            store.resetForClientChange()
             resetModelForProvider()
         }
         .onDisappear { store.cancel() }
     }
 
     private func resetModelForProvider() {
-        store.model = apiProvider == .openAI ? "whisper-1" : ""
+        store.model = apiProvider == .openAI ? Model.whisper_1 : ""
     }
 
     private static var audioTypes: [UTType] {

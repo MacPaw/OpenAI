@@ -26,8 +26,9 @@ xcodebuild -project Demo/Demo.xcodeproj -scheme Demo \
 Run the package tests from this directory with an installed iOS Simulator:
 
 ```sh
-xcodebuild -scheme DemoChat \
-  -destination 'platform=iOS Simulator,name=iPhone 17' test
+xcodebuild test -scheme DemoChat \
+  -destination "platform=iOS Simulator,name=<booted simulator>" \
+  -collect-test-diagnostics never
 ```
 
 Transcription tests use injected responses and local temporary files; they do

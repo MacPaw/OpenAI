@@ -37,7 +37,13 @@ func selectedAudioRejectsUnsupportedFormats(name: String) {
 @Test func audioLoaderReadsLocalFilesAndRejectsInvalidInputs() async throws {
     let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-    defer { try? FileManager.default.removeItem(at: directory) }
+    defer {
+        do {
+            try FileManager.default.removeItem(at: directory)
+        } catch {
+            Issue.record(error)
+        }
+    }
 
     let url = directory.appendingPathComponent("recording.MPGA")
     let bytes = Data([1, 2, 3, 4])
@@ -336,23 +342,27 @@ func transcriptionReportsEmptyResponses(text: String) async throws {
 
 @MainActor
 @Test func transcriptionUsesClientProvidedAtEachSubmission() async throws {
-    let configuration = URLSessionConfiguration.ephemeral
-    configuration.protocolClasses = [TranscriptionURLProtocol.self]
-    let session = URLSession(configuration: configuration)
-    defer { session.invalidateAndCancel() }
-    let first = OpenAI(
-        configuration: .init(token: "first-test-token", host: "first.example", basePath: "/v1"),
-        session: session
-    )
-    let second = OpenAI(
-        configuration: .init(token: "second-test-token", host: "second.example", basePath: "/custom"),
-        session: session
-    )
+    let firstMock = MockURL { request in
+        #expect(request.url?.path == "/v1/audio/transcriptions")
+        #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer first-test-token")
+        return Data(#"{"text":"First provider"}"#.utf8)
+    }
+    let secondMock = MockURL { request in
+        #expect(request.url?.path == "/custom/audio/transcriptions")
+        #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer second-test-token")
+        return Data(#"{"text":"Second provider"}"#.utf8)
+    }
+    defer {
+        firstMock.remove()
+        secondMock.remove()
+    }
+    let first = firstMock.makeClient(token: "first-test-token")
+    let second = secondMock.makeClient(token: "second-test-token", basePath: "/custom")
     let store = try await loadedTranscriptionStore()
     await store.transcribe(using: first)
-    #expect(store.transcript == "first.example/v1/audio/transcriptions|Bearer first-test-token")
+    #expect(store.transcript == "First provider")
     await store.transcribe(using: second)
-    #expect(store.transcript == "second.example/custom/audio/transcriptions|Bearer second-test-token")
+    #expect(store.transcript == "Second provider")
     #expect(store.errorMessage == nil)
 }
 
@@ -399,26 +409,52 @@ private actor SuspendedTranscriptionOperation<Value: Sendable> {
     }
 }
 
-private final class TranscriptionURLProtocol: URLProtocol, @unchecked Sendable {
-    override class func canInit(with request: URLRequest) -> Bool { true }
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+@MainActor
+@Test func transcriptionIgnoresURLSessionCancellation() async throws {
+    let store = try await loadedTranscriptionStore()
+    await store.transcribe { _ in throw URLError(.cancelled) }
+    #expect(store.errorMessage == nil)
+    #expect(store.transcript.isEmpty)
+    #expect(!store.isTranscribing)
+    await store.transcribe { _ in "Retried" }
+    #expect(store.transcript == "Retried")
+}
 
-    override func startLoading() {
-        guard let url = request.url,
-              let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil) else {
-            client?.urlProtocol(self, didFailWithError: URLError(.badURL))
-            return
-        }
-        let text = "\(url.host ?? "")\(url.path)|\(request.value(forHTTPHeaderField: "Authorization") ?? "")"
-        do {
-            let data = try JSONSerialization.data(withJSONObject: ["text": text])
-            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-            client?.urlProtocol(self, didLoad: data)
-            client?.urlProtocolDidFinishLoading(self)
-        } catch {
-            client?.urlProtocol(self, didFailWithError: error)
-        }
-    }
+@MainActor
+@Test func audioImportIgnoresURLSessionCancellation() async {
+    let store = TranscriptionStore { _ in throw URLError(.cancelled) }
+    await store.importAudio(from: URL(fileURLWithPath: "/recording.mp3"))
+    #expect(store.errorMessage == nil)
+    #expect(store.selectedAudio == nil)
+    #expect(!store.isLoading)
+}
 
-    override func stopLoading() {}
+@MainActor
+@Test func clientChangeClearsResultsButKeepsSelectedAudio() async throws {
+    let store = try await loadedTranscriptionStore()
+    await store.transcribe { _ in "Previous account's transcript" }
+    store.errorMessage = "Previous account's error"
+    let audio = store.selectedAudio
+    store.resetForClientChange()
+    #expect(store.transcript.isEmpty)
+    #expect(store.errorMessage == nil)
+    #expect(store.selectedAudio == audio)
+    await store.transcribe { _ in "New account's transcript" }
+    #expect(store.transcript == "New account's transcript")
+}
+
+@MainActor
+@Test func clientChangeCancelsWorkAndIgnoresPreviousClientResponse() async throws {
+    let store = try await loadedTranscriptionStore()
+    let gate = SuspendedTranscriptionOperation<String>()
+    let previous = Task { await store.transcribe { _ in try await gate.run() } }
+    await gate.waitUntilStarted()
+    store.resetForClientChange()
+    #expect(!store.isTranscribing)
+    await store.transcribe { _ in "Current account" }
+    await gate.finish(.success("Previous account"))
+    await previous.value
+    #expect(await gate.wasCancelled)
+    #expect(store.transcript == "Current account")
+    #expect(store.errorMessage == nil)
 }

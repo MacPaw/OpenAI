@@ -1,6 +1,6 @@
 import Foundation
 import OpenAI
-import SwiftUI
+import Observation
 
 struct SelectedAudio: Equatable, Sendable {
     static let maximumBytes = 25_000_000
@@ -48,18 +48,19 @@ enum AudioImportError: LocalizedError, Equatable {
 }
 
 @MainActor
-final class TranscriptionStore: ObservableObject {
+@Observable
+final class TranscriptionStore {
     typealias AudioLoader = @Sendable (URL) async throws -> SelectedAudio
     typealias Transcription = @Sendable (AudioTranscriptionQuery) async throws -> String
 
-    @Published private(set) var selectedAudio: SelectedAudio?
-    @Published private(set) var isLoading = false
-    @Published private(set) var isTranscribing = false
-    @Published private(set) var transcript = ""
-    @Published var errorMessage: String?
-    @Published var model = Model.whisper_1
-    @Published var language = ""
-    @Published var prompt = ""
+    private(set) var selectedAudio: SelectedAudio?
+    private(set) var isLoading = false
+    private(set) var isTranscribing = false
+    private(set) var transcript = ""
+    var errorMessage: String?
+    var model = Model.whisper_1
+    var language = ""
+    var prompt = ""
 
     private let audioLoader: AudioLoader
     private var importTask: Task<SelectedAudio, Error>?
@@ -96,7 +97,7 @@ final class TranscriptionStore: ObservableObject {
             selectedAudio = audio
         } catch {
             guard operationID == currentOperation, !Task.isCancelled, !task.isCancelled else { return }
-            if !(error is CancellationError) {
+            if !(error is CancellationError) && (error as? URLError)?.code != .cancelled {
                 errorMessage = error.localizedDescription
             }
         }
@@ -156,10 +157,16 @@ final class TranscriptionStore: ObservableObject {
             }
         } catch {
             guard operationID == currentOperation, !Task.isCancelled, !task.isCancelled else { return }
-            if !(error is CancellationError) {
+            if !(error is CancellationError) && (error as? URLError)?.code != .cancelled {
                 errorMessage = error.localizedDescription
             }
         }
+    }
+
+    func resetForClientChange() {
+        cancel()
+        transcript = ""
+        errorMessage = nil
     }
 
     func clearAudio() {
@@ -201,7 +208,13 @@ final class TranscriptionStore: ObservableObject {
             }
 
             let file = try FileHandle(forReadingFrom: url)
-            defer { try? file.close() }
+            defer {
+                do {
+                    try file.close()
+                } catch {
+                    print("Failed to close audio file: \(error.localizedDescription)")
+                }
+            }
             var data = Data()
             // Bound reads too: a file may grow after the metadata check.
             while data.count <= SelectedAudio.maximumBytes {
