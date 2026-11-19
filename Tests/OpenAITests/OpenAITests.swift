@@ -297,6 +297,35 @@ class OpenAITests: XCTestCase {
         }
     }
 
+    func testModerationsIteratorYieldsValues() {
+        let categories = ModerationsResult.Moderation.Categories(harassment: true, harassmentThreatening: false, hate: false, hateThreatening: false, selfHarm: false, selfHarmIntent: false, selfHarmInstructions: false, sexual: false, sexualMinors: false, violence: false, violenceGraphic: false, illicit: true, illicitViolent: false)
+        let flags = Dictionary(uniqueKeysWithValues: categories.map { ($0.0, $0.1) })
+        XCTAssertEqual(flags.count, 13)
+        XCTAssertEqual(flags["harassment"], true)
+        XCTAssertEqual(flags["illicit"], true)
+        XCTAssertEqual(flags["illicit/violent"], false)
+
+        let categoryScores = ModerationsResult.Moderation.CategoryScores(harassment: 0.9, harassmentThreatening: 0.1, hate: 0.1, hateThreatening: 0.1, selfHarm: 0.1, selfHarmIntent: 0.1, selfHarmInstructions: 0.1, sexual: 0.1, sexualMinors: 0.1, violence: 0.1, violenceGraphic: 0.1, illicit: 0.7, illicitViolent: 0.2)
+        let scores = Dictionary(uniqueKeysWithValues: categoryScores.map { ($0.0, $0.1) })
+        XCTAssertEqual(scores.count, 13)
+        XCTAssertEqual(scores["harassment"], 0.9)
+        XCTAssertEqual(scores["illicit"], 0.7)
+        XCTAssertEqual(scores["illicit/violent"], 0.2)
+    }
+
+    func testModerationsDecodesIllicitCategories() throws {
+        let json = """
+        {"id":"modr-1","model":"omni-moderation-latest","results":[{"flagged":true,
+        "categories":{"harassment":false,"harassment/threatening":false,"hate":false,"hate/threatening":false,"self-harm":false,"self-harm/intent":false,"self-harm/instructions":false,"sexual":false,"sexual/minors":false,"violence":false,"violence/graphic":false,"illicit":true,"illicit/violent":false},
+        "category_scores":{"harassment":0.1,"harassment/threatening":0.1,"hate":0.1,"hate/threatening":0.1,"self-harm":0.1,"self-harm/intent":0.1,"self-harm/instructions":0.1,"sexual":0.1,"sexual/minors":0.1,"violence":0.1,"violence/graphic":0.1,"illicit":0.8,"illicit/violent":0.3}}]}
+        """
+        let result = try JSONDecoder().decode(ModerationsResult.self, from: Data(json.utf8))
+        XCTAssertEqual(result.results[0].categories.illicit, true)
+        XCTAssertEqual(result.results[0].categories.illicitViolent, false)
+        XCTAssertEqual(result.results[0].categoryScores.illicit, 0.8)
+        XCTAssertEqual(result.results[0].categoryScores.illicitViolent, 0.3)
+    }
+
     func testModerationsError() async throws {
         let query = ModerationsQuery(input: "Hello, world!")
         let inError = APIError(message: "foo", type: "bar", param: "baz", code: "100")
