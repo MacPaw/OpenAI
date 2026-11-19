@@ -43,8 +43,8 @@ final class MockURL: Sendable {
     /// The number of requests made so far
     var requestCount: Int { state.withLock { $0.requestCount } }
 
-    func makeClient() -> OpenAI {
-        OpenAI(configuration: .init(token: "test", host: host), session: session)
+    func makeClient(token: String = "test", basePath: String = "/v1") -> OpenAI {
+        OpenAI(configuration: .init(token: token, host: host, basePath: basePath), session: session)
     }
 
     func remove() {
