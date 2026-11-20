@@ -35,12 +35,16 @@ public struct ModerationsResult: Codable, Equatable, Sendable {
             public let violence: Bool
             /// Violent content that depicts death, violence, or serious physical injury in extreme graphic detail.
             public let violenceGraphic: Bool
-            /// Content that includes instructions or advice that facilitate the planning or execution of wrongdoing, or that gives advice or instruction on how to commit illicit acts. Only returned by newer moderation models.
+            /// Content that includes instructions or advice that facilitate the planning or execution of wrongdoing, or that gives advice or instruction on how to commit illicit acts. For example, "how to shoplift" would fit this category.
+            ///
+            /// `nil` when the moderation model doesn't return this category (older models) or returns `null`.
             public let illicit: Bool?
-            /// Illicit content that also includes references to violence or procuring a weapon. Only returned by newer moderation models.
+            /// Content that includes instructions or advice that facilitate the planning or execution of wrongdoing that also includes violence, or that gives advice or instruction on the procurement of any weapon.
+            ///
+            /// `nil` when the moderation model doesn't return this category (older models) or returns `null`.
             public let illicitViolent: Bool?
 
-            public init(harassment: Bool, harassmentThreatening: Bool, hate: Bool, hateThreatening: Bool, selfHarm: Bool, selfHarmIntent: Bool, selfHarmInstructions: Bool, sexual: Bool, sexualMinors: Bool, violence: Bool, violenceGraphic: Bool, illicit: Bool? = nil, illicitViolent: Bool? = nil) {
+            init(harassment: Bool, harassmentThreatening: Bool, hate: Bool, hateThreatening: Bool, selfHarm: Bool, selfHarmIntent: Bool, selfHarmInstructions: Bool, sexual: Bool, sexualMinors: Bool, violence: Bool, violenceGraphic: Bool, illicit: Bool? = nil, illicitViolent: Bool? = nil) {
                 self.harassment = harassment
                 self.harassmentThreatening = harassmentThreatening
                 self.hate = hate
@@ -120,12 +124,16 @@ public struct ModerationsResult: Codable, Equatable, Sendable {
             public let violence: Double
             /// Violent content that depicts death, violence, or serious physical injury in extreme graphic detail.
             public let violenceGraphic: Double
-            /// Content that includes instructions or advice that facilitate the planning or execution of wrongdoing, or that gives advice or instruction on how to commit illicit acts. Only returned by newer moderation models.
+            /// The score for the category 'illicit'.
+            ///
+            /// `nil` when the moderation model doesn't return this category (older models) or returns `null`.
             public let illicit: Double?
-            /// Illicit content that also includes references to violence or procuring a weapon. Only returned by newer moderation models.
+            /// The score for the category 'illicit/violent'.
+            ///
+            /// `nil` when the moderation model doesn't return this category (older models) or returns `null`.
             public let illicitViolent: Double?
 
-            public init(harassment: Double, harassmentThreatening: Double, hate: Double, hateThreatening: Double, selfHarm: Double, selfHarmIntent: Double, selfHarmInstructions: Double, sexual: Double, sexualMinors: Double, violence: Double, violenceGraphic: Double, illicit: Double? = nil, illicitViolent: Double? = nil) {
+            init(harassment: Double, harassmentThreatening: Double, hate: Double, hateThreatening: Double, selfHarm: Double, selfHarmIntent: Double, selfHarmInstructions: Double, sexual: Double, sexualMinors: Double, violence: Double, violenceGraphic: Double, illicit: Double? = nil, illicitViolent: Double? = nil) {
                 self.harassment = harassment
                 self.harassmentThreatening = harassmentThreatening
                 self.hate = hate

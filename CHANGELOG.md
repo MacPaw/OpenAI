@@ -6,6 +6,12 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ## [Unreleased]
 
+### Added
+- `illicit` and `illicit/violent` on `ModerationsResult.Moderation.Categories` and `CategoryScores` (optional: `nil` for older moderation models or `null`), with the matching `CodingKeys` cases. `category_applied_input_types` is not modeled yet ([#489](https://github.com/MacPaw/OpenAI/issues/489)).
+
+### Fixed
+- Iterating `ModerationsResult.Moderation.Categories` or `CategoryScores` crashed at runtime (`CategoryScores` iterated as `(String, Bool)` over `Double` values, through `Mirror` and a forced cast). Both now yield their real values explicitly; `CategoryScores.makeIterator()` is now `IndexingIterator<[(String, Double)]>` (accepted API break, see the API breakage allowlist) ([#505](https://github.com/MacPaw/OpenAI/pull/505)).
+
 ## [0.6.1] - 2026-11-15
 
 ### Added
