@@ -15,16 +15,20 @@ final class MockMiddleware: OpenAIMiddleware, @unchecked Sendable {
     var interceptRequestReturnValue: URLRequest?
     var interceptStreamingDataReturnValue: Data?
     var interceptResponseReturnValue: (response: URLResponse?, data: Data?)?
+    var interceptedResponses: [(response: URLResponse?, request: URLRequest, data: Data?)] = []
+    var interceptStreamingDataCallCount = 0
     
     func intercept(request: URLRequest) -> URLRequest {
         interceptRequestReturnValue ?? request
     }
     
     func interceptStreamingData(request: URLRequest?, _ data: Data) -> Data {
-        interceptStreamingDataReturnValue ?? data
+        interceptStreamingDataCallCount += 1
+        return interceptStreamingDataReturnValue ?? data
     }
     
     func intercept(response: URLResponse?, request: URLRequest, data: Data?) -> (response: URLResponse?, data: Data?) {
-        interceptResponseReturnValue ?? (response, data)
+        interceptedResponses.append((response, request, data))
+        return interceptResponseReturnValue ?? (response, data)
     }
 }
