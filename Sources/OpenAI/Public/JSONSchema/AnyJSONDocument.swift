@@ -11,8 +11,8 @@ public struct AnyJSONDocument: JSONDocument {
     /// A wrapped JSON `null` value.
     public static let null = AnyJSONDocument(JSONNullValue())
 
-    /// The wrapped JSON value.
-    public let value: any JSONDocument
+    // The value is internal instead of private for testability
+    let value: any JSONDocument
 
     public init(_ value: any JSONDocument) {
         self.value = (value as? AnyJSONDocument)?.value ?? value
@@ -30,9 +30,9 @@ public struct AnyJSONDocument: JSONDocument {
 
         if container.decodeNil() {
             self.value = JSONNullValue()
-        } else if let value = try container.decodeJSONCandidate(Int.self, allowNumericOverflow: true) {
+        } else if let value = try container.decodeJSONCandidate(Int.self, tryingNextTypeOnAnyError: true) {
             self.value = value
-        } else if let value = try container.decodeJSONCandidate(Decimal.self, allowNumericOverflow: true) {
+        } else if let value = try container.decodeJSONCandidate(Decimal.self, tryingNextTypeOnAnyError: true) {
             self.value = value
         } else if let value = try container.decodeJSONCandidate(Double.self) {
             self.value = value
@@ -40,7 +40,7 @@ public struct AnyJSONDocument: JSONDocument {
             self.value = value
         } else if let value = try container.decodeJSONCandidate(String.self) {
             self.value = value
-        } else if let value = try container.decodeJSONCandidate([AnyJSONDocument].self) {
+        } else if let value = try container.decodeJSONArrayCandidate() {
             self.value = value
         } else {
             self.value = try container.decode(JSONObject.self)
@@ -106,16 +106,34 @@ extension AnyJSONDocument: Hashable {
 }
 
 private extension SingleValueDecodingContainer {
-    func decodeJSONCandidate<T: Decodable>(_ type: T.Type, allowNumericOverflow: Bool = false) throws -> T? {
+    /// Decodes a scalar value as `type`, or returns `nil` if the value is of another JSON type.
+    ///
+    /// - Parameter tryingNextTypeOnAnyError: Return `nil` for any error, not only a type mismatch.
+    ///   Used for `Int` and `Decimal`, so that a number they can't represent, such as `1.5` or `1e30`
+    ///   for `Int`, is decoded as a wider numeric type instead.
+    func decodeJSONCandidate<T: Decodable>(_ type: T.Type, tryingNextTypeOnAnyError: Bool = false) throws -> T? {
         do {
             return try decode(type)
         } catch DecodingError.typeMismatch {
-            // JSON values have no type tag; try the next supported representation.
             return nil
-        } catch where allowNumericOverflow {
-            // Foundation can throw a private JSONError for an unrepresentable number,
-            // rather than DecodingError. Retry a wider numeric representation; Double
-            // decoding below still propagates an error if no representation succeeds.
+        } catch where tryingNextTypeOnAnyError {
+            // Foundation's JSONDecoder doesn't report such a number as a DecodingError inside a
+            // custom init(from:): it throws its internal JSONError.numberIsNotRepresentableInSwift,
+            // which can't be matched by type. A scalar has no nested values, so the error is about
+            // this value. Double is decoded without this option and reports a number that no
+            // supported type can represent.
+            return nil
+        }
+    }
+
+    /// Decodes the value as an array, or returns `nil` if the value isn't an array.
+    ///
+    /// Only a type mismatch of this value itself means it isn't an array. An error from one of
+    /// its elements propagates instead of the value being decoded as an object.
+    func decodeJSONArrayCandidate() throws -> [AnyJSONDocument]? {
+        do {
+            return try decode([AnyJSONDocument].self)
+        } catch DecodingError.typeMismatch(_, let context) where context.codingPath.count == codingPath.count {
             return nil
         }
     }
