@@ -52,7 +52,15 @@ public struct APIError: Error, Decodable, Equatable {
     
     self.type = try container.decode(String.self, forKey: .type)
     self.param = try container.decodeIfPresent(String.self, forKey: .param)
-    self.code = try container.decodeIfPresent(String.self, forKey: .code)
+    //
+    // code is a String in OpenAI's API, but some OpenAI-compatible servers
+    // (such as llama.cpp) send the HTTP status as a number.
+    //
+    do {
+      self.code = try container.decodeIfPresent(String.self, forKey: .code)
+    } catch DecodingError.typeMismatch {
+      self.code = try container.decodeIfPresent(Int.self, forKey: .code).map(String.init)
+    }
   }
 }
 
