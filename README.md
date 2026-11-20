@@ -1064,7 +1064,19 @@ The Model Context Protocol (MCP) enables AI models to securely connect to extern
 You can use the [MCP Swift library](https://github.com/modelcontextprotocol/swift-sdk) to connect to MCP servers and discover available tools, then integrate those tools with OpenAI's Responses API.
 
 MCP tools are a Responses API feature and are not supported by Chat Completions (`ChatQuery`), whose `tools` parameter accepts function tools only.
+### Prerequisites for MCP Integration
 
+Before using MCP tools with this SDK, make sure that:
+
+1. **You have an API key:** Configure an OpenAI API key with access to the Responses API.
+
+2. **You have access to an MCP server:** The server must expose an endpoint that supports remote MCP connections.
+
+3. **Authentication is configured:** If the MCP server requires authentication, provide the appropriate credentials through the `headers` property. Do not hardcode real tokens or commit them to version control.
+
+4. **You understand tool permissions:** Use `allowedTools` to restrict which tools the model can access. Configure `requireApproval` according to whether tool calls should require approval.
+
+MCP tools are supported through the Responses API, not through Chat Completions (`ChatQuery`).
 #### MCP Tool Integration
 
 **Request**
