@@ -283,18 +283,61 @@ class OpenAITests: XCTestCase {
         XCTAssertEqual(result, moderationsResult)
     }
     
-    func testModerationsIterable() {
-        let categories = ModerationsResult.Moderation.Categories(harassment: false, harassmentThreatening: false, hate: false, hateThreatening: false, selfHarm: false, selfHarmIntent: false, selfHarmInstructions: false, sexual: false, sexualMinors: false, violence: false, violenceGraphic: false)
-        Mirror(reflecting: categories).children.enumerated().forEach { index, element in
-            let label = ModerationsResult.Moderation.Categories.CodingKeys.allCases[index].stringValue.replacingOccurrences(of: "[/-]", with: "", options: .regularExpression)
-            XCTAssertEqual(label, element.label!.lowercased())
-        }
+    func testModerationsIteratorYieldsValues() {
+        let categories = ModerationsResult.Moderation.Categories(harassment: true, harassmentThreatening: false, hate: false, hateThreatening: false, selfHarm: false, selfHarmIntent: false, selfHarmInstructions: false, sexual: false, sexualMinors: false, violence: false, violenceGraphic: false, illicit: true, illicitViolent: false)
+        let flags = Dictionary(uniqueKeysWithValues: categories.map { ($0.0, $0.1) })
+        XCTAssertEqual(flags.count, 13)
+        XCTAssertEqual(flags["harassment"], true)
+        XCTAssertEqual(flags["illicit"], true)
+        XCTAssertEqual(flags["illicit/violent"], false)
 
-        let categoryScores = ModerationsResult.Moderation.CategoryScores(harassment: 0.1, harassmentThreatening: 0.1, hate: 0.1, hateThreatening: 0.1, selfHarm: 0.1, selfHarmIntent: 0.1, selfHarmInstructions: 0.1, sexual: 0.1, sexualMinors: 0.1, violence: 0.1, violenceGraphic: 0.1)
-        Mirror(reflecting: categoryScores).children.enumerated().forEach { index, element in
-            let label = ModerationsResult.Moderation.CategoryScores.CodingKeys.allCases[index].stringValue.replacingOccurrences(of: "[/-]", with: "", options: .regularExpression)
-            XCTAssertEqual(label, element.label!.lowercased())
-        }
+        let categoryScores = ModerationsResult.Moderation.CategoryScores(harassment: 0.9, harassmentThreatening: 0.1, hate: 0.1, hateThreatening: 0.1, selfHarm: 0.1, selfHarmIntent: 0.1, selfHarmInstructions: 0.1, sexual: 0.1, sexualMinors: 0.1, violence: 0.1, violenceGraphic: 0.1, illicit: 0.7, illicitViolent: 0.2)
+        let scores = Dictionary(uniqueKeysWithValues: categoryScores.map { ($0.0, $0.1) })
+        XCTAssertEqual(scores.count, 13)
+        XCTAssertEqual(scores["harassment"], 0.9)
+        XCTAssertEqual(scores["illicit"], 0.7)
+        XCTAssertEqual(scores["illicit/violent"], 0.2)
+    }
+
+    func testModerationsDecodesIllicitCategories() throws {
+        let json = """
+        {"id":"modr-1","model":"omni-moderation-latest","results":[{"flagged":true,
+        "categories":{"harassment":false,"harassment/threatening":false,"hate":false,"hate/threatening":false,"self-harm":false,"self-harm/intent":false,"self-harm/instructions":false,"sexual":false,"sexual/minors":false,"violence":false,"violence/graphic":false,"illicit":true,"illicit/violent":false},
+        "category_scores":{"harassment":0.1,"harassment/threatening":0.1,"hate":0.1,"hate/threatening":0.1,"self-harm":0.1,"self-harm/intent":0.1,"self-harm/instructions":0.1,"sexual":0.1,"sexual/minors":0.1,"violence":0.1,"violence/graphic":0.1,"illicit":0.8,"illicit/violent":0.3}}]}
+        """
+        let result = try JSONDecoder().decode(ModerationsResult.self, from: Data(json.utf8))
+        XCTAssertEqual(result.results[0].categories.illicit, true)
+        XCTAssertEqual(result.results[0].categories.illicitViolent, false)
+        XCTAssertEqual(result.results[0].categoryScores.illicit, 0.8)
+        XCTAssertEqual(result.results[0].categoryScores.illicitViolent, 0.3)
+    }
+
+    func testModerationsIteratorSkipsMissingIllicitCategories() {
+        let categories = ModerationsResult.Moderation.Categories(harassment: false, harassmentThreatening: false, hate: false, hateThreatening: false, selfHarm: false, selfHarmIntent: false, selfHarmInstructions: false, sexual: false, sexualMinors: false, violence: false, violenceGraphic: false, illicit: nil, illicitViolent: nil)
+        let flagNames = categories.map { $0.0 }
+        XCTAssertEqual(flagNames.count, 11)
+        XCTAssertFalse(flagNames.contains("illicit"))
+        XCTAssertFalse(flagNames.contains("illicit/violent"))
+
+        let categoryScores = ModerationsResult.Moderation.CategoryScores(harassment: 0.1, harassmentThreatening: 0.1, hate: 0.1, hateThreatening: 0.1, selfHarm: 0.1, selfHarmIntent: 0.1, selfHarmInstructions: 0.1, sexual: 0.1, sexualMinors: 0.1, violence: 0.1, violenceGraphic: 0.1, illicit: nil, illicitViolent: nil)
+        let scoreNames = categoryScores.map { $0.0 }
+        XCTAssertEqual(scoreNames.count, 11)
+        XCTAssertFalse(scoreNames.contains("illicit"))
+        XCTAssertFalse(scoreNames.contains("illicit/violent"))
+    }
+
+    func testModerationsDecodesNullIllicitCategories() throws {
+        let json = """
+        {"id":"modr-1","model":"omni-moderation-latest","results":[{"flagged":false,
+        "categories":{"harassment":false,"harassment/threatening":false,"hate":false,"hate/threatening":false,"self-harm":false,"self-harm/intent":false,"self-harm/instructions":false,"sexual":false,"sexual/minors":false,"violence":false,"violence/graphic":false,"illicit":null,"illicit/violent":null},
+        "category_scores":{"harassment":0.1,"harassment/threatening":0.1,"hate":0.1,"hate/threatening":0.1,"self-harm":0.1,"self-harm/intent":0.1,"self-harm/instructions":0.1,"sexual":0.1,"sexual/minors":0.1,"violence":0.1,"violence/graphic":0.1,"illicit":null,"illicit/violent":null}}]}
+        """
+        let result = try JSONDecoder().decode(ModerationsResult.self, from: Data(json.utf8))
+        XCTAssertNil(result.results[0].categories.illicit)
+        XCTAssertNil(result.results[0].categories.illicitViolent)
+        XCTAssertNil(result.results[0].categoryScores.illicit)
+        XCTAssertNil(result.results[0].categoryScores.illicitViolent)
+        XCTAssertEqual(result.results[0].categories.map { $0.0 }.count, 11)
     }
 
     func testModerationsError() async throws {
