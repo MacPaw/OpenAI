@@ -1,0 +1,7 @@
+API breakage: enumelement ModerationsResult.Moderation.Categories.CodingKeys.illicit has been added as a new enum case
+API breakage: enumelement ModerationsResult.Moderation.Categories.CodingKeys.illicitViolent has been added as a new enum case
+API breakage: enumelement ModerationsResult.Moderation.CategoryScores.CodingKeys.illicit has been added as a new enum case
+API breakage: enumelement ModerationsResult.Moderation.CategoryScores.CodingKeys.illicitViolent has been added as a new enum case
+API breakage: func ModerationsResult.Moderation.CategoryScores.makeIterator() has return type change from Swift.IndexingIterator<[(Swift.String, Swift.Bool)]> to Swift.IndexingIterator<[(Swift.String, Swift.Double)]>
+API breakage: typealias ModerationsResult.Moderation.CategoryScores.Element has underlying type change from Swift.IndexingIterator<[(Swift.String, Swift.Bool)]>.Element to Swift.IndexingIterator<[(Swift.String, Swift.Double)]>.Element
+API breakage: typealias ModerationsResult.Moderation.CategoryScores.Iterator has underlying type change from Swift.IndexingIterator<[(Swift.String, Swift.Bool)]> to Swift.IndexingIterator<[(Swift.String, Swift.Double)]>
