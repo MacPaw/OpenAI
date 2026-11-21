@@ -11,6 +11,7 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ### Fixed
 - Iterating `ModerationsResult.Moderation.Categories` or `CategoryScores` crashed at runtime (`CategoryScores` iterated as `(String, Bool)` over `Double` values, through `Mirror` and a forced cast). Both now yield their real values explicitly; `CategoryScores.makeIterator()` is now `IndexingIterator<[(String, Double)]>` (accepted API break, see the API breakage allowlist) ([#505](https://github.com/MacPaw/OpenAI/pull/505)).
+- `APIError` now decodes a numeric `code`, as sent by `llama.cpp` server, as its string form instead of failing to decode the error.
 
 ## [0.6.1] - 2026-11-15
 
