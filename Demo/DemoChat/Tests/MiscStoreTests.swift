@@ -39,6 +39,8 @@ struct MiscStoreTests {
             #expect(store.moderationConversationError == nil)
             #expect(store.moderationConversation.messages.last?.role == .assistant)
             #expect(store.moderationConversation.messages.last?.content.contains("🟢 harassment") == true)
+            #expect(store.moderationConversation.messages.last?.content.contains("🟢 illicit") == true)
+            #expect(store.moderationConversation.messages.last?.content.contains("🟢 illicit/violent") == true)
         } else {
             #expect(store.moderationConversationError?.localizedDescription == "Moderation rejected")
             #expect(store.moderationConversation.messages.count == 1)
