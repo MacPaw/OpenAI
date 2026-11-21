@@ -6,7 +6,12 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 
 ## [Unreleased]
 
+### Added
+- `AnyJSONDocument.null`, a public value for an explicit JSON `null`.
+
 ### Fixed
+- `AnyJSONDocument` now encodes decoded JSON `null` as `null` and `Decimal` values as JSON numbers, preserving decoded tool schemas when they are sent back to the API.
+- JSON values compare and hash correctly for doubles, nested objects and arrays; decoding supports numbers outside the range of `Decimal`.
 - `APIError` now decodes a numeric `code`, as sent by `llama.cpp` server, as its string form instead of failing to decode the error.
 
 ## [0.6.1] - 2026-11-15
