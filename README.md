@@ -23,7 +23,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
     - [Chat Completions](#chat-completions)
 - [Function calling](#function-calling)
 - [Tools](#tools)
-    - [MCP (Model Context Protocol)](#mcp-model-context-protocol)
+    - [Remote MCP (Model Context Protocol)](#remote-mcp-model-context-protocol)
         - [MCP Tool Integration](#mcp-tool-integration)
 - [Images](#images)
     - [Create Image](#create-image)
