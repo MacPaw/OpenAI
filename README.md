@@ -47,7 +47,6 @@ This repository contains Swift community-maintained implementation over [OpenAI]
         - [Create and Run Thread](#create-and-run-thread)
         - [Get Threads Messages](#get-threads-messages)
         - [Add Message to Thread](#add-message-to-thread)
-        - 
     - [Runs](#runs)
         - [Create Run](#create-run)
         - [Retrieve Run](#retrieve-run)
