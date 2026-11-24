@@ -1,0 +1,1 @@
+{"id":"chatcmpl-stream-1","object":"chat.completion.chunk","created":1738577084,"model":"gpt-4o","choices":[{"index":0,"delta":{"role":"assistant","content":"Hi"},"logprobs":null,"finish_reason":null}]}
