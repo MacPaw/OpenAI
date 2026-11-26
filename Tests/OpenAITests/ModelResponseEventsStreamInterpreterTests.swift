@@ -480,4 +480,122 @@ final class ModelResponseEventsStreamInterpreterTests: XCTestCase {
         XCTAssertEqual(outcome.exitCode, 0)
         XCTAssertEqual(event.sequenceNumber, 5)
     }
+
+    func testParsesCodeInterpreterCallCodeDelta() async throws {
+        let expectation = XCTestExpectation(description: "Code interpreter call code delta event received")
+        var receivedEvent: ResponseStreamEvent?
+
+        interpreter.setCallbackClosures { event in
+            Task {
+                await MainActor.run {
+                    receivedEvent = event
+                    expectation.fulfill()
+                }
+            }
+        } onError: { error in
+            XCTFail("Unexpected error received: \(error)")
+            expectation.fulfill()
+        }
+
+        let type = "response.code_interpreter_call_code.delta"
+        let json = #"{"type":"\#(type)","output_index":0,"item_id":"ci_1","delta":"print(1)","sequence_number":1}"#
+        interpreter.processData(Data("event: \(type)\ndata: \(json)\n\n".utf8))
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        guard case .codeInterpreterCall(.code(.delta(let event))) = receivedEvent else {
+            XCTFail("Expected .codeInterpreterCall(.code(.delta)), got \(String(describing: receivedEvent))")
+            return
+        }
+        XCTAssertEqual(event.itemId, "ci_1")
+        XCTAssertEqual(event.delta, "print(1)")
+    }
+
+    func testParsesCodeInterpreterCallCodeDone() async throws {
+        let expectation = XCTestExpectation(description: "Code interpreter call code done event received")
+        var receivedEvent: ResponseStreamEvent?
+
+        interpreter.setCallbackClosures { event in
+            Task {
+                await MainActor.run {
+                    receivedEvent = event
+                    expectation.fulfill()
+                }
+            }
+        } onError: { error in
+            XCTFail("Unexpected error received: \(error)")
+            expectation.fulfill()
+        }
+
+        let type = "response.code_interpreter_call_code.done"
+        let json = #"{"type":"\#(type)","output_index":0,"item_id":"ci_1","code":"print(1)","sequence_number":1}"#
+        interpreter.processData(Data("event: \(type)\ndata: \(json)\n\n".utf8))
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        guard case .codeInterpreterCall(.code(.done(let event))) = receivedEvent else {
+            XCTFail("Expected .codeInterpreterCall(.code(.done)), got \(String(describing: receivedEvent))")
+            return
+        }
+        XCTAssertEqual(event.itemId, "ci_1")
+        XCTAssertEqual(event.code, "print(1)")
+    }
+
+    func testParsesAudioTranscriptDelta() async throws {
+        let expectation = XCTestExpectation(description: "Audio transcript delta event received")
+        var receivedEvent: ResponseStreamEvent?
+
+        interpreter.setCallbackClosures { event in
+            Task {
+                await MainActor.run {
+                    receivedEvent = event
+                    expectation.fulfill()
+                }
+            }
+        } onError: { error in
+            XCTFail("Unexpected error received: \(error)")
+            expectation.fulfill()
+        }
+
+        let type = "response.audio.transcript.delta"
+        let json = #"{"type":"\#(type)","delta":"Hi","sequence_number":1}"#
+        interpreter.processData(Data("event: \(type)\ndata: \(json)\n\n".utf8))
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        guard case .audioTranscript(.delta(let event)) = receivedEvent else {
+            XCTFail("Expected .audioTranscript(.delta), got \(String(describing: receivedEvent))")
+            return
+        }
+        XCTAssertEqual(event.sequenceNumber, 1)
+    }
+
+    func testParsesAudioTranscriptDone() async throws {
+        let expectation = XCTestExpectation(description: "Audio transcript done event received")
+        var receivedEvent: ResponseStreamEvent?
+
+        interpreter.setCallbackClosures { event in
+            Task {
+                await MainActor.run {
+                    receivedEvent = event
+                    expectation.fulfill()
+                }
+            }
+        } onError: { error in
+            XCTFail("Unexpected error received: \(error)")
+            expectation.fulfill()
+        }
+
+        let type = "response.audio.transcript.done"
+        let json = #"{"type":"\#(type)","sequence_number":1}"#
+        interpreter.processData(Data("event: \(type)\ndata: \(json)\n\n".utf8))
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        guard case .audioTranscript(.done(let event)) = receivedEvent else {
+            XCTFail("Expected .audioTranscript(.done), got \(String(describing: receivedEvent))")
+            return
+        }
+        XCTAssertEqual(event.sequenceNumber, 1)
+    }
 }
