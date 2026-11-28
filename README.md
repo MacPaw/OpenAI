@@ -1065,6 +1065,8 @@ You can use the [MCP Swift library](https://github.com/modelcontextprotocol/swif
 
 MCP tools are a Responses API feature and are not supported by Chat Completions (`ChatQuery`), whose `tools` parameter accepts function tools only.
 
+OpenAI's servers connect directly to the remote MCP server. The server must therefore be reachable from OpenAI's infrastructure via Streamable HTTP or SSE. Local stdio or localhost-only servers are not directly supported.
+
 #### MCP Tool Integration
 
 **Request**
