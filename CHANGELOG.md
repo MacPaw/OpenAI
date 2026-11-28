@@ -12,6 +12,7 @@ Compatibility promise: the public API is additive-only. Anything `public` is dep
 ### Fixed
 - Iterating `ModerationsResult.Moderation.Categories` or `CategoryScores` crashed at runtime (`CategoryScores` iterated as `(String, Bool)` over `Double` values, through `Mirror` and a forced cast). Both now yield their real values explicitly; `CategoryScores.makeIterator()` is now `IndexingIterator<[(String, Double)]>` (accepted API break, see the API breakage allowlist) ([#505](https://github.com/MacPaw/OpenAI/pull/505)).
 - `APIError` now decodes a numeric `code`, as sent by `llama.cpp` server, as its string form instead of failing to decode the error.
+- `EmbeddingsResult` now honors `ParsingOptions`: under `.fillRequiredFieldIfKeyNotFound` / `.fillRequiredFieldIfValueNotFound` (such as `ParsingOptions.relaxed`) a missing or `null` `usage` decodes as zero token counts, missing counts inside `usage` as `0`, a missing `object` as `"list"` and a missing `model` as `""`, instead of failing the whole embeddings call on OpenAI-compatible providers that omit them. Decoding without parsing options is unchanged.
 
 ## [0.6.1] - 2026-11-15
 
