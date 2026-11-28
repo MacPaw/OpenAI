@@ -28,10 +28,38 @@ public struct EmbeddingsResult: Codable, Equatable, Sendable {
             case totalTokens = "total_tokens"
         }
     }
+
+    enum CodingKeys: String, CodingKey {
+        case data
+        case model
+        case usage
+        case object
+    }
     
     public let data: [Embedding]
     public let model: String
     public let usage: Usage
     /// The object type, which is always "list".
     public let object: String
+}
+
+// The decoding initializers live in extensions so that the memberwise initializers are kept.
+extension EmbeddingsResult {
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let parsingOptions = decoder.userInfo[.parsingOptions] as? ParsingOptions ?? []
+        self.data = try container.decode([Embedding].self, forKey: .data)
+        self.model = try container.decodeString(forKey: .model, parsingOptions: parsingOptions)
+        self.usage = try container.decode(Usage.self, forKey: .usage, parsingOptions: parsingOptions, defaultValue: .init(promptTokens: 0, totalTokens: 0))
+        self.object = try container.decode(String.self, forKey: .object, parsingOptions: parsingOptions, defaultValue: "list")
+    }
+}
+
+extension EmbeddingsResult.Usage {
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let parsingOptions = decoder.userInfo[.parsingOptions] as? ParsingOptions ?? []
+        self.promptTokens = try container.decodeInt(forKey: .promptTokens, parsingOptions: parsingOptions)
+        self.totalTokens = try container.decodeInt(forKey: .totalTokens, parsingOptions: parsingOptions)
+    }
 }
